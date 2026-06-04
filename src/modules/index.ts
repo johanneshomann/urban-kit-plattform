@@ -1,0 +1,10 @@
+// Import all module plugins — each self-registers with moduleRegistry on import
+import './news/plugin'
+import './calendar/plugin'
+import './polls/plugin'
+import './files/plugin'
+import './tasks/plugin'
+import './forum/plugin'
+import './chat/plugin'
+import './board/plugin'
+import './urban-agent/plugin'

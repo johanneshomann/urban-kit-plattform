@@ -1,0 +1,8 @@
+.git
+.next
+node_modules
+.env
+.env.local
+*.md
+.DS_Store
+src/app/(payload)/admin/importMap.js
