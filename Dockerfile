@@ -13,7 +13,7 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN rm -f src/app/\(payload\)/admin/importMap.js && npm run generate:importmap && npm run build
+RUN rm -f src/app/\(payload\)/admin/importMap.js && npm run generate:types && npm run generate:importmap && npm run build
 
 # Runner — copies full node_modules for reliable Payload module resolution
 FROM base AS runner
