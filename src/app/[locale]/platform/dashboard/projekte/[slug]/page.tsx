@@ -46,7 +46,7 @@ export default async function ProjectDashboardPage({
           {(modulesResult.docs as unknown as { moduleType: string }[]).map((m) => (
             <a
               key={m.moduleType}
-              href={`/${locale}/platform/citizen/projekte/${slug}/m/${m.moduleType}`}
+              href={`/${locale}/platform/dashboard/projekte/${slug}/m/${m.moduleType}`}
               className="p-4 border rounded-lg hover:bg-gray-50 transition"
             >
               <p className="font-medium capitalize">{m.moduleType}</p>
