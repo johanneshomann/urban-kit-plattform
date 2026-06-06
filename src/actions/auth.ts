@@ -40,7 +40,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   }
 
   const locale = await getLocale()
-  redirect(`/${locale}/platform/dashboard`)
+  redirect(`/${locale}/dashboard`)
 }
 
 export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
