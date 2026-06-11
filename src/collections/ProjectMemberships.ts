@@ -18,10 +18,24 @@ export const ProjectMemberships: CollectionConfig = {
       required: true,
       options: [
         { label: 'Projektmanager', value: 'PM' },
-        { label: 'Content Manager', value: 'CM' },
         { label: 'Bürger:in', value: 'Citizen' },
         { label: 'Follower', value: 'Follower' },
       ],
+    },
+    {
+      name: 'status',
+      type: 'select',
+      defaultValue: 'active',
+      options: [
+        { label: 'Angefragt', value: 'requested' },
+        { label: 'Aktiv', value: 'active' },
+        { label: 'Abgelehnt', value: 'rejected' },
+      ],
+    },
+    {
+      name: 'moduleOrder',
+      type: 'json',
+      admin: { hidden: true },
     },
   ],
 }

@@ -28,5 +28,17 @@
     "forgotPassword": "Passwort vergessen?",
     "noAccount": "Noch kein Konto?",
     "hasAccount": "Bereits ein Konto?"
+  },
+  "accessibility": {
+    "open": "Barrierefreiheit-Einstellungen öffnen",
+    "close": "Schließen",
+    "title": "Barrierefreiheit",
+    "fontSize": "Schriftgröße",
+    "fontSizeIncrease": "Schrift vergrößern",
+    "fontSizeDecrease": "Schrift verkleinern",
+    "reduceMotion": "Animationen reduzieren",
+    "highContrast": "Hoher Kontrast",
+    "underlineLinks": "Links unterstreichen",
+    "reset": "Zurücksetzen"
   }
 }

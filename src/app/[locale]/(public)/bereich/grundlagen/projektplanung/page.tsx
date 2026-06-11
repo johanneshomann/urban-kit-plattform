@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { getCitySettings } from '@/lib/instance'
 import { ChevronLeft, ChevronRight, Route } from 'lucide-react'
 import { ProjektplanungAccordion, type ProjektStep } from './ProjektplanungAccordion'
+import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const STEPS: ProjektStep[] = [
   {
-    phase: 'Warum & Wofür?',
+    phase: PROJEKTPHASEN[0].label,
     title: 'Vor dem Anfang',
     ziel: (
       <p>
@@ -54,7 +55,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Einarbeitung',
+    phase: PROJEKTPHASEN[1].label,
     title: 'Kontext verstehen',
     ziel: <p>Den Ist-Zustand, die Stakeholder und das Themenfeld kennenlernen.</p>,
     intro: <p>Bevor geplant wird, muss verstanden werden — wer ist betroffen, was gibt es bereits, was wird erwartet?</p>,
@@ -70,7 +71,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Konzept',
+    phase: PROJEKTPHASEN[2].label,
     title: 'Beteiligungskonzept entwickeln',
     ziel: <p>Ein schlüssiges Konzept erarbeiten, das Ziele, Zielgruppen, Formate und Zeitplan festlegt.</p>,
     intro: <p>Das Konzept ist der Fahrplan. Es beantwortet: Wen beteiligen wir, womit, wann und wie?</p>,
@@ -87,7 +88,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Projektplanung',
+    phase: PROJEKTPHASEN[3].label,
     title: 'Operativ planen',
     ziel: <p>Die operative Ebene klären: Wer macht was bis wann, mit welchen Ressourcen?</p>,
     intro: <p>Jetzt wird aus dem Konzept ein konkreter Aktionsplan mit Verantwortlichkeiten und Budgets.</p>,
@@ -103,7 +104,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Ausführung',
+    phase: PROJEKTPHASEN[4].label,
     title: 'Beteiligung durchführen',
     ziel: <p>Die geplanten Beteiligungsformate umsetzen und dokumentieren.</p>,
     intro: <p>Jetzt passiert das eigentliche Beteiligungsgeschehen — Veranstaltungen, Workshops, Umfragen.</p>,
@@ -119,7 +120,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Überwachung',
+    phase: PROJEKTPHASEN[5].label,
     title: 'Prozess begleiten & steuern',
     ziel: <p>Den laufenden Prozess reflektieren und bei Bedarf nachsteuern.</p>,
     intro: <p>Beteiligung ist kein linearer Prozess. Regelmäßige Reflexion hilft, Kurs zu halten.</p>,
@@ -135,7 +136,7 @@ const STEPS: ProjektStep[] = [
     ],
   },
   {
-    phase: 'Abschluss',
+    phase: PROJEKTPHASEN[6].label,
     title: 'Abschließen & übergeben',
     ziel: <p>Die Beteiligung würdig abschließen, Ergebnisse übergeben und Gelerntes festhalten.</p>,
     intro: <p>Der Abschluss ist genauso wichtig wie der Start. Teilnehmende wollen wissen, was aus ihren Beiträgen wurde.</p>,
@@ -163,7 +164,7 @@ export default async function GrundlagenProjektplanungPage({ params }: { params:
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
       <section

@@ -111,7 +111,7 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
     return projects.filter((p) => {
       if (search) {
         const q = search.toLowerCase()
-        if (!p.title.toLowerCase().includes(q) && !(p.description ?? '').toLowerCase().includes(q)) return false
+        if (!p.title.toLowerCase().includes(q) && !(p.shortDescription ?? '').toLowerCase().includes(q)) return false
       }
       if (status && p.status !== status) return false
       if (thema && !(p.thema ?? []).includes(thema)) return false
@@ -232,8 +232,8 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
                       <h3 className="text-display font-black tracking-tight mb-3 group-hover:text-[var(--projekte-dark)] transition-colors" style={{ color: 'var(--plattform-ink-accent)' }}>
                         {p.title}
                       </h3>
-                      {p.description && (
-                        <p className="text-text line-clamp-3 flex-1" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>{p.description}</p>
+                      {p.shortDescription && (
+                        <p className="text-text line-clamp-3 flex-1" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>{p.shortDescription}</p>
                       )}
                       {(p.thema ?? []).length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-4">

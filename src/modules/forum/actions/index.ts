@@ -12,7 +12,7 @@ export async function createThread(user: User, data: {
   content: unknown
   category?: string
   projectId: string
-  moduleId: string
+
   visibility?: string
 }) {
   const payload = await getPayload({ config })
@@ -25,7 +25,7 @@ export async function createThread(user: User, data: {
       category: data.category,
       visibility: (data.visibility ?? 'INTERNAL') as 'PUBLIC' | 'INTERNAL' | 'TEAM',
       author: user.id,
-      projectModule: { project: data.projectId, module: data.moduleId },
+      project: data.projectId,
     },
     ...payloadAs(user),
   })

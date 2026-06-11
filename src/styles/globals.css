@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@source inline("p-{8,10,12,14} px-{12,14} py-{8,10,12,14} h-{16,18,20} gap-{8,10,14} mt-{8,10,12,14} mb-{8,10,12,14} space-y-{8,10,12,14}");
+@plugin "@tailwindcss/typography";
+@source inline("p-{8,10,12,14} px-{12,14} py-{8,10,12,14} h-{16,18,20,48,52,56,60,64,72} gap-{8,10,14} mt-{8,10,12,14} mb-{8,10,12,14} space-y-{8,10,12,14}");
 
 /*
   Tailwind v4 — imported only in [locale]/layout.tsx.
@@ -98,6 +99,79 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-panel-exit {
   animation: nav-slide-up 0.28s cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+
+
+@keyframes dropdown-open {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+@keyframes dropdown-close {
+  from { opacity: 1; transform: scale(1)    translateY(0); }
+  to   { opacity: 0; transform: scale(0.95) translateY(-4px); }
+}
+
+.dropdown-enter {
+  animation: dropdown-open  0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top right;
+}
+
+.dropdown-exit {
+  animation: dropdown-close 0.14s cubic-bezier(0.4, 0, 0.6, 1) both;
+  transform-origin: top right;
+}
+
+
+/* ── Accessibility preferences (toggled by AccessibilityProvider) ───────── */
+
+html.a11y-reduce-motion { scroll-behavior: auto !important; }
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.a11y-underline-links a { text-decoration: underline !important; }
+
+/*
+  High-contrast preset. Uses !important because the per-city brand colors are
+  injected as inline styles on <html> (see src/lib/theme.ts → colorsToCssVars),
+  and inline styles otherwise win over stylesheet rules.
+*/
+html.a11y-high-contrast {
+  /* text / dark / accent tokens → black */
+  --plattform-ink:          #000 !important;
+  --plattform-ink-accent:   #000 !important;
+  --plattform:              #000 !important;
+  --plattform-accent:       #000 !important;
+  --plattform-black:        #000 !important;
+  --projekte-dark:          #000 !important;
+  --projekte-accent:        #000 !important;
+  --grundlagen-dark:        #000 !important;
+  --grundlagen-accent:      #000 !important;
+  --zusammenarbeit-dark:    #000 !important;
+  --zusammenarbeit-accent:  #000 !important;
+  --color-foreground:       #000 !important;
+  --color-muted-foreground: #000 !important;
+  --color-border:           #000 !important;
+
+  /* background / light / pastel tokens → white */
+  --plattform-light:             #fff !important;
+  --plattform-white:             #fff !important;
+  --plattform-white-transparent: #fff !important;
+  --projekte:               #fff !important;
+  --projekte-light:         #fff !important;
+  --grundlagen:             #fff !important;
+  --grundlagen-light:       #fff !important;
+  --zusammenarbeit:         #fff !important;
+  --zusammenarbeit-light:   #fff !important;
+  --color-background:       #fff !important;
+  --color-secondary:        #fff !important;
+  --color-muted:            #fff !important;
 }
 
 

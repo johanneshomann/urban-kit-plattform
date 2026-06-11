@@ -21,14 +21,7 @@ export const ChatChannels: CollectionConfig = {
         { label: 'Team', value: 'team' },
       ],
     },
-    {
-      name: 'projectModule',
-      type: 'group',
-      fields: [
-        { name: 'project', type: 'relationship', relationTo: 'projects' },
-        { name: 'module', type: 'relationship', relationTo: 'project-modules' },
-      ],
-    },
+    { name: 'project', type: 'relationship', relationTo: 'projects' },
     { name: 'team', type: 'relationship', relationTo: 'teams' },
   ],
   timestamps: true,

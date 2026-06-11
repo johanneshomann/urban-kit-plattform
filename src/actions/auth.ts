@@ -70,7 +70,7 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   } catch {
     // If auto-login fails, send to login page
     const locale = await getLocale()
-    redirect(`/${locale}/platform/login`)
+    redirect(`/${locale}/login`)
   }
 
   if (token) {
@@ -78,12 +78,51 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   }
 
   const locale = await getLocale()
-  redirect(`/${locale}/platform/dashboard`)
+  redirect(`/${locale}/dashboard`)
+}
+
+export async function updateProfileAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const firstName = formData.get('firstName') as string
+  const lastName = formData.get('lastName') as string
+  const newPassword = formData.get('newPassword') as string
+  const currentPassword = formData.get('currentPassword') as string
+
+  const cookieStore = await cookies()
+  const token = cookieStore.get('payload-token')?.value
+  if (!token) return { error: 'Nicht eingeloggt' }
+
+  const payload = await getPayload({ config })
+
+  const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
+  if (!me.user) return { error: 'Nicht eingeloggt' }
+
+  try {
+    await payload.update({
+      collection: 'users',
+      id: me.user.id,
+      data: { firstName, lastName },
+      overrideAccess: true,
+    })
+  } catch {
+    return { error: 'Speichern fehlgeschlagen.' }
+  }
+
+  if (newPassword) {
+    if (!currentPassword) return { error: 'Bitte aktuelles Passwort eingeben.' }
+    try {
+      await payload.login({ collection: 'users', data: { email: me.user.email, password: currentPassword } })
+      await payload.update({ collection: 'users', id: me.user.id, data: { password: newPassword }, overrideAccess: true })
+    } catch {
+      return { error: 'Aktuelles Passwort falsch.' }
+    }
+  }
+
+  return null
 }
 
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete('payload-token')
   const locale = await getLocale()
-  redirect(`/${locale}/platform/login`)
+  redirect(`/${locale}/login`)
 }

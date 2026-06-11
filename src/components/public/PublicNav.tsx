@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
-import { LogIn, UserPlus, ChevronRight, CircleChevronDown, Menu, X, Home, Folders, Flag, Mail, Info, Archive, Users, BookOpen, Circle, ExternalLink, FolderOpen, Handshake, Route, Scale, Layout } from 'lucide-react'
+import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, CircleChevronDown, Menu, X, Home, Folders, Flag, Mail, Info, Archive, Users, BookOpen, Circle, ExternalLink, FolderOpen, Handshake, Route, Scale, Layout } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BereichSwitcher } from '@/components/public/BereichSwitcher'
 
@@ -11,6 +11,8 @@ interface PublicNavProps {
   locale: string
   cityName: string
   cityLogoUrl?: string | null
+  isLoggedIn?: boolean
+  userName?: string | null
 }
 
 const CLOSE_DURATION = 280
@@ -79,7 +81,7 @@ function useAnimatedOpen(duration: number) {
   return { active, closing, isOpen: active && !closing, open, close }
 }
 
-export function PublicNav({ locale, cityName }: PublicNavProps) {
+export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: PublicNavProps) {
   const l = `/${locale}`
 
   const [activeMenu, setActiveMenu] = useState<MenuKey | null>(null)
@@ -168,25 +170,52 @@ export function PublicNav({ locale, cityName }: PublicNavProps) {
 
         {/* Right side */}
         <div className="flex justify-end items-center gap-4">
-          {/* Desktop: Anmelden */}
-          <Link
-            href={`${l}/platform/login`}
-            className="hidden md:flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
-          >
-            Anmelden
-            <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
-          </Link>
+          {/* Desktop: Anmelden / User */}
+          {isLoggedIn ? (
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                href={`${l}/dashboard`}
+                className="flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+              >
+                <UserCircle className="w-[1.1em] h-[1.1em] shrink-0" />
+                {userName ?? 'Du bist eingeloggt'}
+              </Link>
+              <Link
+                href={`${l}/dashboard`}
+                className="flex items-center text-text transition-colors text-[var(--plattform-ink)] opacity-40 hover:opacity-100 hover:text-[var(--plattform-accent)]"
+              >
+                <LogOut className="w-[1em] h-[1em] shrink-0" />
+              </Link>
+            </div>
+          ) : (
+            <Link
+              href={`${l}/login`}
+              className="hidden md:flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+            >
+              Anmelden <LogIn className="w-[1em] h-[1em] shrink-0" />
+            </Link>
+          )}
 
-          {/* Mobile: burger */}
-          <button
-            onClick={mobile.isOpen ? mobile.close : mobile.open}
-            className="md:hidden flex items-center cursor-pointer transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
-          >
-            <span className="relative w-5 h-5 shrink-0">
-              <Menu className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
-              <X className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
-            </span>
-          </button>
+          {/* Mobile: user icon (when logged in) + burger */}
+          <div className="md:hidden flex items-center gap-2">
+            {isLoggedIn && (
+              <Link
+                href={`${l}/dashboard`}
+                className="flex items-center gap-1 transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+              >
+                <UserCircle className="w-5 h-5" />
+              </Link>
+            )}
+            <button
+              onClick={mobile.isOpen ? mobile.close : mobile.open}
+              className="flex items-center cursor-pointer transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+            >
+              <span className="relative w-5 h-5 shrink-0">
+                <Menu className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
+                <X className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Desktop dropdown */}
@@ -378,23 +407,38 @@ export function PublicNav({ locale, cityName }: PublicNavProps) {
 
             {/* Konto */}
             <div className="flex flex-row gap-3 pt-2 pb-2">
-              <Link
-                href={`${l}/platform/login`}
-                onClick={mobile.close}
-                className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
-              >
-                Anmelden <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
-              </Link>
-              <Link
-                href={`${l}/platform/register`}
-                onClick={mobile.close}
-                className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal transition-colors text-[var(--plattform-ink-accent)]"
-                style={{ background: 'var(--plattform-light)' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--plattform-accent)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--plattform-light)')}
-              >
-                Registrieren <UserPlus className="text-text w-[1em] h-[1em] shrink-0" />
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href={`${l}/dashboard`}
+                  onClick={mobile.close}
+                  className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+                >
+                  <span className="flex items-center gap-2">
+                    <UserCircle className="w-[1em] h-[1em] shrink-0" />
+                    {userName ?? 'Du bist eingeloggt'}
+                  </span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href={`${l}/login`}
+                    onClick={mobile.close}
+                    className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+                  >
+                    Anmelden <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
+                  </Link>
+                  <Link
+                    href={`${l}/register`}
+                    onClick={mobile.close}
+                    className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal transition-colors text-[var(--plattform-ink-accent)]"
+                    style={{ background: 'var(--plattform-light)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--plattform-accent)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'var(--plattform-light)')}
+                  >
+                    Registrieren <UserPlus className="text-text w-[1em] h-[1em] shrink-0" />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

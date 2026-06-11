@@ -10,7 +10,7 @@ export async function createTask(user: User, data: {
   title: string
   columnId: string
   projectId: string
-  moduleId: string
+
   deadline?: string
   assigneeIds?: string[]
 }) {
@@ -22,7 +22,7 @@ export async function createTask(user: User, data: {
       column: data.columnId,
       author: user.id,
       deadline: data.deadline,
-      projectModule: { project: data.projectId, module: data.moduleId },
+      project: data.projectId,
     },
     ...payloadAs(user),
   })

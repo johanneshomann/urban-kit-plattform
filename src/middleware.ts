@@ -14,14 +14,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // app.urbankit.de: rewrite to /[locale]/platform/... so workspace routes live under /platform
+  // app.urbankit.de: workspace routes — no rewrite needed, (platform) is a route group with no URL segment
   if (host === appDomain) {
-    const url = request.nextUrl.clone()
-    const localeMatch = pathname.match(/^\/(de|en)(\/|$)/)
-    if (localeMatch && !pathname.startsWith(`/${localeMatch[1]}/platform`)) {
-      url.pathname = `/${localeMatch[1]}/platform${pathname.replace(`/${localeMatch[1]}`, '')}`
-      return NextResponse.rewrite(url)
-    }
+    // intentionally left empty; routes are directly at /[locale]/dashboard, /[locale]/login etc.
   }
 
   // Public portal routes: set CDN cache headers

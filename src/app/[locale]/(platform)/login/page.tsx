@@ -63,7 +63,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
             {cityLogoUrl && (
               <img src={cityLogoUrl} alt={cityName} className="h-16 w-auto object-contain" />
             )}
-            <LoginForm registerHref={`/${locale}/platform/register`} />
+            <LoginForm registerHref={`/${locale}/register`} />
           </div>
         </div>
 

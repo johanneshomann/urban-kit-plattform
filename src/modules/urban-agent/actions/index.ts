@@ -11,9 +11,9 @@ export async function assembleProjectContext(user: User, projectId: string) {
 
   const [project, news, events, polls] = await Promise.all([
     payload.findByID({ collection: 'projects', id: projectId, ...payloadAs(user) }).catch(() => null),
-    payload.find({ collection: 'news-posts', where: { 'projectModule.project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
-    payload.find({ collection: 'calendar-events', where: { 'projectModule.project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
-    payload.find({ collection: 'polls', where: { 'projectModule.project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
+    payload.find({ collection: 'news-posts', where: { 'project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
+    payload.find({ collection: 'calendar-events', where: { 'project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
+    payload.find({ collection: 'polls', where: { 'project': { equals: projectId } }, limit: 10, ...payloadAs(user) }).catch(() => ({ docs: [] })),
   ])
 
   return { project, news: news.docs, events: events.docs, polls: polls.docs }

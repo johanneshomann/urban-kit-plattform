@@ -28,5 +28,17 @@
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?"
+  },
+  "accessibility": {
+    "open": "Open accessibility settings",
+    "close": "Close",
+    "title": "Accessibility",
+    "fontSize": "Font size",
+    "fontSizeIncrease": "Increase font size",
+    "fontSizeDecrease": "Decrease font size",
+    "reduceMotion": "Reduce motion",
+    "highContrast": "High contrast",
+    "underlineLinks": "Underline links",
+    "reset": "Reset"
   }
 }

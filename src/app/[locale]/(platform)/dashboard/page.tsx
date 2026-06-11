@@ -1,32 +1,176 @@
-import { TopBar } from '@/components/layout/TopBar'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { getUser } from '@/lib/auth/getUser'
 import Link from 'next/link'
+import { FolderKanban, Search, ChevronRight } from 'lucide-react'
 
-export default async function AppHomePage({
+import { projectDefaults } from '@/lib/defaults/project'
+import { resolveColorScheme } from '@/lib/colorScheme'
+import { CtaButton } from '@/components/platform/CtaButton'
+import { DashboardGrid, type DashboardCardData } from '@/components/platform/DashboardGrid'
+
+const roleLabels: Record<string, string> = {
+  PM:       'Du bist Projektmanager:in',
+  Citizen:  'Du bist Bürger:in',
+  Follower: 'Du bist Follower',
+}
+
+function relativeDate(dateStr: string): string {
+  const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  if (days === 0) return 'Heute'
+  if (days === 1) return 'Morgen'
+  if (days <= 7) return `In ${days} Tagen`
+  return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })
+}
+
+type Project = {
+  id: string
+  title: string
+  slug: string
+  modules?: string[]
+  coverImage?: { url?: string } | null
+  gallery?: { image?: { url?: string } | null }[] | null
+  colorScheme?: string | null
+}
+
+export default async function DashboardPage({
   params,
 }: {
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
+  const user = await getUser()
+  if (!user) return null
+
+  const payload = await getPayload({ config })
+
+  const memberships = await payload.find({
+    collection: 'project-memberships',
+    where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
+    depth: 2,
+    limit: 50,
+    overrideAccess: true,
+  })
+
+  const projects = memberships.docs.map((m) => m.project).filter(Boolean) as Project[]
+
+  const roleByProjectId = Object.fromEntries(
+    memberships.docs
+      .filter((m) => m.project)
+      .map((m) => [(m.project as Project).id, m.role as string])
+  )
+
+  const projectIds = projects.map((p) => p.id)
+
+  const now = new Date().toISOString()
+  const in14days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+  const last7days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const [pollsResult, eventsResult, newsResult] = projectIds.length > 0
+    ? await Promise.all([
+        payload.find({
+          collection: 'polls',
+          where: { and: [{ project: { in: projectIds } }, { status: { equals: 'active' } }] },
+          limit: 50, depth: 1, overrideAccess: true,
+        }),
+        payload.find({
+          collection: 'calendar-events',
+          where: { and: [{ project: { in: projectIds } }, { startDate: { greater_than_equal: now } }, { startDate: { less_than_equal: in14days } }] },
+          sort: 'startDate', limit: 50, depth: 1, overrideAccess: true,
+        }),
+        payload.find({
+          collection: 'news-posts',
+          where: { and: [{ project: { in: projectIds } }, { publishedAt: { greater_than_equal: last7days } }] },
+          sort: '-publishedAt', limit: 50, depth: 1, overrideAccess: true,
+        }),
+      ])
+    : [{ docs: [] }, { docs: [] }, { docs: [] }]
+
+  const pollsByProject = Object.fromEntries(projectIds.map((id) => [id, 0]))
+  const eventsByProject = Object.fromEntries(projectIds.map((id) => [id, null as string | null]))
+  const newsByProject = Object.fromEntries(projectIds.map((id) => [id, 0]))
+
+  for (const poll of pollsResult.docs) {
+    const id = (poll.project as { id: string })?.id ?? String(poll.project)
+    if (id in pollsByProject) pollsByProject[id]++
+  }
+  for (const event of eventsResult.docs) {
+    const id = (event.project as { id: string })?.id ?? String(event.project)
+    if (id in eventsByProject && !eventsByProject[id]) eventsByProject[id] = event.startDate
+  }
+  for (const post of newsResult.docs) {
+    const id = (post.project as { id: string })?.id ?? String(post.project)
+    if (id in newsByProject) newsByProject[id]++
+  }
+
+  const cards: DashboardCardData[] = projects.map((p) => {
+    const polls = pollsByProject[p.id] ?? 0
+    const nextEvent = eventsByProject[p.id]
+    const news = newsByProject[p.id] ?? 0
+
+    const pulse: string[] = []
+    if (polls > 0) pulse.push(`${polls} offene ${polls === 1 ? 'Umfrage' : 'Umfragen'}`)
+    if (nextEvent) pulse.push(`Veranstaltung ${relativeDate(nextEvent)}`)
+    if (news > 0) pulse.push(`${news} neue ${news === 1 ? 'Nachricht' : 'Nachrichten'}`)
+
+    const role = roleByProjectId[p.id]
+    const scheme = resolveColorScheme(p.colorScheme)
+
+    const galleryImages = (p.gallery ?? [])
+      .map((g) => g.image?.url)
+      .filter((url): url is string => Boolean(url))
+
+    const finalGalleryImages = galleryImages.length > 0
+      ? galleryImages
+      : projectDefaults.gallery.map((g) => g.image).filter(Boolean)
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      coverSrc: p.coverImage?.url ?? projectDefaults.coverImage,
+      galleryImages: finalGalleryImages,
+      roleLabel: roleLabels[role] ?? role,
+      pulse,
+      canManage: role === 'PM',
+      scheme,
+    }
+  })
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <TopBar locale={locale} />
-      <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Meine Projekte</h1>
-        </div>
-        <div className="text-gray-500 text-sm py-12 text-center">
-          Noch keine Projekte. Projekte werden in Phase 2 erstellt.
-        </div>
-        <div className="mt-4 text-center">
-          <Link
-            href="/admin"
-            className="text-blue-600 hover:underline text-sm"
+    <div className="p-8 flex flex-col gap-12" style={{ color: 'var(--plattform-ink)' }}>
+      <section>
+        {projects.length === 0 ? (
+          <div
+            className="rounded-xl border border-dashed p-10 text-center"
+            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
           >
-            Anmelden →
-          </Link>
-        </div>
-      </main>
+            <FolderKanban className="w-8 h-8 mx-auto mb-3 opacity-20" />
+            <p className="text-small font-medium opacity-50">Noch keine Projekte</p>
+            <p className="text-small mt-1 opacity-30">Tritt einem Projekt bei oder warte auf eine Einladung.</p>
+            <div className="mt-4">
+              <CtaButton
+                href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
+                label="Projekte entdecken"
+                icon={<Search />}
+                newTab
+              />
+            </div>
+          </div>
+        ) : (
+          <DashboardGrid locale={locale} cards={cards} />
+        )}
+      </section>
+
+      <section className="text-center">
+        <p className="text-small opacity-40">Du möchtest an weiteren Projekten teilnehmen?</p>
+        <Link
+          href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
+          className="inline-flex items-center gap-1 text-small font-medium mt-1 transition-colors text-[var(--plattform)] hover:text-[var(--plattform-accent)]"
+        >
+          Alle Projekte entdecken <ChevronRight className="w-[0.9em] h-[0.9em] shrink-0" />
+        </Link>
+      </section>
     </div>
   )
 }

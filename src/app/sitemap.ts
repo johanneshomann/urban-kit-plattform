@@ -47,8 +47,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
 
     for (const post of newsPosts.docs) {
-      const p = post as unknown as { slug: string; updatedAt: string; projectModule?: { project?: { slug?: string } } }
-      const projectSlug = p.projectModule?.project?.slug
+      const p = post as unknown as { slug: string; updatedAt: string; project?: { slug?: string } }
+      const projectSlug = p.project?.slug
       if (!projectSlug) continue
       for (const locale of ['de', 'en']) {
         entries.push({

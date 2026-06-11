@@ -13,13 +13,6 @@ export const TaskColumns: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true },
     { name: 'order', type: 'number', defaultValue: 0 },
-    {
-      name: 'projectModule',
-      type: 'group',
-      fields: [
-        { name: 'project', type: 'relationship', relationTo: 'projects' },
-        { name: 'module', type: 'relationship', relationTo: 'project-modules' },
-      ],
-    },
+    { name: 'project', type: 'relationship', relationTo: 'projects' },
   ],
 }

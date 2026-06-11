@@ -10,7 +10,7 @@ export async function createNewsPost(user: User, data: {
   title: string
   slug: string
   projectId: string
-  moduleId: string
+
   visibility?: string
 }) {
   const payload = await getPayload({ config })
@@ -21,7 +21,7 @@ export async function createNewsPost(user: User, data: {
       slug: data.slug,
       visibility: (data.visibility ?? 'INTERNAL') as 'PUBLIC' | 'INTERNAL' | 'TEAM',
       author: user.id,
-      projectModule: { project: data.projectId, module: data.moduleId },
+      project: data.projectId,
     },
     ...payloadAs(user),
   })

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { HeroSlideshow, type HeroImage } from '@/components/public/HeroSlideshow'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
@@ -74,7 +74,7 @@ export default async function PublicHomePage({
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
       <section className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden border-b bg-[var(--plattform-light)]">
@@ -134,7 +134,7 @@ export default async function PublicHomePage({
 
           {/* Body */}
           <p className="text-text leading-relaxed mb-12">
-            UrbanKIT ist das digitale Tool für Bürger:innenbeteiligung der {cityName}. Hier
+            UrbanKIT ist das digitale Tool für Bürger:innenbeteiligung der Stadt {cityName}. Hier
             siehst du, was geplant wird, kannst Fragen stellen, mitdiskutieren und deine Stimme
             einbringen, um Entscheidungen aktiv mit zu beeinflussen.
           </p>

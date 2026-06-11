@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { getCitySettings } from '@/lib/instance'
 import { ScrollHint } from '@/components/public/ScrollHint'
@@ -21,7 +21,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
         <section

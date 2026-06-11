@@ -38,7 +38,7 @@ export async function searchProject(
           collection: slug as Parameters<typeof payload.find>[0]['collection'],
           where: {
             and: [
-              { 'projectModule.project': { equals: projectId } },
+              { 'project': { equals: projectId } },
               { title: { like: query } },
             ],
           },

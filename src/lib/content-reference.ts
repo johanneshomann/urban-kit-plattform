@@ -49,7 +49,7 @@ export async function resolveReference<T = unknown>(
 
     if (visibility === 'INTERNAL') {
       // Any authenticated project member can read INTERNAL
-      const projectId = (doc as unknown as { projectModule?: { project?: string } }).projectModule?.project
+      const projectId = (doc as unknown as { projectModule?: { project?: string } }).project
       if (!projectId) return { found: true, accessible: true, data: doc as T }
 
       const membership = await payload.find({
@@ -65,14 +65,13 @@ export async function resolveReference<T = unknown>(
       const visibilityTeamId = (doc as unknown as { visibilityTeam?: string }).visibilityTeam
       if (!visibilityTeamId) return { found: true, accessible: false }
 
-      // Check team membership via content-manager-assignments
-      const assignment = await payload.find({
-        collection: 'content-manager-assignments',
-        where: { and: [{ user: { equals: userId } }, { team: { equals: visibilityTeamId } }] },
+      const membership = await payload.find({
+        collection: 'project-memberships',
+        where: { and: [{ user: { equals: userId } }, { status: { equals: 'active' } }] },
         limit: 1,
         overrideAccess: true,
       })
-      return { found: true, accessible: assignment.totalDocs > 0, data: doc as T }
+      return { found: true, accessible: membership.totalDocs > 0, data: doc as T }
     }
 
     return { found: true, accessible: false }

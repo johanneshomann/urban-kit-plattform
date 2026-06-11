@@ -8,7 +8,7 @@ export interface Project {
   id: string
   title: string
   slug: string
-  description?: string
+  shortDescription?: string
   status?: string
   thema?: string[]
   stadtbereich?: string[]
@@ -70,7 +70,7 @@ export function ProjectLibrary({ projects, locale }: { projects: Project[]; loca
     return projects.filter((p) => {
       if (search) {
         const q = search.toLowerCase()
-        if (!p.title.toLowerCase().includes(q) && !(p.description ?? '').toLowerCase().includes(q)) return false
+        if (!p.title.toLowerCase().includes(q) && !(p.shortDescription ?? '').toLowerCase().includes(q)) return false
       }
       if (status && p.status !== status) return false
       if (thema && !(p.thema ?? []).includes(thema)) return false
@@ -185,8 +185,8 @@ export function ProjectLibrary({ projects, locale }: { projects: Project[]; loca
                     </h3>
 
                     {/* Description */}
-                    {p.description && (
-                      <p className="text-text line-clamp-3 flex-1" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>{p.description}</p>
+                    {p.shortDescription && (
+                      <p className="text-text line-clamp-3 flex-1" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>{p.shortDescription}</p>
                     )}
 
                     {/* Thema tags */}

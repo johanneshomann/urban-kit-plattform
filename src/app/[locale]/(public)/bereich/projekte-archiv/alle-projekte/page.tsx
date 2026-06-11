@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { getCitySettings } from '@/lib/instance'
 import { AlleProjekteClient } from './AlleProjekteClient'
@@ -37,7 +37,7 @@ export default async function AlleProjektePage({ params }: { params: Promise<{ l
 
   return (
     <div className="min-h-screen flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
       <AlleProjekteClient projects={projects} locale={locale} cityName={cityName} />
       <PublicFooter locale={locale} />
     </div>

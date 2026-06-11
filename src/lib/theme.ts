@@ -89,30 +89,30 @@ export async function getPlatformColors(): Promise<PlatformColors> {
   }
 }
 
-export function colorsToCssVars(c: PlatformColors): string {
-  return `
-    --projekte: ${c.projektesMain};
-    --projekte-light: ${c.projektesLight};
-    --projekte-accent: ${c.projektesAccent};
-    --projekte-dark: ${c.projektesDark};
+export function colorsToCssVars(c: PlatformColors): Record<string, string> {
+  return {
+    '--projekte':               c.projektesMain,
+    '--projekte-light':         c.projektesLight,
+    '--projekte-accent':        c.projektesAccent,
+    '--projekte-dark':          c.projektesDark,
 
-    --grundlagen: ${c.grundlagenMain};
-    --grundlagen-light: ${c.grundlagenLight};
-    --grundlagen-accent: ${c.grundlagenAccent};
-    --grundlagen-dark: ${c.grundlagenDark};
+    '--grundlagen':             c.grundlagenMain,
+    '--grundlagen-light':       c.grundlagenLight,
+    '--grundlagen-accent':      c.grundlagenAccent,
+    '--grundlagen-dark':        c.grundlagenDark,
 
-    --zusammenarbeit: ${c.zusammenarbeitMain};
-    --zusammenarbeit-light: ${c.zusammenarbeitLight};
-    --zusammenarbeit-accent: ${c.zusammenarbeitAccent};
-    --zusammenarbeit-dark: ${c.zusammenarbeitDark};
+    '--zusammenarbeit':         c.zusammenarbeitMain,
+    '--zusammenarbeit-light':   c.zusammenarbeitLight,
+    '--zusammenarbeit-accent':  c.zusammenarbeitAccent,
+    '--zusammenarbeit-dark':    c.zusammenarbeitDark,
 
-    --plattform: ${c.plattform};
-    --plattform-light: ${c.plattformLight};
-    --plattform-ink: ${c.plattformInk};
-    --plattform-ink-accent: ${c.plattformInkAccent};
-    --plattform-accent: ${c.plattformAccent};
-    --plattform-white: ${c.plattformWhite};
-    --plattform-white-transparent: ${c.plattformWhiteTransparent};
-    --plattform-black: ${c.plattformBlack};
-  `.trim()
+    '--plattform':                    c.plattform,
+    '--plattform-light':              c.plattformLight,
+    '--plattform-ink':                c.plattformInk,
+    '--plattform-ink-accent':         c.plattformInkAccent,
+    '--plattform-accent':             c.plattformAccent,
+    '--plattform-white':              c.plattformWhite,
+    '--plattform-white-transparent':  c.plattformWhiteTransparent,
+    '--plattform-black':              c.plattformBlack,
+  }
 }

@@ -12,7 +12,7 @@ export default async function ModulePage({
   const { locale, slug, moduleType } = await params
   const payload = await getPayload({ config })
 
-  // Verify project exists
+  // Verify project exists and module is enabled
   const projectResult = await payload.find({
     collection: 'projects',
     where: { slug: { equals: slug } },
@@ -20,22 +20,9 @@ export default async function ModulePage({
     overrideAccess: true,
   })
   if (projectResult.totalDocs === 0) notFound()
-  const project = projectResult.docs[0] as unknown as { id: string; title: string }
+  const project = projectResult.docs[0] as unknown as { id: string; title: string; modules?: string[] }
 
-  // Verify module is enabled for this project
-  const moduleResult = await payload.find({
-    collection: 'project-modules',
-    where: {
-      and: [
-        { project: { equals: project.id } },
-        { moduleType: { equals: moduleType } },
-        { enabled: { equals: true } },
-      ],
-    },
-    limit: 1,
-    overrideAccess: true,
-  })
-  if (moduleResult.totalDocs === 0) notFound()
+  if (!project.modules?.includes(moduleType)) notFound()
 
   const manifest = moduleRegistry.manifests().find((m) => m.id === moduleType)
 

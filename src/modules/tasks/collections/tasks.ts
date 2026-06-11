@@ -45,14 +45,7 @@ export const Tasks: CollectionConfig = {
       relationTo: 'tasks',
       hasMany: true,
     },
-    {
-      name: 'projectModule',
-      type: 'group',
-      fields: [
-        { name: 'project', type: 'relationship', relationTo: 'projects' },
-        { name: 'module', type: 'relationship', relationTo: 'project-modules' },
-      ],
-    },
+    { name: 'project', type: 'relationship', relationTo: 'projects' },
   ],
   timestamps: true,
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
@@ -29,7 +29,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
       <section

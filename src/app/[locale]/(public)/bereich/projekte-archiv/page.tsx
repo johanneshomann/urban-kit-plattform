@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { getCitySettings } from '@/lib/instance'
@@ -43,7 +43,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
       <section className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden border-b" style={{ background: 'var(--projekte-light)' }}>

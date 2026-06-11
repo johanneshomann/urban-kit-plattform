@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { PublicNav } from '@/components/public/PublicNav'
+import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
@@ -21,7 +21,7 @@ const STEPS = [
     number: '1',
     title: 'Konto erstellen',
     description: 'Registriere dich in unter einer Minute. Entscheide selbst, wie sichtbar du bist. Mit Konto kannst du Projekte nicht nur ansehen, sondern aktiv mitgestalten.',
-    cta: { label: 'Registrieren', href: 'platform/register', icon: Flag },
+    cta: { label: 'Registrieren', href: 'register', icon: Flag },
   },
   {
     number: '2',
@@ -49,7 +49,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="min-h-svh flex flex-col">
-      <PublicNav locale={locale} cityName={cityName} cityLogoUrl={cityLogoUrl} />
+      <PublicNavServer locale={locale} />
 
       {/* Hero */}
       <section className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 border-b overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
@@ -157,7 +157,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           Registriere dich jetzt und fang direkt an — es dauert weniger als eine Minute.
         </p>
         <div className="flex flex-wrap gap-3">
-          <CtaButton href={`/${locale}/platform/register`} label="Jetzt registrieren" icon={<Flag />} />
+          <CtaButton href={`/${locale}/register`} label="Jetzt registrieren" icon={<Flag />} />
           <CtaButton href={`/${locale}/ueber-urbankit`} label="Mehr über UrbanKIT" icon={<Info />} />
         </div>
       </section>

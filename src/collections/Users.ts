@@ -10,15 +10,22 @@ export const Users: CollectionConfig = {
     admin: ({ req: { user } }) => user?.role === 'admin',
   },
   fields: [
+    { name: 'firstName', type: 'text' },
+    { name: 'lastName', type: 'text' },
+    { name: 'avatar', type: 'upload', relationTo: 'media' },
+    {
+      name: 'memberships',
+      type: 'join',
+      collection: 'project-memberships',
+      on: 'user',
+    },
     {
       name: 'role',
       type: 'select',
-      defaultValue: 'citizen',
+      defaultValue: 'user',
       options: [
         { label: 'Admin', value: 'admin' },
-        { label: 'Citizen', value: 'citizen' },
-        { label: 'Project Manager', value: 'project-manager' },
-        { label: 'Team Manager', value: 'team-manager' },
+        { label: 'User', value: 'user' },
       ],
     },
   ],

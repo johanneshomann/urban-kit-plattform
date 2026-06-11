@@ -30,14 +30,7 @@ export const FileUploads: CollectionConfig = {
     },
     { name: 'visibilityTeam', type: 'relationship', relationTo: 'teams' },
     { name: 'uploadedBy', type: 'relationship', relationTo: 'users' },
-    {
-      name: 'projectModule',
-      type: 'group',
-      fields: [
-        { name: 'project', type: 'relationship', relationTo: 'projects' },
-        { name: 'module', type: 'relationship', relationTo: 'project-modules' },
-      ],
-    },
+    { name: 'project', type: 'relationship', relationTo: 'projects' },
   ],
   timestamps: true,
 }
