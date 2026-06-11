@@ -32,7 +32,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
-RUN mkdir -p /app/public/media && chown -R nextjs:nodejs /app/public/media
+RUN mkdir -p /app/media && chown -R nextjs:nodejs /app/media
 RUN chmod +x /app/start.sh
 
 USER nextjs

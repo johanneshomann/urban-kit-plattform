@@ -1,3 +1,4 @@
+import path from 'path'
 import type { CollectionConfig } from 'payload'
 import { isAuthenticated } from '@/lib/access'
 
@@ -10,7 +11,9 @@ export const Media: CollectionConfig = {
     delete: isAuthenticated,
   },
   admin: { useAsTitle: 'filename' },
-  upload: true,
+  // Absolute path so dev and the Docker container (cwd /app, volume at
+  // /app/media) write to the same place regardless of config-dir resolution
+  upload: { staticDir: path.resolve(process.cwd(), 'media') },
   fields: [
     { name: 'alt', type: 'text' },
     { name: 'folder', type: 'relationship', relationTo: 'folders' },
