@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
   const items = posts
     .map((p) => {
-      const pSlug = p.project?.slug
+      const pSlug = p.projectModule?.project?.slug
       if (!pSlug) return ''
       const link = `${base}/de/projekte/${pSlug}/news/${p.slug}`
       return `

@@ -49,7 +49,9 @@ export async function resolveReference<T = unknown>(
 
     if (visibility === 'INTERNAL') {
       // Any authenticated project member can read INTERNAL
-      const projectId = (doc as unknown as { projectModule?: { project?: string } }).project
+      const projectRel = (doc as unknown as { projectModule?: { project?: string | { id?: string } } })
+        .projectModule?.project
+      const projectId = typeof projectRel === 'string' ? projectRel : projectRel?.id
       if (!projectId) return { found: true, accessible: true, data: doc as T }
 
       const membership = await payload.find({
