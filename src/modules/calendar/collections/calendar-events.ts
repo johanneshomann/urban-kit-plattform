@@ -17,6 +17,7 @@ export const CalendarEvents: CollectionConfig = {
     { name: 'content', type: 'richText', editor: lexicalEditor() },
     { name: 'startDate', type: 'date', required: true },
     { name: 'endDate', type: 'date' },
+    { name: 'allDay', type: 'checkbox', defaultValue: false },
     { name: 'location', type: 'text' },
     { name: 'category', type: 'text' },
     {

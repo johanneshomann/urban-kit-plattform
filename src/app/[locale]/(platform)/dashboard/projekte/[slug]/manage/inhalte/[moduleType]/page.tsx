@@ -59,7 +59,23 @@ export default async function ManageInhaltePage({
       depth: 0,
       overrideAccess: true,
     })
-    const events = res.docs as unknown as EventItem[]
+    const events: EventItem[] = await Promise.all(
+      res.docs.map(async (doc) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const e = doc as any
+        return {
+          id: String(e.id),
+          title: e.title ?? '',
+          startDate: e.startDate,
+          endDate: e.endDate ?? null,
+          allDay: e.allDay ?? false,
+          location: e.location ?? null,
+          category: e.category ?? null,
+          visibility: e.visibility ?? 'INTERNAL',
+          body: await lexicalToMarkdown(e.content),
+        }
+      }),
+    )
     return <CalendarManager slug={slug} locale={locale} events={events} />
   }
 
