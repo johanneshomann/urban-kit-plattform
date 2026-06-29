@@ -348,6 +348,36 @@
     "methodsEyebrow": "Wissen in die Praxis bringen",
     "methodsTitle": "Die Methoden",
     "methodsBody": "Methoden sind das Werkzeug der Beteiligung. Sie beschreiben konkret, wie Prozesse gestaltet, Menschen eingebunden und Ergebnisse gesichert werden. Jede Methode ist aus realen Projekten heraus entstanden und gibt Auskunft über Ziel, Aufwand und Einsatzzweck.",
-    "methodsCta": "Methodensammlung öffnen"
+    "methodsCta": "Methodensammlung öffnen",
+    "navAll": "Alle Grundlagen"
+  },
+  "partizipation": {
+    "metaTitle": "Partizipation – Grundlagen | Urban KIT",
+    "metaDescription": "Was ist Partizipation, warum ist sie wichtig und wie gelingt sie in der Stadtentwicklung?",
+    "heroEyebrow": "Grundlagen / Partizipation",
+    "heroTitle": "Partizipation<accentG>.</accentG>",
+    "heroBody": "Was wir unter Beteiligung verstehen, warum sie wichtig ist und wie sie in der Praxis gelingt — von der Definition bis zur Evaluation.",
+    "s1Title": "Was wir unter Partizipation verstehen",
+    "s1Body": "<p>Partizipation bedeutet für uns, Interessen und Bedürfnisse der Betroffenen frühzeitig und nachvollziehbar in Entscheidungsprozesse einzubeziehen. Menschen wirken aktiv an Prozessen, Entscheidungen, Systemen und Entwicklungen mit, die sie betreffen.</p><p>Sie ist kein Mittel, um bereits getroffene Entscheidungen nachträglich zu legitimieren. Sie ist nicht nur ein demokratisches Prinzip, sondern ein bewusst gestalteter Prozess und gelebte Praxis.</p><bq>Wer einbezogen wird, erlebt bei gelungener Partizipation, dass die eigene Stimme zählt, Entscheidungen nachvollziehbar werden, Vertrauen entsteht und ein Gefühl von Zusammenhalt entstehen kann.</bq><p>Projekte gewinnen dadurch an Qualität, weil sie näher an den tatsächlichen Bedürfnissen der Menschen liegen und weniger anfällig für Konflikte oder Blockaden sind.</p><p>Entscheidend ist, dass Rollen, Spielräume, Ziele und Entscheidungen transparent benannt werden. <strong>Beteiligung wirkt nur dann, wenn sie ernst genommen, strukturiert umgesetzt und sichtbar in Entscheidungsprozesse eingebunden wird.</strong> Beteiligung wirkt nur dann glaubwürdig, wenn klar ist, welchen Einfluss Beiträge tatsächlich haben.</p>",
+    "s2Title": "Warum Partizipation wichtig ist",
+    "s2Body": "<p>Beteiligung erhöht die Akzeptanz von Planungsentscheidungen, bringt lokales Wissen in den Prozess und stärkt das Vertrauen zwischen Verwaltung und Bevölkerung. [Inhalt folgt]</p>",
+    "s3Title": "Rechtlicher Rahmen in Kürze",
+    "s3Body": "<p>Formelle Beteiligungsverfahren sind in Deutschland gesetzlich verankert — unter anderem im Baugesetzbuch (BauGB) und in den Gemeindeordnungen der Länder. [Inhalt folgt]</p>",
+    "s4Title": "Unsere Haltung zu guter Partizipation",
+    "s4Body": "<p>[Inhalt folgt]</p>",
+    "s5Title": "Partizipationsmodell",
+    "s5Body": "<p>[Inhalt folgt]</p>",
+    "s6Title": "Die Leitfragen für jedes Beteiligungsprojekt",
+    "s6Body": "<p>[Inhalt folgt]</p>",
+    "s7Title": "Prozesskern und strukturelle Voraussetzungen",
+    "s7Body": "<p>[Inhalt folgt]</p>",
+    "s8Title": "Konflikt- & Machtfragen",
+    "s8Body": "<p>[Inhalt folgt]</p>",
+    "s9Title": "Transparenz, Repräsentativität & Nicht-Übernahme",
+    "s9Body": "<p>[Inhalt folgt]</p>",
+    "s10Title": "Evaluation",
+    "s10Body": "<p>[Inhalt folgt]</p>",
+    "s11Title": "Partizipation im Smart-City-Kontext",
+    "s11Body": "<p>[Inhalt folgt]</p>"
   }
 }

@@ -348,6 +348,36 @@
     "methodsEyebrow": "Putting knowledge into practice",
     "methodsTitle": "The methods",
     "methodsBody": "Methods are the tools of participation. They describe concretely how processes are designed, people are involved and results are secured. Every method has emerged from real projects and provides information on its goal, effort and purpose.",
-    "methodsCta": "Open the method collection"
+    "methodsCta": "Open the method collection",
+    "navAll": "All basics"
+  },
+  "partizipation": {
+    "metaTitle": "Participation – Basics | Urban KIT",
+    "metaDescription": "What is participation, why does it matter and how does it succeed in urban development?",
+    "heroEyebrow": "Basics / Participation",
+    "heroTitle": "Participation<accentG>.</accentG>",
+    "heroBody": "What we mean by participation, why it matters and how it succeeds in practice – from definition to evaluation.",
+    "s1Title": "What we mean by participation",
+    "s1Body": "<p>For us, participation means involving the interests and needs of those affected in decision-making processes early and transparently. People actively take part in the processes, decisions, systems and developments that affect them.</p><p>It is not a means of retroactively legitimising decisions that have already been made. It is not only a democratic principle but a deliberately designed process and lived practice.</p><bq>When participation succeeds, those involved experience that their own voice counts, that decisions become comprehensible, that trust grows and that a sense of cohesion can emerge.</bq><p>Projects gain quality as a result, because they are closer to people's actual needs and less prone to conflict or blockages.</p><p>What is decisive is that roles, scope, goals and decisions are named transparently. <strong>Participation only works when it is taken seriously, implemented in a structured way and visibly embedded in decision-making.</strong> Participation is only credible when it is clear what influence contributions actually have.</p>",
+    "s2Title": "Why participation matters",
+    "s2Body": "<p>Participation increases acceptance of planning decisions, brings local knowledge into the process and strengthens trust between administration and the public. [Content to follow]</p>",
+    "s3Title": "The legal framework in brief",
+    "s3Body": "<p>Formal participation procedures are legally anchored in Germany – among others in the Federal Building Code (BauGB) and in the municipal codes of the federal states. [Content to follow]</p>",
+    "s4Title": "Our stance on good participation",
+    "s4Body": "<p>[Content to follow]</p>",
+    "s5Title": "Participation model",
+    "s5Body": "<p>[Content to follow]</p>",
+    "s6Title": "The key questions for every participation project",
+    "s6Body": "<p>[Content to follow]</p>",
+    "s7Title": "Process core and structural prerequisites",
+    "s7Body": "<p>[Content to follow]</p>",
+    "s8Title": "Conflict & power questions",
+    "s8Body": "<p>[Content to follow]</p>",
+    "s9Title": "Transparency, representativeness & non-adoption",
+    "s9Body": "<p>[Content to follow]</p>",
+    "s10Title": "Evaluation",
+    "s10Body": "<p>[Content to follow]</p>",
+    "s11Title": "Participation in the smart city context",
+    "s11Body": "<p>[Content to follow]</p>"
   }
 }
