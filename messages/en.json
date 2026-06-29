@@ -94,5 +94,25 @@
     "privacyShort": "Privacy",
     "cookiesShort": "Cookies",
     "admin": "Admin"
+  },
+  "publicNav": {
+    "triggerAllgemein": "General",
+    "triggerInformationen": "Information",
+    "home": "Home",
+    "allProjects": "All projects",
+    "start": "Get started",
+    "contact": "Contact",
+    "aboutExplained": "UrbanKIT explained",
+    "areaProjects": "Projects & Archive",
+    "areaCollab": "Collaboration",
+    "modules": "Modules",
+    "areaBasics": "Basics & Methods",
+    "methods": "Method collection",
+    "participation": "Participation",
+    "projectPlanning": "Project planning",
+    "legalFramework": "Legal framework",
+    "login": "Login",
+    "register": "Register",
+    "loggedIn": "You are signed in"
   }
 }

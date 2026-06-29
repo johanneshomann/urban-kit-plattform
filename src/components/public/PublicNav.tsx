@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, CircleChevronDown, Menu, X, Home, Folders, Flag, Mail, Info, Archive, Users, BookOpen, Circle, ExternalLink, FolderOpen, Handshake, Route, Scale, Layout } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BereichSwitcher } from '@/components/public/BereichSwitcher'
@@ -22,37 +23,38 @@ const CLOSE_DURATION = 280
 type SubLink = { href: string; label: string; external?: boolean; icon?: LucideIcon }
 type NavItem = { href: string; label: string; icon: LucideIcon; hoverColor?: string; dotColor?: string; subLinks?: SubLink[] }
 
+// `label` holds a translation key resolved via t() at render time.
 const MENUS: Record<string, NavItem[]> = {
   allgemein: [
-    { href: '/', label: 'Startseite', icon: Home },
-    { href: '/bereich/projekte-archiv/alle-projekte', label: 'Alle Projekte', icon: Folders },
-    { href: '/starten', label: 'Starten', icon: Flag },
-    { href: '/kontakt', label: 'Kontakt', icon: Mail },
+    { href: '/', label: 'home', icon: Home },
+    { href: '/bereich/projekte-archiv/alle-projekte', label: 'allProjects', icon: Folders },
+    { href: '/starten', label: 'start', icon: Flag },
+    { href: '/kontakt', label: 'contact', icon: Mail },
   ],
   informationen: [
-    { href: '/ueber-urbankit', label: 'UrbanKIT erklärt', icon: Info },
+    { href: '/ueber-urbankit', label: 'aboutExplained', icon: Info },
     {
-      href: '/bereich/projekte-archiv', label: 'Projekte & Archiv', icon: Archive,
+      href: '/bereich/projekte-archiv', label: 'areaProjects', icon: Archive,
       hoverColor: 'var(--projekte-dark)', dotColor: 'var(--projekte-dark)',
       subLinks: [
-        { href: '/bereich/projekte-archiv/alle-projekte', label: 'Alle Projekte', icon: FolderOpen },
+        { href: '/bereich/projekte-archiv/alle-projekte', label: 'allProjects', icon: FolderOpen },
       ],
     },
     {
-      href: '/bereich/zusammenarbeit', label: 'Zusammenarbeit', icon: Users,
+      href: '/bereich/zusammenarbeit', label: 'areaCollab', icon: Users,
       hoverColor: 'var(--zusammenarbeit-dark)', dotColor: 'var(--zusammenarbeit-dark)',
       subLinks: [
-        { href: '/bereich/zusammenarbeit/module', label: 'Module', icon: Layout },
+        { href: '/bereich/zusammenarbeit/module', label: 'modules', icon: Layout },
       ],
     },
     {
-      href: '/bereich/grundlagen', label: 'Grundlagen & Methoden', icon: BookOpen,
+      href: '/bereich/grundlagen', label: 'areaBasics', icon: BookOpen,
       hoverColor: 'var(--grundlagen-dark)', dotColor: 'var(--grundlagen-dark)',
       subLinks: [
-        { href: 'https://methoden.urbankit.de', label: 'Methodensammlung', external: true, icon: ExternalLink },
-        { href: '/bereich/grundlagen/partizipation', label: 'Partizipation', icon: Handshake },
-        { href: '/bereich/grundlagen/projektplanung', label: 'Projektplanung', icon: Route },
-        { href: '/bereich/grundlagen/recht', label: 'Rechtlicher Rahmen', icon: Scale },
+        { href: 'https://methoden.urbankit.de', label: 'methods', external: true, icon: ExternalLink },
+        { href: '/bereich/grundlagen/partizipation', label: 'participation', icon: Handshake },
+        { href: '/bereich/grundlagen/projektplanung', label: 'projectPlanning', icon: Route },
+        { href: '/bereich/grundlagen/recht', label: 'legalFramework', icon: Scale },
       ],
     },
   ],
@@ -84,6 +86,7 @@ function useAnimatedOpen(duration: number) {
 
 export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: PublicNavProps) {
   const l = `/${locale}`
+  const t = useTranslations('publicNav')
 
   const [activeMenu, setActiveMenu] = useState<MenuKey | null>(null)
   const [desktopClosing, setDesktopClosing] = useState(false)
@@ -156,7 +159,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 onMouseLeave={desktopClose}
                 className={`flex items-center gap-1 text-text cursor-pointer transition-colors hover:text-[var(--plattform-accent)] ${active ? 'text-[var(--plattform)]' : 'text-[var(--plattform-ink)]'}`}
               >
-                {key.charAt(0).toUpperCase() + key.slice(1)}
+                {t(`trigger${key.charAt(0).toUpperCase()}${key.slice(1)}`)}
                 <ChevronRight className={`text-text w-[1em] h-[1em] shrink-0 transition-transform duration-300 ${active ? 'rotate-90' : ''}`} />
               </button>
             )
@@ -182,7 +185,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 className="flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
               >
                 <UserCircle className="w-[1.1em] h-[1.1em] shrink-0" />
-                {userName ?? 'Du bist eingeloggt'}
+                {userName ?? t('loggedIn')}
               </Link>
               <Link
                 href={`${l}/dashboard`}
@@ -196,7 +199,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
               href={`${l}/login`}
               className="hidden md:flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
             >
-              Anmelden <LogIn className="w-[1em] h-[1em] shrink-0" />
+              {t('login')} <LogIn className="w-[1em] h-[1em] shrink-0" />
             </Link>
           )}
 
@@ -250,7 +253,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                           ? <Circle className="text-text w-[1em] h-[1em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: dotColor }} />
                           : <Icon className="text-text w-[1em] h-[1em] shrink-0" />
                         }
-                        {label}
+                        {t(label)}
                       </Link>
                       {subLinks && (
                         <button
@@ -285,7 +288,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                                   onMouseLeave={e => (e.currentTarget.style.color = subActive ? activeColor : 'var(--plattform-ink)')}
                                 >
                                   {SubIcon && <SubIcon className="text-small w-[1em] h-[1em] shrink-0" />}
-                                  {sub.label}
+                                  {t(sub.label)}
                                 </Link>
                               )
                             })}
@@ -328,7 +331,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                     onMouseLeave={e => (e.currentTarget.style.color = active ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)')}
                   >
                     <Icon className="text-text w-[1em] h-[1em] shrink-0" />
-                    {label}
+                    {t(label)}
                   </Link>
                 )
               })}
@@ -358,7 +361,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                           ? <Circle className="text-text w-[1em] h-[1em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: dotColor }} />
                           : <Icon className="text-text w-[1em] h-[1em] shrink-0" />
                         }
-                        {label}
+                        {t(label)}
                       </Link>
                       {subLinks && (
                         <button
@@ -392,7 +395,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                                   onMouseLeave={e => (e.currentTarget.style.color = subActive ? activeColor : 'var(--plattform-ink)')}
                                 >
                                   {SubIcon && <SubIcon className="text-small w-[1em] h-[1em] shrink-0" />}
-                                  {sub.label}
+                                  {t(sub.label)}
                                 </Link>
                               )
                             })}
@@ -428,7 +431,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 >
                   <span className="flex items-center gap-2">
                     <UserCircle className="w-[1em] h-[1em] shrink-0" />
-                    {userName ?? 'Du bist eingeloggt'}
+                    {userName ?? t('loggedIn')}
                   </span>
                 </Link>
               ) : (
@@ -438,7 +441,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                     onClick={mobile.close}
                     className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
                   >
-                    Anmelden <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
+                    {t('login')} <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
                   </Link>
                   <Link
                     href={`${l}/register`}
@@ -448,7 +451,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--plattform-accent)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'var(--plattform-light)')}
                   >
-                    Registrieren <UserPlus className="text-text w-[1em] h-[1em] shrink-0" />
+                    {t('register')} <UserPlus className="text-text w-[1em] h-[1em] shrink-0" />
                   </Link>
                 </>
               )}
