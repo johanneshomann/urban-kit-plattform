@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
@@ -11,21 +13,36 @@ import { getCitySettings } from '@/lib/instance'
 import { MessageCircleQuestion, Flag, FolderOpen, Info, HandHeart, Circle } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
   const base = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://urbankit.de'
   const { cityName } = await getCitySettings()
+  const t = await getTranslations({ locale, namespace: 'home' })
+  const title = t('metaTitle', { city: cityName })
+  const description = t('metaDescription', { city: cityName })
   return {
-    title: `UrbanKIT – Stadtbeteiligung für ${cityName}`,
-    description: `Informiere dich, diskutiere mit und gestalte ${cityName} aktiv mit.`,
-    alternates: { canonical: `${base}/de` },
+    title,
+    description,
+    alternates: { canonical: `${base}/${locale}` },
     openGraph: {
-      title: `UrbanKIT – Stadtbeteiligung für ${cityName}`,
-      description: `Informiere dich, diskutiere mit und gestalte ${cityName} aktiv mit.`,
-      url: `${base}/de`,
+      title,
+      description,
+      url: `${base}/${locale}`,
       type: 'website',
     },
   }
 }
+
+// Rich-text tag renderers for decorative headings (colored accent marks, the
+// "KIT" brand highlight, and line breaks). Keeps word order localizable.
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+const pcolon = (chunks: ReactNode) => <span style={{ color: 'var(--projekte)' }}>{chunks}</span>
+const kit = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+const br = () => <br />
 
 async function getHeroImages(): Promise<HeroImage[]> {
   try {
@@ -66,10 +83,11 @@ export default async function PublicHomePage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const [{ cityName, cityLogoUrl }, projects, heroImages] = await Promise.all([
+  const [{ cityName, cityLogoUrl }, projects, heroImages, t] = await Promise.all([
     getCitySettings(),
     getActiveProjects(),
     getHeroImages(),
+    getTranslations({ locale, namespace: 'home' }),
   ])
 
   return (
@@ -91,25 +109,23 @@ export default async function PublicHomePage({
         {/* Main content — left-aligned, upper area */}
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
           {/* Eyebrow */}
-          <EyebrowBadge label={`Digitale Bürgerbeteiligung in ${cityName}`} opacity={0.6} />
+          <EyebrowBadge label={t('heroEyebrow', { city: cityName })} opacity={0.6} />
 
           {/* Headline */}
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-            {cityName} zum<br />
-            Mitmachen<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('heroTitle', { city: cityName, accent, br })}
           </h1>
 
           {/* Body */}
           <p className="text-text leading-relaxed max-w-2xl">
-            UrbanKIT macht sichtbar, was in deiner Stadt passiert und gibt dir die Möglichkeit,
-            dich direkt aktiv einzubringen.
+            {t('heroBody', { city: cityName })}
           </p>
         </div>
 
         {/* CTAs — bottom right, stacked */}
         <div className="relative z-10 flex flex-col items-end gap-3 px-6 pb-8 md:pb-14 md:px-16 lg:px-24 self-end">
-          <CtaButton href={`/${locale}/starten`} label="Jetzt starten" icon={<Flag />} wide />
-          <CtaButton href={`/${locale}#aktuelle-projekte`} label="Aktuelle Projekte" icon={<FolderOpen />} wide />
+          <CtaButton href={`/${locale}/starten`} label={t('ctaStart')} icon={<Flag />} wide />
+          <CtaButton href={`/${locale}#aktuelle-projekte`} label={t('ctaCurrentProjects')} icon={<FolderOpen />} wide />
         </div>
       </section>
 
@@ -125,67 +141,65 @@ export default async function PublicHomePage({
 
         <div className="relative z-10 max-w-2xl">
           {/* Eyebrow */}
-          <EyebrowBadge label="Verstehen" opacity={0.6} />
+          <EyebrowBadge label={t('aboutEyebrow')} opacity={0.6} />
 
           {/* Headline */}
           <h2 className="text-title font-black tracking-tight mb-5">
-            Was ist Urban<span style={{ color: 'var(--plattform)' }}>KIT</span>?
+            {t.rich('aboutTitle', { kit })}
           </h2>
 
           {/* Body */}
           <p className="text-text leading-relaxed mb-12">
-            UrbanKIT ist das digitale Tool für Bürger:innenbeteiligung der Stadt {cityName}. Hier
-            siehst du, was geplant wird, kannst Fragen stellen, mitdiskutieren und deine Stimme
-            einbringen, um Entscheidungen aktiv mit zu beeinflussen.
+            {t('aboutBody', { city: cityName })}
           </p>
 
           {/* CTA */}
-          <CtaButton href={`/${locale}/ueber-urbankit`} label="UrbanKIT erklärt" icon={<Info />} />
+          <CtaButton href={`/${locale}/ueber-urbankit`} label={t('aboutCta')} icon={<Info />} />
         </div>
       </section>
 
       {/* Drei Bereiche */}
       <section className="min-h-svh flex flex-col justify-center pt-8 pb-14 md:pt-12 md:pb-28 px-6 md:px-16 lg:px-24 border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="w-full">
-          <EyebrowBadge label="Orientierung" opacity={0.6} />
+          <EyebrowBadge label={t('sectionsEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-2">
-            Drei Bereiche<span style={{ color: 'var(--plattform)' }}>.</span> Ein Ziel<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('sectionsTitle', { accent })}
           </h2>
           <p className="text-text mb-12 max-w-2xl">
-            UrbanKIT bündelt Beteiligung an einem Ort und trennt sie farblich sichtbar voneinander: Projekte sichtbar machen, Zusammenarbeit ermöglichen und Wissen zugänglich machen. Du kannst dich hier informieren oder dich einbringen, um Projekte mitzugestalten.
+            {t('sectionsBody')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--projekte-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--projekte-dark)' }}>
-                  Projekte & Archiv
+                  {t('areaProjectsTitle')}
                 </h3>
               </div>
               <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>
-                Entdecke laufende und abgeschlossene Projekte. Sieh, woran gearbeitet wird, was entschieden wurde und wie Beteiligung wirkt.
+                {t('areaProjectsBody')}
               </p>
             </Link>
             <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--zusammenarbeit-dark)' }}>
-                  Zusammenarbeit
+                  {t('areaCollabTitle')}
                 </h3>
               </div>
               <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>
-                Arbeite aktiv an Projekten mit. Stimme ab, tausche dich aus und entwickle gemeinsam Lösungen – strukturiert an einem Ort.
+                {t('areaCollabBody')}
               </p>
             </Link>
             <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--grundlagen-dark)' }}>
-                  Grundlagen & Methoden
+                  {t('areaBasicsTitle')}
                 </h3>
               </div>
               <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>
-                Verstehe, wie gute Beteiligung funktioniert. Hier findest du Methoden, Hintergründe und Orientierung für Planung und Umsetzung.
+                {t('areaBasicsBody')}
               </p>
             </Link>
           </div>
@@ -195,15 +209,15 @@ export default async function PublicHomePage({
       {/* Aktuelle Projekte */}
       <section id="aktuelle-projekte" className="min-h-svh flex flex-col justify-center pt-8 pb-14 md:pt-12 md:pb-28 px-6 md:px-16 lg:px-24 border-b" style={{ background: 'var(--projekte-light)' }}>
         <div className="w-full">
-          <EyebrowBadge label="Entdecken" bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('projectsEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
           <h2 className="text-title font-black tracking-tight mb-2">
-            Aktuelle Projekte<span style={{ color: 'var(--projekte)' }}>:</span>
+            {t.rich('projectsTitle', { pcolon })}
           </h2>
           <p className="text-text mb-12 max-w-2xl">
-            Hier siehst du, woran auf UrbanKIT gerade gearbeitet wird. Jedes Projekt ist ein Ort für Information, Diskussion und echte Mitgestaltung.
+            {t('projectsBody')}
           </p>
           {projects.length === 0 ? (
-            <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>Aktuell keine öffentlichen Projekte.</p>
+            <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('projectsEmpty')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               {projects.map((p) => (
@@ -220,7 +234,7 @@ export default async function PublicHomePage({
               ))}
             </div>
           )}
-          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<FolderOpen />} variant="projekte" />
+          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('projectsAllCta')} icon={<FolderOpen />} variant="projekte" />
         </div>
       </section>
 
@@ -233,14 +247,14 @@ export default async function PublicHomePage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 max-w-4xl">
-          <EyebrowBadge label="Jetzt mitmachen" opacity={0.6} />
+          <EyebrowBadge label={t('joinEyebrow')} opacity={0.6} />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
-            Gestalte {cityName} mit<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('joinTitle', { city: cityName, accent })}
           </h2>
           <p className="text-text mb-12">
-            UrbanKIT ist kostenlos und offen für alle Bürger:innen in {cityName}. Du brauchst kein Vorwissen – nur Interesse. Melde dich an, folge Projekten, stelle Fragen und bring deine Perspektive ein.
+            {t('joinBody', { city: cityName })}
           </p>
-          <CtaButton href={`/${locale}/starten`} label="Jetzt starten" icon={<Flag />} />
+          <CtaButton href={`/${locale}/starten`} label={t('joinCta')} icon={<Flag />} />
         </div>
       </section>
 
