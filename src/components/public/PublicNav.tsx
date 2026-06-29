@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, CircleChevronDown, Menu, X, Home, Folders, Flag, Mail, Info, Archive, Users, BookOpen, Circle, ExternalLink, FolderOpen, Handshake, Route, Scale, Layout } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BereichSwitcher } from '@/components/public/BereichSwitcher'
+import { LanguageSwitcher } from '@/components/public/LanguageSwitcher'
 
 interface PublicNavProps {
   locale: string
@@ -170,6 +171,9 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
 
         {/* Right side */}
         <div className="flex justify-end items-center gap-4">
+          {/* Desktop: language toggle */}
+          <LanguageSwitcher className="hidden md:flex" />
+
           {/* Desktop: Anmelden / User */}
           {isLoggedIn ? (
             <div className="hidden md:flex items-center gap-3">
@@ -400,6 +404,15 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                   )
                 })}
               </div>
+            </div>
+
+            {/* Divider */}
+            <div className="my-3 border-t" style={{ borderColor: 'var(--plattform-ink)', opacity: 0.15 }} />
+
+            {/* Language */}
+            <div className="flex items-center justify-between py-2">
+              <span className="text-text" style={{ color: 'var(--plattform-ink)' }}>Sprache / Language</span>
+              <LanguageSwitcher className="px-2 font-bold" />
             </div>
 
             {/* Divider */}
