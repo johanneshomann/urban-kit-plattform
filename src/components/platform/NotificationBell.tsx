@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Bell, BarChart2, Calendar, Newspaper, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,35 +22,37 @@ interface NotificationBellProps {
   items: NotificationItem[]
 }
 
-function formatDate(dateStr: string): string {
-  const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Heute'
-  if (days === 1) return 'Morgen'
-  if (days > 1 && days <= 7) return `In ${days} Tagen`
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const ago = Math.floor(diff / (1000 * 60 * 60))
-  if (ago < 1) return 'Gerade eben'
-  if (ago < 24) return `Vor ${ago}h`
-  const days2 = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days2 === 1) return 'Gestern'
-  return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })
-}
-
 const typeIcon = {
   poll:  BarChart2,
   event: Calendar,
   news:  Newspaper,
 }
 
-const typeLabel = {
-  poll:  'Umfrage',
-  event: 'Veranstaltung',
-  news:  'Nachricht',
-}
-
 const ANIM_DURATION = 150
 
 export function NotificationBell({ locale, items }: NotificationBellProps) {
+  const t = useTranslations('platform')
+
+  const typeLabel: Record<NotificationItem['type'], string> = {
+    poll: t('notifPoll'),
+    event: t('notifEvent'),
+    news: t('notifNews'),
+  }
+
+  const formatDate = (dateStr: string): string => {
+    const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    if (days === 0) return t('dateToday')
+    if (days === 1) return t('dateTomorrow')
+    if (days > 1 && days <= 7) return t('dateInDays', { days })
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const ago = Math.floor(diff / (1000 * 60 * 60))
+    if (ago < 1) return t('dateJustNow')
+    if (ago < 24) return t('dateHoursAgo', { hours: ago })
+    const days2 = Math.floor(diff / (1000 * 60 * 60 * 24))
+    if (days2 === 1) return t('dateYesterday')
+    return new Date(dateStr).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'short' })
+  }
+
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -90,12 +93,12 @@ export function NotificationBell({ locale, items }: NotificationBellProps) {
           className={`absolute right-0 top-full mt-3 w-80 rounded-xl border bg-white shadow-sm overflow-hidden z-50 ${isVisible ? 'dropdown-enter' : 'dropdown-exit'}`}
         >
           <div className="px-4 py-3 border-b">
-            <p className="text-small font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>Aktivitäten</p>
+            <p className="text-small font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('notifActivities')}</p>
           </div>
 
           {items.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="text-small opacity-40">Keine aktuellen Aktivitäten.</p>
+              <p className="text-small opacity-40">{t('notifEmpty')}</p>
             </div>
           ) : (
             <div className="max-h-96 overflow-y-auto">

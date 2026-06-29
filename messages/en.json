@@ -584,5 +584,28 @@
   },
   "team": {
     "groups": "Groups"
+  },
+  "platform": {
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "navMyProjects": "My projects",
+    "navMessages": "Messages",
+    "navMyProfile": "My profile",
+    "navSettings": "Settings",
+    "navBack": "Back to UrbanKIT",
+    "logout": "Sign out",
+    "greeting": "Hello {name}",
+    "greetingFallback": "Good to see you",
+    "notifActivities": "Activity",
+    "notifEmpty": "No recent activity.",
+    "notifPoll": "Poll",
+    "notifEvent": "Event",
+    "notifNews": "Message",
+    "dateToday": "Today",
+    "dateTomorrow": "Tomorrow",
+    "dateInDays": "In {days} days",
+    "dateJustNow": "Just now",
+    "dateHoursAgo": "{hours}h ago",
+    "dateYesterday": "Yesterday"
   }
 }

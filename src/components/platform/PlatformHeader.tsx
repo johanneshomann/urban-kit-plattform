@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { UserCircle, Home, LogOut, Heart } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { NotificationBell } from './NotificationBell'
@@ -14,6 +15,7 @@ interface PlatformHeaderProps {
 }
 
 export function PlatformHeader({ locale, cityName, userName, notificationItems = [] }: PlatformHeaderProps) {
+  const t = useTranslations('platform')
   return (
     <header className="h-14 border-b bg-white sticky top-0 z-50 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10">
 
@@ -32,7 +34,7 @@ export function PlatformHeader({ locale, cityName, userName, notificationItems =
 
       {/* Center — Greeting */}
       <span className="flex items-center justify-center gap-1.5 text-text" style={{ color: 'var(--plattform-ink)' }}>
-        {userName ? `Hey ${userName.split(' ')[0]}` : 'Hey, schön dass du da bist'}
+        {userName ? t('greeting', { name: userName.split(' ')[0] }) : t('greetingFallback')}
         <Heart className="w-[0.9em] h-[0.9em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--plattform)' }} />
       </span>
 

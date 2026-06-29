@@ -1,14 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { FolderKanban, User, MessageSquare, Settings, LogOut, ArrowLeft } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { SidebarLink, SidebarButton } from './SidebarLink'
-
-const roleLabels: Record<string, string> = {
-  admin: 'Admin',
-  user: 'Nutzer:in',
-}
 
 interface SidebarProps {
   locale: string
@@ -20,6 +16,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ locale, cityName, userEmail, userRole, userName, userImageUrl }: SidebarProps) {
+  const t = useTranslations('platform')
+  const roleLabels: Record<string, string> = {
+    admin: t('roleAdmin'),
+    user: t('roleUser'),
+  }
   return (
     <aside className="w-56 shrink-0 flex flex-col min-h-screen border-r bg-[var(--plattform-light)]">
 
@@ -34,9 +35,9 @@ export function Sidebar({ locale, cityName, userEmail, userRole, userName, userI
 
       {/* Nav */}
       <nav className="flex-1 py-4 px-2 flex flex-col gap-0.5">
-        <SidebarLink href={`/${locale}/dashboard`} label="Meine Projekte" icon={FolderKanban} exact />
-        <SidebarLink href={`/${locale}/dashboard/nachrichten`} label="Nachrichten" icon={MessageSquare} />
-        <SidebarLink href={`/${locale}/dashboard/profil`} label="Mein Profil" icon={User} />
+        <SidebarLink href={`/${locale}/dashboard`} label={t('navMyProjects')} icon={FolderKanban} exact />
+        <SidebarLink href={`/${locale}/dashboard/nachrichten`} label={t('navMessages')} icon={MessageSquare} />
+        <SidebarLink href={`/${locale}/dashboard/profil`} label={t('navMyProfile')} icon={User} />
       </nav>
 
       {/* Bottom */}
@@ -54,9 +55,9 @@ export function Sidebar({ locale, cityName, userEmail, userRole, userName, userI
 
         {/* Links */}
         <div className="px-3 py-3 flex flex-col gap-1">
-          <SidebarLink href={`/${locale}/dashboard/einstellungen`} label="Einstellungen" icon={Settings} />
-          <SidebarLink href={`/${locale}`} label="Zurück zu UrbanKIT" icon={ArrowLeft} exact />
-          <SidebarButton label="Abmelden" icon={LogOut} action={logoutAction} />
+          <SidebarLink href={`/${locale}/dashboard/einstellungen`} label={t('navSettings')} icon={Settings} />
+          <SidebarLink href={`/${locale}`} label={t('navBack')} icon={ArrowLeft} exact />
+          <SidebarButton label={t('logout')} icon={LogOut} action={logoutAction} />
         </div>
       </div>
 
