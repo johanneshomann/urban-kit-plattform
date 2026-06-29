@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
@@ -12,12 +14,6 @@ import { ScrollHint } from '@/components/public/ScrollHint'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
-import {
-  THEMA_OPTIONS,
-  STADTBEREICH_OPTIONS,
-  ALTERSGRUPPE_OPTIONS,
-  GENDER_OPTIONS,
-} from '@/lib/options/project-fields'
 import {
   Flag,
   FolderOpen,
@@ -33,20 +29,7 @@ import {
   Rss,
 } from 'lucide-react'
 
-const STATUS_LABELS: Record<string, string> = {
-  active: 'Laufend',
-  planning: 'In Planung',
-  completed: 'Abgeschlossen',
-  archived: 'Archiviert',
-}
-
-const labelMap = (opts: { label: string; value: string }[]) =>
-  Object.fromEntries(opts.map((o) => [o.value, o.label]))
-
-const THEMA_LABELS = labelMap(THEMA_OPTIONS)
-const STADTBEREICH_LABELS = labelMap(STADTBEREICH_OPTIONS)
-const ALTERSGRUPPE_LABELS = labelMap(ALTERSGRUPPE_OPTIONS)
-const GENDER_LABELS = labelMap(GENDER_OPTIONS)
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
 
 type Project = {
   id: string
@@ -106,11 +89,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
   const { locale, slug } = await params
+  const t = await getTranslations({ locale, namespace: 'projectDetail' })
   const project = await getPublicProject(slug)
-  if (!project) return { title: 'Projekt – UrbanKIT' }
+  if (!project) return { title: t('metaFallbackTitle') }
 
   const base = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://urbankit.de'
-  const description = project.shortDescription ?? `Informiere dich über das Projekt ${project.title} und gestalte aktiv mit.`
+  const description = project.shortDescription ?? t('metaFallbackDesc', { title: project.title })
   const coverUrl = project.coverImage?.url
   return {
     title: `${project.title} – UrbanKIT`,
@@ -128,9 +112,9 @@ export async function generateMetadata({
   }
 }
 
-const formatDate = (iso?: string | null) =>
+const formatDate = (iso: string | null | undefined, dateLocale: string) =>
   iso
-    ? new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })
+    ? new Date(iso).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })
     : null
 
 export default async function PublicProjectPage({
@@ -139,6 +123,11 @@ export default async function PublicProjectPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
+  const [t, tax] = await Promise.all([
+    getTranslations({ locale, namespace: 'projectDetail' }),
+    getTranslations({ locale, namespace: 'taxonomy' }),
+  ])
+  const dateLocale = locale === 'en' ? 'en-GB' : 'de-DE'
   const project = await getPublicProject(slug)
   if (!project) notFound()
 
@@ -198,20 +187,20 @@ export default async function PublicProjectPage({
 
   // Steckbrief rows — only filled fields
   const steckbrief = [
-    project.status ? { label: 'Status', value: STATUS_LABELS[project.status] ?? project.status } : null,
-    phase ? { label: 'Projektphase', value: `${phase.step + 1}/7 · ${phase.label}` } : null,
-    project.startYear ? { label: 'Startjahr', value: String(project.startYear) } : null,
+    project.status ? { label: t('rowStatus'), value: tax(`status.${project.status}`) } : null,
+    phase ? { label: t('rowPhase'), value: `${phase.step + 1}/7 · ${tax(`phase.${phase.value}`)}` } : null,
+    project.startYear ? { label: t('rowYear'), value: String(project.startYear) } : null,
     (project.thema ?? []).length > 0
-      ? { label: 'Thema', value: (project.thema ?? []).map((v) => THEMA_LABELS[v] ?? v).join(', ') }
+      ? { label: t('rowThema'), value: (project.thema ?? []).map((v) => tax(`thema.${v}`)).join(', ') }
       : null,
     (project.stadtbereich ?? []).length > 0
-      ? { label: 'Stadtbereich', value: (project.stadtbereich ?? []).map((v) => STADTBEREICH_LABELS[v] ?? v).join(', ') }
+      ? { label: t('rowStadtbereich'), value: (project.stadtbereich ?? []).map((v) => tax(`stadtbereich.${v}`)).join(', ') }
       : null,
     (project.altersgruppe ?? []).length > 0
-      ? { label: 'Altersgruppe', value: (project.altersgruppe ?? []).map((v) => ALTERSGRUPPE_LABELS[v] ?? v).join(', ') }
+      ? { label: t('rowAltersgruppe'), value: (project.altersgruppe ?? []).map((v) => tax(`altersgruppe.${v}`)).join(', ') }
       : null,
     (project.gender ?? []).length > 0
-      ? { label: 'Zielgruppe', value: (project.gender ?? []).map((v) => GENDER_LABELS[v] ?? v).join(', ') }
+      ? { label: t('rowZielgruppe'), value: (project.gender ?? []).map((v) => tax(`gender.${v}`)).join(', ') }
       : null,
   ].filter((d): d is { label: string; value: string } => d !== null)
 
@@ -246,13 +235,13 @@ export default async function PublicProjectPage({
 
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
           <div className="flex flex-wrap items-center gap-2">
-            <EyebrowBadge label="Projekt" bg={scheme.light} color={scheme.dark} />
+            <EyebrowBadge label={t('heroEyebrow')} bg={scheme.light} color={scheme.dark} />
             {project.status && (
               <span
                 className="inline-flex items-center mb-4 px-3 py-1 rounded-md text-small font-semibold leading-none"
                 style={{ background: scheme.mid, color: 'white' }}
               >
-                {STATUS_LABELS[project.status] ?? project.status}
+                {tax(`status.${project.status}`)}
               </span>
             )}
           </div>
@@ -270,17 +259,17 @@ export default async function PublicProjectPage({
 
         {/* CTAs — bottom right, stacked */}
         <div className="relative z-10 flex flex-col items-end gap-3 px-6 pb-8 md:pb-14 md:px-16 lg:px-24 self-end">
-          <CtaButton href={`/${locale}/starten`} label="Jetzt mitmachen" icon={<Flag />} wide />
-          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<FolderOpen />} variant="white" wide />
+          <CtaButton href={`/${locale}/starten`} label={t('ctaJoin')} icon={<Flag />} wide />
+          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('ctaAllProjects')} icon={<FolderOpen />} variant="white" wide />
         </div>
       </section>
 
       {/* Über das Projekt */}
       <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="w-full">
-          <EyebrowBadge label="Über das Projekt" opacity={0.6} />
+          <EyebrowBadge label={t('aboutEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-10">
-            Worum geht es<span style={{ color: 'var(--plattform)' }}>?</span>
+            {t.rich('aboutTitle', { accent })}
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
@@ -292,14 +281,14 @@ export default async function PublicProjectPage({
               />
             ) : (
               <p className="lg:col-span-2 text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                Für dieses Projekt liegt noch keine ausführliche Beschreibung vor.
+                {t('aboutEmpty')}
               </p>
             )}
 
             {/* Steckbrief */}
             {steckbrief.length > 0 && (
               <aside className="bg-white rounded-xl border p-8">
-                <h3 className="text-display font-black tracking-tight mb-4">Steckbrief</h3>
+                <h3 className="text-display font-black tracking-tight mb-4">{t('steckbrief')}</h3>
                 <dl>
                   {steckbrief.map((row) => (
                     <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b last:border-0">
@@ -327,12 +316,12 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label="Beteiligung" opacity={0.6} />
+          <EyebrowBadge label={t('participationEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-2">
-            So läuft die Beteiligung<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('participationTitle', { accent })}
           </h2>
           <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Jedes Projekt durchläuft sieben Phasen – von der ersten Idee bis zum Abschluss. Hier siehst du, wo das Projekt gerade steht und wie du dich einbringen kannst.
+            {t('participationBody')}
           </p>
 
           {/* Phasen-Stepper — current phase carries the project colour */}
@@ -352,7 +341,7 @@ export default async function PublicProjectPage({
                           : { borderColor: 'currentColor', color: 'var(--plattform-ink)', opacity: 0.4 }
                     }
                   >
-                    {ph.step + 1}. {ph.label}
+                    {ph.step + 1}. {tax(`phase.${ph.value}`)}
                   </span>
                 </li>
               )
@@ -369,7 +358,7 @@ export default async function PublicProjectPage({
             </div>
           )}
 
-          <CtaButton href={`/${locale}/starten`} label="Jetzt mitmachen" icon={<Flag />} />
+          <CtaButton href={`/${locale}/starten`} label={t('ctaJoin')} icon={<Flag />} />
         </div>
       </section>
 
@@ -377,9 +366,9 @@ export default async function PublicProjectPage({
       {hasAktuelles && (
         <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
           <div className="w-full">
-            <EyebrowBadge label="Aktuelles" opacity={0.6} />
+            <EyebrowBadge label={t('aktuellesEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
-              Neues aus dem Projekt<span style={{ color: 'var(--plattform)' }}>:</span>
+              {t.rich('aktuellesTitle', { accent })}
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -387,7 +376,7 @@ export default async function PublicProjectPage({
               <div>
                 <div className="flex items-center gap-2 mb-6">
                   <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                  <h3 className="text-display font-black tracking-tight">News</h3>
+                  <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
                   <a
                     href={`/api/rss?project=${project.slug}`}
                     className="ml-auto inline-flex items-center gap-1.5 text-small hover:underline"
@@ -399,7 +388,7 @@ export default async function PublicProjectPage({
                 </div>
                 {newsPosts.length === 0 ? (
                   <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                    Noch keine öffentlichen Beiträge.
+                    {t('newsEmpty')}
                   </p>
                 ) : (
                   <div className="flex flex-col gap-4">
@@ -411,7 +400,7 @@ export default async function PublicProjectPage({
                       >
                         {n.publishedAt && (
                           <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                            {formatDate(n.publishedAt)}
+                            {formatDate(n.publishedAt, dateLocale)}
                           </p>
                         )}
                         <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
@@ -427,11 +416,11 @@ export default async function PublicProjectPage({
               <div>
                 <div className="flex items-center gap-2 mb-6">
                   <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                  <h3 className="text-display font-black tracking-tight">Termine</h3>
+                  <h3 className="text-display font-black tracking-tight">{t('termineHeading')}</h3>
                 </div>
                 {calEvents.length === 0 ? (
                   <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                    Keine anstehenden öffentlichen Termine.
+                    {t('termineEmpty')}
                   </p>
                 ) : (
                   <div className="flex flex-col gap-4">
@@ -444,10 +433,10 @@ export default async function PublicProjectPage({
                             style={{ background: 'var(--plattform-light)' }}
                           >
                             <p className="text-display font-black leading-none" style={{ color: 'var(--plattform-ink-accent)' }}>
-                              {d.toLocaleDateString('de-DE', { day: '2-digit' })}
+                              {d.toLocaleDateString(dateLocale, { day: '2-digit' })}
                             </p>
                             <p className="text-small uppercase tracking-widest" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
-                              {d.toLocaleDateString('de-DE', { month: 'short' }).replace('.', '')}
+                              {d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')}
                             </p>
                           </div>
                           <div className="min-w-0">
@@ -476,16 +465,16 @@ export default async function PublicProjectPage({
       {galleryImages.length > 0 && (
         <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
           <div className="w-full">
-            <EyebrowBadge label="Galerie" opacity={0.6} />
+            <EyebrowBadge label={t('galerieEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
-              Einblicke<span style={{ color: 'var(--plattform)' }}>.</span>
+              {t.rich('galerieTitle', { accent })}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {galleryImages.map((img, i) => (
                 <figure key={i} className="rounded-xl border overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
                   <img
                     src={img.url}
-                    alt={img.alt ?? img.caption ?? `${project.title} – Bild ${i + 1}`}
+                    alt={img.alt ?? img.caption ?? t('imageAlt', { title: project.title, n: i + 1 })}
                     className="w-full aspect-video object-cover"
                     loading="lazy"
                   />
@@ -510,12 +499,12 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label="Jetzt mitmachen" opacity={0.6} />
+          <EyebrowBadge label={t('joinEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-5">
-            Gestalte das Projekt mit<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('joinTitle', { accent })}
           </h2>
           <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Du hast Fragen oder möchtest dich aktiv einbringen? Melde dich bei den Ansprechpersonen oder werde direkt Teil des Projekts – kostenlos und offen für alle.
+            {t('joinBody')}
           </p>
 
           {hasKontakt && (
@@ -523,28 +512,28 @@ export default async function PublicProjectPage({
               {ansprechperson && (
                 <div className="bg-white rounded-xl border p-6">
                   <UserRound className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>Ansprechperson</p>
+                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelContact')}</p>
                   <p className="text-text font-bold break-words" style={{ color: 'var(--plattform-ink-accent)' }}>{ansprechperson}</p>
                 </div>
               )}
               {kontakt.email && (
                 <a href={`mailto:${kontakt.email}`} className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
                   <Mail className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>E-Mail</p>
+                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelEmail')}</p>
                   <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.email}</p>
                 </a>
               )}
               {kontakt.telefon && (
                 <a href={`tel:${kontakt.telefon}`} className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
                   <Phone className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>Telefon</p>
+                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelPhone')}</p>
                   <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.telefon}</p>
                 </a>
               )}
               {websiteHref && (
                 <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
                   <Globe className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>Website</p>
+                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelWebsite')}</p>
                   <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.website}</p>
                 </a>
               )}
@@ -552,8 +541,8 @@ export default async function PublicProjectPage({
           )}
 
           <div className="flex flex-wrap gap-3">
-            <CtaButton href={`/${locale}/starten`} label="Jetzt starten" icon={<Flag />} />
-            <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<FolderOpen />} variant="white" />
+            <CtaButton href={`/${locale}/starten`} label={t('ctaStart')} icon={<Flag />} />
+            <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('ctaAllProjects')} icon={<FolderOpen />} variant="white" />
           </div>
         </div>
       </section>

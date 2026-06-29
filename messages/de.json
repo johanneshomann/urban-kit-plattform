@@ -243,6 +243,18 @@
       "ausfuehrung": "Ausführung",
       "ueberwachung": "Überwachung",
       "abschluss": "Abschluss"
+    },
+    "altersgruppe": {
+      "kinder": "Kinder (0–12)",
+      "jugendliche": "Jugendliche (13–17)",
+      "erwachsene": "Erwachsene (18–64)",
+      "senioren": "Senioren (65+)"
+    },
+    "gender": {
+      "maennlich": "Männlich",
+      "weiblich": "Weiblich",
+      "divers": "Divers",
+      "alle": "Alle"
     }
   },
   "projekteArchiv": {
@@ -513,5 +525,53 @@
       { "name": "Abschlussbericht", "description": "Zusammenfassung & Entscheidungsprotokoll" },
       { "name": "Lessons-Learned-Workshop", "description": "Reflexion für zukünftige Projekte" }
     ]
+  },
+  "projectDetail": {
+    "metaFallbackTitle": "Projekt – UrbanKIT",
+    "metaFallbackDesc": "Informieren über das Projekt {title} und aktiv mitgestalten.",
+    "heroEyebrow": "Projekt",
+    "ctaJoin": "Jetzt mitmachen",
+    "ctaAllProjects": "Alle Projekte",
+    "aboutEyebrow": "Über das Projekt",
+    "aboutTitle": "Worum geht es<accent>?</accent>",
+    "aboutEmpty": "Für dieses Projekt liegt noch keine ausführliche Beschreibung vor.",
+    "steckbrief": "Steckbrief",
+    "rowStatus": "Status",
+    "rowPhase": "Projektphase",
+    "rowYear": "Startjahr",
+    "rowThema": "Thema",
+    "rowStadtbereich": "Stadtbereich",
+    "rowAltersgruppe": "Altersgruppe",
+    "rowZielgruppe": "Zielgruppe",
+    "participationEyebrow": "Beteiligung",
+    "participationTitle": "So läuft die Beteiligung<accent>.</accent>",
+    "participationBody": "Jedes Projekt durchläuft sieben Phasen – von der ersten Idee bis zum Abschluss. Hier wird sichtbar, wo das Projekt gerade steht und wie eine Beteiligung möglich ist.",
+    "aktuellesEyebrow": "Aktuelles",
+    "aktuellesTitle": "Neues aus dem Projekt<accent>:</accent>",
+    "newsHeading": "News",
+    "termineHeading": "Termine",
+    "newsEmpty": "Noch keine öffentlichen Beiträge.",
+    "termineEmpty": "Keine anstehenden öffentlichen Termine.",
+    "galerieEyebrow": "Galerie",
+    "galerieTitle": "Einblicke<accent>.</accent>",
+    "imageAlt": "{title} – Bild {n}",
+    "joinEyebrow": "Jetzt mitmachen",
+    "joinTitle": "Projekt mitgestalten<accent>.</accent>",
+    "joinBody": "Fragen oder Interesse an aktiver Mitarbeit? Die Ansprechpersonen helfen weiter – oder direkt Teil des Projekts werden, kostenlos und offen für alle.",
+    "labelContact": "Ansprechperson",
+    "labelEmail": "E-Mail",
+    "labelPhone": "Telefon",
+    "labelWebsite": "Website",
+    "ctaStart": "Jetzt starten"
+  },
+  "newsDetail": {
+    "metaFallbackTitle": "News – UrbanKIT",
+    "metaDesc": "Neuigkeit aus dem Projekt {project} auf UrbanKIT.",
+    "empty": "Dieser Beitrag hat noch keinen Inhalt.",
+    "toProject": "Zum Projekt",
+    "allProjects": "Alle Projekte"
+  },
+  "team": {
+    "groups": "Gruppen"
   }
 }

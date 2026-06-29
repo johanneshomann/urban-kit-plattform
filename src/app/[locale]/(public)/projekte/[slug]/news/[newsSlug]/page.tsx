@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
@@ -74,13 +75,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string; newsSlug: string }>
 }): Promise<Metadata> {
   const { locale, slug, newsSlug } = await params
+  const t = await getTranslations({ locale, namespace: 'newsDetail' })
   const data = await getPublicNewsPost(slug, newsSlug)
-  if (!data) return { title: 'News – UrbanKIT' }
+  if (!data) return { title: t('metaFallbackTitle') }
 
   const base = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://urbankit.de'
   return {
     title: `${data.post.title} – ${data.project.title}`,
-    description: `Neuigkeit aus dem Projekt ${data.project.title} auf UrbanKIT.`,
+    description: t('metaDesc', { project: data.project.title }),
     alternates: { canonical: `${base}/${locale}/projekte/${slug}/news/${newsSlug}` },
     openGraph: {
       title: `${data.post.title} – ${data.project.title}`,
@@ -96,6 +98,7 @@ export default async function PublicProjectNewsPage({
   params: Promise<{ locale: string; slug: string; newsSlug: string }>
 }) {
   const { locale, slug, newsSlug } = await params
+  const t = await getTranslations({ locale, namespace: 'newsDetail' })
   const data = await getPublicNewsPost(slug, newsSlug)
   if (!data) notFound()
   const { project, post } = data
@@ -108,7 +111,7 @@ export default async function PublicProjectNewsPage({
     ? [post.author.firstName, post.author.lastName].filter(Boolean).join(' ')
     : null
   const publishedAt = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })
+    ? new Date(post.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: '2-digit', month: 'long', year: 'numeric' })
     : null
 
   return (
@@ -148,13 +151,13 @@ export default async function PublicProjectNewsPage({
             />
           ) : (
             <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-              Dieser Beitrag hat noch keinen Inhalt.
+              {t('empty')}
             </p>
           )}
 
           <div className="flex flex-wrap gap-3 mt-12">
-            <CtaButton href={`/${locale}/projekte/${project.slug}`} label="Zum Projekt" icon={<ArrowLeft />} />
-            <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<FolderOpen />} variant="white" />
+            <CtaButton href={`/${locale}/projekte/${project.slug}`} label={t('toProject')} icon={<ArrowLeft />} />
+            <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('allProjects')} icon={<FolderOpen />} variant="white" />
           </div>
         </article>
       </main>

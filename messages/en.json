@@ -243,6 +243,18 @@
       "ausfuehrung": "Execution",
       "ueberwachung": "Monitoring",
       "abschluss": "Completion"
+    },
+    "altersgruppe": {
+      "kinder": "Children (0–12)",
+      "jugendliche": "Teenagers (13–17)",
+      "erwachsene": "Adults (18–64)",
+      "senioren": "Seniors (65+)"
+    },
+    "gender": {
+      "maennlich": "Male",
+      "weiblich": "Female",
+      "divers": "Diverse",
+      "alle": "All"
     }
   },
   "projekteArchiv": {
@@ -513,5 +525,53 @@
       { "name": "Final report", "description": "Summary & decision record" },
       { "name": "Lessons-learned workshop", "description": "Reflection for future projects" }
     ]
+  },
+  "projectDetail": {
+    "metaFallbackTitle": "Project – UrbanKIT",
+    "metaFallbackDesc": "Find out about the {title} project and get actively involved.",
+    "heroEyebrow": "Project",
+    "ctaJoin": "Get involved",
+    "ctaAllProjects": "All projects",
+    "aboutEyebrow": "About the project",
+    "aboutTitle": "What is it about<accent>?</accent>",
+    "aboutEmpty": "There is no detailed description for this project yet.",
+    "steckbrief": "Project profile",
+    "rowStatus": "Status",
+    "rowPhase": "Project phase",
+    "rowYear": "Start year",
+    "rowThema": "Topic",
+    "rowStadtbereich": "District",
+    "rowAltersgruppe": "Age group",
+    "rowZielgruppe": "Target group",
+    "participationEyebrow": "Participation",
+    "participationTitle": "How participation works<accent>.</accent>",
+    "participationBody": "Every project goes through seven phases – from the first idea to completion. This shows where the project currently stands and how to get involved.",
+    "aktuellesEyebrow": "Latest",
+    "aktuellesTitle": "News from the project<accent>:</accent>",
+    "newsHeading": "News",
+    "termineHeading": "Events",
+    "newsEmpty": "No public posts yet.",
+    "termineEmpty": "No upcoming public events.",
+    "galerieEyebrow": "Gallery",
+    "galerieTitle": "Impressions<accent>.</accent>",
+    "imageAlt": "{title} – image {n}",
+    "joinEyebrow": "Get involved",
+    "joinTitle": "Help shape the project<accent>.</accent>",
+    "joinBody": "Questions or interested in taking an active part? The contacts are happy to help – or become part of the project directly, free and open to everyone.",
+    "labelContact": "Contact person",
+    "labelEmail": "Email",
+    "labelPhone": "Phone",
+    "labelWebsite": "Website",
+    "ctaStart": "Get started"
+  },
+  "newsDetail": {
+    "metaFallbackTitle": "News – UrbanKIT",
+    "metaDesc": "News from the {project} project on UrbanKIT.",
+    "empty": "This post has no content yet.",
+    "toProject": "To the project",
+    "allProjects": "All projects"
+  },
+  "team": {
+    "groups": "Groups"
   }
 }
