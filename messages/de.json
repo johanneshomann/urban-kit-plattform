@@ -607,5 +607,20 @@
     "dateJustNow": "Gerade eben",
     "dateHoursAgo": "Vor {hours}h",
     "dateYesterday": "Gestern"
+  },
+  "dashboard": {
+    "rolePM": "Projektmanager:in",
+    "roleCitizen": "Bürger:in",
+    "roleFollower": "Follower",
+    "pulsePolls": "{count, plural, one {# offene Umfrage} other {# offene Umfragen}}",
+    "pulseEvent": "Veranstaltung {when}",
+    "pulseNews": "{count, plural, one {# neue Nachricht} other {# neue Nachrichten}}",
+    "emptyTitle": "Noch keine Projekte",
+    "emptyBody": "Einem Projekt beitreten oder auf eine Einladung warten.",
+    "discoverProjects": "Projekte entdecken",
+    "moreProjectsQuestion": "An weiteren Projekten teilnehmen?",
+    "discoverAll": "Alle Projekte entdecken",
+    "noActivity": "Keine neuen Aktivitäten",
+    "manageProject": "Projekt verwalten"
   }
 }

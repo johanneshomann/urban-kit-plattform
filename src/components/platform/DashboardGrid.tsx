@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Settings2 } from 'lucide-react'
 import { useDashboardBg } from './DashboardShell'
@@ -23,6 +24,7 @@ interface DashboardGridProps {
 }
 
 function CardItem({ card, locale }: { card: DashboardCardData; locale: string }) {
+  const t = useTranslations('dashboard')
   const [bottomImage, setBottomImage] = useState(card.coverSrc)
   const [topImage, setTopImage] = useState(card.coverSrc)
   const [topOpacity, setTopOpacity] = useState(1)
@@ -42,7 +44,7 @@ function CardItem({ card, locale }: { card: DashboardCardData; locale: string })
           href={`/${locale}/dashboard/projekte/${card.slug}/manage`}
           className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
           style={{ background: card.scheme.white, color: card.scheme.dark }}
-          title="Projekt verwalten"
+          title={t('manageProject')}
         >
           <Settings2 className="text-text w-[1em] h-[1em]" />
         </Link>
@@ -101,7 +103,7 @@ function CardItem({ card, locale }: { card: DashboardCardData; locale: string })
               {card.pulse.join(' · ')}
             </p>
           ) : (
-            <p className="text-small mt-1.5" style={{ color: card.scheme.dark, opacity: 0.35 }}>Keine neuen Aktivitäten</p>
+            <p className="text-small mt-1.5" style={{ color: card.scheme.dark, opacity: 0.35 }}>{t('noActivity')}</p>
           )}
         </div>
       </Link>

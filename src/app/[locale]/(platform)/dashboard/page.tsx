@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getUser } from '@/lib/auth/getUser'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { FolderKanban, Search, ChevronRight } from 'lucide-react'
 
@@ -8,20 +9,6 @@ import { projectDefaults } from '@/lib/defaults/project'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { CtaButton } from '@/components/platform/CtaButton'
 import { DashboardGrid, type DashboardCardData } from '@/components/platform/DashboardGrid'
-
-const roleLabels: Record<string, string> = {
-  PM:       'Du bist Projektmanager:in',
-  Citizen:  'Du bist Bürger:in',
-  Follower: 'Du bist Follower',
-}
-
-function relativeDate(dateStr: string): string {
-  const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Heute'
-  if (days === 1) return 'Morgen'
-  if (days <= 7) return `In ${days} Tagen`
-  return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })
-}
 
 type Project = {
   id: string
@@ -41,6 +28,23 @@ export default async function DashboardPage({
   const { locale } = await params
   const user = await getUser()
   if (!user) return null
+
+  const [t, tp] = await Promise.all([
+    getTranslations({ locale, namespace: 'dashboard' }),
+    getTranslations({ locale, namespace: 'platform' }),
+  ])
+  const roleLabels: Record<string, string> = {
+    PM: t('rolePM'),
+    Citizen: t('roleCitizen'),
+    Follower: t('roleFollower'),
+  }
+  const relativeDate = (dateStr: string): string => {
+    const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    if (days === 0) return tp('dateToday')
+    if (days === 1) return tp('dateTomorrow')
+    if (days <= 7) return tp('dateInDays', { days })
+    return new Date(dateStr).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'short' })
+  }
 
   const payload = await getPayload({ config })
 
@@ -109,9 +113,9 @@ export default async function DashboardPage({
     const news = newsByProject[p.id] ?? 0
 
     const pulse: string[] = []
-    if (polls > 0) pulse.push(`${polls} offene ${polls === 1 ? 'Umfrage' : 'Umfragen'}`)
-    if (nextEvent) pulse.push(`Veranstaltung ${relativeDate(nextEvent)}`)
-    if (news > 0) pulse.push(`${news} neue ${news === 1 ? 'Nachricht' : 'Nachrichten'}`)
+    if (polls > 0) pulse.push(t('pulsePolls', { count: polls }))
+    if (nextEvent) pulse.push(t('pulseEvent', { when: relativeDate(nextEvent) }))
+    if (news > 0) pulse.push(t('pulseNews', { count: news }))
 
     const role = roleByProjectId[p.id]
     const scheme = resolveColorScheme(p.colorScheme)
@@ -146,12 +150,12 @@ export default async function DashboardPage({
             style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
           >
             <FolderKanban className="w-8 h-8 mx-auto mb-3 opacity-20" />
-            <p className="text-small font-medium opacity-50">Noch keine Projekte</p>
-            <p className="text-small mt-1 opacity-30">Tritt einem Projekt bei oder warte auf eine Einladung.</p>
+            <p className="text-small font-medium opacity-50">{t('emptyTitle')}</p>
+            <p className="text-small mt-1 opacity-30">{t('emptyBody')}</p>
             <div className="mt-4">
               <CtaButton
                 href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
-                label="Projekte entdecken"
+                label={t('discoverProjects')}
                 icon={<Search />}
                 newTab
               />
@@ -163,12 +167,12 @@ export default async function DashboardPage({
       </section>
 
       <section className="text-center">
-        <p className="text-small opacity-40">Du möchtest an weiteren Projekten teilnehmen?</p>
+        <p className="text-small opacity-40">{t('moreProjectsQuestion')}</p>
         <Link
           href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
           className="inline-flex items-center gap-1 text-small font-medium mt-1 transition-colors text-[var(--plattform)] hover:text-[var(--plattform-accent)]"
         >
-          Alle Projekte entdecken <ChevronRight className="w-[0.9em] h-[0.9em] shrink-0" />
+          {t('discoverAll')} <ChevronRight className="w-[0.9em] h-[0.9em] shrink-0" />
         </Link>
       </section>
     </div>
