@@ -325,5 +325,29 @@
     "modAgentDesc": "An AI assistant with access to the project context. Summarises, answers questions.",
     "modChatName": "Chat",
     "modChatDesc": "Direct communication within the team and via direct message – integrated into the project space."
+  },
+  "grundlagen": {
+    "metaTitle": "Basics & Methods – Urban KIT",
+    "metaDescription": "Understand how participation works. Build knowledge. Find methods.",
+    "heroEyebrow": "Area",
+    "heroTitle": "Foundational knowledge<br></br><accentG>&</accentG> methods<accentG>.</accentG>",
+    "heroBody": "Understand how participation works. Build knowledge. Find methods. Justify participation. With background, methods and context for city staff and everyone who wants to understand how participatory processes work.",
+    "ctaMethods": "Straight to the method collection",
+    "basicsEyebrow": "Understand the basics",
+    "basicsTitle": "The basics",
+    "basicsBody": "The basics form the backbone – understanding participation, shaping projects, knowing the legal framework. And anyone who wants to get started straight away will find the right methods further down.",
+    "cardPartTitle": "Participation",
+    "cardPartText": "What participation means, how it works and why it is decisive in urban development.",
+    "cardPlanTitle": "Project planning",
+    "cardPlanText": "From the first idea to implementation – a guide through the phases of a participatory city project.",
+    "cardLawTitle": "Legal framework",
+    "cardLawText": "Laws, participation rights and the regulatory basis of the platform – explained clearly.",
+    "readMore": "Read more →",
+    "whatMethodsTitle": "What are methods?",
+    "methodsCollection": "Method collection",
+    "methodsEyebrow": "Putting knowledge into practice",
+    "methodsTitle": "The methods",
+    "methodsBody": "Methods are the tools of participation. They describe concretely how processes are designed, people are involved and results are secured. Every method has emerged from real projects and provides information on its goal, effort and purpose.",
+    "methodsCta": "Open the method collection"
   }
 }

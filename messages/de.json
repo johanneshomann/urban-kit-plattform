@@ -325,5 +325,29 @@
     "modAgentDesc": "KI-gestützter Assistent mit Zugriff auf den Projektkontext. Fasst zusammen, beantwortet Fragen.",
     "modChatName": "Chat",
     "modChatDesc": "Direkte Kommunikation im Team und per Direktnachricht — integriert in den Projektraum."
+  },
+  "grundlagen": {
+    "metaTitle": "Grundlagen & Methoden – Urban KIT",
+    "metaDescription": "Verstehen, wie Beteiligung funktioniert. Wissen aufbauen. Methoden finden.",
+    "heroEyebrow": "Bereich",
+    "heroTitle": "Grundlagenwissen<br></br><accentG>&</accentG> Methoden<accentG>.</accentG>",
+    "heroBody": "Verstehen, wie Beteiligung funktioniert. Wissen aufbauen. Methoden finden. Beteiligung begründen. Mit Hintergrundwissen, Methoden und Einordnung für Stadtmitarbeitende und alle, die verstehen wollen, wie partizipative Prozesse funktionieren.",
+    "ctaMethods": "Direkt zur Methodensammlung",
+    "basicsEyebrow": "Grundlagen verstehen",
+    "basicsTitle": "Die Grundlagen",
+    "basicsBody": "Die Grundlagen bilden das Rückgrat — Beteiligung verstehen, Projekte gestalten, den rechtlichen Rahmen kennen. Und wer direkt loslegen möchte, findet weiter unten die passenden Methoden.",
+    "cardPartTitle": "Partizipation",
+    "cardPartText": "Was Beteiligung bedeutet, wie sie funktioniert und warum sie in der Stadtentwicklung entscheidend ist.",
+    "cardPlanTitle": "Projektplanung",
+    "cardPlanText": "Von der ersten Idee bis zur Umsetzung — ein Leitfaden durch die Phasen eines partizipativen Stadtprojekts.",
+    "cardLawTitle": "Rechtlicher Rahmen",
+    "cardLawText": "Gesetze, Beteiligungsrechte und die regulatorischen Grundlagen der Plattform — nachvollziehbar erklärt.",
+    "readMore": "Mehr lesen →",
+    "whatMethodsTitle": "Was sind Methoden?",
+    "methodsCollection": "Methodensammlung",
+    "methodsEyebrow": "Wissen in die Praxis bringen",
+    "methodsTitle": "Die Methoden",
+    "methodsBody": "Methoden sind das Werkzeug der Beteiligung. Sie beschreiben konkret, wie Prozesse gestaltet, Menschen eingebunden und Ergebnisse gesichert werden. Jede Methode ist aus realen Projekten heraus entstanden und gibt Auskunft über Ziel, Aufwand und Einsatzzweck.",
+    "methodsCta": "Methodensammlung öffnen"
   }
 }
