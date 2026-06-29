@@ -1,4 +1,5 @@
 import { getUser } from '@/lib/auth/getUser'
+import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { ProfileForm } from './ProfileForm'
 import { UserCircle } from 'lucide-react'
@@ -6,6 +7,7 @@ import { UserCircle } from 'lucide-react'
 export default async function ProfilPage() {
   const user = await getUser()
   if (!user) notFound()
+  const t = await getTranslations('profile')
 
   const firstName = (user as unknown as { firstName?: string }).firstName ?? ''
   const lastName = (user as unknown as { lastName?: string }).lastName ?? ''
@@ -22,7 +24,7 @@ export default async function ProfilPage() {
         </div>
         <div>
           <h1 className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
-            {firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Mein Profil'}
+            {firstName || lastName ? `${firstName} ${lastName}`.trim() : t('title')}
           </h1>
           <p className="text-small opacity-50">{user.email}</p>
         </div>

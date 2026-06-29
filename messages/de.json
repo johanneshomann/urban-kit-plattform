@@ -622,5 +622,22 @@
     "discoverAll": "Alle Projekte entdecken",
     "noActivity": "Keine neuen Aktivitäten",
     "manageProject": "Projekt verwalten"
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "saved": "Änderungen gespeichert.",
+    "personalData": "Persönliche Daten",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "firstNamePlaceholder": "Max",
+    "lastNamePlaceholder": "Mustermann",
+    "email": "E-Mail",
+    "emailReadonly": "E-Mail-Adresse kann nicht geändert werden.",
+    "changePassword": "Passwort ändern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "newPasswordHint": "Nur ausfüllen, wenn das Passwort geändert werden soll.",
+    "saving": "Wird gespeichert …",
+    "save": "Speichern"
   }
 }

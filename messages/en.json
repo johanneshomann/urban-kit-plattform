@@ -622,5 +622,22 @@
     "discoverAll": "Discover all projects",
     "noActivity": "No new activity",
     "manageProject": "Manage project"
+  },
+  "profile": {
+    "title": "My profile",
+    "saved": "Changes saved.",
+    "personalData": "Personal details",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "firstNamePlaceholder": "Jane",
+    "lastNamePlaceholder": "Doe",
+    "email": "Email",
+    "emailReadonly": "The email address cannot be changed.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordHint": "Only fill this in to change your password.",
+    "saving": "Saving …",
+    "save": "Save"
   }
 }

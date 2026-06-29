@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useTranslations } from 'next-intl'
 import { updateProfileAction } from '@/actions/auth'
 import { CheckCircle } from 'lucide-react'
 
@@ -12,6 +13,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
   const [state, action, pending] = useActionState(updateProfileAction, null)
+  const t = useTranslations('profile')
 
   const inputClass = "w-full px-4 py-3 rounded-xl border text-text bg-white outline-none transition-colors focus:border-[var(--plattform)]"
   const labelClass = "block text-small font-medium mb-1.5"
@@ -30,41 +32,41 @@ export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
       {state === null && (
         <p className="px-4 py-3 rounded-xl text-small flex items-center gap-2 text-green-700 bg-green-50 border border-green-200">
           <CheckCircle className="w-4 h-4 shrink-0" />
-          Änderungen gespeichert.
+          {t('saved')}
         </p>
       )}
 
       {/* Name */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>Persönliche Daten</h2>
+        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('personalData')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelClass} htmlFor="firstName">Vorname</label>
+            <label className={labelClass} htmlFor="firstName">{t('firstName')}</label>
             <input
               id="firstName"
               name="firstName"
               type="text"
               defaultValue={firstName}
               className={inputClass}
-              placeholder="Max"
+              placeholder={t('firstNamePlaceholder')}
               style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
             />
           </div>
           <div>
-            <label className={labelClass} htmlFor="lastName">Nachname</label>
+            <label className={labelClass} htmlFor="lastName">{t('lastName')}</label>
             <input
               id="lastName"
               name="lastName"
               type="text"
               defaultValue={lastName}
               className={inputClass}
-              placeholder="Mustermann"
+              placeholder={t('lastNamePlaceholder')}
               style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
             />
           </div>
         </div>
         <div>
-          <label className={labelClass} htmlFor="email">E-Mail</label>
+          <label className={labelClass} htmlFor="email">{t('email')}</label>
           <input
             id="email"
             type="email"
@@ -73,15 +75,15 @@ export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
             className={`${inputClass} opacity-50 cursor-not-allowed`}
             style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
           />
-          <p className="text-small opacity-40 mt-1.5">E-Mail-Adresse kann nicht geändert werden.</p>
+          <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
         </div>
       </section>
 
       {/* Password */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>Passwort ändern</h2>
+        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('changePassword')}</h2>
         <div>
-          <label className={labelClass} htmlFor="currentPassword">Aktuelles Passwort</label>
+          <label className={labelClass} htmlFor="currentPassword">{t('currentPassword')}</label>
           <input
             id="currentPassword"
             name="currentPassword"
@@ -92,7 +94,7 @@ export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
           />
         </div>
         <div>
-          <label className={labelClass} htmlFor="newPassword">Neues Passwort</label>
+          <label className={labelClass} htmlFor="newPassword">{t('newPassword')}</label>
           <input
             id="newPassword"
             name="newPassword"
@@ -101,7 +103,7 @@ export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
             placeholder="••••••••"
             style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
           />
-          <p className="text-small opacity-40 mt-1.5">Nur ausfüllen wenn du das Passwort ändern möchtest.</p>
+          <p className="text-small opacity-40 mt-1.5">{t('newPasswordHint')}</p>
         </div>
       </section>
 
@@ -113,7 +115,7 @@ export function ProfileForm({ firstName, lastName, email }: ProfileFormProps) {
         onMouseEnter={e => !pending && ((e.currentTarget as HTMLButtonElement).style.background = 'var(--plattform-accent)')}
         onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = 'var(--plattform)')}
       >
-        {pending ? 'Wird gespeichert…' : 'Speichern'}
+        {pending ? t('saving') : t('save')}
       </button>
 
     </form>
