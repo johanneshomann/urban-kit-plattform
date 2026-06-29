@@ -161,5 +161,30 @@
     "ctaBody": "Sign up now and get started right away – in less than a minute.",
     "ctaRegister": "Register now",
     "ctaMore": "More about UrbanKIT"
+  },
+  "about": {
+    "metaTitle": "UrbanKIT explained – making urban development transparent",
+    "metaDescription": "What is UrbanKIT? How does the platform work? Everything about the digital tool for citizen participation.",
+    "heroEyebrow": "UrbanKIT – what is it?",
+    "heroTitle": "Urban<kit>KIT</kit> explained<accent>.</accent>",
+    "heroBody": "UrbanKIT is the digital tool for citizen participation in {city}. Transparent, accessible and open to everyone – a place to follow urban development, understand it and get actively involved.",
+    "bgEyebrow": "Background",
+    "bgTitle": "City <accent>&</accent> development, made transparent<accent>.</accent>",
+    "bgP1": "UrbanKIT is the digital participation tool developed as part of the project <strong>SC PUT – Smart City Participation and Usability Toolbox</strong> by a team from the Institute for Design Strategies in collaboration with the city of {city}. The aim is to make urban decisions visible, understandable and open to participation – for everyone who lives, works or is active in {city}.",
+    "bgP2": "UrbanKIT shows which projects are currently running, which decisions have been made and where participation is possible. No prior knowledge is needed: the platform explains contexts, provides background and supports having a say before decisions are made.",
+    "bgP3": "UrbanKIT combines information, exchange and participation in one place. How actively you take part is entirely up to you.",
+    "platformEyebrow": "The platform",
+    "sectionsTitle": "Three areas<accent>.</accent> One goal<accent>.</accent>",
+    "sectionsBody": "UrbanKIT is divided into three areas that offer different points of entry but work towards one shared goal: making urban development understandable and accessible.",
+    "areaProjectsTitle": "Projects & Archive",
+    "areaProjectsBody": "View ongoing and completed projects and understand what is being decided, who is involved and what the current status is.",
+    "areaCollabTitle": "Collaboration",
+    "areaCollabBody": "The heart of participation. This is where people who want to actively shape the city come together – working on projects, discussing, exchanging ideas, voting and developing ideas together.",
+    "areaBasicsTitle": "Basics & Methods",
+    "areaBasicsBody": "Understand how participation works. Build knowledge, find methods, justify participation – with background and context for everyone who wants to understand participatory processes.",
+    "ctaEyebrow": "Get started",
+    "ctaTitle": "Jump in<accent>.</accent>",
+    "ctaBody": "Register for free and get going – discover projects, stay informed and get actively involved.",
+    "ctaButton": "Get started"
   }
 }

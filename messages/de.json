@@ -161,5 +161,30 @@
     "ctaBody": "Jetzt registrieren und direkt loslegen – in weniger als einer Minute.",
     "ctaRegister": "Jetzt registrieren",
     "ctaMore": "Mehr über UrbanKIT"
+  },
+  "about": {
+    "metaTitle": "UrbanKIT erklärt – Stadtentwicklung nachvollziehbar machen",
+    "metaDescription": "Was ist UrbanKIT? Wie funktioniert die Plattform? Alles über das digitale Tool für Bürgerbeteiligung.",
+    "heroEyebrow": "UrbanKIT – Was ist das?",
+    "heroTitle": "Urban<kit>KIT</kit> erklärt<accent>.</accent>",
+    "heroBody": "UrbanKIT ist das digitale Werkzeug für Bürger:innenbeteiligung der Stadt {city}. Transparent, zugänglich und offen für alle – ein Ort, um Stadtentwicklung zu verfolgen, zu verstehen und sich aktiv einzubringen.",
+    "bgEyebrow": "Hintergrund",
+    "bgTitle": "Stadt <accent>&</accent> Entwicklung, nachvollziehbar<accent>.</accent>",
+    "bgP1": "UrbanKIT ist das digitale Beteiligungstool, das im Rahmen des Projekts <strong>SC PUT – Smart City Participation and Usability Toolbox</strong> von einem Team des Institutes for Design Strategies in Zusammenarbeit mit der Stadt {city} entwickelt wurde. Ziel ist es, städtische Entscheidungen sichtbar, verständlich und mitgestaltbar zu machen — für alle, die in {city} leben, arbeiten oder sich engagieren.",
+    "bgP2": "Auf UrbanKIT wird sichtbar, welche Projekte gerade laufen, welche Entscheidungen getroffen wurden und wo Beteiligung möglich ist. Vorwissen ist nicht nötig: Die Plattform erklärt Zusammenhänge, zeigt Hintergründe und unterstützt dabei, mitzureden, bevor Entscheidungen fallen.",
+    "bgP3": "UrbanKIT verbindet Information, Austausch und Mitgestaltung an einem Ort. Der Grad der eigenen Beteiligung bleibt frei wählbar.",
+    "platformEyebrow": "Die Plattform",
+    "sectionsTitle": "Drei Bereiche<accent>.</accent> Ein Ziel<accent>.</accent>",
+    "sectionsBody": "UrbanKIT ist in drei Bereiche gegliedert, die unterschiedliche Zugänge bieten, aber auf ein gemeinsames Ziel einzahlen: Stadtentwicklung verständlich und zugänglich zu machen.",
+    "areaProjectsTitle": "Projekte & Archiv",
+    "areaProjectsBody": "Laufende und abgeschlossene Projekte einsehen und nachvollziehen, was entschieden wird, wer beteiligt ist und wie der aktuelle Stand ist.",
+    "areaCollabTitle": "Zusammenarbeit",
+    "areaCollabBody": "Das Herzstück der Beteiligung. Hier kommen Menschen zusammen, die Stadt aktiv mitgestalten wollen. Gemeinsam an Projekten arbeiten, diskutieren, sich austauschen, abstimmen und Ideen entwickeln.",
+    "areaBasicsTitle": "Grundlagen & Methoden",
+    "areaBasicsBody": "Verstehen, wie Beteiligung funktioniert. Wissen aufbauen, Methoden finden, Beteiligung begründen. Mit Hintergrundwissen und Einordnung für alle, die partizipative Prozesse verstehen wollen.",
+    "ctaEyebrow": "Jetzt loslegen",
+    "ctaTitle": "Jetzt einsteigen<accent>.</accent>",
+    "ctaBody": "Kostenlos registrieren und loslegen – Projekte entdecken, informieren und aktiv einbringen.",
+    "ctaButton": "Jetzt starten"
   }
 }
