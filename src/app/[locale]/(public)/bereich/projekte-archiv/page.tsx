@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
@@ -11,12 +13,24 @@ import { ScrollHint } from '@/components/public/ScrollHint'
 import { ProjekteFeatureAccordion } from './ProjekteFeatureAccordion'
 import { CtaButton } from '@/components/public/CtaButton'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'projekteArchiv' })
   return {
-    title: 'Projekte & Archiv – Urban KIT',
-    description: 'Alle laufenden und abgeschlossenen Stadtentwicklungsprojekte in der Übersicht.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
   }
 }
+
+// Rich-text tag renderers for decorative headings.
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-dark)' }}>{chunks}</span>
+const pcolon = (chunks: ReactNode) => <span style={{ color: 'var(--projekte)' }}>{chunks}</span>
+const br = () => <br />
 
 async function getProjects() {
   try {
@@ -35,8 +49,11 @@ async function getProjects() {
 
 export default async function BereichProjektePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const { cityName, cityLogoUrl } = await getCitySettings()
-  const projects = await getProjects()
+  const [{ cityName }, projects, t] = await Promise.all([
+    getCitySettings(),
+    getProjects(),
+    getTranslations({ locale, namespace: 'projekteArchiv' }),
+  ])
 
   const active = projects.filter((p) => p.status === 'active')
   const archived = projects.filter((p) => p.status !== 'active')
@@ -57,20 +74,19 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
         {/* Main content — left-aligned, upper area */}
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label="Bereich" bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-            Projekte <span style={{ color: 'var(--projekte-dark)' }}>&</span><br />
-            Archiv<span style={{ color: 'var(--projekte-dark)' }}>.</span>
+            {t.rich('heroTitle', { accentP, br })}
           </h1>
           <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Laufende und abgeschlossene Stadtprojekte – dokumentiert und nachvollziehbar. Du siehst, was geplant wird, wer beteiligt ist und wie der aktuelle Stand ist.
+            {t('heroBody')}
           </p>
         </div>
 
         {/* CTAs — bottom right */}
         <div className="relative z-10 flex flex-col items-end gap-3 px-6 pb-8 md:pb-14 md:px-16 lg:px-24 self-end">
-          <CtaButton href="#laufend" label="Aktuelle Projekte" icon={<FolderOpen />} variant="projekte" wide />
-          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<Archive />} variant="projekte" wide />
+          <CtaButton href="#laufend" label={t('ctaActive')} icon={<FolderOpen />} variant="projekte" wide />
+          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('ctaAll')} icon={<Archive />} variant="projekte" wide />
         </div>
       </section>
 
@@ -83,18 +99,18 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           style={{ color: 'var(--projekte-dark)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label="Wieso, Weshalb & Warum?" bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
           <h2 className="text-title font-black tracking-tight mb-10 max-w-2xl">
-            Stadt <span style={{ color: 'var(--projekte-dark)' }}>&</span> Entwicklung, nachvollziehbar<span style={{ color: 'var(--projekte-dark)' }}>.</span>
+            {t.rich('introTitle', { accentP })}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
             {/* Left */}
             <div className="flex flex-col gap-4">
               <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                Hier siehst du, was in {cityName} geplant, entschieden und umgesetzt wird. Alle Projekte sind dokumentiert – vom aktuellen Stand bis zur Entscheidung.
+                {t('introP1', { city: cityName })}
               </p>
               <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                Du kannst gezielt nach Themen oder Orten suchen und verfolgen, was sich in deinem Umfeld verändert. Neue Entwicklungen, Beschlüsse und Dokumente werden laufend ergänzt.
+                {t('introP2')}
               </p>
             </div>
             {/* Right */}
@@ -106,15 +122,15 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       {/* Aktuelle Projekte */}
       <section id="laufend" className="min-h-svh flex flex-col justify-center pt-8 pb-14 md:pt-12 md:pb-28 px-6 md:px-16 lg:px-24 border-b" style={{ background: 'var(--projekte-light)' }}>
         <div className="w-full">
-          <EyebrowBadge label="Entdecken" bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
           <h2 className="text-title font-black tracking-tight mb-2">
-            Aktuelle Projekte<span style={{ color: 'var(--projekte)' }}>:</span>
+            {t.rich('activeTitle', { pcolon })}
           </h2>
           <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Hier siehst du, woran auf UrbanKIT gerade gearbeitet wird. Jedes Projekt ist ein Ort für Information, Diskussion und echte Mitgestaltung.
+            {t('activeBody')}
           </p>
           {active.length === 0 ? (
-            <p className="text-text mb-12" style={{ color: 'var(--plattform-ink)' }}>Aktuell keine öffentlichen Projekte.</p>
+            <p className="text-text mb-12" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               {active.map((p) => (
@@ -131,7 +147,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
               ))}
             </div>
           )}
-          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label="Alle Projekte" icon={<FolderOpen />} variant="projekte" />
+          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('allCta')} icon={<FolderOpen />} variant="projekte" />
         </div>
       </section>
 
@@ -145,12 +161,12 @@ export default async function BereichProjektePage({ params }: { params: Promise<
             style={{ color: 'var(--plattform-ink)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label="Archiv" opacity={0.5} />
+            <EyebrowBadge label={t('archiveEyebrow')} opacity={0.5} />
             <h2 className="text-title font-black tracking-tight mb-2">
-              Abgeschlossene Projekte<span style={{ color: 'var(--plattform)' }}>.</span>
+              {t.rich('archiveTitle', { accent })}
             </h2>
             <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-              Diese Projekte sind abgeschlossen. Alle Informationen und Ergebnisse bleiben weiterhin einsehbar.
+              {t('archiveBody')}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {archived.map((p) => (
@@ -166,7 +182,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                     </h3>
                   </div>
                   {p.shortDescription && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.shortDescription}</p>}
-                  <span className="inline-block mt-4 text-small opacity-50" style={{ color: 'var(--plattform-ink)' }}>Abgeschlossen</span>
+                  <span className="inline-block mt-4 text-small opacity-50" style={{ color: 'var(--plattform-ink)' }}>{t('archivedBadge')}</span>
                 </Link>
               ))}
             </div>

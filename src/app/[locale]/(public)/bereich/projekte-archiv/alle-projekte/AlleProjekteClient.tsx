@@ -2,41 +2,17 @@
 
 import { useState, useMemo, useRef, type ReactNode } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Search, X, FolderOpen } from 'lucide-react'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import type { Project } from './ProjectLibrary'
 
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Laufend' },
-  { value: 'planning', label: 'In Planung' },
-  { value: 'completed', label: 'Abgeschlossen' },
-  { value: 'archived', label: 'Archiviert' },
-]
+const STATUS_VALUES = ['active', 'planning', 'completed', 'archived']
+const THEMA_VALUES = ['mobilitaet', 'wohnraum', 'gruenflaechen', 'infrastruktur', 'stadtentwicklung', 'kultur', 'bildung', 'umwelt']
+const STADTBEREICH_VALUES = ['innenstadt', 'norden', 'sueden', 'osten', 'westen', 'gesamtstadt']
 
-const THEMA_OPTIONS = [
-  { value: 'mobilitaet', label: 'Mobilität' },
-  { value: 'wohnraum', label: 'Wohnraum' },
-  { value: 'gruenflaechen', label: 'Grünflächen' },
-  { value: 'infrastruktur', label: 'Infrastruktur' },
-  { value: 'stadtentwicklung', label: 'Stadtentwicklung' },
-  { value: 'kultur', label: 'Kultur' },
-  { value: 'bildung', label: 'Bildung' },
-  { value: 'umwelt', label: 'Umwelt' },
-]
-
-const STADTBEREICH_OPTIONS = [
-  { value: 'innenstadt', label: 'Innenstadt' },
-  { value: 'norden', label: 'Norden' },
-  { value: 'sueden', label: 'Süden' },
-  { value: 'osten', label: 'Osten' },
-  { value: 'westen', label: 'Westen' },
-  { value: 'gesamtstadt', label: 'Gesamtstadt' },
-]
-
-const STATUS_LABELS = Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]))
-const THEMA_LABELS = Object.fromEntries(THEMA_OPTIONS.map((o) => [o.value, o.label]))
-const STADTBEREICH_LABELS = Object.fromEntries(STADTBEREICH_OPTIONS.map((o) => [o.value, o.label]))
+const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-dark)' }}>{chunks}</span>
 
 function FilterRow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -64,13 +40,13 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
   )
 }
 
-function SearchInput({ value, onChange, onFocus }: { value: string; onChange: (v: string) => void; onFocus?: () => void }) {
+function SearchInput({ value, onChange, onFocus, placeholder }: { value: string; onChange: (v: string) => void; onFocus?: () => void; placeholder: string }) {
   return (
     <div className="relative">
       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }} />
       <input
         type="text"
-        placeholder="Projekt suchen …"
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={onFocus}
@@ -86,7 +62,9 @@ function SearchInput({ value, onChange, onFocus }: { value: string; onChange: (v
   )
 }
 
-export function AlleProjekteClient({ projects, locale, cityName }: { projects: Project[]; locale: string; cityName: string }) {
+export function AlleProjekteClient({ projects, locale }: { projects: Project[]; locale: string; cityName: string }) {
+  const t = useTranslations('alleProjekte')
+  const tax = useTranslations('taxonomy')
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<string | null>(null)
   const [thema, setThema] = useState<string | null>(null)
@@ -138,18 +116,18 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
           style={{ color: 'var(--projekte-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label="Auf einen Blick" bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-            Alle Projekte<span style={{ color: 'var(--projekte-dark)' }}>.</span>
+            {t.rich('heroTitle', { accentP })}
           </h1>
           <p className="text-text leading-relaxed max-w-2xl mb-4" style={{ color: 'var(--plattform-ink)' }}>
-            Hier kannst du nicht nur Projekte verfolgen, sondern aus ihnen lernen. Alle Projekte bleiben dokumentiert, mit Entscheidungen, Methoden und Ergebnissen.
+            {t('heroP1')}
           </p>
           <p className="text-text leading-relaxed max-w-2xl mb-10" style={{ color: 'var(--plattform-ink)' }}>
-            So entsteht mit der Zeit eine Wissensbasis. Das Archiv macht sichtbar, wie Stadtentwicklung tatsächlich abläuft und bündelt Erfahrungen, die für zukünftige Projekte genutzt werden können.
+            {t('heroP2')}
           </p>
           <div className="max-w-xl">
-            <SearchInput value={search} onChange={setSearch} onFocus={scrollToLibrary} />
+            <SearchInput value={search} onChange={setSearch} onFocus={scrollToLibrary} placeholder={t('searchPlaceholder')} />
           </div>
         </div>
       </section>
@@ -159,26 +137,26 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
         {/* Sticky filter chips */}
         <div className="sticky top-14 z-20" style={{ background: 'var(--projekte-light)' }}>
           <div className="px-6 md:px-16 lg:px-24 py-4 flex flex-col gap-3">
-            <FilterRow label="Status">
-              <FilterChip label="Alle" active={!status} onClick={() => setStatus(null)} />
-              {STATUS_OPTIONS.map(({ value, label }) => (
-                <FilterChip key={value} label={label} active={status === value} onClick={() => setStatus(status === value ? null : value)} />
+            <FilterRow label={t('filterStatus')}>
+              <FilterChip label={t('filterAll')} active={!status} onClick={() => setStatus(null)} />
+              {STATUS_VALUES.map((value) => (
+                <FilterChip key={value} label={tax(`status.${value}`)} active={status === value} onClick={() => setStatus(status === value ? null : value)} />
               ))}
             </FilterRow>
-            <FilterRow label="Thema">
-              <FilterChip label="Alle" active={!thema} onClick={() => setThema(null)} />
-              {THEMA_OPTIONS.map(({ value, label }) => (
-                <FilterChip key={value} label={label} active={thema === value} onClick={() => setThema(thema === value ? null : value)} />
+            <FilterRow label={t('filterThema')}>
+              <FilterChip label={t('filterAll')} active={!thema} onClick={() => setThema(null)} />
+              {THEMA_VALUES.map((value) => (
+                <FilterChip key={value} label={tax(`thema.${value}`)} active={thema === value} onClick={() => setThema(thema === value ? null : value)} />
               ))}
             </FilterRow>
-            <FilterRow label="Stadtbereich">
-              <FilterChip label="Alle" active={!stadtbereich} onClick={() => setStadtbereich(null)} />
-              {STADTBEREICH_OPTIONS.map(({ value, label }) => (
-                <FilterChip key={value} label={label} active={stadtbereich === value} onClick={() => setStadtbereich(stadtbereich === value ? null : value)} />
+            <FilterRow label={t('filterStadtbereich')}>
+              <FilterChip label={t('filterAll')} active={!stadtbereich} onClick={() => setStadtbereich(null)} />
+              {STADTBEREICH_VALUES.map((value) => (
+                <FilterChip key={value} label={tax(`stadtbereich.${value}`)} active={stadtbereich === value} onClick={() => setStadtbereich(stadtbereich === value ? null : value)} />
               ))}
             </FilterRow>
-            <FilterRow label="Jahr">
-              <FilterChip label="Alle" active={!year} onClick={() => setYear(null)} />
+            <FilterRow label={t('filterYear')}>
+              <FilterChip label={t('filterAll')} active={!year} onClick={() => setYear(null)} />
               {availableYears.map((y) => (
                 <FilterChip key={y} label={String(y)} active={year === y} onClick={() => setYear(year === y ? null : y)} />
               ))}
@@ -189,18 +167,18 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
         {/* Results */}
         <div className="px-6 md:px-16 lg:px-24 py-12">
           <p className="text-small mb-8" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-            {filtered.length} {filtered.length === 1 ? 'Projekt' : 'Projekte'}{hasFilters ? ' gefunden' : ''}
+            {hasFilters ? t('resultsFound', { count: filtered.length }) : t('results', { count: filtered.length })}
           </p>
 
           {filtered.length === 0 ? (
             <div className="py-24 text-center">
-              <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>Keine Projekte gefunden.</p>
+              <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('emptyResults')}</p>
               <button
                 onClick={() => { setSearch(''); setStatus(null); setThema(null); setStadtbereich(null); setYear(null) }}
                 className="mt-4 text-small underline"
                 style={{ color: 'var(--projekte-dark)' }}
               >
-                Filter zurücksetzen
+                {t('resetFilters')}
               </button>
             </div>
           ) : (
@@ -224,7 +202,7 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
                               color: p.status === 'active' ? 'var(--projekte-dark)' : 'var(--plattform-ink)',
                             }}
                           >
-                            {STATUS_LABELS[p.status] ?? p.status}
+                            {tax(`status.${p.status}`)}
                           </span>
                         )}
                         <span className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }}>{projYear}</span>
@@ -237,15 +215,15 @@ export function AlleProjekteClient({ projects, locale, cityName }: { projects: P
                       )}
                       {(p.thema ?? []).length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-4">
-                          {(p.thema ?? []).map((t) => (
-                            <span key={t} className="text-small px-2.5 py-0.5 rounded-full border" style={{ color: 'var(--plattform-ink)', opacity: 0.5, borderColor: 'currentColor' }}>
-                              {THEMA_LABELS[t] ?? t}
+                          {(p.thema ?? []).map((th) => (
+                            <span key={th} className="text-small px-2.5 py-0.5 rounded-full border" style={{ color: 'var(--plattform-ink)', opacity: 0.5, borderColor: 'currentColor' }}>
+                              {tax(`thema.${th}`)}
                             </span>
                           ))}
                         </div>
                       )}
                       <span className="mt-5 text-small font-semibold group-hover:underline" style={{ color: 'var(--projekte-dark)' }}>
-                        Zum Projekt →
+                        {t('toProject')}
                       </span>
                     </div>
                   </Link>

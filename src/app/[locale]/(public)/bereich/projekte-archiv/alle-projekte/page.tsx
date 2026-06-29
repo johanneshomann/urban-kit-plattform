@@ -1,16 +1,23 @@
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { getCitySettings } from '@/lib/instance'
 import { AlleProjekteClient } from './AlleProjekteClient'
 import type { Project } from './ProjectLibrary'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'alleProjekte' })
   return {
-    title: 'Alle Projekte – Urban KIT',
-    description: 'Alle öffentlichen Stadtentwicklungsprojekte in der Übersicht.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
   }
 }
 

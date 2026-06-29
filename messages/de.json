@@ -210,5 +210,78 @@
     "formMessage": "Nachricht",
     "formMessagePlaceholder": "Ihre Nachricht …",
     "formSubmit": "Absenden"
+  },
+  "taxonomy": {
+    "status": {
+      "active": "Laufend",
+      "planning": "In Planung",
+      "completed": "Abgeschlossen",
+      "archived": "Archiviert"
+    },
+    "thema": {
+      "mobilitaet": "Mobilität",
+      "wohnraum": "Wohnraum",
+      "gruenflaechen": "Grünflächen",
+      "infrastruktur": "Infrastruktur",
+      "stadtentwicklung": "Stadtentwicklung",
+      "kultur": "Kultur",
+      "bildung": "Bildung",
+      "umwelt": "Umwelt"
+    },
+    "stadtbereich": {
+      "innenstadt": "Innenstadt",
+      "norden": "Norden",
+      "sueden": "Süden",
+      "osten": "Osten",
+      "westen": "Westen",
+      "gesamtstadt": "Gesamtstadt"
+    }
+  },
+  "projekteArchiv": {
+    "metaTitle": "Projekte & Archiv – Urban KIT",
+    "metaDescription": "Alle laufenden und abgeschlossenen Stadtentwicklungsprojekte in der Übersicht.",
+    "heroEyebrow": "Bereich",
+    "heroTitle": "Projekte <accentP>&</accentP><br></br>Archiv<accentP>.</accentP>",
+    "heroBody": "Laufende und abgeschlossene Stadtprojekte – dokumentiert und nachvollziehbar: geplante Vorhaben, Beteiligte und der aktuelle Stand auf einen Blick.",
+    "ctaActive": "Aktuelle Projekte",
+    "ctaAll": "Alle Projekte",
+    "introEyebrow": "Wieso, Weshalb & Warum?",
+    "introTitle": "Stadt <accentP>&</accentP> Entwicklung, nachvollziehbar<accentP>.</accentP>",
+    "introP1": "Hier wird sichtbar, was in {city} geplant, entschieden und umgesetzt wird. Alle Projekte sind dokumentiert – vom aktuellen Stand bis zur Entscheidung.",
+    "introP2": "Die gezielte Suche nach Themen oder Orten zeigt, was sich im eigenen Umfeld verändert. Neue Entwicklungen, Beschlüsse und Dokumente werden laufend ergänzt.",
+    "featProjectsTitle": "Projekte nachvollziehen",
+    "featProjectsBody": "Was geplant ist, was entschieden wurde und wie sich Projekte entwickeln – vom ersten Entwurf bis zum Abschluss.",
+    "featFilterTitle": "Filtern nach Thema & Ort",
+    "featFilterBody": "Schnell finden, was relevant ist – im eigenen Viertel oder zu einem bestimmten Thema.",
+    "featArchiveTitle": "Archiv abgeschlossener Projekte",
+    "featArchiveBody": "Auch beendete Projekte bleiben sichtbar – als Grundlage für spätere Entscheidungen und als Nachweis für Bürger:innen.",
+    "activeEyebrow": "Entdecken",
+    "activeTitle": "Aktuelle Projekte<pcolon>:</pcolon>",
+    "activeBody": "Hier wird sichtbar, woran auf UrbanKIT gerade gearbeitet wird. Jedes Projekt ist ein Ort für Information, Diskussion und echte Mitgestaltung.",
+    "empty": "Aktuell keine öffentlichen Projekte.",
+    "allCta": "Alle Projekte",
+    "archiveEyebrow": "Archiv",
+    "archiveTitle": "Abgeschlossene Projekte<accent>.</accent>",
+    "archiveBody": "Diese Projekte sind abgeschlossen. Alle Informationen und Ergebnisse bleiben weiterhin einsehbar.",
+    "archivedBadge": "Abgeschlossen"
+  },
+  "alleProjekte": {
+    "metaTitle": "Alle Projekte – Urban KIT",
+    "metaDescription": "Alle öffentlichen Stadtentwicklungsprojekte in der Übersicht.",
+    "heroEyebrow": "Auf einen Blick",
+    "heroTitle": "Alle Projekte<accentP>.</accentP>",
+    "heroP1": "Projekte lassen sich hier nicht nur verfolgen, sondern als Wissensquelle nutzen. Alle Projekte bleiben dokumentiert – mit Entscheidungen, Methoden und Ergebnissen.",
+    "heroP2": "So entsteht mit der Zeit eine Wissensbasis. Das Archiv macht sichtbar, wie Stadtentwicklung tatsächlich abläuft, und bündelt Erfahrungen, die für zukünftige Projekte genutzt werden können.",
+    "searchPlaceholder": "Projekt suchen …",
+    "filterStatus": "Status",
+    "filterThema": "Thema",
+    "filterStadtbereich": "Stadtbereich",
+    "filterYear": "Jahr",
+    "filterAll": "Alle",
+    "results": "{count, plural, one {# Projekt} other {# Projekte}}",
+    "resultsFound": "{count, plural, one {# Projekt gefunden} other {# Projekte gefunden}}",
+    "emptyResults": "Keine Projekte gefunden.",
+    "resetFilters": "Filter zurücksetzen",
+    "toProject": "Zum Projekt →"
   }
 }

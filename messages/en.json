@@ -210,5 +210,78 @@
     "formMessage": "Message",
     "formMessagePlaceholder": "Your message …",
     "formSubmit": "Send"
+  },
+  "taxonomy": {
+    "status": {
+      "active": "Active",
+      "planning": "In planning",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "thema": {
+      "mobilitaet": "Mobility",
+      "wohnraum": "Housing",
+      "gruenflaechen": "Green spaces",
+      "infrastruktur": "Infrastructure",
+      "stadtentwicklung": "Urban development",
+      "kultur": "Culture",
+      "bildung": "Education",
+      "umwelt": "Environment"
+    },
+    "stadtbereich": {
+      "innenstadt": "City centre",
+      "norden": "North",
+      "sueden": "South",
+      "osten": "East",
+      "westen": "West",
+      "gesamtstadt": "Citywide"
+    }
+  },
+  "projekteArchiv": {
+    "metaTitle": "Projects & Archive – Urban KIT",
+    "metaDescription": "An overview of all ongoing and completed urban development projects.",
+    "heroEyebrow": "Area",
+    "heroTitle": "Projects <accentP>&</accentP><br></br>Archive<accentP>.</accentP>",
+    "heroBody": "Ongoing and completed city projects – documented and transparent: planned initiatives, those involved and the current status at a glance.",
+    "ctaActive": "Current projects",
+    "ctaAll": "All projects",
+    "introEyebrow": "Why, what for & how come?",
+    "introTitle": "City <accentP>&</accentP> development, made transparent<accentP>.</accentP>",
+    "introP1": "This is where what is planned, decided and implemented in {city} becomes visible. Every project is documented – from the current status to the decision.",
+    "introP2": "Searching specifically by topic or location shows what is changing in your own surroundings. New developments, decisions and documents are added continuously.",
+    "featProjectsTitle": "Follow projects",
+    "featProjectsBody": "What is planned, what has been decided and how projects develop – from the first draft to completion.",
+    "featFilterTitle": "Filter by topic & location",
+    "featFilterBody": "Quickly find what is relevant – in your own neighbourhood or on a specific topic.",
+    "featArchiveTitle": "Archive of completed projects",
+    "featArchiveBody": "Completed projects stay visible too – as a basis for later decisions and as a record for citizens.",
+    "activeEyebrow": "Discover",
+    "activeTitle": "Current projects<pcolon>:</pcolon>",
+    "activeBody": "See what is currently being worked on in UrbanKIT. Every project is a place for information, discussion and real participation.",
+    "empty": "No public projects at the moment.",
+    "allCta": "All projects",
+    "archiveEyebrow": "Archive",
+    "archiveTitle": "Completed projects<accent>.</accent>",
+    "archiveBody": "These projects are completed. All information and results remain accessible.",
+    "archivedBadge": "Completed"
+  },
+  "alleProjekte": {
+    "metaTitle": "All projects – Urban KIT",
+    "metaDescription": "An overview of all public urban development projects.",
+    "heroEyebrow": "At a glance",
+    "heroTitle": "All projects<accentP>.</accentP>",
+    "heroP1": "Here projects can not only be followed but used as a source of knowledge. Every project stays documented – with decisions, methods and results.",
+    "heroP2": "Over time, this builds a knowledge base. The archive makes visible how urban development actually works and brings together experience that can be used for future projects.",
+    "searchPlaceholder": "Search projects …",
+    "filterStatus": "Status",
+    "filterThema": "Topic",
+    "filterStadtbereich": "District",
+    "filterYear": "Year",
+    "filterAll": "All",
+    "results": "{count, plural, one {# project} other {# projects}}",
+    "resultsFound": "{count, plural, one {# project found} other {# projects found}}",
+    "emptyResults": "No projects found.",
+    "resetFilters": "Reset filters",
+    "toProject": "To the project →"
   }
 }
