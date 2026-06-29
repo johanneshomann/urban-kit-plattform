@@ -186,5 +186,29 @@
     "ctaTitle": "Jump in<accent>.</accent>",
     "ctaBody": "Register for free and get going – discover projects, stay informed and get actively involved.",
     "ctaButton": "Get started"
+  },
+  "kontakt": {
+    "metaTitle": "Contact – Urban KIT",
+    "metaDescription": "Get in touch with the Urban KIT platform.",
+    "heroEyebrow": "Contact",
+    "heroTitle": "Get in touch<accent>.</accent>",
+    "heroBody": "Questions about the platform, about a project, or feedback to share? We look forward to your message.",
+    "contactEyebrow": "Contact details",
+    "contactTitle": "How to<br></br>reach us<accent>.</accent>",
+    "labelOperator": "Platform operator",
+    "labelEmail": "Email",
+    "labelAddress": "Address",
+    "supportHint": "For technical problems with your account, please contact <mail>{email}</mail>.",
+    "sentTitle": "Thank you for your message<accent>.</accent>",
+    "sentBody": "We will get back to you as soon as possible.",
+    "formName": "Name",
+    "formNamePlaceholder": "Your name",
+    "formEmail": "Email",
+    "formEmailPlaceholder": "you@email.com",
+    "formSubject": "Subject",
+    "formSubjectPlaceholder": "What is it about?",
+    "formMessage": "Message",
+    "formMessagePlaceholder": "Your message …",
+    "formSubmit": "Send"
   }
 }

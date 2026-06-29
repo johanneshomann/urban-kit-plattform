@@ -186,5 +186,29 @@
     "ctaTitle": "Jetzt einsteigen<accent>.</accent>",
     "ctaBody": "Kostenlos registrieren und loslegen – Projekte entdecken, informieren und aktiv einbringen.",
     "ctaButton": "Jetzt starten"
+  },
+  "kontakt": {
+    "metaTitle": "Kontakt – Urban KIT",
+    "metaDescription": "Kontakt zur Urban KIT Plattform.",
+    "heroEyebrow": "Kontakt",
+    "heroTitle": "Kontakt aufnehmen<accent>.</accent>",
+    "heroBody": "Fragen zur Plattform, zu einem Projekt oder Feedback? Über eine Nachricht freuen wir uns.",
+    "contactEyebrow": "Kontaktdaten",
+    "contactTitle": "So sind wir<br></br>erreichbar<accent>.</accent>",
+    "labelOperator": "Plattformbetreiber",
+    "labelEmail": "E-Mail",
+    "labelAddress": "Adresse",
+    "supportHint": "Bei technischen Problemen mit dem Konto hilft <mail>{email}</mail> weiter.",
+    "sentTitle": "Vielen Dank für die Nachricht<accent>.</accent>",
+    "sentBody": "Eine Rückmeldung folgt so schnell wie möglich.",
+    "formName": "Name",
+    "formNamePlaceholder": "Ihr Name",
+    "formEmail": "E-Mail",
+    "formEmailPlaceholder": "name@email.de",
+    "formSubject": "Betreff",
+    "formSubjectPlaceholder": "Worum geht es?",
+    "formMessage": "Nachricht",
+    "formMessagePlaceholder": "Ihre Nachricht …",
+    "formSubmit": "Absenden"
   }
 }

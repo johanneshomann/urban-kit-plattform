@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
@@ -9,12 +11,21 @@ import { getCitySettings } from '@/lib/instance'
 import { Mail } from 'lucide-react'
 import { KontaktForm } from './KontaktForm'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'kontakt' })
   return {
-    title: 'Kontakt – Urban KIT',
-    description: 'Kontakt zur Urban KIT Plattform.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
   }
 }
+
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+const br = () => <br />
 
 interface LegalContact {
   operatorName?: string
@@ -37,9 +48,10 @@ async function getLegalContact(): Promise<LegalContact> {
 
 export default async function KontaktPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const [{ cityName, cityLogoUrl }, legal] = await Promise.all([
+  const [{ cityName }, legal, t] = await Promise.all([
     getCitySettings(),
     getLegalContact(),
+    getTranslations({ locale, namespace: 'kontakt' }),
   ])
 
   const operatorName = legal.operatorName || cityName
@@ -66,13 +78,12 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         />
         <ScrollHint />
         <div className="relative z-10">
-          <EyebrowBadge label="Kontakt" opacity={0.6} />
+          <EyebrowBadge label={t('heroEyebrow')} opacity={0.6} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-            Schreib uns<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('heroTitle', { accent })}
           </h1>
           <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Du hast Fragen zur Plattform, zu einem Projekt oder möchtest Feedback geben?
-            Wir freuen uns über deine Nachricht.
+            {t('heroBody')}
           </p>
         </div>
       </section>
@@ -82,9 +93,9 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24"
         style={{ background: 'var(--plattform-light)' }}
       >
-        <EyebrowBadge label="Kontaktdaten" opacity={0.6} />
+        <EyebrowBadge label={t('contactEyebrow')} opacity={0.6} />
         <h2 className="text-title font-black tracking-tight mb-10">
-          So erreichst<br />du uns<span style={{ color: 'var(--plattform)' }}>.</span>
+          {t.rich('contactTitle', { accent, br })}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -92,11 +103,11 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-xl border p-7 flex flex-col gap-5 hover:shadow-md transition-all">
               <div>
-                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>Plattformbetreiber</p>
+                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>{t('labelOperator')}</p>
                 <p className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{operatorName}</p>
               </div>
               <div>
-                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>E-Mail</p>
+                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>{t('labelEmail')}</p>
                 <a
                   href={`mailto:${contactEmail}`}
                   className="text-text transition-opacity hover:opacity-70"
@@ -106,7 +117,7 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
                 </a>
               </div>
               <div>
-                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>Adresse</p>
+                <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>{t('labelAddress')}</p>
                 <address className="not-italic text-text" style={{ color: 'var(--plattform-ink)' }}>
                   {street}<br />
                   {zip} {city}
@@ -114,15 +125,18 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
               </div>
             </div>
             <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>
-              Für technische Probleme mit deinem Konto wende dich bitte an{' '}
-              <a
-                href={`mailto:${supportEmail}`}
-                className="transition-opacity hover:opacity-70"
-                style={{ color: 'var(--plattform)' }}
-              >
-                {supportEmail}
-              </a>
-              .
+              {t.rich('supportHint', {
+                email: supportEmail,
+                mail: (chunks) => (
+                  <a
+                    href={`mailto:${supportEmail}`}
+                    className="transition-opacity hover:opacity-70"
+                    style={{ color: 'var(--plattform)' }}
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </p>
           </div>
 
