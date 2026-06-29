@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { ChevronDown, Circle } from 'lucide-react'
 
 export interface TodoItem { bold: string; text: string }
@@ -17,6 +18,7 @@ export interface ProjektStep {
 }
 
 function StepContent({ step }: { step: ProjektStep }) {
+  const t = useTranslations('projektplanung')
   return (
     <div className="space-y-8">
       {/* Title */}
@@ -49,7 +51,7 @@ function StepContent({ step }: { step: ProjektStep }) {
       {/* Methodenkiste */}
       <div>
         <p className="text-small uppercase tracking-widest font-black mb-3" style={{ color: 'var(--grundlagen-dark)' }}>
-          Methodenkiste
+          {t('methodbox')}
         </p>
         <div className="flex flex-wrap gap-2">
           {step.methoden.map((m, i) => (
@@ -69,6 +71,7 @@ function StepContent({ step }: { step: ProjektStep }) {
 }
 
 export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
+  const t = useTranslations('projektplanung')
   const [open, setOpen] = useState<number | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
 
@@ -98,7 +101,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
                 {i}
               </span>
               <span className="flex-1 font-black tracking-tight transition-colors duration-200" style={{ color: isOpen ? 'var(--grundlagen-dark)' : 'var(--plattform-ink-accent)' }}>
-                Schritt {i} · {step.phase}
+                {t('stepWord')} {i} · {step.phase}
               </span>
               <ChevronDown
                 className={`w-[1em] h-[1em] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}

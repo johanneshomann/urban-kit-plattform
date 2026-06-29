@@ -234,6 +234,15 @@
       "osten": "East",
       "westen": "West",
       "gesamtstadt": "Citywide"
+    },
+    "phase": {
+      "warum-wofuer": "Why & what for?",
+      "einarbeitung": "Familiarisation",
+      "konzept": "Concept",
+      "projektplanung": "Project planning",
+      "ausfuehrung": "Execution",
+      "ueberwachung": "Monitoring",
+      "abschluss": "Completion"
     }
   },
   "projekteArchiv": {
@@ -400,5 +409,109 @@
     "s6Body": "<p>An often underestimated legal question: what binding force do participation results have? The answer is clear – <strong>in principle none.</strong> Participation results are politically significant but not legally binding.</p><p>Decisions still rest with the democratically elected bodies. No participation format can replace or limit their decision-making authority.</p><p>This creates responsibility for communication: if participation results are not implemented, or only partially, this must be justified comprehensibly – otherwise there is a risk of losing trust.</p><p>Participation becomes relevant in liability terms above all in the case of procedural errors in the formal area: if legally required participation steps are omitted, this can render planning decisions void.</p>",
     "s7Title": "Checklist: legally sound participation",
     "s7Body": "<p>A practical orientation for preparing participation procedures:</p><ul><li><strong>Formal obligations checked?</strong> Check the BauGB, municipal code and sector-specific laws.</li><li><strong>Data protection clarified?</strong> Legal basis, privacy policy, deletion concept.</li><li><strong>Accessibility ensured?</strong> Venue, language, digital tools.</li><li><strong>Binding force communicated transparently?</strong> What happens with the results?</li><li><strong>Documentation planned?</strong> Evidence of participation for later procedural steps.</li><li><strong>Information on legal remedies?</strong> For formal procedures: note the deadlines for objections.</li></ul>"
+  },
+  "projektplanung": {
+    "metaTitle": "Project planning – Basics | Urban KIT",
+    "metaDescription": "From the first idea to implementation – a guide through the phases of a participatory city project.",
+    "heroEyebrow": "Basics / Project planning",
+    "heroTitle": "Project planning<accentG>.</accentG>",
+    "heroBody": "From the first idea to implementation – a guide through the phases of a participatory city project.",
+    "stepWord": "Step",
+    "methodbox": "Method box",
+    "s0Title": "Before the beginning",
+    "s0Ziel": "<p>Create a basic understanding and motivation: why are we doing participation at all? Which values, attitudes and guidelines carry us? Only when everyone is clear about <strong>why participation matters</strong> do trust, openness and energy emerge for the whole process.</p>",
+    "s0Intro": "<p>Suppose there is a good idea — a new app, a square redesign, a mobility strategy. Even before the question “What exactly do we want to change?” comes the question: <strong>“Why do we want to involve people?”</strong> Is it just obligation, or a genuine will to co-create? A clearly formulated “why” is the starting signal that motivates people to get involved in the first place.</p>",
+    "s0Todos": [
+      { "bold": "Clarify motivation", "text": "Why participation? Obligation, image, quality, legitimacy, innovation?" },
+      { "bold": "Define attitude & values", "text": "Openness: which questions are genuinely open?" },
+      { "bold": "Transparency", "text": "How do we handle the results?" },
+      { "bold": "Diversity", "text": "Which voices do we absolutely want to hear?" },
+      { "bold": "Name the framework", "text": "Resources (time, budget, staff) and limits (political, legal, organisational)" },
+      { "bold": "Formulate a vision", "text": "A shared sentence that carries everyone: “We do participation because …”" }
+    ],
+    "s0Wichtig": "<p>Without an honest “why”, there is a risk of token participation. A shared foundation of values protects against conflicts in later steps. <strong>Attitude shapes the whole process — more than any tool.</strong></p>",
+    "s0Methoden": [
+      { "name": "Kick-off dialogue", "description": "Internal team conversation · gather vision & values" },
+      { "name": "Why workshop", "description": "5-Why method · develop a purpose statement" }
+    ],
+    "s1Title": "Understand the context",
+    "s1Ziel": "<p>Get to know the current situation, the stakeholders and the subject area.</p>",
+    "s1Intro": "<p>Before planning, there must be understanding — who is affected, what already exists, what is expected?</p>",
+    "s1Todos": [
+      { "bold": "Stakeholder analysis", "text": "Who is affected, who has influence, who should be involved?" },
+      { "bold": "Document review", "text": "Research existing plans, decisions and reports" },
+      { "bold": "First conversations", "text": "Informal interviews with key people" }
+    ],
+    "s1Wichtig": "<p>Without solid familiarisation, blind spots emerge that cost trust later.</p>",
+    "s1Methoden": [
+      { "name": "Stakeholder map", "description": "Visualisation of actors & relationships" },
+      { "name": "Desk research", "description": "Review of existing documents & plans" }
+    ],
+    "s2Title": "Develop a participation concept",
+    "s2Ziel": "<p>Develop a coherent concept that defines goals, target groups, formats and timeline.</p>",
+    "s2Intro": "<p>The concept is the roadmap. It answers: whom do we involve, with what, when and how?</p>",
+    "s2Todos": [
+      { "bold": "Specify goals", "text": "What should participation achieve?" },
+      { "bold": "Define target groups", "text": "Whom do we want to reach, whom must we reach?" },
+      { "bold": "Choose formats", "text": "Online, analogue, hybrid — what fits the context?" },
+      { "bold": "Create a timeline", "text": "Account for milestones, buffers and political dates" }
+    ],
+    "s2Wichtig": "<p>A concept without resource planning is a wish list. Stay realistic.</p>",
+    "s2Methoden": [
+      { "name": "Participation matrix", "description": "Match formats & target groups" },
+      { "name": "Work breakdown structure", "description": "Tasks, responsibilities, dates" }
+    ],
+    "s3Title": "Plan operationally",
+    "s3Ziel": "<p>Clarify the operational level: who does what by when, with which resources?</p>",
+    "s3Intro": "<p>Now the concept becomes a concrete action plan with responsibilities and budgets.</p>",
+    "s3Todos": [
+      { "bold": "Distribute tasks", "text": "Define clear roles and responsibilities" },
+      { "bold": "Plan the budget", "text": "Costs for venues, materials, communication, staff" },
+      { "bold": "Communication plan", "text": "How do we inform the public about the participation?" }
+    ],
+    "s3Wichtig": "<p>Without clear responsibilities, everything ends up resting on one person.</p>",
+    "s3Methoden": [
+      { "name": "Gantt chart", "description": "Visualise the schedule" },
+      { "name": "Communication concept", "description": "Define target groups & channels" }
+    ],
+    "s4Title": "Carry out the participation",
+    "s4Ziel": "<p>Implement and document the planned participation formats.</p>",
+    "s4Intro": "<p>Now the actual participation takes place — events, workshops, surveys.</p>",
+    "s4Todos": [
+      { "bold": "Run the formats", "text": "Preparation, facilitation, documentation" },
+      { "bold": "Secure the results", "text": "Minutes, photos, visualisations" },
+      { "bold": "Ongoing communication", "text": "Keep participants informed of progress" }
+    ],
+    "s4Wichtig": "<p>Documentation is not an afterthought — it is part of the process and builds trust.</p>",
+    "s4Methoden": [
+      { "name": "World Café", "description": "Group format for broad topic exploration" },
+      { "name": "Online survey", "description": "Digital participation for broad target groups" }
+    ],
+    "s5Title": "Accompany & steer the process",
+    "s5Ziel": "<p>Reflect on the ongoing process and adjust where necessary.</p>",
+    "s5Intro": "<p>Participation is not a linear process. Regular reflection helps to stay on course.</p>",
+    "s5Todos": [
+      { "bold": "Draw an interim conclusion", "text": "What is going well, what is not?" },
+      { "bold": "Gather feedback", "text": "From participants and internally" },
+      { "bold": "Make adjustments", "text": "React flexibly to change" }
+    ],
+    "s5Wichtig": "<p>Pursuing rigid plans in dynamic contexts costs more than reacting flexibly.</p>",
+    "s5Methoden": [
+      { "name": "Process review", "description": "Internal reflection round" },
+      { "name": "Feedback form", "description": "Structured feedback from participants" }
+    ],
+    "s6Title": "Conclude & hand over",
+    "s6Ziel": "<p>Conclude the participation with dignity, hand over results and capture what was learned.</p>",
+    "s6Intro": "<p>The conclusion is just as important as the start. Participants want to know what became of their contributions.</p>",
+    "s6Todos": [
+      { "bold": "Create a results report", "text": "What was heard, what will be implemented, what not (and why)?" },
+      { "bold": "Give feedback", "text": "Inform participants about the decisions" },
+      { "bold": "Carry out an evaluation", "text": "What did we learn for next time?" }
+    ],
+    "s6Wichtig": "<p>A missing conclusion destroys trust. <strong>People want to know what happened to their contributions.</strong></p>",
+    "s6Methoden": [
+      { "name": "Final report", "description": "Summary & decision record" },
+      { "name": "Lessons-learned workshop", "description": "Reflection for future projects" }
+    ]
   }
 }
