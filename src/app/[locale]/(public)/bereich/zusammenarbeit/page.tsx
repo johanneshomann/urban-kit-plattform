@@ -1,23 +1,32 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
-import { getCitySettings } from '@/lib/instance'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { CtaButton } from '@/components/public/CtaButton'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { Circle, ArrowRight, Layers, Users, Layout } from 'lucide-react'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'zusammenarbeit' })
   return {
-    title: 'Zusammenarbeit – Urban KIT',
-    description: 'Der digitale Projektraum für Teams: Module für Neuigkeiten, Umfragen, Aufgaben und mehr.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
   }
 }
 
+const accentZ = (chunks: ReactNode) => <span style={{ color: 'var(--zusammenarbeit-dark)' }}>{chunks}</span>
+const br = () => <br />
 
 export default async function BereichZusammenarbeitPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const { cityName, cityLogoUrl } = await getCitySettings()
+  const t = await getTranslations({ locale, namespace: 'zusammenarbeit' })
 
   return (
     <div className="min-h-svh flex flex-col">
@@ -54,20 +63,20 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           />
 
           <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-            <EyebrowBadge label="Bereich" bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
+            <EyebrowBadge label={t('heroEyebrow')} bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
 
             <h1 className="text-hero font-black leading-none tracking-tight mb-8">
-              Zusammenarbeit<span style={{ color: 'var(--zusammenarbeit-dark)' }}>.</span>
+              {t.rich('heroTitle', { accentZ })}
             </h1>
 
             <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-              Das Herzstück der Beteiligung. Hier kommen Menschen zusammen, die Stadt aktiv mitgestalten wollen. Gemeinsam an Projekten arbeiten, diskutieren, sich austauschen, abstimmen und Ideen entwickeln. Bürger:innen, Verwaltung und Stadtgesellschaft kommen hier direkt in Interaktion.
+              {t('heroBody')}
             </p>
           </div>
 
           {/* CTA — bottom right, matching landing page */}
           <div className="relative z-10 flex flex-col items-end gap-3 px-6 pb-8 md:pb-14 md:px-16 lg:px-24 self-end">
-            <CtaButton href={`/${locale}/starten`} label="Jetzt starten" icon={<ArrowRight />} variant="zusammenarbeit" wide />
+            <CtaButton href={`/${locale}/starten`} label={t('ctaStart')} icon={<ArrowRight />} variant="zusammenarbeit" wide />
           </div>
         </section>
 
@@ -82,15 +91,15 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label="Projektraum" bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
+            <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
             <h2 className="text-title font-black tracking-tight mb-5">
-              Der Projektraum<span style={{ color: 'var(--zusammenarbeit-dark)' }}>.</span>
+              {t.rich('roomTitle', { accentZ })}
             </h2>
             <p className="text-text leading-relaxed max-w-2xl mb-5" style={{ color: 'var(--plattform-ink)' }}>
-              Jedes Projekt auf UrbanKIT bekommt einen eigenen Projektraum. Ein gemeinsamer Arbeitsbereich, in dem alle Beteiligten zusammenkommen — Verwaltungsmitarbeiter:innen, eingeladene Bürger:innen, Stadtgesellschaft.
+              {t('roomP1')}
             </p>
             <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-              Welche Module aktiv sind, richtet sich nach dem Projekt. Öffentliche Inhalte sind für alle einsehbar — interne Arbeitsbereiche bleiben dem Team vorbehalten.
+              {t('roomP2')}
             </p>
           </div>
         </section>
@@ -106,15 +115,15 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10">
-            <EyebrowBadge label="Module" bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
+            <EyebrowBadge label={t('modulesEyebrow')} bg="var(--zusammenarbeit)" color="var(--plattform-ink)" />
             <h2 className="text-title font-black tracking-tight mb-5">
-              Werkzeuge<br />für die Zusammenarbeit<span style={{ color: 'var(--zusammenarbeit-dark)' }}>.</span>
+              {t.rich('modulesTitle', { accentZ, br })}
             </h2>
             <p className="text-text leading-relaxed max-w-2xl mb-10" style={{ color: 'var(--plattform-ink)' }}>
-              Module sind die Bausteine des Projektraums. Jedes Modul erfüllt eine klare Funktion und kann projektspezifisch aktiviert werden. Nur so kann Beteiligung wirklich strukturiert gelingen.
+              {t('modulesBody')}
             </p>
             <div className="flex">
-              <CtaButton href={`/${locale}/bereich/zusammenarbeit/module`} label="Module anschauen" icon={<Layout />} variant="zusammenarbeit" />
+              <CtaButton href={`/${locale}/bereich/zusammenarbeit/module`} label={t('modulesCta')} icon={<Layout />} variant="zusammenarbeit" />
             </div>
           </div>
         </section>
