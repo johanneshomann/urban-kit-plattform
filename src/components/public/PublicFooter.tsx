@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Circle, Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck } from 'lucide-react'
+import { Circle, Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie } from 'lucide-react'
 import { getCitySettings } from '@/lib/instance'
 
 interface PublicFooterProps {
@@ -80,6 +80,10 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
                 <ShieldCheck className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">Datenschutz</span>
               </Link>
+              <Link href={`${l}/cookies`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
+                <Cookie className="w-[1em] h-[1em] shrink-0 opacity-40" />
+                <span className="group-hover:underline">Cookie-Richtlinie</span>
+              </Link>
             </nav>
           </div>
 
@@ -116,6 +120,9 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             </Link>
             <Link href={`${l}/datenschutz`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
               Datenschutz
+            </Link>
+            <Link href={`${l}/cookies`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+              Cookies
             </Link>
             <Link href="/admin" className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.25 }}>
               Admin
