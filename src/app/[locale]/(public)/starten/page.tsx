@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
@@ -9,30 +11,41 @@ import { getCitySettings } from '@/lib/instance'
 import { Flag, Folders, Info } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'starten' })
   return {
-    title: 'So gestaltest du mit – UrbanKIT',
-    description: 'In drei Schritten zur Beteiligung: Konto erstellen, Projekt finden, mitgestalten.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
   }
 }
 
+// Rich-text tag renderers for decorative headings.
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+const br = () => <br />
+
+// `titleKey`/`descKey`/`ctaKey` reference the `starten` namespace.
 const STEPS = [
   {
     number: '1',
-    title: 'Konto erstellen',
-    description: 'Registriere dich in unter einer Minute. Entscheide selbst, wie sichtbar du bist. Mit Konto kannst du Projekte nicht nur ansehen, sondern aktiv mitgestalten.',
-    cta: { label: 'Registrieren', href: 'register', icon: Flag },
+    titleKey: 'step1Title',
+    descKey: 'step1Desc',
+    cta: { ctaKey: 'step1Cta', href: 'register', icon: Flag },
   },
   {
     number: '2',
-    title: 'Projekt finden',
-    description: 'Finde Projekte, die dich betreffen oder interessieren und verschaffe dir einen schnellen Überblick. Schau welche Stadtprojekte gerade aktiv sind — von Verkehrsführung bis Grünflächen. Jedes Projekt zeigt dir, was gerade entschieden wird und wo du dich einbringen kannst.',
-    cta: { label: 'Alle Projekte', href: 'bereich/projekte-archiv/alle-projekte', icon: Folders },
+    titleKey: 'step2Title',
+    descKey: 'step2Desc',
+    cta: { ctaKey: 'step2Cta', href: 'bereich/projekte-archiv/alle-projekte', icon: Folders },
   },
   {
     number: '3',
-    title: 'Mitgestalten',
-    description: 'Im Projekt arbeitest du gemeinsam mit der Stadt und anderen Bürger:innen daran, das Ergebnis in die Richtung zu bringen, die du dir vorstellst. Bring deine Perspektive ein, gib Feedback und verfolge, wie deine Beiträge in den weiteren Prozess einfließen.',
+    titleKey: 'step3Title',
+    descKey: 'step3Desc',
     cta: null,
   },
 ]
@@ -45,7 +58,10 @@ const EVENTS = [
 
 export default async function StartenPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const { cityName, cityLogoUrl } = await getCitySettings()
+  const [{ cityName, cityLogoUrl }, t] = await Promise.all([
+    getCitySettings(),
+    getTranslations({ locale, namespace: 'starten' }),
+  ])
 
   return (
     <div className="min-h-svh flex flex-col">
@@ -60,12 +76,12 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           style={{ color: 'var(--plattform)' }}
         />
         <ScrollHint />
-        <EyebrowBadge label={`UrbanKIT · So kannst du mitmachen`} opacity={0.6} />
+        <EyebrowBadge label={t('heroEyebrow')} opacity={0.6} />
         <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-          So gestaltest<br />du mit<span style={{ color: 'var(--plattform)' }}>.</span>
+          {t.rich('heroTitle', { accent, br })}
         </h1>
         <p className="text-text leading-relaxed max-w-2xl">
-          Registrieren. Projekte entdecken. Mitgestalten. So funktioniert Beteiligung in {cityName}.
+          {t('heroBody', { city: cityName })}
         </p>
       </section>
 
@@ -88,13 +104,13 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
-              <EyebrowBadge label={`Schritt ${step.number}`} opacity={0.6} />
+              <EyebrowBadge label={t('stepLabel', { number: step.number })} opacity={0.6} />
               <h2 className="text-title font-black tracking-tight mb-5">
-                <span style={{ color: 'var(--plattform)' }}>{step.number}. </span>{step.title}
+                <span style={{ color: 'var(--plattform)' }}>{step.number}. </span>{t(step.titleKey)}
               </h2>
-              <p className="text-text leading-relaxed mb-10">{step.description}</p>
+              <p className="text-text leading-relaxed mb-10">{t(step.descKey)}</p>
               {step.cta && (
-                <CtaButton href={`/${locale}/${step.cta.href}`} label={step.cta.label} icon={<step.cta.icon />} />
+                <CtaButton href={`/${locale}/${step.cta.href}`} label={t(step.cta.ctaKey)} icon={<step.cta.icon />} />
               )}
             </div>
 
@@ -109,12 +125,12 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
           {/* Left */}
           <div>
-            <EyebrowBadge label="Einladung" opacity={0.6} />
+            <EyebrowBadge label={t('invEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-5">
-              Du hast eine<br />Einladung<span style={{ color: 'var(--plattform)' }}>?</span>
+              {t.rich('invTitle', { accent, br })}
             </h2>
             <p className="text-text leading-relaxed opacity-70">
-              Mitarbeiter:innen der Stadt {cityName} können Bürger:innen direkt zur Mitarbeit einladen. Den Code findest du in der Einladung per Post oder E-Mail.
+              {t('invBody', { city: cityName })}
             </p>
           </div>
 
@@ -122,14 +138,14 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           <div className="flex flex-col gap-4">
             {/* Code form card */}
             <div className="bg-white rounded-xl border p-6 flex flex-col gap-3 hover:shadow-md transition-all">
-              <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>Dein Einladungscode</p>
+              <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('invCodeLabel')}</p>
               <InvitationForm />
-              <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>Du gelangst direkt in das entsprechende Projekt — ohne weitere Hürden.</p>
+              <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('invHint')}</p>
             </div>
 
             {/* Events card */}
             <div className="bg-white rounded-xl border p-6 flex flex-col gap-4 hover:shadow-md transition-all">
-              <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>Nächste öffentliche Termine</p>
+              <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('eventsLabel')}</p>
               {EVENTS.map((ev) => (
                 <div key={ev.title} className="flex gap-4 items-center border-t pt-4 first:border-t-0 first:pt-0">
                   <div className="shrink-0 w-10 text-center">
@@ -149,16 +165,16 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
 
       {/* CTA */}
       <section className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)' }}>
-        <EyebrowBadge label="Jetzt mitmachen" opacity={0.6} />
+        <EyebrowBadge label={t('ctaEyebrow')} opacity={0.6} />
         <h2 className="text-hero font-black leading-none tracking-tight mb-5">
-          Bist du bereit<span style={{ color: 'var(--plattform)' }}>?</span>
+          {t.rich('ctaTitle', { accent })}
         </h2>
         <p className="text-text leading-relaxed mb-10 max-w-sm">
-          Registriere dich jetzt und fang direkt an — es dauert weniger als eine Minute.
+          {t('ctaBody')}
         </p>
         <div className="flex flex-wrap gap-3">
-          <CtaButton href={`/${locale}/register`} label="Jetzt registrieren" icon={<Flag />} />
-          <CtaButton href={`/${locale}/ueber-urbankit`} label="Mehr über UrbanKIT" icon={<Info />} />
+          <CtaButton href={`/${locale}/register`} label={t('ctaRegister')} icon={<Flag />} />
+          <CtaButton href={`/${locale}/ueber-urbankit`} label={t('ctaMore')} icon={<Info />} />
         </div>
       </section>
 
