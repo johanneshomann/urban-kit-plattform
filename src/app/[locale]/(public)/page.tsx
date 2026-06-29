@@ -50,11 +50,11 @@ async function getActiveProjects() {
     const payload = await getPayload({ config })
     const result = await payload.find({
       collection: 'projects',
-      where: { and: [{ status: { equals: 'active' } }, { visibility: { equals: 'PUBLIC' } }] },
+      where: { and: [{ status: { equals: 'active' } }, { isPublic: { equals: true } }] },
       limit: 4,
       overrideAccess: true,
     })
-    return result.docs as unknown as { id: string; title: string; slug: string; summary?: string }[]
+    return result.docs as unknown as { id: string; title: string; slug: string; shortDescription?: string }[]
   } catch {
     return []
   }
@@ -215,7 +215,7 @@ export default async function PublicHomePage({
                   <h3 className="text-display font-black tracking-tight mb-5 transition-colors" style={{ color: 'var(--projekte-dark)' }}>
                     {p.title}
                   </h3>
-                  {p.summary && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.summary}</p>}
+                  {p.shortDescription && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.shortDescription}</p>}
                 </Link>
               ))}
             </div>

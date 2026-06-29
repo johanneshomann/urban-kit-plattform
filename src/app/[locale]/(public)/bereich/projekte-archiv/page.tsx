@@ -23,11 +23,11 @@ async function getProjects() {
     const payload = await getPayload({ config })
     const result = await payload.find({
       collection: 'projects',
-      where: { visibility: { equals: 'PUBLIC' } },
+      where: { isPublic: { equals: true } },
       sort: '-createdAt',
       overrideAccess: true,
     })
-    return result.docs as unknown as { id: string; title: string; slug: string; summary?: string; status?: string }[]
+    return result.docs as unknown as { id: string; title: string; slug: string; shortDescription?: string; status?: string }[]
   } catch {
     return []
   }
@@ -126,7 +126,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                   <h3 className="text-display font-black tracking-tight mb-5 transition-colors" style={{ color: 'var(--projekte-dark)' }}>
                     {p.title}
                   </h3>
-                  {p.summary && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.summary}</p>}
+                  {p.shortDescription && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.shortDescription}</p>}
                 </Link>
               ))}
             </div>
@@ -165,7 +165,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                       {p.title}
                     </h3>
                   </div>
-                  {p.summary && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.summary}</p>}
+                  {p.shortDescription && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.shortDescription}</p>}
                   <span className="inline-block mt-4 text-small opacity-50" style={{ color: 'var(--plattform-ink)' }}>Abgeschlossen</span>
                 </Link>
               ))}
