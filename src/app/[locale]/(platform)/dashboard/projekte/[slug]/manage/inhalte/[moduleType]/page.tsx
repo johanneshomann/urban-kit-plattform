@@ -3,6 +3,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { MODULE_LABELS } from '@/lib/options/modules'
+import { lexicalToMarkdown } from '@/lib/richtext'
 import { ManagePlaceholder } from '@/components/platform/manage/ManagePlaceholder'
 import { NewsManager, type NewsItem } from '@/components/platform/manage/NewsManager'
 import { CalendarManager, type EventItem } from '@/components/platform/manage/CalendarManager'
@@ -29,10 +30,23 @@ export default async function ManageInhaltePage({
       where: { project: { equals: ctx.project.id } },
       sort: '-createdAt',
       limit: 100,
-      depth: 0,
+      depth: 1,
       overrideAccess: true,
     })
-    const posts = res.docs as unknown as NewsItem[]
+    const posts: NewsItem[] = await Promise.all(
+      res.docs.map(async (doc) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const p = doc as any
+        return {
+          id: String(p.id),
+          title: p.title ?? '',
+          body: await lexicalToMarkdown(p.content),
+          visibility: p.visibility ?? 'INTERNAL',
+          publishedAt: p.publishedAt ?? null,
+          featuredImageUrl: p.featuredImage && typeof p.featuredImage === 'object' ? (p.featuredImage.url ?? null) : null,
+        }
+      }),
+    )
     return <NewsManager slug={slug} locale={locale} posts={posts} />
   }
 
