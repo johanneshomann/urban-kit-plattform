@@ -50,12 +50,6 @@ const STEPS = [
   },
 ]
 
-const EVENTS = [
-  { day: '24', month: 'JAN', title: 'Posh statt Poll – Bürgerforum', time: '10:30 Uhr · Stadthaus Detmold, Raum 1' },
-  { day: '08', month: 'MAR', title: 'Marktplatz Neugestaltung – Workshop', time: '17:00 Uhr · Marktplatz Detmold, Foyer' },
-  { day: '15', month: 'APR', title: 'Radwege Innenstadt – Infoabend', time: '19:00 Uhr · VHS Detmold, Saal A' },
-]
-
 export default async function StartenPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const [{ cityName, cityLogoUrl }, t] = await Promise.all([
@@ -120,7 +114,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
         </section>
       ))}
 
-      {/* Invitation + Events */}
+      {/* Invitation */}
       <section className="relative min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
           {/* Left */}
@@ -141,23 +135,6 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
               <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('invCodeLabel')}</p>
               <InvitationForm />
               <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('invHint')}</p>
-            </div>
-
-            {/* Events card */}
-            <div className="bg-white rounded-xl border p-6 flex flex-col gap-4 hover:shadow-md transition-all">
-              <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('eventsLabel')}</p>
-              {EVENTS.map((ev) => (
-                <div key={ev.title} className="flex gap-4 items-center border-t pt-4 first:border-t-0 first:pt-0">
-                  <div className="shrink-0 w-10 text-center">
-                    <p className="text-display font-black leading-none" style={{ color: 'var(--plattform)' }}>{ev.day}</p>
-                    <p className="text-small font-normal tracking-widest" style={{ color: 'var(--plattform-ink)' }}>{ev.month}</p>
-                  </div>
-                  <div>
-                    <p className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{ev.title}</p>
-                    <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{ev.time}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
