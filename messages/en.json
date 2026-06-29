@@ -27,7 +27,18 @@
     "password": "Password",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "contact": "Contact",
+    "welcomeBack": "Welcome back",
+    "welcomeBackBody": "Sign in and take part in city projects and participation processes.",
+    "loginSubtitle": "Please enter your credentials to continue.",
+    "loginButton": "Sign in",
+    "loginPending": "Signing in …",
+    "joinNow": "Get involved",
+    "joinBody": "Create an account and become part of the community – help shape your city.",
+    "registerSubtitle": "Create a free account and get started right away.",
+    "registerButton": "Create account",
+    "registerPending": "Registering …"
   },
   "accessibility": {
     "open": "Open accessibility settings",

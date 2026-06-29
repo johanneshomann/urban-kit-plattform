@@ -27,7 +27,18 @@
     "password": "Passwort",
     "forgotPassword": "Passwort vergessen?",
     "noAccount": "Noch kein Konto?",
-    "hasAccount": "Bereits ein Konto?"
+    "hasAccount": "Bereits ein Konto?",
+    "contact": "Kontakt",
+    "welcomeBack": "Willkommen zurück",
+    "welcomeBackBody": "Anmelden und an städtischen Projekten und Beteiligungsprozessen teilnehmen.",
+    "loginSubtitle": "Bitte Zugangsdaten eingeben, um fortzufahren.",
+    "loginButton": "Anmelden",
+    "loginPending": "Anmelden …",
+    "joinNow": "Jetzt mitmachen",
+    "joinBody": "Konto erstellen und Teil der Community werden – die eigene Stadt aktiv mitgestalten.",
+    "registerSubtitle": "Kostenloses Konto erstellen und direkt loslegen.",
+    "registerButton": "Konto erstellen",
+    "registerPending": "Registrieren …"
   },
   "accessibility": {
     "open": "Barrierefreiheit-Einstellungen öffnen",

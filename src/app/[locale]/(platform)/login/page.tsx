@@ -1,11 +1,15 @@
 import { LoginForm } from './LoginForm'
 import { getCitySettings } from '@/lib/instance'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { Mail } from 'lucide-react'
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const { cityName, cityLogoUrl } = await getCitySettings()
+  const [{ cityName, cityLogoUrl }, t] = await Promise.all([
+    getCitySettings(),
+    getTranslations({ locale, namespace: 'auth' }),
+  ])
 
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
@@ -22,10 +26,10 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
         <div className="flex flex-col gap-5">
           <p className="text-title font-bold leading-tight">
-            Willkommen zurück<span style={{ color: 'var(--plattform-white)' }}>!</span>
+            {t('welcomeBack')}<span style={{ color: 'var(--plattform-white)' }}>!</span>
           </p>
           <p className="text-text" style={{ opacity: 0.65 }}>
-            Melde dich an und nimm an städtischen Projekten und Beteiligungsprozessen teil.
+            {t('welcomeBackBody')}
           </p>
         </div>
 
@@ -38,7 +42,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
             className="flex items-center gap-2 text-small transition-opacity opacity-40 hover:opacity-80"
           >
             <Mail className="w-[1em] h-[1em] shrink-0" />
-            Kontakt
+            {t('contact')}
           </Link>
         </div>
       </div>

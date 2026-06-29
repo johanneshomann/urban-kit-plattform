@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useTranslations } from 'next-intl'
 import { registerAction } from '@/actions/auth'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
@@ -8,15 +9,16 @@ import { UserPlus } from 'lucide-react'
 
 export function RegisterForm({ loginHref }: { loginHref: string }) {
   const [state, action, pending] = useActionState(registerAction, null)
+  const t = useTranslations('auth')
 
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8">
         <h1 className="text-display font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
-          Registrieren
+          {t('register')}
         </h1>
         <p className="text-small mt-1.5" style={{ color: 'var(--plattform-ink)' }}>
-          Erstelle ein kostenloses Konto und leg direkt los.
+          {t('registerSubtitle')}
         </p>
       </div>
 
@@ -32,14 +34,14 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="email" className="text-small" style={{ color: 'var(--plattform-ink-accent)' }}>
-            E-Mail
+            {t('email')}
           </label>
           <Input id="email" name="email" type="email" required autoComplete="email" />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="password" className="text-small" style={{ color: 'var(--plattform-ink-accent)' }}>
-            Passwort
+            {t('password')}
           </label>
           <Input id="password" name="password" type="password" required autoComplete="new-password" />
         </div>
@@ -49,19 +51,19 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
           disabled={pending}
           className="mt-1 w-full flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors disabled:opacity-50 bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
         >
-          {pending ? 'Registrieren...' : 'Konto erstellen'}
+          {pending ? t('registerPending') : t('registerButton')}
           <UserPlus className="w-[1em] h-[1em] shrink-0" />
         </button>
       </form>
 
       <p className="text-small text-center mt-8" style={{ color: 'var(--plattform-ink)' }}>
-        Bereits ein Konto?{' '}
+        {t('hasAccount')}{' '}
         <Link
           href={loginHref}
           className="transition-colors hover:underline"
           style={{ color: 'var(--plattform)' }}
         >
-          Anmelden
+          {t('login')}
         </Link>
       </p>
     </div>
