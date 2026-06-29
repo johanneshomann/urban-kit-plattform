@@ -11,31 +11,13 @@ import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { MODULE_ORDER } from '@/lib/options/modules'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 import { markdownToLexical } from '@/lib/richtext'
-import type { Payload } from 'payload'
+import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
 
 export type ManageActionState = { error?: string; ok?: boolean }
 
-const MAX_IMAGE_BYTES = 12 * 1024 * 1024
-
-/** Convert an uploaded web File into Payload's in-memory file shape, or an error. */
-async function readImage(formData: FormData): Promise<{ file: { data: Buffer; mimetype: string; name: string; size: number } } | { error: string }> {
-  const f = formData.get('file')
-  if (!(f instanceof File) || f.size === 0) return { error: 'Keine Datei ausgewählt.' }
-  if (!f.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
-  if (f.size > MAX_IMAGE_BYTES) return { error: 'Bild ist zu groß (max. 12 MB).' }
-  const data = Buffer.from(await f.arrayBuffer())
-  return { file: { data, mimetype: f.type, name: f.name, size: f.size } }
-}
-
-async function uploadMedia(payload: Payload, ctx: ProjectManagerContext, file: { data: Buffer; mimetype: string; name: string; size: number }, alt: string): Promise<string> {
-  const media = await payload.create({
-    collection: 'media',
-    data: { alt, visibility: 'PUBLIC', project: ctx.project.id, uploadedBy: ctx.user.id },
-    file,
-    overrideAccess: true,
-  })
-  return String(media.id)
-}
+const readImage = readImageFile
+const uploadMedia = (payload: Parameters<typeof uploadProjectMedia>[0], ctx: ProjectManagerContext, file: Parameters<typeof uploadProjectMedia>[2], alt: string) =>
+  uploadProjectMedia(payload, { projectId: ctx.project.id, userId: String(ctx.user.id), alt }, file)
 
 const PHASE_VALUES = new Set(PROJEKTPHASEN.map((p) => p.value))
 const SCHEME_NAMES = new Set(defaultColorSchemes.map((s) => s.name))
