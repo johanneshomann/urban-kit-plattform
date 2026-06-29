@@ -20,8 +20,13 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
   let impressumHtml: string | null = null
   try {
     const payload = await getPayload({ config })
-    const data = await payload.findGlobal({ slug: 'legal-settings', overrideAccess: true })
-    const content = (data as unknown as { impressumContent?: unknown }).impressumContent
+    const data = await payload.findGlobal({
+      slug: 'legal-settings',
+      locale: locale as 'de' | 'en',
+      fallbackLocale: 'de',
+      overrideAccess: true,
+    })
+    const content = (data as unknown as { impressum?: unknown }).impressum
     if (content) {
       impressumHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     }
