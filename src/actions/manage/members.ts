@@ -87,6 +87,30 @@ export async function updateMemberRole(
   return { ok: true }
 }
 
+export async function setMemberTeam(
+  slug: string,
+  locale: string,
+  membershipId: string,
+  isTeam: boolean,
+): Promise<MembersActionState> {
+  const ctx = await getProjectManagerContext(slug)
+  if (!ctx) return { error: 'Nicht berechtigt.' }
+
+  try {
+    const payload = await getPayload({ config })
+    const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
+    if (!membership) return { error: 'Mitglied nicht gefunden.' }
+
+    const data: Record<string, unknown> = { isTeam: !!isTeam }
+    await payload.update({ collection: 'project-memberships', id: membershipId, data, overrideAccess: true })
+  } catch {
+    return { error: 'Team-Status konnte nicht geändert werden.' }
+  }
+
+  revalidateMembers(locale, slug)
+  return { ok: true }
+}
+
 export async function removeMember(
   slug: string,
   locale: string,

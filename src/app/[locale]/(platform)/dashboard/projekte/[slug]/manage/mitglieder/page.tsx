@@ -35,6 +35,7 @@ export default async function ManageMitgliederPage({
       name,
       email: u.email ?? '',
       role: m.role ?? 'Citizen',
+      isTeam: m.isTeam === true,
       isSelf: String(u.id) === String(ctx.user.id),
     })
   }

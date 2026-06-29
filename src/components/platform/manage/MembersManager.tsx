@@ -2,14 +2,15 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, UserCircle } from 'lucide-react'
-import { updateMemberRole, removeMember } from '@/actions/manage/members'
+import { Trash2, UserCircle, Users } from 'lucide-react'
+import { updateMemberRole, removeMember, setMemberTeam } from '@/actions/manage/members'
 
 export interface MemberItem {
   membershipId: string
   name: string
   email: string
   role: string
+  isTeam: boolean
   isSelf: boolean
 }
 
@@ -61,6 +62,29 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
               </p>
               <p className="text-small truncate" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>{m.email}</p>
             </div>
+
+            {(() => {
+              const teamActive = m.role === 'PM' || m.isTeam
+              const teamLocked = m.role === 'PM' // PMs are always team
+              return (
+                <button
+                  type="button"
+                  disabled={pending || teamLocked}
+                  onClick={() => run(() => setMemberTeam(slug, locale, m.membershipId, !m.isTeam))}
+                  title={teamLocked ? 'Projektmanager:innen sind immer im Team' : 'Team-Mitglied (Zugriff auf interne Module wie Aufgaben)'}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-medium shrink-0 border transition-colors disabled:cursor-default"
+                  style={{
+                    background: teamActive ? 'var(--project-dark)' : 'transparent',
+                    color: teamActive ? 'var(--project-white)' : 'var(--project-dark)',
+                    borderColor: teamActive ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                    opacity: teamLocked ? 0.6 : 1,
+                  }}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  Team
+                </button>
+              )
+            })()}
 
             <select
               value={m.role}

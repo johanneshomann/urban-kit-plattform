@@ -33,6 +33,13 @@ export const ProjectMemberships: CollectionConfig = {
       ],
     },
     {
+      // Part of the project's working team — grants access to TEAM-visibility
+      // content (e.g. the Aufgaben board). PMs are always team members.
+      name: 'isTeam',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
       name: 'moduleOrder',
       type: 'json',
       admin: { hidden: true },
