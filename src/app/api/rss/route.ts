@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const projectSlug = searchParams.get('project')
 
   const instanceName = 'UrbanKIT'
-  let posts: { title: string; slug: string; publishedAt: string; projectModule?: { project?: { slug?: string; title?: string } } }[] = []
+  let posts: { title: string; slug: string; publishedAt: string; project?: { slug?: string; title?: string } }[] = []
 
   try {
     const payload = await getPayload({ config })
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     ]
 
     if (projectSlug) {
-      andClauses.push({ 'projectModule.project.slug': { equals: projectSlug } })
+      andClauses.push({ 'project.slug': { equals: projectSlug } })
     }
 
     const where: Where = { and: andClauses }
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
   const items = posts
     .map((p) => {
-      const pSlug = p.projectModule?.project?.slug
+      const pSlug = p.project?.slug
       if (!pSlug) return ''
       const link = `${base}/de/projekte/${pSlug}/news/${p.slug}`
       return `
