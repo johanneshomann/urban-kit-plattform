@@ -3,8 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Pin, Lock, Trash2, ChevronDown, ChevronUp, MessageSquare, ExternalLink, MessagesSquare } from 'lucide-react'
-import { toggleThreadPin, toggleThreadLock, deleteThread, deleteForumComment } from '@/actions/forum'
+import { Pin, Lock, Trash2, ChevronDown, ChevronUp, MessageSquare, ExternalLink, MessagesSquare, Plus, X } from 'lucide-react'
+import { createThread, toggleThreadPin, toggleThreadLock, deleteThread, deleteForumComment } from '@/actions/forum'
 
 export interface ModComment { id: string; authorName: string; createdAt: string; html: string | null }
 export interface ModThread {
@@ -20,6 +20,9 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
   const [error, setError] = useState<string | null>(null)
   const [open, setOpen] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
 
   const run = (fn: () => Promise<{ error?: string; ok?: boolean }>, after?: () => void) => {
     setError(null)
@@ -32,12 +35,29 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Forum</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-dark)' }}>Forum</h1>
+        <button type="button" onClick={() => setShowForm((s) => !s)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}{showForm ? 'Abbrechen' : 'Neues Thema'}
+        </button>
+      </div>
       <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
-        Themen moderieren — anpinnen, sperren, löschen. Mitglieder schreiben im Projektforum.
+        Themen erstellen und moderieren — anpinnen, sperren, löschen. Mitglieder antworten und stimmen ab.
       </p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+
+      {showForm && (
+        <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel des Themas …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }} />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Einleitung / Frage (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }} />
+          <div>
+            <button type="button" onClick={() => run(() => createThread(slug, locale, { title, body }), () => { setTitle(''); setBody(''); setShowForm(false) })} disabled={pending || !title.trim()} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+              <Plus className="w-4 h-4" /> Thema erstellen
+            </button>
+          </div>
+        </div>
+      )}
 
       {threads.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>

@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { ForumThread, ForumComment } from '@/payload-types'
 import { getUser } from '@/lib/auth/getUser'
+import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { isProjectManager } from '@/lib/access/project'
 import { getViewerTier } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
@@ -38,20 +39,22 @@ async function memberCtx(slug: string) {
   return { payload, user, project, tier }
 }
 
+/** Threads are PM-authored (from the manage moderation surface). */
 export async function createThread(slug: string, locale: string, input: { title: string; body?: string }): Promise<ForumActionState> {
-  const ctx = await memberCtx(slug)
-  if ('error' in ctx) return { error: ctx.error }
+  const pm = await getProjectManagerContext(slug)
+  if (!pm) return { error: 'Nur Projektmanager:innen können Themen erstellen.' }
   const title = input.title.trim()
   if (!title) return { error: 'Titel darf nicht leer sein.' }
 
   try {
+    const payload = await getPayload({ config })
     const content = input.body?.trim() ? ((await markdownToLexical(input.body)) as ForumThread['content']) : undefined
-    const thread = await ctx.payload.create({
+    const thread = await payload.create({
       collection: 'forum-threads',
-      data: { title, slug: uniqueSlug(title, 'thema'), content, visibility: 'INTERNAL', author: ctx.user.id, project: ctx.project.id },
+      data: { title, slug: uniqueSlug(title, 'thema'), content, visibility: 'INTERNAL', author: pm.user.id, project: pm.project.id },
       overrideAccess: true,
     })
-    await emitActivity({ type: 'forum.thread.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collection: 'forum-threads', id: String(thread.id) } })
+    await emitActivity({ type: 'forum.thread.created', userId: String(pm.user.id), projectId: pm.project.id, reference: { collection: 'forum-threads', id: String(thread.id) } })
   } catch {
     return { error: 'Thema konnte nicht erstellt werden.' }
   }
