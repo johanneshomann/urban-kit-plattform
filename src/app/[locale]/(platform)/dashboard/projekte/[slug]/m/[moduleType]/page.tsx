@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier } from '@/lib/visibility'
 import { ProjectModuleNav } from '@/components/platform/ProjectModuleNav'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
+import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
 
 export default async function ModulePage({
   params,
@@ -36,8 +37,9 @@ export default async function ModulePage({
     <div>
       <ProjectModuleNav modules={modules} slug={slug} locale={locale} activeModule={moduleType} />
       <main className="p-6 md:p-8 max-w-4xl mx-auto w-full" style={{ minHeight: 'calc(100svh - 8rem)' }}>
-        {/* Per-module consumption UI is filled in per module (news → calendar → polls → …). */}
-        <ModuleConsumptionPlaceholder title={tm(moduleType)} />
+        {moduleType === 'news'
+          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} tier={tier} />
+          : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
   )
