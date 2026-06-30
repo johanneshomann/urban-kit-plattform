@@ -8,7 +8,12 @@ import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
-import { resolveColorScheme } from '@/lib/colorScheme'
+import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import { getUser } from '@/lib/auth/getUser'
+import { isProjectManager } from '@/lib/access/project'
+import { getViewerTier } from '@/lib/visibility'
+import { loadPostComments } from '@/lib/news'
+import { NewsComments } from '@/components/platform/modules/news/NewsComments'
 import { ArrowLeft, FolderOpen } from 'lucide-react'
 
 type Project = {
@@ -53,7 +58,7 @@ async function getPublicNewsPost(
           { slug: { equals: newsSlug } },
           { project: { equals: project.id } },
           { visibility: { equals: 'PUBLIC' } },
-          { publishedAt: { exists: true } },
+          { publishedAt: { less_than_equal: new Date().toISOString() } },
         ],
       },
       depth: 1,
@@ -102,6 +107,13 @@ export default async function PublicProjectNewsPage({
   const data = await getPublicNewsPost(slug, newsSlug)
   if (!data) notFound()
   const { project, post } = data
+
+  // Comments — readable by all, postable by active members
+  const payload = await getPayload({ config })
+  const user = await getUser()
+  const tier = await getViewerTier(payload, user ? String(user.id) : null, project.id)
+  const isPM = user ? await isProjectManager(payload, String(user.id), project.id) : false
+  const comments = await loadPostComments(payload, String(post.id), { userId: user ? String(user.id) : null, isPM })
 
   const scheme = resolveColorScheme(project.colorScheme)
   const contentHtml = post.content
@@ -154,6 +166,18 @@ export default async function PublicProjectNewsPage({
               {t('empty')}
             </p>
           )}
+
+          {/* Comments — themed with the project's scheme so --project-* resolve */}
+          <div style={schemeToCssVars(scheme) as React.CSSProperties}>
+            <NewsComments
+              slug={project.slug}
+              locale={locale}
+              postId={String(post.id)}
+              comments={comments}
+              canComment={tier !== 'public'}
+              loginHref={`/${locale}/login`}
+            />
+          </div>
 
           <div className="flex flex-wrap gap-3 mt-12">
             <CtaButton href={`/${locale}/projekte/${project.slug}`} label={t('toProject')} icon={<ArrowLeft />} />
