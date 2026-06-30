@@ -27,6 +27,8 @@ export const ForumThreads: CollectionConfig = {
       ],
     },
     { name: 'visibilityTeam', type: 'relationship', relationTo: 'teams' },
+    { name: 'pinned', type: 'checkbox', defaultValue: false },
+    { name: 'locked', type: 'checkbox', defaultValue: false },
     { name: 'author', type: 'relationship', relationTo: 'users' },
     { name: 'project', type: 'relationship', relationTo: 'projects' },
   ],
