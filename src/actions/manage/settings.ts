@@ -107,6 +107,7 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
     await tryDeleteMany(payload, 'news-comments', byProject)
     await tryDeleteMany(payload, 'forum-thread-votes', byProject)
     await tryDeleteMany(payload, 'board-canvases', byProject)
+    await tryDeleteMany(payload, 'file-uploads', byProject)
     await tryDeleteMany(payload, 'folders', byProject)
     await tryDeleteMany(payload, 'media', byProject)
     await tryDeleteMany(payload, 'activity', byProject)
