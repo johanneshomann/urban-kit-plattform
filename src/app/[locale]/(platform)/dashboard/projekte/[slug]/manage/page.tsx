@@ -15,7 +15,7 @@ export default async function ManageOverviewPage({
 
   const manageBase = `/${locale}/dashboard/projekte/${slug}/manage`
   const enabled = (ctx.project.modules ?? ['news', 'calendar'])
-    .filter((m): m is string => typeof m === 'string')
+    .filter((m): m is string => typeof m === 'string' && AUTHORABLE_MODULES.has(m))
     .sort((a, b) => MODULE_ORDER.indexOf(a as never) - MODULE_ORDER.indexOf(b as never))
 
   return (

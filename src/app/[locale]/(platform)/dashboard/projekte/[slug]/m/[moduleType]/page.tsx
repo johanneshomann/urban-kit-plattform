@@ -10,6 +10,7 @@ import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
 import { CalendarFeed } from '@/components/platform/modules/calendar/CalendarFeed'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
+import { ForumFeed } from '@/components/platform/modules/forum/ForumFeed'
 
 export default async function ModulePage({
   params,
@@ -49,6 +50,10 @@ export default async function ModulePage({
           ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} tier={tier} userId={userId} />
           : moduleType === 'polls'
           ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
+          : moduleType === 'forum'
+          ? (tier === 'public'
+              ? <ModuleConsumptionPlaceholder title={tm('forum')} />
+              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} />)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
