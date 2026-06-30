@@ -85,11 +85,12 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
       await tryDeleteMany(payload, 'forum-threads', byProject)
     }
 
-    // Chat → messages, channels
-    const channelIds = await idsOf(payload, 'chat-channels', byProject)
-    if (channelIds.length) {
-      await tryDeleteMany(payload, 'chat-messages', { channel: { in: channelIds } })
-      await tryDeleteMany(payload, 'chat-channels', byProject)
+    // Chat → messages, members, rooms (project-scoped rooms only)
+    const roomIds = await idsOf(payload, 'chat-rooms', byProject)
+    if (roomIds.length) {
+      await tryDeleteMany(payload, 'chat-messages', { room: { in: roomIds } })
+      await tryDeleteMany(payload, 'chat-room-members', { room: { in: roomIds } })
+      await tryDeleteMany(payload, 'chat-rooms', byProject)
     }
 
     // Tasks → assignees, tasks, columns
