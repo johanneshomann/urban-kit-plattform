@@ -14,6 +14,7 @@ export interface Project {
   stadtbereich?: string[]
   startYear?: number
   createdAt: string
+  coverImage?: { url?: string | null; alt?: string | null } | string | null
 }
 
 const STATUS_LABELS: Record<string, string> = {

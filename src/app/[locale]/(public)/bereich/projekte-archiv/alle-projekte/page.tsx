@@ -29,6 +29,7 @@ async function getAllProjects(): Promise<Project[]> {
       where: { isPublic: { equals: true } },
       sort: '-createdAt',
       limit: 200,
+      depth: 1,
       overrideAccess: true,
     })
     return result.docs as unknown as Project[]
