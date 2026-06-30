@@ -10,8 +10,6 @@ import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { computeResults } from '@/lib/poll-results'
 
-export type { PollResults, QuestionResult } from '@/lib/poll-results'
-
 export type PollsActionState = { error?: string; ok?: boolean }
 
 const QUESTION_TYPES = new Set(['single', 'multiple', 'text', 'scale'])

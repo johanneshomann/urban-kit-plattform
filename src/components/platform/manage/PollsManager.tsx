@@ -6,8 +6,9 @@ import { Plus, Trash2, Play, Square, ChevronDown, ChevronUp, Pencil, BarChart2, 
 import {
   createProjectPoll, editPollDraft, setPollStatus, deleteProjectPoll,
   getPollEditData, getPollResults, exportPollCsv,
-  type PollQuestionInput, type PollResults,
+  type PollQuestionInput,
 } from '@/actions/manage/polls'
+import type { PollResults } from '@/lib/poll-results'
 
 export interface PollItem {
   id: string
