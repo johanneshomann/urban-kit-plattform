@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronRight } from 'lucide-react'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { MODULE_LABELS, MODULE_ORDER, AUTHORABLE_MODULES } from '@/lib/options/modules'
+import { MODULE_LABELS, MODULE_ORDER, MANAGE_MODULES } from '@/lib/options/modules'
 
 export default async function ManageOverviewPage({
   params,
@@ -15,7 +15,7 @@ export default async function ManageOverviewPage({
 
   const manageBase = `/${locale}/dashboard/projekte/${slug}/manage`
   const enabled = (ctx.project.modules ?? ['news', 'calendar'])
-    .filter((m): m is string => typeof m === 'string' && AUTHORABLE_MODULES.has(m))
+    .filter((m): m is string => typeof m === 'string' && MANAGE_MODULES.has(m))
     .sort((a, b) => MODULE_ORDER.indexOf(a as never) - MODULE_ORDER.indexOf(b as never))
 
   return (
@@ -34,23 +34,20 @@ export default async function ManageOverviewPage({
         Inhalte
       </h2>
       <div className="grid sm:grid-cols-2 gap-3">
-        {enabled.map((m) => {
-          const authorable = AUTHORABLE_MODULES.has(m)
-          return (
-            <Link
-              key={m}
-              href={`${manageBase}/inhalte/${m}`}
-              className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
-              style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}
-            >
-              <span className="font-medium">{MODULE_LABELS[m] ?? m}</span>
-              <span className="flex items-center gap-2 text-small" style={{ opacity: 0.6 }}>
-                {authorable ? 'Verwalten' : 'Bald'}
-                <ChevronRight className="w-4 h-4" />
-              </span>
-            </Link>
-          )
-        })}
+        {enabled.map((m) => (
+          <Link
+            key={m}
+            href={`${manageBase}/inhalte/${m}`}
+            className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
+            style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}
+          >
+            <span className="font-medium">{MODULE_LABELS[m] ?? m}</span>
+            <span className="flex items-center gap-2 text-small" style={{ opacity: 0.6 }}>
+              Verwalten
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          </Link>
+        ))}
       </div>
     </div>
   )

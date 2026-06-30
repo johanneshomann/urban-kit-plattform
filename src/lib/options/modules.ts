@@ -27,3 +27,10 @@ export const MODULE_LABELS: Record<string, string> = {
 
 /** Modules that currently have a content-authoring UI in the manage area. */
 export const AUTHORABLE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls'])
+
+/**
+ * Modules that surface in the manage INHALTE group — either authored there
+ * (news/calendar/polls) or managed/moderated there (forum). Grows as more
+ * modules gain a manage surface (tasks, board, chat settings).
+ */
+export const MANAGE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls', 'forum'])

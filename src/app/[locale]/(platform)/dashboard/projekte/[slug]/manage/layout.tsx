@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { ManageSidebar } from '@/components/platform/manage/ManageSidebar'
-import { MODULE_ORDER, AUTHORABLE_MODULES } from '@/lib/options/modules'
+import { MODULE_ORDER, MANAGE_MODULES } from '@/lib/options/modules'
 
 /**
  * Manage area — PM-only. Guards the whole subtree and renders the project-themed
@@ -22,10 +22,9 @@ export default async function ManageLayout({
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
-  // Only modules whose content is authored in /manage appear under INHALTE.
-  // Interactive modules (forum, tasks, board, chat) are managed in-project.
+  // Modules with a manage surface (authored or moderated here).
   const enabled = (ctx.project.modules ?? ['news', 'calendar'])
-    .filter((m): m is string => typeof m === 'string' && AUTHORABLE_MODULES.has(m))
+    .filter((m): m is string => typeof m === 'string' && MANAGE_MODULES.has(m))
     .sort((a, b) => MODULE_ORDER.indexOf(a as never) - MODULE_ORDER.indexOf(b as never))
 
   // Open join requests — shown as a badge next to "Anfragen"
