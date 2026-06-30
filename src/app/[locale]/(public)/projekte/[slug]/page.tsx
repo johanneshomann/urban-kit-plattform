@@ -16,6 +16,7 @@ import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
+import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import {
   Flag,
   FolderOpen,
@@ -184,7 +185,11 @@ export default async function PublicProjectPage({
     ? await loadCitizenPolls(payload, project.id, 'public', null)
     : []
 
-  const hasAktuelles = newsPosts.length > 0 || calEvents.length > 0 || publicPolls.length > 0
+  const publicFilesCount = modules.includes('files')
+    ? (await payload.count({ collection: 'file-uploads', where: { and: [{ project: { equals: project.id } }, { visibility: { equals: 'PUBLIC' } }] }, overrideAccess: true }).catch(() => ({ totalDocs: 0 }))).totalDocs
+    : 0
+
+  const hasAktuelles = newsPosts.length > 0 || calEvents.length > 0 || publicPolls.length > 0 || publicFilesCount > 0
 
   // richText → HTML
   const beschreibungHtml = project.projektbeschreibung
@@ -479,6 +484,13 @@ export default async function PublicProjectPage({
             {publicPolls.length > 0 && (
               <div className="mt-16" style={schemeToCssVars(scheme) as React.CSSProperties}>
                 <PollsConsumption slug={project.slug} locale={locale} polls={publicPolls} loginHref={`/${locale}/login`} />
+              </div>
+            )}
+
+            {/* Dateien — public files */}
+            {publicFilesCount > 0 && (
+              <div className="mt-16" style={schemeToCssVars(scheme) as React.CSSProperties}>
+                <FilesBrowse projectId={project.id} tier="public" />
               </div>
             )}
           </div>
