@@ -123,6 +123,39 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-in {
+  animation: card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translate(-50%, calc(-100% + 6px)) scale(0.9); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+.tooltip-in {
+  animation: tooltip-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes popover-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.popover-in {
+  animation: popover-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-in { animation: none; }
+}
+
+
 /* ── Accessibility preferences (toggled by AccessibilityProvider) ───────── */
 
 html.a11y-reduce-motion { scroll-behavior: auto !important; }
