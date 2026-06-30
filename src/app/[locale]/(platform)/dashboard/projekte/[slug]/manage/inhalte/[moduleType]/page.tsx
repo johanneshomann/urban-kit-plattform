@@ -9,6 +9,7 @@ import { NewsManager, type NewsItem } from '@/components/platform/manage/NewsMan
 import { CalendarManager, type EventItem } from '@/components/platform/manage/CalendarManager'
 import { PollsManager, type PollItem } from '@/components/platform/manage/PollsManager'
 import { ForumModeration, type ModThread } from '@/components/platform/manage/ForumModeration'
+import { FilesManager, type FolderItem, type FileItem } from '@/components/platform/manage/FilesManager'
 
 export default async function ManageInhaltePage({
   params,
@@ -147,6 +148,25 @@ export default async function ManageInhaltePage({
     })
     threads.sort((a, b) => Number(b.pinned) - Number(a.pinned) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     return <ForumModeration slug={slug} locale={locale} threads={threads} />
+  }
+
+  if (moduleType === 'files') {
+    const relIdF = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
+    const [foldersRes, filesRes] = await Promise.all([
+      payload.find({ collection: 'folders', where: { project: { equals: ctx.project.id } }, sort: 'name', limit: 500, depth: 0, overrideAccess: true }),
+      payload.find({ collection: 'file-uploads', where: { project: { equals: ctx.project.id } }, sort: '-createdAt', limit: 1000, depth: 0, overrideAccess: true }),
+    ])
+    const folders: FolderItem[] = foldersRes.docs.map((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const f = d as any
+      return { id: String(f.id), name: f.name ?? '', visibility: f.visibility ?? 'INTERNAL' }
+    })
+    const files: FileItem[] = filesRes.docs.map((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const f = d as any
+      return { id: String(f.id), label: f.label ?? null, filename: f.filename ?? '', url: f.url ?? null, mimeType: f.mimeType ?? null, filesize: f.filesize ?? null, visibility: f.visibility ?? 'INTERNAL', folderId: relIdF(f.folder) }
+    })
+    return <FilesManager slug={slug} locale={locale} folders={folders} files={files} />
   }
 
   return (
