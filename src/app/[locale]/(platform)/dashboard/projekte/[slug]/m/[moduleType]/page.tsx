@@ -11,6 +11,7 @@ import { CalendarFeed } from '@/components/platform/modules/calendar/CalendarFee
 import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import { ForumFeed } from '@/components/platform/modules/forum/ForumFeed'
+import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 
 export default async function ModulePage({
   params,
@@ -54,6 +55,8 @@ export default async function ModulePage({
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} />
               : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} />)
+          : moduleType === 'files'
+          ? <FilesBrowse projectId={project.id} tier={tier} />
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
