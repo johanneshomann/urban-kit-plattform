@@ -3,7 +3,7 @@ import config from '@payload-config'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
+import { lexicalToHtml } from '@/lib/richtext'
 import { getUser } from '@/lib/auth/getUser'
 import { isProjectManager } from '@/lib/access/project'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
@@ -43,7 +43,7 @@ export default async function ModuleItemPage({
 
   const isPM = user ? await isProjectManager(payload, String(user.id), project.id) : false
   const comments = await loadPostComments(payload, String(post.id), { userId: user ? String(user.id) : null, isPM })
-  const bodyHtml = post.content ? convertLexicalToHTML({ data: post.content }) : null
+  const bodyHtml = lexicalToHtml(post.content)
   const img = post.featuredImage && typeof post.featuredImage === 'object' ? post.featuredImage.url : null
 
   return (

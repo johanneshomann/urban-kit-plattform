@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
+import { lexicalToHtml } from '@/lib/richtext'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
@@ -116,9 +116,7 @@ export default async function PublicProjectNewsPage({
   const comments = await loadPostComments(payload, String(post.id), { userId: user ? String(user.id) : null, isPM })
 
   const scheme = resolveColorScheme(project.colorScheme)
-  const contentHtml = post.content
-    ? convertLexicalToHTML({ data: post.content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
-    : null
+  const contentHtml = lexicalToHtml(post.content)
   const author = post.author
     ? [post.author.firstName, post.author.lastName].filter(Boolean).join(' ')
     : null

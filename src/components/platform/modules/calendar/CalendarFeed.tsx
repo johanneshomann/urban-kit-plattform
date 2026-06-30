@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
+import { lexicalToHtml } from '@/lib/richtext'
 import { visibilityWhere, type ViewerTier } from '@/lib/visibility'
 import { CalendarConsumption, type ConsumptionEvent } from './CalendarConsumption'
 
@@ -45,7 +45,7 @@ export async function CalendarFeed({ slug, locale, projectId, tier, userId }: { 
       allDay: e.allDay ?? false,
       location: e.location ?? null,
       category: e.category ?? null,
-      bodyHtml: e.content ? convertLexicalToHTML({ data: e.content }) : null,
+      bodyHtml: lexicalToHtml(e.content),
       attendeeCount: countByEvent.get(id) ?? 0,
       attending: mine.has(id),
     }
