@@ -11,9 +11,11 @@ import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
 import { ScrollHint } from '@/components/public/ScrollHint'
-import { resolveColorScheme } from '@/lib/colorScheme'
+import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
+import { loadCitizenPolls } from '@/lib/citizen-polls'
+import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import {
   Flag,
   FolderOpen,
@@ -176,7 +178,13 @@ export default async function PublicProjectPage({
   ])
   const newsPosts = newsResult.docs as unknown as NewsPost[]
   const calEvents = eventsResult.docs as unknown as CalEvent[]
-  const hasAktuelles = newsPosts.length > 0 || calEvents.length > 0
+
+  // Public polls — active/closed polls visible to the public tier (anonymous voting where allowed)
+  const publicPolls = modules.includes('polls')
+    ? await loadCitizenPolls(payload, project.id, 'public', null)
+    : []
+
+  const hasAktuelles = newsPosts.length > 0 || calEvents.length > 0 || publicPolls.length > 0
 
   // richText → HTML
   const beschreibungHtml = project.projektbeschreibung
@@ -466,6 +474,13 @@ export default async function PublicProjectPage({
                 )}
               </div>
             </div>
+
+            {/* Umfragen — public polls (themed for --project-* vars) */}
+            {publicPolls.length > 0 && (
+              <div className="mt-16" style={schemeToCssVars(scheme) as React.CSSProperties}>
+                <PollsConsumption slug={project.slug} locale={locale} polls={publicPolls} loginHref={`/${locale}/login`} />
+              </div>
+            )}
           </div>
         </section>
       )}
