@@ -102,7 +102,10 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
 
     // Remaining directly project-scoped collections
     await tryDeleteMany(payload, 'calendar-events', byProject)
+    await tryDeleteMany(payload, 'event-attendees', byProject)
     await tryDeleteMany(payload, 'news-posts', byProject)
+    await tryDeleteMany(payload, 'news-comments', byProject)
+    await tryDeleteMany(payload, 'forum-thread-votes', byProject)
     await tryDeleteMany(payload, 'board-canvases', byProject)
     await tryDeleteMany(payload, 'folders', byProject)
     await tryDeleteMany(payload, 'media', byProject)
