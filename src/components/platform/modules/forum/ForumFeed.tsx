@@ -1,6 +1,5 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { isProjectManager } from '@/lib/access/project'
 import { ForumList, type ForumListItem } from './ForumList'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -37,8 +36,6 @@ export async function ForumFeed({ slug, locale, projectId, userId }: { slug: str
     if (t > (lastActivity.get(th) ?? 0)) lastActivity.set(th, t)
   }
 
-  const isPM = userId ? await isProjectManager(payload, userId, projectId) : false
-
   const items: ForumListItem[] = threadsRes.docs.map((doc) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const t = doc as any
@@ -60,5 +57,5 @@ export async function ForumFeed({ slug, locale, projectId, userId }: { slug: str
   // pinned first, then most recent activity
   items.sort((a, b) => Number(b.pinned) - Number(a.pinned) || ((b as ForumListItem & { _activity: number })._activity - (a as ForumListItem & { _activity: number })._activity))
 
-  return <ForumList slug={slug} locale={locale} threads={items} isPM={isPM} />
+  return <ForumList slug={slug} locale={locale} threads={items} />
 }

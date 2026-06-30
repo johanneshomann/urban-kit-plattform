@@ -38,7 +38,7 @@ export default async function ModuleItemPage({
         {moduleType === 'forum'
           ? (tier === 'public'
               ? notFound()
-              : <ForumThreadDetail slug={slug} locale={locale} projectId={project.id} itemSlug={itemSlug} userId={userId} isPM={isPM} />)
+              : <ForumThreadDetail slug={slug} locale={locale} projectId={project.id} itemSlug={itemSlug} userId={userId} />)
           : await renderNews()}
       </main>
     </div>

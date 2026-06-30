@@ -14,7 +14,7 @@ function personName(u: unknown): string {
 }
 
 /** Forum thread detail: thread body + comments (members only; gating done by caller). */
-export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, userId, isPM }: { slug: string; locale: string; projectId: string; itemSlug: string; userId: string | null; isPM: boolean }) {
+export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, userId }: { slug: string; locale: string; projectId: string; itemSlug: string; userId: string | null }) {
   const payload = await getPayload({ config })
   const res = await payload.find({ collection: 'forum-threads', where: { and: [{ project: { equals: projectId } }, { slug: { equals: itemSlug } }] }, limit: 1, depth: 1, overrideAccess: true })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,7 +30,7 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
       html: lexicalToHtml(c.content),
       authorName: personName(c.author),
       createdAt: c.createdAt,
-      canDelete: isPM || (!!userId && relId(c.author) === userId),
+      canDelete: !!userId && relId(c.author) === userId,
     }
   })
 

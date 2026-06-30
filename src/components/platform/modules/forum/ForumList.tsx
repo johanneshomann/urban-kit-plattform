@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, X, ChevronUp, MessageSquare, Pin, Lock, Trash2, MessagesSquare } from 'lucide-react'
-import { createThread, toggleThreadVote, toggleThreadPin, toggleThreadLock, deleteThread } from '@/actions/forum'
+import { createThread, toggleThreadVote, deleteThread } from '@/actions/forum'
 
 export interface ForumListItem {
   id: string
@@ -23,7 +23,7 @@ export interface ForumListItem {
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
 
-export function ForumList({ slug, locale, threads, isPM }: { slug: string; locale: string; threads: ForumListItem[]; isPM: boolean }) {
+export function ForumList({ slug, locale, threads }: { slug: string; locale: string; threads: ForumListItem[] }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -94,17 +94,15 @@ export function ForumList({ slug, locale, threads, isPM }: { slug: string; local
                 </p>
               </Link>
 
-              {(isPM || th.canDelete) && (
-                <div className="flex items-center gap-1 shrink-0" style={{ color: 'var(--project-dark)' }}>
-                  {isPM && <button type="button" title={th.pinned ? 'Lösen' : 'Anpinnen'} onClick={() => run(() => toggleThreadPin(slug, locale, th.id, !th.pinned))} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ opacity: th.pinned ? 1 : 0.5 }}><Pin className="w-4 h-4" /></button>}
-                  {isPM && <button type="button" title={th.locked ? 'Entsperren' : 'Sperren'} onClick={() => run(() => toggleThreadLock(slug, locale, th.id, !th.locked))} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ opacity: th.locked ? 1 : 0.5 }}><Lock className="w-4 h-4" /></button>}
+              {th.canDelete && (
+                <div className="flex items-center gap-1 shrink-0">
                   {confirmDelete === th.id ? (
                     <>
                       <button type="button" onClick={() => run(() => deleteThread(slug, locale, th.id), () => setConfirmDelete(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>Löschen</button>
-                      <button type="button" onClick={() => setConfirmDelete(null)} className="px-1.5 py-1 rounded text-small" style={{ opacity: 0.7 }}>×</button>
+                      <button type="button" onClick={() => setConfirmDelete(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>×</button>
                     </>
                   ) : (
-                    <button type="button" title="Löschen" onClick={() => setConfirmDelete(th.id)} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                    <button type="button" title="Mein Thema löschen" onClick={() => setConfirmDelete(th.id)} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
                   )}
                 </div>
               )}
