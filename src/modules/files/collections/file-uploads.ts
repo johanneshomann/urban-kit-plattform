@@ -1,23 +1,26 @@
 import type { CollectionConfig } from 'payload'
+import path from 'path'
 import { isAuthenticated } from '@/lib/access'
 
+/**
+ * Project document library. Payload upload collection (local disk for now —
+ * `@payloadcms/storage-s3` can later route this to MinIO without UI changes).
+ * `filename`, `mimeType`, `filesize`, `url` are managed by Payload's upload.
+ */
 export const FileUploads: CollectionConfig = {
   slug: 'file-uploads',
   access: {
-    read: isAuthenticated,
+    // Authenticated users may read all (UI gates by tier); logged-out only PUBLIC.
+    read: ({ req: { user } }) => (user ? true : { visibility: { equals: 'PUBLIC' } }),
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,
   },
   admin: { useAsTitle: 'filename' },
+  upload: { staticDir: path.resolve(process.cwd(), 'uploads/files') },
   fields: [
-    { name: 'filename', type: 'text', required: true },
-    { name: 'mimeType', type: 'text' },
-    { name: 'filesize', type: 'number' },
-    // S3 key — actual file stored in MinIO
-    { name: 's3Key', type: 'text', required: true },
+    { name: 'label', type: 'text' }, // optional friendly display name
     { name: 'folder', type: 'relationship', relationTo: 'folders' },
-    // Visibility inherited from parent folder; can be overridden
     {
       name: 'visibility',
       type: 'select',
