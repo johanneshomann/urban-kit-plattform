@@ -13,6 +13,7 @@ import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsu
 import { ForumFeed } from '@/components/platform/modules/forum/ForumFeed'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLoader'
+import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 
 export default async function ModulePage({
   params,
@@ -62,6 +63,10 @@ export default async function ModulePage({
           ? (tier !== 'team' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('tasks')} />
               : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} />)
+          : moduleType === 'urban-agent'
+          ? (tier === 'public' || !userId
+              ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} />
+              : <UrbanAgentChat projectId={project.id} />)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
