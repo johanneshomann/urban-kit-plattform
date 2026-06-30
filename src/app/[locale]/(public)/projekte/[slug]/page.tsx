@@ -27,6 +27,7 @@ import {
   HandHeart,
   Megaphone,
   Rss,
+  Download,
 } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -147,7 +148,7 @@ export default async function PublicProjectPage({
             and: [
               { project: { equals: project.id } },
               { visibility: { equals: 'PUBLIC' } },
-              { publishedAt: { exists: true } },
+              { publishedAt: { less_than_equal: now } },
             ],
           },
           sort: '-publishedAt',
@@ -439,7 +440,7 @@ export default async function PublicProjectPage({
                               {d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')}
                             </p>
                           </div>
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
                               {ev.title}
                             </p>
@@ -450,6 +451,14 @@ export default async function PublicProjectPage({
                               </p>
                             )}
                           </div>
+                          <a
+                            href={`/api/ics/event/${ev.id}`}
+                            title={t('addToCalendar')}
+                            className="shrink-0 p-2 rounded-lg transition-opacity opacity-60 hover:opacity-100"
+                            style={{ color: 'var(--plattform-ink)' }}
+                          >
+                            <Download className="w-[1.1em] h-[1.1em] shrink-0" />
+                          </a>
                         </div>
                       )
                     })}
