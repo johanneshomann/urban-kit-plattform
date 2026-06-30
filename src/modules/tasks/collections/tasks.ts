@@ -14,8 +14,7 @@ export const Tasks: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'description', type: 'richText', editor: lexicalEditor() },
-    // Optional — fixed status columns drive the board; task-columns reserved for future custom columns.
-    { name: 'column', type: 'relationship', relationTo: 'task-columns' },
+    { name: 'column', type: 'relationship', relationTo: 'task-columns', required: true },
     { name: 'order', type: 'number', defaultValue: 0 },
     { name: 'deadline', type: 'date' },
     { name: 'showInCalendar', type: 'checkbox', defaultValue: false },
@@ -29,17 +28,6 @@ export const Tasks: CollectionConfig = {
         { label: 'Erledigt', value: 'done' },
       ],
     },
-    {
-      name: 'priority',
-      type: 'select',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Niedrig', value: 'low' },
-        { label: 'Mittel', value: 'medium' },
-        { label: 'Hoch', value: 'high' },
-      ],
-    },
-    { name: 'labels', type: 'text', hasMany: true },
     {
       name: 'visibility',
       type: 'select',

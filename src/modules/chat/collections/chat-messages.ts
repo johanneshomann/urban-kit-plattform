@@ -10,20 +10,10 @@ export const ChatMessages: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'room', type: 'relationship', relationTo: 'chat-rooms', required: true, index: true },
-    { name: 'content', type: 'textarea' },
+    { name: 'channel', type: 'relationship', relationTo: 'chat-channels', required: true },
+    { name: 'content', type: 'textarea', required: true },
     { name: 'author', type: 'relationship', relationTo: 'users', required: true },
     { name: 'attachment', type: 'upload', relationTo: 'media' },
-    // Embedded reactions — one row per user+emoji. Low volume; avoids an extra
-    // collection round-trip when polling messages.
-    {
-      name: 'reactions',
-      type: 'array',
-      fields: [
-        { name: 'emoji', type: 'text', required: true },
-        { name: 'user', type: 'relationship', relationTo: 'users', required: true },
-      ],
-    },
     // Cross-module content reference — resolved via resolveReference at render time
     { name: 'referenceCollection', type: 'text' },
     { name: 'referenceId', type: 'text' },
