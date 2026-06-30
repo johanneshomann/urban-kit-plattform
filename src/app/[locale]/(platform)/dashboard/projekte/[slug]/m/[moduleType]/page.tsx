@@ -8,6 +8,8 @@ import { ProjectModuleNav } from '@/components/platform/ProjectModuleNav'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
 import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
 import { CalendarFeed } from '@/components/platform/modules/calendar/CalendarFeed'
+import { loadCitizenPolls } from '@/lib/citizen-polls'
+import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 
 export default async function ModulePage({
   params,
@@ -32,7 +34,10 @@ export default async function ModulePage({
   if (!modules.includes(moduleType)) notFound()
 
   const user = await getUser()
-  const tier = await getViewerTier(payload, user ? String(user.id) : null, project.id)
+  const userId = user ? String(user.id) : null
+  const tier = await getViewerTier(payload, userId, project.id)
+
+  const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, tier, userId) : []
 
   return (
     <div>
@@ -41,7 +46,9 @@ export default async function ModulePage({
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} tier={tier} />
           : moduleType === 'calendar'
-          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} tier={tier} userId={user ? String(user.id) : null} />
+          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} tier={tier} userId={userId} />
+          : moduleType === 'polls'
+          ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
