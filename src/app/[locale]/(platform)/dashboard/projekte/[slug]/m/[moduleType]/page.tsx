@@ -7,6 +7,7 @@ import { getViewerTier } from '@/lib/visibility'
 import { ProjectModuleNav } from '@/components/platform/ProjectModuleNav'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
 import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
+import { CalendarFeed } from '@/components/platform/modules/calendar/CalendarFeed'
 
 export default async function ModulePage({
   params,
@@ -39,6 +40,8 @@ export default async function ModulePage({
       <main className="p-6 md:p-8 max-w-4xl mx-auto w-full" style={{ minHeight: 'calc(100svh - 8rem)' }}>
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} tier={tier} />
+          : moduleType === 'calendar'
+          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} tier={tier} userId={user ? String(user.id) : null} />
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
