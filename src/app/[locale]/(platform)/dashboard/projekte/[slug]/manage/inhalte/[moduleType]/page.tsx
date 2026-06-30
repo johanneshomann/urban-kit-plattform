@@ -10,6 +10,7 @@ import { CalendarManager, type EventItem } from '@/components/platform/manage/Ca
 import { PollsManager, type PollItem } from '@/components/platform/manage/PollsManager'
 import { ForumModeration, type ModThread } from '@/components/platform/manage/ForumModeration'
 import { FilesManager, type FolderItem, type FileItem } from '@/components/platform/manage/FilesManager'
+import { ChatRoomsManager, type ChatRoomItem } from '@/components/platform/manage/ChatRoomsManager'
 
 export default async function ManageInhaltePage({
   params,
@@ -167,6 +168,22 @@ export default async function ManageInhaltePage({
       return { id: String(f.id), label: f.label ?? null, filename: f.filename ?? '', url: f.url ?? null, mimeType: f.mimeType ?? null, filesize: f.filesize ?? null, visibility: f.visibility ?? 'INTERNAL', folderId: relIdF(f.folder) }
     })
     return <FilesManager slug={slug} locale={locale} folders={folders} files={files} />
+  }
+
+  if (moduleType === 'chat') {
+    const roomsRes = await payload.find({
+      collection: 'chat-rooms',
+      where: { and: [{ type: { equals: 'project' } }, { project: { equals: ctx.project.id } }] },
+      sort: '-createdAt', limit: 200, depth: 0, overrideAccess: true,
+    })
+    const rooms: ChatRoomItem[] = await Promise.all(
+      roomsRes.docs.map(async (doc) => {
+        const r = doc as { id: string | number; name?: string | null }
+        const members = await payload.count({ collection: 'chat-room-members', where: { and: [{ room: { equals: r.id } }, { status: { equals: 'active' } }] }, overrideAccess: true })
+        return { id: String(r.id), name: r.name ?? 'Raum', memberCount: members.totalDocs }
+      }),
+    )
+    return <ChatRoomsManager slug={slug} locale={locale} rooms={rooms} />
   }
 
   return (

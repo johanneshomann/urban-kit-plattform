@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { FolderKanban, User, MessageSquare, Settings, LogOut, ArrowLeft } from 'lucide-react'
+import { FolderKanban, User, Settings, LogOut, ArrowLeft } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { SidebarLink, SidebarButton } from './SidebarLink'
+import { MessagesNavLink } from './MessagesNavLink'
 
 interface SidebarProps {
   locale: string
@@ -36,7 +37,7 @@ export function Sidebar({ locale, cityName, userEmail, userRole, userName, userI
       {/* Nav */}
       <nav className="flex-1 py-4 px-2 flex flex-col gap-0.5">
         <SidebarLink href={`/${locale}/dashboard`} label={t('navMyProjects')} icon={FolderKanban} exact />
-        <SidebarLink href={`/${locale}/dashboard/nachrichten`} label={t('navMessages')} icon={MessageSquare} />
+        <MessagesNavLink href={`/${locale}/dashboard/nachrichten`} label={t('navMessages')} />
         <SidebarLink href={`/${locale}/dashboard/profil`} label={t('navMyProfile')} icon={User} />
       </nav>
 

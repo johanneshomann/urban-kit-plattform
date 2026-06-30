@@ -12,6 +12,10 @@ import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import { ForumFeed } from '@/components/platform/modules/forum/ForumFeed'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
+import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLoader'
+import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
+import { ChatLayout } from '@/components/platform/chat/ChatLayout'
+import { ensureProjectRoomMemberships } from '@/lib/chat/access'
 
 export default async function ModulePage({
   params,
@@ -41,6 +45,11 @@ export default async function ModulePage({
 
   const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, tier, userId) : []
 
+  // Auto-join project members to existing project rooms when they open chat
+  if (moduleType === 'chat' && tier !== 'public' && userId) {
+    await ensureProjectRoomMemberships(payload, project.id, userId)
+  }
+
   return (
     <div>
       <ProjectModuleNav modules={modules} slug={slug} locale={locale} activeModule={moduleType} />
@@ -57,6 +66,18 @@ export default async function ModulePage({
               : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} />)
           : moduleType === 'files'
           ? <FilesBrowse projectId={project.id} tier={tier} />
+          : moduleType === 'tasks'
+          ? (tier !== 'team' || !userId
+              ? <ModuleConsumptionPlaceholder title={tm('tasks')} />
+              : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} />)
+          : moduleType === 'urban-agent'
+          ? (tier === 'public' || !userId
+              ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} />
+              : <UrbanAgentChat projectId={project.id} />)
+          : moduleType === 'chat'
+          ? (tier === 'public' || !userId
+              ? <ModuleConsumptionPlaceholder title={tm('chat')} />
+              : <div className="h-[calc(100svh-12rem)]"><ChatLayout projectSlug={slug} canCreateGroups={false} /></div>)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
