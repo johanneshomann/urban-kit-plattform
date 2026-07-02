@@ -11,9 +11,9 @@ interface CtaButtonProps {
 
 const variantClasses: Record<NonNullable<CtaButtonProps['variant']>, string> = {
   plattform: 'text-white bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]',
-  projekte: 'bg-[var(--projekte)] hover:bg-[var(--projekte-dark)] text-[var(--plattform-ink)]',
-  grundlagen: 'bg-[var(--grundlagen)] hover:bg-[var(--grundlagen-dark)] text-[var(--plattform-ink)]',
-  zusammenarbeit: 'bg-[var(--zusammenarbeit)] hover:bg-[var(--zusammenarbeit-dark)] text-[var(--plattform-ink)]',
+  projekte: 'bg-[var(--projekte)] hover:bg-[var(--projekte-dark)] text-[var(--plattform-ink)] hover:text-white',
+  grundlagen: 'bg-[var(--grundlagen)] hover:bg-[var(--grundlagen-dark)] text-[var(--plattform-ink)] hover:text-white',
+  zusammenarbeit: 'bg-[var(--zusammenarbeit)] hover:bg-[var(--zusammenarbeit-dark)] text-[var(--plattform-ink)] hover:text-white',
   white: 'bg-white hover:bg-gray-100 text-[var(--plattform-ink)]',
 }
 
