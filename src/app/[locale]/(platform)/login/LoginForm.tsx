@@ -1,15 +1,25 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { loginAction } from '@/actions/auth'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { LogIn } from 'lucide-react'
+import { LogIn, ExternalLink } from 'lucide-react'
 
 export function LoginForm({ registerHref }: { registerHref: string }) {
   const [state, action, pending] = useActionState(loginAction, null)
   const t = useTranslations('auth')
+  const openedRef = useRef(false)
+
+  // Login on the public portal: the workspace lives on the app domain — open it
+  // in a new tab. If the popup is blocked, navigate this tab instead.
+  useEffect(() => {
+    if (!state?.appUrl || openedRef.current) return
+    openedRef.current = true
+    const win = window.open(state.appUrl, '_blank')
+    if (!win) window.location.assign(state.appUrl)
+  }, [state])
 
   return (
     <div className="w-full max-w-sm">
@@ -23,6 +33,24 @@ export function LoginForm({ registerHref }: { registerHref: string }) {
       </div>
 
       <form action={action} className="flex flex-col gap-5">
+        {state?.appUrl && (
+          <p
+            className="text-small px-4 py-3 rounded-lg"
+            style={{ color: 'var(--plattform-ink-accent)', background: 'var(--plattform-light)' }}
+          >
+            {t('workspaceOpened')}{' '}
+            <a
+              href={state.appUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 underline"
+            >
+              {t('workspaceOpenLink')}
+              <ExternalLink className="w-[0.9em] h-[0.9em] shrink-0" />
+            </a>
+          </p>
+        )}
+
         {state?.error && (
           <p
             className="text-small px-4 py-3 rounded-lg"

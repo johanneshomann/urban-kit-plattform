@@ -38,7 +38,9 @@
     "joinBody": "Konto erstellen und Teil der Community werden – die eigene Stadt aktiv mitgestalten.",
     "registerSubtitle": "Kostenloses Konto erstellen und direkt loslegen.",
     "registerButton": "Konto erstellen",
-    "registerPending": "Registrieren …"
+    "registerPending": "Registrieren …",
+    "workspaceOpened": "Anmeldung erfolgreich. Der Arbeitsbereich wurde in einem neuen Tab geöffnet.",
+    "workspaceOpenLink": "Arbeitsbereich öffnen"
   },
   "accessibility": {
     "open": "Barrierefreiheit-Einstellungen öffnen",

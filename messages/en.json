@@ -38,7 +38,9 @@
     "joinBody": "Create an account and become part of the community – help shape your city.",
     "registerSubtitle": "Create a free account and get started right away.",
     "registerButton": "Create account",
-    "registerPending": "Registering …"
+    "registerPending": "Registering …",
+    "workspaceOpened": "Login successful. The workspace has been opened in a new tab.",
+    "workspaceOpenLink": "Open workspace"
   },
   "accessibility": {
     "open": "Open accessibility settings",

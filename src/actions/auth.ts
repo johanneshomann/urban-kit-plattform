@@ -2,11 +2,20 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 
-export type AuthState = { error?: string } | null
+export type AuthState = { error?: string; appUrl?: string } | null
+
+const appDomain = () => process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'app.urbankit.de'
+
+// Session must be valid on both urbankit.de and app.urbankit.de, so the cookie
+// is scoped to the parent domain in production (host-only on localhost).
+function cookieDomain(): string | undefined {
+  if (process.env.NODE_ENV !== 'production') return undefined
+  return `.${appDomain().replace(/^app\./, '')}`
+}
 
 async function setTokenCookie(token: string) {
   const cookieStore = await cookies()
@@ -15,7 +24,15 @@ async function setTokenCookie(token: string) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
+    domain: cookieDomain(),
   })
+}
+
+/** True when the request is served from the public portal domain (not the app domain, not dev). */
+async function isPublicPortalHost(): Promise<boolean> {
+  const host = ((await headers()).get('host') ?? '').split(':')[0]
+  const publicDomain = appDomain().replace(/^app\./, '')
+  return host === publicDomain || host === `www.${publicDomain}`
 }
 
 export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -40,6 +57,13 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   }
 
   const locale = await getLocale()
+
+  // On the public portal the workspace opens on the app domain in a new tab
+  // (cookie is parent-domain-scoped, so the new tab is already logged in).
+  if (await isPublicPortalHost()) {
+    return { appUrl: `https://${appDomain()}/${locale}/dashboard` }
+  }
+
   redirect(`/${locale}/dashboard`)
 }
 
@@ -135,6 +159,8 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
 
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
+  // Clear both the parent-domain cookie and any legacy host-only cookie
+  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
   cookieStore.delete('payload-token')
   const locale = await getLocale()
   redirect(`/${locale}/login`)
