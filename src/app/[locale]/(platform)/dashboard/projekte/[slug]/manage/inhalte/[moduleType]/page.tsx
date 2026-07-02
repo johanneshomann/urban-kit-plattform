@@ -11,6 +11,7 @@ import { PollsManager, type PollItem } from '@/components/platform/manage/PollsM
 import { ForumModeration, type ModThread } from '@/components/platform/manage/ForumModeration'
 import { FilesManager, type FolderItem, type FileItem } from '@/components/platform/manage/FilesManager'
 import { ChatRoomsManager, type ChatRoomItem } from '@/components/platform/manage/ChatRoomsManager'
+import { BoardsManager, type BoardItem } from '@/components/platform/manage/BoardsManager'
 
 export default async function ManageInhaltePage({
   params,
@@ -184,6 +185,19 @@ export default async function ManageInhaltePage({
       }),
     )
     return <ChatRoomsManager slug={slug} locale={locale} rooms={rooms} />
+  }
+
+  if (moduleType === 'board') {
+    const res = await payload.find({
+      collection: 'board-canvases',
+      where: { project: { equals: ctx.project.id } },
+      sort: '-createdAt', limit: 200, depth: 0, overrideAccess: true,
+    })
+    const boards: BoardItem[] = res.docs.map((doc) => {
+      const b = doc as { id: string | number; name?: string | null }
+      return { id: String(b.id), name: b.name ?? 'Board' }
+    })
+    return <BoardsManager slug={slug} locale={locale} boards={boards} />
   }
 
   return (

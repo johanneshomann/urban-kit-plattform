@@ -33,4 +33,4 @@ export const AUTHORABLE_MODULES: ReadonlySet<string> = new Set(['news', 'calenda
  * (news/calendar/polls) or managed/moderated there (forum). Grows as more
  * modules gain a manage surface (tasks, board, chat settings).
  */
-export const MANAGE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls', 'forum', 'files', 'chat'])
+export const MANAGE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls', 'forum', 'files', 'chat', 'board'])
