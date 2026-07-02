@@ -1,16 +1,30 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
-import { relId } from '@/lib/chat/access'
+import { relId, ensureProjectRoomMemberships } from '@/lib/chat/access'
 import { serializeUserRef } from '@/lib/chat/serialize'
 import type { ChatRoom, ChatRoomMember, Project } from '@/payload-types'
 
-// GET /api/chat/overview — all of the caller's rooms with unread counts, for the inbox + sidebar badge.
+// GET /api/chat/overview — all of the caller's rooms with unread counts, for the chat popup.
+// ?sync=1 (sent once when the popup opens) reconciles project-room memberships,
+// so members who joined a project after its rooms were created get auto-added.
 export async function GET(req: NextRequest) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: req.headers })
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const userId = String(user.id)
+
+  if (req.nextUrl.searchParams.get('sync') === '1') {
+    const activeMemberships = await payload.find({
+      collection: 'project-memberships',
+      where: { and: [{ user: { equals: userId } }, { status: { equals: 'active' } }] },
+      limit: 100, depth: 0, overrideAccess: true,
+    })
+    for (const m of activeMemberships.docs) {
+      const projectId = relId((m as { project?: unknown }).project)
+      if (projectId) await ensureProjectRoomMemberships(payload, projectId, userId).catch(() => {})
+    }
+  }
 
   const memberships = (await payload.find({
     collection: 'chat-room-members',

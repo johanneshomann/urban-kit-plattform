@@ -1,18 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { UserCircle, LogOut, MessageSquare, User, ArrowLeft } from 'lucide-react'
+import { UserCircle, LogOut, User, ArrowLeft } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { NotificationBell } from './NotificationBell'
 import type { NotificationItem } from './NotificationBell'
+import { ChatPopup } from './chat/ChatPopup'
 
 interface PlatformHeaderProps {
   locale: string
   cityName: string
   userName?: string | null
   notificationItems?: NotificationItem[]
+  canCreateGroups?: boolean
 }
 
 // Chameleon colours: inside a project, ProjectThemeScope sets --project-* on
@@ -26,35 +28,6 @@ const iconLink = 'flex items-center transition-colors'
 const hoverAccent = {
   onMouseEnter: (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.color = ACCENT },
   onMouseLeave: (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.color = INK },
-}
-
-/** Messages icon with polled unread badge (drives the /dashboard/nachrichten inbox). */
-function HeaderMessagesLink({ locale }: { locale: string }) {
-  const [unread, setUnread] = useState(0)
-  useEffect(() => {
-    let alive = true
-    const load = async () => {
-      const res = await fetch('/api/chat/overview').then((r) => r.json()).catch(() => null)
-      if (alive && res) setUnread(res.totalUnread ?? 0)
-    }
-    load()
-    const id = setInterval(load, 20000)
-    return () => { alive = false; clearInterval(id) }
-  }, [])
-
-  return (
-    <Link href={`/${locale}/dashboard/nachrichten`} className={`${iconLink} relative`} style={{ color: INK }} {...hoverAccent}>
-      <MessageSquare className="text-text w-[1em] h-[1em] shrink-0" />
-      {unread > 0 && (
-        <span
-          className="absolute -top-1.5 -right-2 text-white rounded-full leading-none px-1 py-0.5 text-center"
-          style={{ background: ACCENT, fontSize: '0.6rem', fontWeight: 700, minWidth: '1.1rem' }}
-        >
-          {unread}
-        </span>
-      )}
-    </Link>
-  )
 }
 
 /** Avatar dropdown: profile, public site, logout. */
@@ -94,7 +67,7 @@ function AvatarMenu({ locale }: { locale: string }) {
   )
 }
 
-export function PlatformHeader({ locale, cityName, notificationItems = [] }: PlatformHeaderProps) {
+export function PlatformHeader({ locale, cityName, notificationItems = [], canCreateGroups = false }: PlatformHeaderProps) {
   return (
     <header
       className="h-14 border-b sticky top-0 z-50 shadow-sm flex items-center justify-between px-6 md:px-10 transition-colors duration-500"
@@ -112,9 +85,9 @@ export function PlatformHeader({ locale, cityName, notificationItems = [] }: Pla
         <span className="font-normal"> – {cityName}</span>
       </Link>
 
-      {/* Right — Messages + Bell + Avatar menu */}
+      {/* Right — Chat popup + Bell + Avatar menu */}
       <div className="flex items-center justify-end gap-5">
-        <HeaderMessagesLink locale={locale} />
+        <ChatPopup canCreateGroups={canCreateGroups} />
         <NotificationBell locale={locale} items={notificationItems} />
         <AvatarMenu locale={locale} />
       </div>

@@ -6,6 +6,7 @@ import { DashboardShell } from '@/components/platform/DashboardShell'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme } from '@/lib/colorScheme'
+import { isPMOfAnyProject } from '@/lib/chat/access'
 import type { NotificationItem } from '@/components/platform/NotificationBell'
 
 type Project = { id: string; title: string; slug: string; colorScheme?: string | null }
@@ -25,10 +26,12 @@ export default async function DashboardLayout({
   const u = user as unknown as { firstName?: string; lastName?: string }
   const userName = [u.firstName, u.lastName].filter(Boolean).join(' ') || null
 
-  // Fetch notification items for the bell
+  // Fetch notification items for the bell + PM flag for the chat popup
   let notificationItems: NotificationItem[] = []
+  let canCreateGroups = false
   try {
     const payload = await getPayload({ config })
+    canCreateGroups = await isPMOfAnyProject(payload, String(user.id))
 
     const memberships = await payload.find({
       collection: 'project-memberships',
@@ -99,6 +102,7 @@ export default async function DashboardLayout({
         cityName={cityName}
         userName={userName}
         notificationItems={notificationItems}
+        canCreateGroups={canCreateGroups}
       />
       <main className="flex-1">
         <DashboardShell>
