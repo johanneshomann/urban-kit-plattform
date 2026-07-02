@@ -110,11 +110,10 @@ function ClearDot({ onClear, tooltip }: { onClear: (e: React.MouseEvent) => void
       </span>
       {pos && createPortal(
         <span
-          className="tooltip-in pointer-events-none text-small whitespace-nowrap px-2.5 py-1 rounded-lg border"
+          className="tooltip-in pointer-events-none text-small whitespace-nowrap px-2.5 py-1 rounded-lg bg-white shadow-md"
           style={{
             position: 'fixed', left: pos.x, top: pos.y - 8, transform: 'translate(-50%, -100%)',
-            background: 'var(--plattform-white-transparent)', color: 'var(--plattform-ink)',
-            borderColor: 'var(--projekte-light)', zIndex: 9999, backdropFilter: 'blur(6px)',
+            color: 'var(--plattform-ink)', zIndex: 9999,
           }}
         >
           {tooltip}
@@ -553,11 +552,11 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                           )}
                           <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                             {p.status ? (
-                              <span className="text-small font-semibold px-3 py-1 rounded-full backdrop-blur-sm" style={{ background: 'var(--plattform-white-transparent)', color: 'var(--projekte-dark)' }}>
+                              <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--projekte-dark)' }}>
                                 {tax(`status.${p.status}`)}
                               </span>
                             ) : <span />}
-                            <span className="text-small font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm" style={{ background: 'var(--plattform-white-transparent)', color: 'var(--plattform-ink)' }}>{projYear}</span>
+                            <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
                           </div>
                         </div>
                       )}
@@ -574,7 +573,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                             <span className="text-small font-semibold" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }}>{projYear}</span>
                           </div>
                         )}
-                        <h3 className="text-display font-black leading-tight tracking-tight transition-colors group-hover:text-[var(--projekte-dark)]" style={{ color: 'var(--plattform-ink-accent)' }}>
+                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--projekte-dark)' }}>
                           {p.title}
                         </h3>
                         {showAuszug && p.shortDescription && (
