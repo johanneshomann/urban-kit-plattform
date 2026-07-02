@@ -14,8 +14,6 @@ import { ForumFeed } from '@/components/platform/modules/forum/ForumFeed'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLoader'
 import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
-import { ChatLayout } from '@/components/platform/chat/ChatLayout'
-import { ensureProjectRoomMemberships } from '@/lib/chat/access'
 import { BoardView, type BoardRef } from '@/components/platform/board/BoardView'
 import { cookies } from 'next/headers'
 
@@ -49,11 +47,6 @@ export default async function ModulePage({
   const tier = await getViewerTier(payload, userId, project.id)
 
   const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, tier, userId) : []
-
-  // Auto-join project members to existing project rooms when they open chat
-  if (moduleType === 'chat' && tier !== 'public' && userId) {
-    await ensureProjectRoomMemberships(payload, project.id, userId)
-  }
 
   // Board needs the project's canvases + a WS token (the user's Payload JWT)
   let boardData: { boards: BoardRef[]; token: string; wsUrl: string; userName: string } | null = null
@@ -95,10 +88,6 @@ export default async function ModulePage({
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} />
               : <UrbanAgentChat projectId={project.id} />)
-          : moduleType === 'chat'
-          ? (tier === 'public' || !userId
-              ? <ModuleConsumptionPlaceholder title={tm('chat')} />
-              : <div className="h-[calc(100svh-22rem)] min-h-[24rem]"><ChatLayout projectSlug={slug} canCreateGroups={false} /></div>)
           : moduleType === 'board'
           ? (!boardData
               ? <ModuleConsumptionPlaceholder title={tm('board')} />
