@@ -141,10 +141,68 @@ export default async function DashboardPage({
     }
   })
 
+  // ── "Heute wichtig" — the most relevant items across all projects ──────────
+  const projectMeta = Object.fromEntries(projects.map((p) => [p.id, { title: p.title, slug: p.slug, scheme: resolveColorScheme(p.colorScheme) }]))
+  const pid = (v: unknown): string => (v && typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
+  type TodayItem = { label: string; project: string; href: string; accent: string; when?: string }
+  const todayItems: TodayItem[] = [
+    ...eventsResult.docs.map((d) => {
+      const m = projectMeta[pid(d.project)]
+      return m ? { label: String(d.title), project: m.title, href: `/${locale}/dashboard/projekte/${m.slug}/m/calendar`, accent: m.scheme.accent, when: relativeDate(String(d.startDate)) } : null
+    }),
+    ...pollsResult.docs.map((d) => {
+      const m = projectMeta[pid(d.project)]
+      return m ? { label: String(d.title), project: m.title, href: `/${locale}/dashboard/projekte/${m.slug}/m/polls`, accent: m.scheme.accent } : null
+    }),
+    ...newsResult.docs.map((d) => {
+      const m = projectMeta[pid(d.project)]
+      return m ? { label: String(d.title), project: m.title, href: `/${locale}/dashboard/projekte/${m.slug}/m/news`, accent: m.scheme.accent } : null
+    }),
+  ].filter((x): x is TodayItem => x !== null).slice(0, 4)
+
+  // ── Sections by role ────────────────────────────────────────────────────────
+  const sections = [
+    { title: t('sectionMine'), cards: cards.filter((c) => roleByProjectId[c.id] === 'PM') },
+    { title: t('sectionMember'), cards: cards.filter((c) => roleByProjectId[c.id] === 'Citizen') },
+    { title: t('sectionFollow'), cards: cards.filter((c) => roleByProjectId[c.id] === 'Follower') },
+  ].filter((s) => s.cards.length > 0)
+
+  const firstName = ((user as unknown as { firstName?: string | null }).firstName) || null
+
   return (
-    <div className="p-8 flex flex-col gap-12" style={{ color: 'var(--plattform-ink)' }}>
-      <section>
-        {projects.length === 0 ? (
+    <div className="p-8 flex flex-col gap-10" style={{ color: 'var(--plattform-ink)' }}>
+
+      {/* ── Greeting + Heute wichtig ─────────────────────────────────────── */}
+      <section className="flex flex-col gap-5">
+        <h1 className="text-title font-bold leading-tight">
+          {firstName ? tp('greeting', { name: firstName }) : tp('greetingFallback')}
+        </h1>
+        {todayItems.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-small font-semibold uppercase tracking-wide opacity-50">{t('todayTitle')}</p>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {todayItems.map((item, i) => (
+                <Link
+                  key={i}
+                  href={item.href}
+                  className="rounded-xl border px-4 py-3 transition-all hover:shadow-md hover:-translate-y-0.5 bg-white"
+                  style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 12%, transparent)' }}
+                >
+                  <p className="text-small flex items-center gap-1.5 opacity-50">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.accent }} />
+                    <span className="truncate">{item.project}</span>
+                    {item.when && <span className="ml-auto shrink-0">{item.when}</span>}
+                  </p>
+                  <p className="text-small font-medium mt-1 line-clamp-1">{item.label}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {projects.length === 0 ? (
+        <section>
           <div
             className="rounded-xl border border-dashed p-10 text-center"
             style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
@@ -161,10 +219,15 @@ export default async function DashboardPage({
               />
             </div>
           </div>
-        ) : (
-          <DashboardGrid locale={locale} cards={cards} />
-        )}
-      </section>
+        </section>
+      ) : (
+        sections.map((section) => (
+          <section key={section.title} className="flex flex-col gap-3">
+            <h2 className="text-small font-semibold uppercase tracking-wide opacity-50">{section.title}</h2>
+            <DashboardGrid locale={locale} cards={section.cards} />
+          </section>
+        ))
+      )}
 
       <section className="text-center">
         <p className="text-small opacity-40">{t('moreProjectsQuestion')}</p>

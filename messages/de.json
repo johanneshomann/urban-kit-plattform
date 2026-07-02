@@ -734,6 +734,10 @@
     "dateYesterday": "Gestern"
   },
   "dashboard": {
+    "todayTitle": "Heute wichtig",
+    "sectionMine": "Meine Projekte",
+    "sectionMember": "Beteiligt",
+    "sectionFollow": "Folge ich",
     "rolePM": "Projektmanager:in",
     "roleCitizen": "Bürger:in",
     "roleFollower": "Follower",
