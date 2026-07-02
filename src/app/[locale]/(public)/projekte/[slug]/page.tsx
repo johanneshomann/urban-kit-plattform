@@ -321,7 +321,8 @@ export default async function PublicProjectPage({
             )}
           </div>
 
-          <h1 className="text-hero font-black leading-none tracking-tight mb-5">
+          {/* Long titles drop one size step so the hero keeps room for description + CTA */}
+          <h1 className={`${project.title.length > 28 ? 'text-title leading-[1.05]' : 'text-hero leading-none'} font-black tracking-tight mb-5 max-w-5xl text-balance`}>
             {project.title}<span style={{ color: 'var(--plattform)' }}>.</span>
           </h1>
 
