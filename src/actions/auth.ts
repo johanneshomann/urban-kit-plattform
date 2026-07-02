@@ -87,6 +87,19 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   const newPassword = formData.get('newPassword') as string
   const currentPassword = formData.get('currentPassword') as string
 
+  const AFFILIATIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
+  type Affiliation = (typeof AFFILIATIONS)[number]
+  const affiliations = formData
+    .getAll('affiliations')
+    .filter((v): v is Affiliation => AFFILIATIONS.includes(v as Affiliation))
+  const cityInfo = affiliations.includes('cityEmployee')
+    ? {
+        organization: ((formData.get('cityOrganization') as string) || '').trim() || null,
+        fachbereich: ((formData.get('cityFachbereich') as string) || '').trim() || null,
+        position: ((formData.get('cityPosition') as string) || '').trim() || null,
+      }
+    : { organization: null, fachbereich: null, position: null }
+
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
   if (!token) return { error: 'Nicht eingeloggt' }
@@ -100,7 +113,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
     await payload.update({
       collection: 'users',
       id: me.user.id,
-      data: { firstName, lastName },
+      data: { firstName, lastName, affiliations, cityInfo },
       overrideAccess: true,
     })
   } catch {

@@ -9,8 +9,14 @@ export default async function ProfilPage() {
   if (!user) notFound()
   const t = await getTranslations('profile')
 
-  const firstName = (user as unknown as { firstName?: string }).firstName ?? ''
-  const lastName = (user as unknown as { lastName?: string }).lastName ?? ''
+  const u = user as unknown as {
+    firstName?: string
+    lastName?: string
+    affiliations?: string[] | null
+    cityInfo?: { organization?: string | null; fachbereich?: string | null; position?: string | null } | null
+  }
+  const firstName = u.firstName ?? ''
+  const lastName = u.lastName ?? ''
 
   return (
     <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8" style={{ color: 'var(--plattform-ink)' }}>
@@ -30,7 +36,17 @@ export default async function ProfilPage() {
         </div>
       </div>
 
-      <ProfileForm firstName={firstName} lastName={lastName} email={user.email} />
+      <ProfileForm
+        firstName={firstName}
+        lastName={lastName}
+        email={user.email}
+        affiliations={u.affiliations ?? []}
+        cityInfo={{
+          organization: u.cityInfo?.organization ?? '',
+          fachbereich: u.cityInfo?.fachbereich ?? '',
+          position: u.cityInfo?.position ?? '',
+        }}
+      />
 
     </div>
   )
