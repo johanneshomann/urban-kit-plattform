@@ -1,43 +1,43 @@
-import Link from 'next/link'
-import { FolderOpen, ChevronRight } from 'lucide-react'
+'use client'
 
-const P = {
-  white: 'var(--project-white)',
-  light: 'var(--project-light)',
-  mid:   'var(--project-mid)',
-  dark:  'var(--project-dark)',
-} as const
+import { FolderOpen, FileText } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { ModuleCardShell } from '@/components/platform/ModuleCardShell'
 
-export function FilesDashboardCard({ count, projectSlug, locale }: {
-  count: number; projectSlug: string; locale: string
+export interface FileCardItem {
+  id: string
+  name: string
+}
+
+export function FilesDashboardCard({ files, newCount, projectSlug, locale }: {
+  files: FileCardItem[]
+  newCount: number
+  projectSlug: string
+  locale: string
 }) {
-  const subtitle = count === 0
-    ? 'Keine Dateien'
-    : `${count} ${count === 1 ? 'Datei' : 'Dateien'}`
+  const t = useTranslations('projectWorkspace')
+  const base = `/${locale}/dashboard/projekte/${projectSlug}/m/files`
 
   return (
-    <div className="h-full flex flex-col" style={{ background: P.white }}>
-      <div className="flex items-center justify-between px-5 pt-5 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="text-display rounded-lg flex items-center justify-center shrink-0 p-2" style={{ background: P.light }}>
-              <FolderOpen className="w-[1em] h-[1em]" style={{ color: P.dark }} />
-            </div>
-          <div style={{ position: 'relative', display: 'inline-flex' }}>
-            <span className="text-display font-semibold" style={{ color: P.dark }}>Dateien</span>
-            {count > 0 && (
-              <span style={{ position: 'absolute', top: '-0.3rem', right: '-0.3rem', background: 'var(--project-accent)', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '0.25em 0.5em', borderRadius: '999px', lineHeight: 1, minWidth: '1.5em', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                {count}
-              </span>
-            )}
-          </div>
-        </div>
-        <Link href={`/${locale}/dashboard/projekte/${projectSlug}/m/files`} className="text-small flex items-center gap-0.5 transition-opacity opacity-40 hover:opacity-80" style={{ color: P.dark }}>
-          Öffnen <ChevronRight className="w-[0.85em] h-[0.85em]" />
-        </Link>
-      </div>
-      <div className="px-5 pb-5 flex-1">
-        <p className="text-small" style={{ color: P.mid }}>{subtitle}</p>
-      </div>
-    </div>
+    <ModuleCardShell
+      icon={FolderOpen}
+      title="Dateien"
+      badge={newCount > 0 ? { label: t('badgeNew', { count: newCount }) } : null}
+      href={base}
+      ctaLabel={t('ctaAllFiles')}
+    >
+      {files.length === 0 ? (
+        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyFiles')}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {files.map((f) => (
+            <li key={f.id} className="flex items-center gap-2">
+              <FileText className="w-4 h-4 shrink-0" style={{ color: 'var(--project-mid)' }} />
+              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-dark)' }}>{f.name}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </ModuleCardShell>
   )
 }

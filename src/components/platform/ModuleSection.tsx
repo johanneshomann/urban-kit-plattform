@@ -20,24 +20,27 @@ import { useTranslations } from 'next-intl'
 import { GripVertical } from 'lucide-react'
 
 import { saveModuleOrderAction } from '@/actions/projects'
-import { NewsDashboardCard } from '@/modules/news/components/news-dashboard-card'
-import { CalendarDashboardCard } from '@/modules/calendar/components/calendar-dashboard-card'
-import { PollsDashboardCard } from '@/modules/polls/components/polls-dashboard-card'
+import { NewsDashboardCard, type NewsCardPost } from '@/modules/news/components/news-dashboard-card'
+import { CalendarDashboardCard, type CalendarCardEvent } from '@/modules/calendar/components/calendar-dashboard-card'
+import { PollsDashboardCard, type PollCardData } from '@/modules/polls/components/polls-dashboard-card'
 import { ForumDashboardCard } from '@/modules/forum/components/forum-dashboard-card'
-import { TasksDashboardCard } from '@/modules/tasks/components/tasks-dashboard-card'
+import { TasksDashboardCard, type TaskCardItem } from '@/modules/tasks/components/tasks-dashboard-card'
 import { BoardDashboardCard } from '@/modules/board/components/board-dashboard-card'
-import { FilesDashboardCard } from '@/modules/files/components/files-dashboard-card'
+import { FilesDashboardCard, type FileCardItem } from '@/modules/files/components/files-dashboard-card'
 import { UrbanAgentDashboardCard } from '@/modules/urban-agent/components/urban-agent-dashboard-card'
 
-type NewsPost = { id: string; title: string; slug: string; publishedAt?: string | null }
-type CalEvent = { id: string; title: string; startDate: string; location?: string | null }
-type Poll = { id: string; title: string }
-
 export interface ModuleCardData {
-  newsPosts: NewsPost[]
-  calEvents: CalEvent[]
-  moduleCountMap: Record<string, number>
-  activePolls: Poll[]
+  newsPosts: NewsCardPost[]
+  newsNewCount: number
+  calEvents: CalendarCardEvent[]
+  featuredPoll: PollCardData | null
+  forumCount: number
+  forumNewCount: number
+  tasksPreview: TaskCardItem[]
+  tasksOpenCount: number
+  boardCount: number
+  filesPreview: FileCardItem[]
+  filesNewCount: number
 }
 
 interface Props extends ModuleCardData {
@@ -95,7 +98,9 @@ function SortableCard({ id, children }: { id: string; children: React.ReactNode 
 
 export function ModuleSection({
   title, items, fullOrder, membershipId, projectSlug, locale,
-  newsPosts, calEvents, moduleCountMap, activePolls,
+  newsPosts, newsNewCount, calEvents, featuredPoll,
+  forumCount, forumNewCount, tasksPreview, tasksOpenCount,
+  boardCount, filesPreview, filesNewCount,
 }: Props) {
   const [order, setOrder] = useState(items)
 
@@ -122,15 +127,14 @@ export function ModuleSection({
   )
 
   function renderCard(moduleId: string) {
-    const count = moduleCountMap[moduleId] ?? 0
     switch (moduleId) {
-      case 'news': return <NewsDashboardCard posts={newsPosts} projectSlug={projectSlug} locale={locale} />
+      case 'news': return <NewsDashboardCard posts={newsPosts} newCount={newsNewCount} projectSlug={projectSlug} locale={locale} />
       case 'calendar': return <CalendarDashboardCard events={calEvents} projectSlug={projectSlug} locale={locale} />
-      case 'polls': return <PollsDashboardCard polls={activePolls} projectSlug={projectSlug} locale={locale} />
-      case 'forum': return <ForumDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'tasks': return <TasksDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'board': return <BoardDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'files': return <FilesDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
+      case 'polls': return <PollsDashboardCard poll={featuredPoll} projectSlug={projectSlug} locale={locale} />
+      case 'forum': return <ForumDashboardCard count={forumCount} newCount={forumNewCount} projectSlug={projectSlug} locale={locale} />
+      case 'tasks': return <TasksDashboardCard tasks={tasksPreview} openCount={tasksOpenCount} projectSlug={projectSlug} locale={locale} />
+      case 'board': return <BoardDashboardCard count={boardCount} projectSlug={projectSlug} locale={locale} />
+      case 'files': return <FilesDashboardCard files={filesPreview} newCount={filesNewCount} projectSlug={projectSlug} locale={locale} />
       case 'urban-agent': return <UrbanAgentDashboardCard projectSlug={projectSlug} locale={locale} />
       default: return null
     }

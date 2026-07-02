@@ -15,34 +15,9 @@ import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 import { ModuleSection } from '@/components/platform/ModuleSection'
 import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
 import { PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
-
-// ─── module registry ─────────────────────────────────────────────────────────
-
-// Collections backing each module's count badge (modules without a badge omitted).
-const MODULE_COLLECTIONS: Record<string, string> = {
-  polls: 'polls',
-  forum: 'forum-threads',
-  tasks: 'tasks',
-  chat: 'chat-rooms',
-  board: 'board-canvases',
-  files: 'file-uploads',
-}
+import { loadWorkspaceCards } from '@/lib/workspace-cards'
 
 // ─── types ────────────────────────────────────────────────────────────────────
-
-type NewsPost = {
-  id: string
-  title: string
-  slug: string
-  publishedAt?: string | null
-}
-
-type CalEvent = {
-  id: string
-  title: string
-  startDate: string
-  location?: string | null
-}
 
 type Project = {
   id: string
@@ -112,65 +87,9 @@ export default async function ProjectDashboardPage({
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
   const coverSrc = project.coverImage?.url ?? projectDefaults.coverImage
 
-  const now = new Date().toISOString()
+  // Content previews for the module cards (both sections)
+  const cardData = await loadWorkspaceCards(payload, project.id, modules)
 
-  const extraModules = modules.filter((m) => m !== 'news' && m !== 'calendar')
-
-  const [newsResult, eventsResult] = await Promise.all([
-    payload.find({
-      collection: 'news-posts',
-      where: { project: { equals: project.id } },
-      sort: '-publishedAt',
-      limit: 3,
-      depth: 0,
-      overrideAccess: true,
-    }),
-    payload.find({
-      collection: 'calendar-events',
-      where: {
-        and: [
-          { project: { equals: project.id } },
-          { startDate: { greater_than_equal: now } },
-        ],
-      },
-      sort: 'startDate',
-      limit: 3,
-      depth: 0,
-      overrideAccess: true,
-    }),
-  ])
-
-  const newsPosts = newsResult.docs as unknown as NewsPost[]
-  const calEvents = eventsResult.docs as unknown as CalEvent[]
-
-  // Active polls — fetched separately so we have titles to display in the card
-  const pollsResult = modules.includes('polls') ? await payload.find({
-    collection: 'polls' as Parameters<typeof payload.find>[0]['collection'],
-    where: { and: [{ project: { equals: project.id } }, { status: { equals: 'active' } }] },
-    limit: 5,
-    depth: 0,
-    overrideAccess: true,
-  }).catch(() => ({ docs: [] })) : { docs: [] }
-  const activePolls = (pollsResult.docs as unknown as { id: string; title: string }[])
-
-  // Fetch counts for extra modules individually — skip silently if collection isn't registered
-  const moduleCountMap: Record<string, number> = {}
-  const countableExtras = extraModules.filter((m) => MODULE_COLLECTIONS[m])
-  await Promise.all(
-    countableExtras.map(async (moduleId) => {
-      try {
-        const col = MODULE_COLLECTIONS[moduleId]! as Parameters<typeof payload.find>[0]['collection']
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const where: any = moduleId === 'polls'
-          ? { and: [{ project: { equals: project.id } }, { status: { equals: 'active' } }] }
-          : { project: { equals: project.id } }
-        const result = await payload.find({ collection: col, where, limit: 0, depth: 0, overrideAccess: true })
-        moduleCountMap[moduleId] = result.totalDocs
-      } catch {
-        moduleCountMap[moduleId] = 0
-      }
-    })
-  )
   // Fetch current user's membership to read/restore saved module order
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
@@ -380,10 +299,7 @@ export default async function ProjectDashboardPage({
           membershipId={membershipId}
           projectSlug={slug}
           locale={locale}
-          newsPosts={newsPosts}
-          calEvents={calEvents}
-          moduleCountMap={moduleCountMap}
-          activePolls={activePolls}
+          {...cardData}
         />
 
         {/* Zusammen arbeiten — only for active members, only if non-empty */}
@@ -395,10 +311,7 @@ export default async function ProjectDashboardPage({
             membershipId={membershipId}
             projectSlug={slug}
             locale={locale}
-            newsPosts={newsPosts}
-            calEvents={calEvents}
-            moduleCountMap={moduleCountMap}
-            activePolls={activePolls}
+            {...cardData}
           />
         )}
 

@@ -1,43 +1,48 @@
-import Link from 'next/link'
-import { CheckSquare, ChevronRight } from 'lucide-react'
+'use client'
 
-const P = {
-  white: 'var(--project-white)',
-  light: 'var(--project-light)',
-  mid:   'var(--project-mid)',
-  dark:  'var(--project-dark)',
-} as const
+import { CheckSquare, Square, CheckSquare as CheckSquareFilled } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { ModuleCardShell } from '@/components/platform/ModuleCardShell'
 
-export function TasksDashboardCard({ count, projectSlug, locale }: {
-  count: number; projectSlug: string; locale: string
+export interface TaskCardItem {
+  id: string
+  title: string
+  done: boolean
+}
+
+export function TasksDashboardCard({ tasks, openCount, projectSlug, locale }: {
+  tasks: TaskCardItem[]
+  openCount: number
+  projectSlug: string
+  locale: string
 }) {
-  const subtitle = count === 0
-    ? 'Keine Aufgaben'
-    : `${count} ${count === 1 ? 'Aufgabe' : 'Aufgaben'}`
+  const t = useTranslations('projectWorkspace')
+  const base = `/${locale}/dashboard/projekte/${projectSlug}/m/tasks`
 
   return (
-    <div className="h-full flex flex-col" style={{ background: P.white }}>
-      <div className="flex items-center justify-between px-5 pt-5 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="text-display rounded-lg flex items-center justify-center shrink-0 p-2" style={{ background: P.light }}>
-              <CheckSquare className="w-[1em] h-[1em]" style={{ color: P.dark }} />
-            </div>
-          <div style={{ position: 'relative', display: 'inline-flex' }}>
-            <span className="text-display font-semibold" style={{ color: P.dark }}>Aufgaben</span>
-            {count > 0 && (
-              <span style={{ position: 'absolute', top: '-0.3rem', right: '-0.3rem', background: 'var(--project-accent)', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '0.25em 0.5em', borderRadius: '999px', lineHeight: 1, minWidth: '1.5em', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                {count}
+    <ModuleCardShell
+      icon={CheckSquare}
+      title="Aufgaben"
+      badge={openCount > 0 ? { label: t('badgeOpen', { count: openCount }), tone: 'neutral' } : null}
+      href={base}
+      ctaLabel={t('ctaAllTasks')}
+    >
+      {tasks.length === 0 ? (
+        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyTasks')}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {tasks.map((task) => (
+            <li key={task.id} className="flex items-center gap-2">
+              {task.done
+                ? <CheckSquareFilled className="w-4 h-4 shrink-0" style={{ color: 'var(--project-accent)' }} />
+                : <Square className="w-4 h-4 shrink-0" style={{ color: 'var(--project-mid)' }} />}
+              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-dark)', opacity: task.done ? 0.55 : 1, textDecoration: task.done ? 'line-through' : 'none' }}>
+                {task.title}
               </span>
-            )}
-          </div>
-        </div>
-        <Link href={`/${locale}/dashboard/projekte/${projectSlug}/m/tasks`} className="text-small flex items-center gap-0.5 transition-opacity opacity-40 hover:opacity-80" style={{ color: P.dark }}>
-          Öffnen <ChevronRight className="w-[0.85em] h-[0.85em]" />
-        </Link>
-      </div>
-      <div className="px-5 pb-5 flex-1">
-        <p className="text-small" style={{ color: P.mid }}>{subtitle}</p>
-      </div>
-    </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </ModuleCardShell>
   )
 }
