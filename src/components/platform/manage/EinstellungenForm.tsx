@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Check, Globe, UserPlus, AlertTriangle } from 'lucide-react'
 import { updateProjectVisibility, deleteProject } from '@/actions/manage/settings'
 
@@ -53,6 +54,7 @@ export function EinstellungenForm({
 }: {
   slug: string; locale: string; projectTitle: string; initial: EinstellungenInitial
 }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -91,25 +93,25 @@ export function EinstellungenForm({
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Einstellungen</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>Sichtbarkeit, Beitritt und gefährliche Aktionen.</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('einstellungen.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('einstellungen.subtitle')}</p>
 
       {/* Visibility */}
       <div className="rounded-xl border p-5" style={cardStyle}>
-        <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>Sichtbarkeit & Beitritt</h2>
+        <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('einstellungen.sectionVisibility')}</h2>
         <div className="divide-y" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 15%, transparent)' }}>
           <SettingRow
             icon={Globe}
-            title="Öffentlich sichtbar"
-            hint="Das Projekt erscheint in der öffentlichen Projektübersicht."
+            title={t('einstellungen.publicTitle')}
+            hint={t('einstellungen.publicHint')}
             checked={isPublic}
             onChange={(v) => onChange(() => setIsPublic(v))}
             disabled={pending}
           />
           <SettingRow
             icon={UserPlus}
-            title="Beitrittsanfragen erlauben"
-            hint="Angemeldete Personen können anfragen, beim Projekt mitzumachen."
+            title={t('einstellungen.joinTitle')}
+            hint={t('einstellungen.joinHint')}
             checked={joinRequestsEnabled}
             onChange={(v) => onChange(() => setJoinRequestsEnabled(v))}
             disabled={pending}
@@ -125,7 +127,7 @@ export function EinstellungenForm({
             style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
           >
             {saved && !dirty && !pending ? <Check className="w-4 h-4" /> : null}
-            {pending ? 'Speichern …' : dirty ? 'Speichern' : 'Gespeichert'}
+            {pending ? t('einstellungen.saving') : dirty ? t('einstellungen.save') : t('einstellungen.saved')}
           </button>
           {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
         </div>
@@ -134,14 +136,16 @@ export function EinstellungenForm({
       {/* Danger zone */}
       <div className="rounded-xl border p-5 mt-6" style={{ background: '#fef2f2', borderColor: '#fecaca' }}>
         <h2 className="flex items-center gap-2 text-small font-bold uppercase tracking-widest mb-2" style={{ color: '#b91c1c' }}>
-          <AlertTriangle className="w-4 h-4" /> Gefahrenzone
+          <AlertTriangle className="w-4 h-4" /> {t('einstellungen.dangerZone')}
         </h2>
         <p className="text-text" style={{ color: '#7f1d1d' }}>
-          Das Projekt und alle zugehörigen Inhalte (News, Termine, Umfragen, Mitglieder, Dateien …) werden
-          unwiderruflich gelöscht.
+          {t('einstellungen.dangerText')}
         </p>
         <p className="text-small mt-3 mb-1.5" style={{ color: '#7f1d1d' }}>
-          Tippe zur Bestätigung den Projektnamen <strong>{projectTitle}</strong> ein:
+          {t.rich('einstellungen.confirmPrompt', {
+            title: projectTitle,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
@@ -160,7 +164,7 @@ export function EinstellungenForm({
             style={{ background: '#b91c1c', color: 'white' }}
           >
             <AlertTriangle className="w-4 h-4" />
-            {deletePending ? 'Wird gelöscht …' : 'Projekt löschen'}
+            {deletePending ? t('einstellungen.deleting') : t('einstellungen.deleteProject')}
           </button>
         </div>
         {deleteError && <p className="text-small mt-2" style={{ color: '#b91c1c' }}>{deleteError}</p>}

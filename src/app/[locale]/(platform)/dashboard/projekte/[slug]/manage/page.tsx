@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { ChevronRight } from 'lucide-react'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { MODULE_LABELS, MODULE_ORDER, MANAGE_MODULES } from '@/lib/options/modules'
+import { MODULE_ORDER, MANAGE_MODULES } from '@/lib/options/modules'
 
 export default async function ManageOverviewPage({
   params,
@@ -13,6 +14,8 @@ export default async function ManageOverviewPage({
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
+  const t = await getTranslations({ locale, namespace: 'manage' })
+  const tModules = await getTranslations({ locale, namespace: 'modules' })
   const manageBase = `/${locale}/dashboard/projekte/${slug}/manage`
   const enabled = (ctx.project.modules ?? ['news', 'calendar'])
     .filter((m): m is string => typeof m === 'string' && MANAGE_MODULES.has(m))
@@ -21,17 +24,17 @@ export default async function ManageOverviewPage({
   return (
     <div className="max-w-3xl">
       <p className="text-small font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>
-        Verwalten
+        {t('overview.eyebrow')}
       </p>
       <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-dark)' }}>
         {ctx.project.title}
       </h1>
       <p className="text-text mb-8" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
-        Inhalte erstellen und das Projekt konfigurieren. Wähle links einen Bereich oder starte hier.
+        {t('overview.subtitle')}
       </p>
 
       <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>
-        Inhalte
+        {t('overview.contentHeading')}
       </h2>
       <div className="grid sm:grid-cols-2 gap-3">
         {enabled.map((m) => (
@@ -41,9 +44,9 @@ export default async function ManageOverviewPage({
             className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
             style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}
           >
-            <span className="font-medium">{MODULE_LABELS[m] ?? m}</span>
+            <span className="font-medium">{tModules(m)}</span>
             <span className="flex items-center gap-2 text-small" style={{ opacity: 0.6 }}>
-              Verwalten
+              {t('overview.manageAction')}
               <ChevronRight className="w-4 h-4" />
             </span>
           </Link>

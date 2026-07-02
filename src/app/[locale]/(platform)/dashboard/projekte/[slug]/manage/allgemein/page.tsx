@@ -1,15 +1,16 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { DEFAULT_PROJEKTPHASE } from '@/lib/options/projektphasen'
 import { lexicalToMarkdown } from '@/lib/richtext'
 import { AllgemeinForm, type AllgemeinInitial, type MemberOption } from '@/components/platform/manage/AllgemeinForm'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function memberName(u: any): string {
+function memberName(u: any, unknownLabel: string): string {
   const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ').trim()
-  return name || u?.email || 'Unbekannt'
+  return name || u?.email || unknownLabel
 }
 
 export default async function ManageAllgemeinPage({
@@ -18,6 +19,7 @@ export default async function ManageAllgemeinPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
+  const t = await getTranslations({ locale, namespace: 'manage' })
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
@@ -46,7 +48,7 @@ export default async function ManageAllgemeinPage({
     const id = u && typeof u === 'object' ? String(u.id) : u ? String(u) : null
     if (!id || seen.has(id)) continue
     seen.add(id)
-    members.push({ id, name: u && typeof u === 'object' ? memberName(u) : id })
+    members.push({ id, name: u && typeof u === 'object' ? memberName(u, t('allgemein.unknownMember')) : id })
   }
 
   const ansprechpersonId = p.ansprechperson && typeof p.ansprechperson === 'object'

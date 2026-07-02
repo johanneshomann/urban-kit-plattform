@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { updateProjectSettings } from '@/actions/manage/project'
 import {
@@ -73,6 +74,7 @@ function ChipMultiSelect({ options, value, onChange }: { options: FieldOption[];
 }
 
 export function AllgemeinForm({ slug, locale, initial, members }: { slug: string; locale: string; initial: AllgemeinInitial; members: MemberOption[] }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [state, setState] = useState<AllgemeinInitial>(initial)
@@ -111,22 +113,22 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Allgemein</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>Grunddaten und Zielgruppen des Projekts.</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('allgemein.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('allgemein.subtitle')}</p>
 
       <div className="flex flex-col gap-4">
-        <Section title="Grunddaten">
+        <Section title={t('allgemein.sectionBasics')}>
           <div>
-            <Label>Titel</Label>
+            <Label>{t('allgemein.labelTitle')}</Label>
             <input className={inputCls} style={inputStyle} value={state.title} onChange={(e) => set('title', e.target.value)} />
           </div>
           <div>
-            <Label>Kurzbeschreibung</Label>
+            <Label>{t('allgemein.labelShortDescription')}</Label>
             <textarea className={inputCls} style={inputStyle} rows={3} value={state.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label>Startjahr</Label>
+              <Label>{t('allgemein.labelStartYear')}</Label>
               <input
                 type="number"
                 className={inputCls}
@@ -136,7 +138,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
               />
             </div>
             <div>
-              <Label>Projektphase</Label>
+              <Label>{t('allgemein.labelProjektphase')}</Label>
               <select className={inputCls} style={inputStyle} value={state.projektphase} onChange={(e) => set('projektphase', e.target.value)}>
                 {projektphaseOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -144,51 +146,51 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
           </div>
         </Section>
 
-        <Section title="Beschreibung">
+        <Section title={t('allgemein.sectionDescription')}>
           <div>
-            <Label>Projektbeschreibung</Label>
+            <Label>{t('allgemein.labelProjektbeschreibung')}</Label>
             <textarea
               className={`${inputCls} font-mono`}
               style={inputStyle}
               rows={8}
               value={state.projektbeschreibung}
               onChange={(e) => set('projektbeschreibung', e.target.value)}
-              placeholder={'## Überschrift\n\nText … (Markdown: **fett**, ## Überschrift, - Liste)'}
+              placeholder={t('allgemein.placeholderProjektbeschreibung')}
             />
-            <p className="text-small mt-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>Markdown — Überschriften (##), **fett**, Listen (-).</p>
+            <p className="text-small mt-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('allgemein.markdownHint')}</p>
           </div>
           <div>
-            <Label>Beteiligungsvorhaben</Label>
+            <Label>{t('allgemein.labelBeteiligungsvorhaben')}</Label>
             <textarea
               className={`${inputCls} font-mono`}
               style={inputStyle}
               rows={6}
               value={state.beteiligungsvorhaben}
               onChange={(e) => set('beteiligungsvorhaben', e.target.value)}
-              placeholder={'Beschreibe das Beteiligungsvorhaben … (Markdown)'}
+              placeholder={t('allgemein.placeholderBeteiligungsvorhaben')}
             />
           </div>
         </Section>
 
-        <Section title="Zielgruppen & Einordnung">
-          <div><Label>Thema</Label><ChipMultiSelect options={THEMA_OPTIONS} value={state.thema} onChange={(v) => set('thema', v)} /></div>
-          <div><Label>Stadtbereich</Label><ChipMultiSelect options={STADTBEREICH_OPTIONS} value={state.stadtbereich} onChange={(v) => set('stadtbereich', v)} /></div>
-          <div><Label>Altersgruppe</Label><ChipMultiSelect options={ALTERSGRUPPE_OPTIONS} value={state.altersgruppe} onChange={(v) => set('altersgruppe', v)} /></div>
-          <div><Label>Zielgruppe</Label><ChipMultiSelect options={GENDER_OPTIONS} value={state.gender} onChange={(v) => set('gender', v)} /></div>
+        <Section title={t('allgemein.sectionTargetGroups')}>
+          <div><Label>{t('allgemein.labelThema')}</Label><ChipMultiSelect options={THEMA_OPTIONS} value={state.thema} onChange={(v) => set('thema', v)} /></div>
+          <div><Label>{t('allgemein.labelStadtbereich')}</Label><ChipMultiSelect options={STADTBEREICH_OPTIONS} value={state.stadtbereich} onChange={(v) => set('stadtbereich', v)} /></div>
+          <div><Label>{t('allgemein.labelAltersgruppe')}</Label><ChipMultiSelect options={ALTERSGRUPPE_OPTIONS} value={state.altersgruppe} onChange={(v) => set('altersgruppe', v)} /></div>
+          <div><Label>{t('allgemein.labelZielgruppe')}</Label><ChipMultiSelect options={GENDER_OPTIONS} value={state.gender} onChange={(v) => set('gender', v)} /></div>
         </Section>
 
-        <Section title="Kontakt">
+        <Section title={t('allgemein.sectionContact')}>
           <div>
-            <Label>Ansprechperson</Label>
+            <Label>{t('allgemein.labelAnsprechperson')}</Label>
             <select className={inputCls} style={inputStyle} value={state.ansprechperson} onChange={(e) => set('ansprechperson', e.target.value)}>
-              <option value="">— Keine —</option>
+              <option value="">{t('allgemein.optionNone')}</option>
               {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
-            <div><Label>E-Mail</Label><input className={inputCls} style={inputStyle} value={state.kontakt.email} onChange={(e) => setKontakt('email', e.target.value)} /></div>
-            <div><Label>Telefon</Label><input className={inputCls} style={inputStyle} value={state.kontakt.telefon} onChange={(e) => setKontakt('telefon', e.target.value)} /></div>
-            <div><Label>Website</Label><input className={inputCls} style={inputStyle} value={state.kontakt.website} onChange={(e) => setKontakt('website', e.target.value)} /></div>
+            <div><Label>{t('allgemein.labelEmail')}</Label><input className={inputCls} style={inputStyle} value={state.kontakt.email} onChange={(e) => setKontakt('email', e.target.value)} /></div>
+            <div><Label>{t('allgemein.labelTelefon')}</Label><input className={inputCls} style={inputStyle} value={state.kontakt.telefon} onChange={(e) => setKontakt('telefon', e.target.value)} /></div>
+            <div><Label>{t('allgemein.labelWebsite')}</Label><input className={inputCls} style={inputStyle} value={state.kontakt.website} onChange={(e) => setKontakt('website', e.target.value)} /></div>
           </div>
         </Section>
 
@@ -201,7 +203,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
             style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
           >
             {saved ? <Check className="w-4 h-4" /> : null}
-            {pending ? 'Speichern …' : saved ? 'Gespeichert' : 'Speichern'}
+            {pending ? t('allgemein.saving') : saved ? t('allgemein.saved') : t('allgemein.save')}
           </button>
           {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
         </div>

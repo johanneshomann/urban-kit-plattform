@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { projectDefaults } from '@/lib/defaults/project'
 import { DarstellungForm } from '@/components/platform/manage/DarstellungForm'
@@ -12,6 +13,7 @@ export default async function ManageDarstellungPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
+  const t = await getTranslations({ locale, namespace: 'manage' })
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
@@ -34,8 +36,8 @@ export default async function ManageDarstellungPage({
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Darstellung</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>Farbschema und Bilder des Projekts.</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('darstellung.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('darstellung.subtitle')}</p>
 
       <DarstellungForm slug={slug} locale={locale} initialScheme={ctx.project.colorScheme ?? projectDefaults.colorScheme} />
       <DarstellungImages slug={slug} locale={locale} coverUrl={coverUrl} gallery={gallery} />

@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { updateProjectAppearance } from '@/actions/manage/project'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 
 export function DarstellungForm({ slug, locale, initialScheme }: { slug: string; locale: string; initialScheme: string }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [scheme, setScheme] = useState(initialScheme)
@@ -29,7 +31,7 @@ export function DarstellungForm({ slug, locale, initialScheme }: { slug: string;
     <div>
       {/* Color scheme */}
       <div className="rounded-xl border p-5" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
-        <h2 className="text-small font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>Farbschema</h2>
+        <h2 className="text-small font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('darstellung.sectionColorScheme')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {defaultColorSchemes.map((s) => {
             const selected = scheme === s.name
@@ -62,7 +64,7 @@ export function DarstellungForm({ slug, locale, initialScheme }: { slug: string;
             style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
           >
             {!dirty && !pending ? <Check className="w-4 h-4" /> : null}
-            {pending ? 'Speichern …' : dirty ? 'Speichern' : 'Gespeichert'}
+            {pending ? t('darstellung.saving') : dirty ? t('darstellung.save') : t('darstellung.saved')}
           </button>
           {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
         </div>

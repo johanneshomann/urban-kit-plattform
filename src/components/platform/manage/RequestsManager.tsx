@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Check, X, UserCircle, Inbox } from 'lucide-react'
 import { respondToJoinRequest } from '@/actions/manage/members'
 
@@ -13,6 +14,7 @@ export interface RequestItem {
 }
 
 export function RequestsManager({ slug, locale, requests }: { slug: string; locale: string; requests: RequestItem[] }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -28,9 +30,9 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Anfragen</h1>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('requests.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
-        Offene Beitrittsanfragen für dieses Projekt.
+        {t('requests.subtitle')}
       </p>
 
       {error && (
@@ -43,7 +45,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
           style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}
         >
           <Inbox className="w-8 h-8" style={{ color: 'var(--project-mid)', opacity: 0.6 }} />
-          <p className="text-text" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>Keine offenen Anfragen.</p>
+          <p className="text-text" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('requests.empty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -68,7 +70,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold transition-opacity disabled:opacity-40"
                 style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
               >
-                <Check className="w-4 h-4" /> Annehmen
+                <Check className="w-4 h-4" /> {t('requests.approve')}
               </button>
               <button
                 type="button"
@@ -77,7 +79,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-semibold transition-opacity disabled:opacity-40"
                 style={{ color: '#b91c1c' }}
               >
-                <X className="w-4 h-4" /> Ablehnen
+                <X className="w-4 h-4" /> {t('requests.reject')}
               </button>
             </div>
           ))}
