@@ -155,6 +155,14 @@ h1, h2, h3, h4, h5, h6 {
   .card-in { animation: none; }
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 
 /* ── Accessibility preferences (toggled by AccessibilityProvider) ───────── */
 

@@ -9,16 +9,16 @@ import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
-import { CtaButton } from '@/components/public/CtaButton'
 import { ScrollHint } from '@/components/public/ScrollHint'
-import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import { resolveColorScheme } from '@/lib/colorScheme'
+import { getUser } from '@/lib/auth/getUser'
+import { JoinRequestButton } from '@/components/public/JoinRequestButton'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import {
-  Flag,
   FolderOpen,
   Newspaper,
   CalendarDays,
@@ -31,6 +31,7 @@ import {
   Megaphone,
   Rss,
   Download,
+  BarChart3,
 } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -58,6 +59,7 @@ type Project = {
   gender?: string[] | null
   stadtbereich?: string[] | null
   isPublic?: boolean | null
+  joinRequestsEnabled?: boolean | null
   kontakt?: {
     email?: string | null
     telefon?: string | null
@@ -137,6 +139,21 @@ export default async function PublicProjectPage({
 
   const payload = await getPayload({ config })
   const scheme = resolveColorScheme(project.colorScheme)
+
+  // Visitor's login + membership state for the join CTA
+  const viewer = await getUser()
+  let membershipStatus: 'requested' | 'active' | 'rejected' | null = null
+  if (viewer) {
+    const membershipRes = await payload.find({
+      collection: 'project-memberships',
+      where: { and: [{ user: { equals: viewer.id } }, { project: { equals: project.id } }] },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    }).catch(() => ({ docs: [] }))
+    const status = (membershipRes.docs[0] as { status?: string } | undefined)?.status
+    membershipStatus = status === 'requested' || status === 'active' || status === 'rejected' ? status : null
+  }
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
   const coverSrc = project.coverImage?.url ?? projectDefaults.coverImage
   const modules: string[] = project.modules ?? ['news', 'calendar']
@@ -178,12 +195,43 @@ export default async function PublicProjectPage({
       : Promise.resolve({ docs: [] }),
   ])
   const newsPosts = newsResult.docs as unknown as NewsPost[]
-  const calEvents = eventsResult.docs as unknown as CalEvent[]
+  const upcomingEvents = eventsResult.docs as unknown as CalEvent[]
+
+  // No upcoming events → fall back to the most recent past ones, so finished
+  // projects show their event history instead of a permanent empty state.
+  const pastEvents: CalEvent[] =
+    modules.includes('calendar') && upcomingEvents.length === 0
+      ? ((await payload.find({
+          collection: 'calendar-events',
+          where: {
+            and: [
+              { project: { equals: project.id } },
+              { visibility: { equals: 'PUBLIC' } },
+              { startDate: { less_than: now } },
+            ],
+          },
+          sort: '-startDate',
+          limit: 4,
+          depth: 0,
+          overrideAccess: true,
+        }).catch(() => ({ docs: [] }))).docs as unknown as CalEvent[])
+      : []
+  const calEvents = upcomingEvents.length > 0 ? upcomingEvents : pastEvents
+  const eventsArePast = upcomingEvents.length === 0 && pastEvents.length > 0
 
   // Public polls — active/closed polls visible to the public tier (anonymous voting where allowed)
   const publicPolls = modules.includes('polls')
     ? await loadCitizenPolls(payload, project.id, 'public', null)
     : []
+
+  // Active member count — aggregate only, no names
+  const memberCount = (
+    await payload.count({
+      collection: 'project-memberships',
+      where: { and: [{ project: { equals: project.id } }, { status: { equals: 'active' } }] },
+      overrideAccess: true,
+    }).catch(() => ({ totalDocs: 0 }))
+  ).totalDocs
 
   const publicFilesCount = modules.includes('files')
     ? (await payload.count({ collection: 'file-uploads', where: { and: [{ project: { equals: project.id } }, { visibility: { equals: 'PUBLIC' } }] }, overrideAccess: true }).catch(() => ({ totalDocs: 0 }))).totalDocs
@@ -199,33 +247,48 @@ export default async function PublicProjectPage({
     ? convertLexicalToHTML({ data: project.beteiligungsvorhaben as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     : null
 
-  // Steckbrief rows — only filled fields
+  // Steckbrief rows — only filled fields. Status is omitted (derived from the
+  // phase, already a hero badge); "Zielgruppe: Alle" is a non-statement → skip.
+  const zielgruppen = (project.gender ?? []).filter((v) => v !== 'alle')
   const steckbrief = [
-    project.status ? { label: t('rowStatus'), value: tax(`status.${project.status}`) } : null,
-    phase ? { label: t('rowPhase'), value: `${phase.step + 1}/7 · ${tax(`phase.${phase.value}`)}` } : null,
     project.startYear ? { label: t('rowYear'), value: String(project.startYear) } : null,
-    (project.thema ?? []).length > 0
-      ? { label: t('rowThema'), value: (project.thema ?? []).map((v) => tax(`thema.${v}`)).join(', ') }
-      : null,
-    (project.stadtbereich ?? []).length > 0
-      ? { label: t('rowStadtbereich'), value: (project.stadtbereich ?? []).map((v) => tax(`stadtbereich.${v}`)).join(', ') }
-      : null,
+    memberCount > 0 ? { label: t('rowMitglieder'), value: String(memberCount) } : null,
     (project.altersgruppe ?? []).length > 0
       ? { label: t('rowAltersgruppe'), value: (project.altersgruppe ?? []).map((v) => tax(`altersgruppe.${v}`)).join(', ') }
       : null,
-    (project.gender ?? []).length > 0
-      ? { label: t('rowZielgruppe'), value: (project.gender ?? []).map((v) => tax(`gender.${v}`)).join(', ') }
+    zielgruppen.length > 0
+      ? { label: t('rowZielgruppe'), value: zielgruppen.map((v) => tax(`gender.${v}`)).join(', ') }
       : null,
   ].filter((d): d is { label: string; value: string } => d !== null)
+
+  // Thema/Stadtbereich as chip rows — the taxonomies the archive filters by
+  const steckbriefChips = [
+    (project.thema ?? []).length > 0
+      ? { label: t('rowThema'), values: (project.thema ?? []).map((v) => tax(`thema.${v}`)) }
+      : null,
+    (project.stadtbereich ?? []).length > 0
+      ? { label: t('rowStadtbereich'), values: (project.stadtbereich ?? []).map((v) => tax(`stadtbereich.${v}`)) }
+      : null,
+  ].filter((d): d is { label: string; values: string[] } => d !== null)
+
+  const joinEnabled = project.joinRequestsEnabled !== false
+
+  // PollsConsumption/FilesBrowse style via --project-* vars; on the public page
+  // they get neutral plattform colours — the scheme only appears as Steckbrief swatches.
+  const moduleThemeVars = {
+    '--project-light': 'var(--plattform-light)',
+    '--project-mid': 'var(--plattform)',
+    '--project-dark': 'var(--plattform-accent)',
+  } as React.CSSProperties
 
   const galleryImages = (project.gallery ?? [])
     .filter((g) => !!g.image?.url)
     .map((g) => ({ url: g.image!.url!, alt: g.image?.alt ?? null, caption: g.caption ?? null }))
 
+  // Name only — never fall back to the linked user's account email, that
+  // would publish it even when the project left kontakt.email empty on purpose.
   const ansprechperson = project.ansprechperson
-    ? [project.ansprechperson.firstName, project.ansprechperson.lastName].filter(Boolean).join(' ') ||
-      project.ansprechperson.email ||
-      null
+    ? [project.ansprechperson.firstName, project.ansprechperson.lastName].filter(Boolean).join(' ') || null
     : null
   const kontakt = project.kontakt ?? {}
   const hasKontakt = Boolean(ansprechperson || kontakt.email || kontakt.telefon || kontakt.website)
@@ -243,17 +306,15 @@ export default async function PublicProjectPage({
           <img src={coverSrc} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-white/85" />
         </div>
-        {/* Project colour bar — the page's "badge" */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 z-10" style={{ background: scheme.mid }} />
         <ScrollHint />
 
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
           <div className="flex flex-wrap items-center gap-2">
-            <EyebrowBadge label={t('heroEyebrow')} bg={scheme.light} color={scheme.dark} />
+            <EyebrowBadge label={t('heroEyebrow')} />
             {project.status && (
               <span
-                className="inline-flex items-center mb-4 px-3 py-1 rounded-md text-small font-semibold leading-none"
-                style={{ background: scheme.mid, color: 'white' }}
+                className="inline-flex items-center mb-4 px-3 py-1 rounded-full text-small font-semibold leading-none"
+                style={{ background: 'var(--plattform)', color: 'white' }}
               >
                 {tax(`status.${project.status}`)}
               </span>
@@ -269,12 +330,12 @@ export default async function PublicProjectPage({
               {project.shortDescription}
             </p>
           )}
-        </div>
 
-        {/* CTAs — bottom right, stacked */}
-        <div className="relative z-10 flex flex-col items-end gap-3 px-6 pb-8 md:pb-14 md:px-16 lg:px-24 self-end">
-          <CtaButton href={`/${locale}/starten`} label={t('ctaJoin')} icon={<Flag />} wide />
-          <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('ctaAllProjects')} icon={<FolderOpen />} variant="white" wide />
+          {joinEnabled && (
+            <div className="mt-10">
+              <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+            </div>
+          )}
         </div>
       </section>
 
@@ -289,23 +350,43 @@ export default async function PublicProjectPage({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
             {beschreibungHtml ? (
               <div
-                className="lg:col-span-2 prose max-w-none text-text leading-relaxed"
+                className="lg:col-span-2 max-w-3xl prose text-text leading-relaxed"
                 style={{ color: 'var(--plattform-ink)' }}
                 dangerouslySetInnerHTML={{ __html: beschreibungHtml }}
               />
             ) : (
-              <p className="lg:col-span-2 text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              <p className="lg:col-span-2 max-w-3xl text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
                 {t('aboutEmpty')}
               </p>
             )}
 
-            {/* Steckbrief */}
-            {steckbrief.length > 0 && (
-              <aside className="bg-white rounded-xl border p-8">
+            {/* Steckbrief — sticks while the description scrolls */}
+            {(phase || steckbrief.length > 0) && (
+              <aside className="bg-white rounded-xl shadow-sm p-8 lg:sticky lg:top-20">
                 <h3 className="text-display font-black tracking-tight mb-4">{t('steckbrief')}</h3>
+
+                {phase && (
+                  <div className="py-3 border-b">
+                    <div className="flex items-baseline justify-between gap-4 mb-2.5">
+                      <span className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                        {t('rowPhase')}
+                      </span>
+                      <span className="text-small font-semibold text-right" style={{ color: 'var(--plattform-ink)' }}>
+                        {t('phaseOf', { current: phase.step + 1, total: PROJEKTPHASEN.length })} · {tax(`phase.${phase.value}`)}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{ background: 'var(--plattform)', width: `${((phase.step + 1) / PROJEKTPHASEN.length) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <dl>
                   {steckbrief.map((row) => (
-                    <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b last:border-0">
+                    <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b">
                       <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
                         {row.label}
                       </dt>
@@ -314,7 +395,37 @@ export default async function PublicProjectPage({
                       </dd>
                     </div>
                   ))}
+                  {steckbriefChips.map((row) => (
+                    <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b">
+                      <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                        {row.label}
+                      </dt>
+                      <dd className="flex flex-wrap justify-end gap-1.5">
+                        {row.values.map((v) => (
+                          <span
+                            key={v}
+                            className="px-2.5 py-0.5 rounded-full text-small"
+                            style={{ background: 'var(--plattform-light)', color: 'var(--plattform-ink)' }}
+                          >
+                            {v}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  ))}
                 </dl>
+
+                {/* The project's colour scheme, shown as swatches instead of theming the page */}
+                <div className="flex items-center justify-between gap-4 pt-3">
+                  <span className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                    {t('rowFarbschema')}
+                  </span>
+                  <span className="flex gap-1.5" aria-hidden>
+                    {[scheme.light, scheme.mid, scheme.dark].map((c) => (
+                      <span key={c} className="w-4 h-4 rounded-full border" style={{ background: c }} />
+                    ))}
+                  </span>
+                </div>
               </aside>
             )}
           </div>
@@ -338,45 +449,78 @@ export default async function PublicProjectPage({
             {t('participationBody')}
           </p>
 
-          {/* Phasen-Stepper — current phase carries the project colour */}
-          <ol className="flex flex-wrap gap-2 mb-12">
-            {PROJEKTPHASEN.map((ph) => {
+          {/* Phasen-Stepper — dots on a connecting line, current phase in project colour */}
+          <ol className="hidden md:flex mb-12" aria-label={t('rowPhase')}>
+            {PROJEKTPHASEN.map((ph, i) => {
               const isCurrent = phase ? ph.step === phase.step : false
               const isDone = phase ? ph.step < phase.step : false
+              const isLast = i === PROJEKTPHASEN.length - 1
               return (
-                <li key={ph.value}>
-                  <span
-                    className="inline-flex items-center gap-1.5 text-small px-3 py-1.5 rounded-full border leading-none"
-                    style={
-                      isCurrent
-                        ? { background: scheme.mid, borderColor: scheme.mid, color: 'white', fontWeight: 600 }
-                        : isDone
-                          ? { background: 'var(--plattform-light)', borderColor: 'transparent', color: 'var(--plattform-ink)', opacity: 0.7 }
-                          : { borderColor: 'currentColor', color: 'var(--plattform-ink)', opacity: 0.4 }
-                    }
+                <li key={ph.value} className={isLast ? 'shrink-0' : 'flex-1'} aria-current={isCurrent ? 'step' : undefined}>
+                  <div className="flex items-center">
+                    <span
+                      className="shrink-0 rounded-full"
+                      style={{
+                        width: isCurrent ? '1rem' : '0.75rem',
+                        height: isCurrent ? '1rem' : '0.75rem',
+                        background: isCurrent || isDone ? 'var(--plattform)' : 'var(--plattform-light)',
+                        boxShadow: isCurrent ? '0 0 0 4px var(--plattform-light)' : undefined,
+                      }}
+                      aria-hidden
+                    />
+                    {!isLast && (
+                      <span
+                        className="flex-1 h-0.5 mx-2"
+                        style={{ background: isDone ? 'var(--plattform)' : 'var(--plattform-light)' }}
+                        aria-hidden
+                      />
+                    )}
+                  </div>
+                  <p
+                    className={`text-small mt-3 pr-4 ${isCurrent ? 'font-semibold' : ''}`}
+                    style={{
+                      color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)',
+                      opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4,
+                    }}
                   >
                     {ph.step + 1}. {tax(`phase.${ph.value}`)}
-                  </span>
+                  </p>
                 </li>
               )
             })}
           </ol>
 
-          {beteiligungsvorhabenHtml && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-12">
-              <div
-                className="lg:col-span-2 prose max-w-none text-text leading-relaxed"
-                style={{ color: 'var(--plattform-ink)' }}
-                dangerouslySetInnerHTML={{ __html: beteiligungsvorhabenHtml }}
-              />
+          {/* Mobile: compact progress summary */}
+          {phase && (
+            <div className="md:hidden mb-12">
+              <p className="text-small font-semibold mb-2.5" style={{ color: 'var(--plattform-ink)' }}>
+                {t('phaseOf', { current: phase.step + 1, total: PROJEKTPHASEN.length })} · {tax(`phase.${phase.value}`)}
+              </p>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{ background: 'var(--plattform)', width: `${((phase.step + 1) / PROJEKTPHASEN.length) * 100}%` }}
+                />
+              </div>
             </div>
           )}
 
-          <CtaButton href={`/${locale}/starten`} label={t('ctaJoin')} icon={<Flag />} />
+          {beteiligungsvorhabenHtml && (
+            <div
+              className="max-w-3xl prose text-text leading-relaxed mb-12"
+              style={{ color: 'var(--plattform-ink)' }}
+              dangerouslySetInnerHTML={{ __html: beteiligungsvorhabenHtml }}
+            />
+          )}
+
+          {joinEnabled && (
+            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+          )}
         </div>
       </section>
 
-      {/* Aktuelles — public news & upcoming events */}
+      {/* Aktuelles — public news & events. Blocks without content don't render:
+          empty states are for members who can act on them, not for visitors. */}
       {hasAktuelles && (
         <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
           <div className="w-full">
@@ -385,66 +529,61 @@ export default async function PublicProjectPage({
               {t.rich('aktuellesTitle', { accent })}
             </h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className={`grid grid-cols-1 gap-12 items-start ${newsPosts.length > 0 && calEvents.length > 0 ? 'lg:grid-cols-2' : ''}`}>
               {/* News */}
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                  <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
-                  <a
-                    href={`/api/rss?project=${project.slug}`}
-                    className="ml-auto inline-flex items-center gap-1.5 text-small hover:underline"
-                    style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}
-                  >
-                    <Rss className="w-[1em] h-[1em] shrink-0" />
-                    RSS
-                  </a>
-                </div>
-                {newsPosts.length === 0 ? (
-                  <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                    {t('newsEmpty')}
-                  </p>
-                ) : (
+              {newsPosts.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
+                    <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
+                    <a
+                      href={`/api/rss?project=${project.slug}`}
+                      className="ml-auto inline-flex items-center gap-1.5 text-small hover:underline"
+                      style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}
+                    >
+                      <Rss className="w-[1em] h-[1em] shrink-0" />
+                      RSS
+                    </a>
+                  </div>
                   <div className="flex flex-col gap-4">
-                    {newsPosts.map((n) => (
-                      <Link
-                        key={n.id}
-                        href={`/${locale}/projekte/${project.slug}/news/${n.slug}`}
-                        className="group block bg-white rounded-xl p-6 border hover:shadow-md transition-all"
-                      >
-                        {n.publishedAt && (
-                          <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                            {formatDate(n.publishedAt, dateLocale)}
+                    {newsPosts.map((n, i) => (
+                      <div key={n.id} className="card-in" style={{ animationDelay: `${i * 60}ms` }}>
+                        <Link
+                          href={`/${locale}/projekte/${project.slug}/news/${n.slug}`}
+                          className="group block bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
+                        >
+                          {n.publishedAt && (
+                            <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                              {formatDate(n.publishedAt, dateLocale)}
+                            </p>
+                          )}
+                          <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
+                            {n.title}
                           </p>
-                        )}
-                        <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
-                          {n.title}
-                        </p>
-                      </Link>
+                        </Link>
+                      </div>
                     ))}
                   </div>
-                )}
-              </div>
-
-              {/* Termine */}
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                  <h3 className="text-display font-black tracking-tight">{t('termineHeading')}</h3>
                 </div>
-                {calEvents.length === 0 ? (
-                  <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                    {t('termineEmpty')}
-                  </p>
-                ) : (
+              )}
+
+              {/* Termine — upcoming, or the most recent past ones as history */}
+              {calEvents.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
+                    <h3 className="text-display font-black tracking-tight">
+                      {eventsArePast ? t('termineVergangen') : t('termineHeading')}
+                    </h3>
+                  </div>
                   <div className="flex flex-col gap-4">
-                    {calEvents.map((ev) => {
+                    {calEvents.map((ev, i) => {
                       const d = new Date(ev.startDate)
                       return (
-                        <div key={ev.id} className="flex items-center gap-5 bg-white rounded-xl p-6 border">
+                        <div key={ev.id} className="card-in flex items-center gap-5 bg-white rounded-xl p-6 shadow-sm" style={{ animationDelay: `${i * 60}ms` }}>
                           <div
                             className="shrink-0 w-16 rounded-lg py-2 text-center"
-                            style={{ background: 'var(--plattform-light)' }}
+                            style={{ background: 'var(--plattform-light)', opacity: eventsArePast ? 0.7 : 1 }}
                           >
                             <p className="text-display font-black leading-none" style={{ color: 'var(--plattform-ink-accent)' }}>
                               {d.toLocaleDateString(dateLocale, { day: '2-digit' })}
@@ -464,40 +603,50 @@ export default async function PublicProjectPage({
                               </p>
                             )}
                           </div>
-                          <a
-                            href={`/api/ics/event/${ev.id}`}
-                            title={t('addToCalendar')}
-                            className="shrink-0 p-2 rounded-lg transition-opacity opacity-60 hover:opacity-100"
-                            style={{ color: 'var(--plattform-ink)' }}
-                          >
-                            <Download className="w-[1.1em] h-[1.1em] shrink-0" />
-                          </a>
+                          {!eventsArePast && (
+                            <a
+                              href={`/api/ics/event/${ev.id}`}
+                              title={t('addToCalendar')}
+                              className="shrink-0 p-2 rounded-lg transition-opacity opacity-60 hover:opacity-100"
+                              style={{ color: 'var(--plattform-ink)' }}
+                            >
+                              <Download className="w-[1.1em] h-[1.1em] shrink-0" />
+                            </a>
+                          )}
                         </div>
                       )
                     })}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Umfragen — public polls (themed for --project-* vars) */}
             {publicPolls.length > 0 && (
-              <div className="mt-16" style={schemeToCssVars(scheme) as React.CSSProperties}>
+              <div className="mt-16" style={moduleThemeVars}>
+                <div className="flex items-center gap-2 mb-6">
+                  <BarChart3 className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <h3 className="text-display font-black tracking-tight">{t('pollsHeading')}</h3>
+                </div>
                 <PollsConsumption slug={project.slug} locale={locale} polls={publicPolls} loginHref={`/${locale}/login`} />
               </div>
             )}
 
             {/* Dateien — public files */}
             {publicFilesCount > 0 && (
-              <div className="mt-16" style={schemeToCssVars(scheme) as React.CSSProperties}>
-                <FilesBrowse projectId={project.id} tier="public" />
+              <div className="mt-16" style={moduleThemeVars}>
+                <div className="flex items-center gap-2 mb-6">
+                  <FolderOpen className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <h3 className="text-display font-black tracking-tight">{t('filesHeading')}</h3>
+                </div>
+                <FilesBrowse projectId={project.id} tier="public" hideTitle />
               </div>
             )}
           </div>
         </section>
       )}
 
-      {/* Galerie */}
+      {/* Galerie — grid for a few images, horizontal snap strip for many */}
       {galleryImages.length > 0 && (
         <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
           <div className="w-full">
@@ -505,9 +654,21 @@ export default async function PublicProjectPage({
             <h2 className="text-title font-black tracking-tight mb-12">
               {t.rich('galerieTitle', { accent })}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div
+              className={
+                galleryImages.length > 3
+                  ? 'flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-6 px-6 md:-mx-16 md:px-16 lg:-mx-24 lg:px-24'
+                  : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
+              }
+            >
               {galleryImages.map((img, i) => (
-                <figure key={i} className="rounded-xl border overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
+                <figure
+                  key={i}
+                  className={`rounded-xl shadow-sm overflow-hidden ${
+                    galleryImages.length > 3 ? 'snap-start shrink-0 w-[85%] sm:w-[55%] lg:w-[38%]' : ''
+                  }`}
+                  style={{ background: 'var(--plattform-light)' }}
+                >
                   <img
                     src={img.url}
                     alt={img.alt ?? img.caption ?? t('imageAlt', { title: project.title, n: i + 1 })}
@@ -543,43 +704,51 @@ export default async function PublicProjectPage({
             {t('joinBody')}
           </p>
 
+          {/* One consolidated contact card instead of four separate ones */}
           {hasKontakt && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 max-w-5xl">
+            <div className="bg-white rounded-xl shadow-sm p-8 mb-12 max-w-xl">
               {ansprechperson && (
-                <div className="bg-white rounded-xl border p-6">
-                  <UserRound className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelContact')}</p>
-                  <p className="text-text font-bold break-words" style={{ color: 'var(--plattform-ink-accent)' }}>{ansprechperson}</p>
+                <div className="flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
+                  <UserRound className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <div className="min-w-0">
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelContact')}</p>
+                    <p className="text-text font-bold break-words" style={{ color: 'var(--plattform-ink-accent)' }}>{ansprechperson}</p>
+                  </div>
                 </div>
               )}
               {kontakt.email && (
-                <a href={`mailto:${kontakt.email}`} className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
-                  <Mail className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelEmail')}</p>
-                  <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.email}</p>
+                <a href={`mailto:${kontakt.email}`} className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
+                  <Mail className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <div className="min-w-0">
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelEmail')}</p>
+                    <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.email}</p>
+                  </div>
                 </a>
               )}
               {kontakt.telefon && (
-                <a href={`tel:${kontakt.telefon}`} className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
-                  <Phone className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelPhone')}</p>
-                  <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.telefon}</p>
+                <a href={`tel:${kontakt.telefon}`} className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
+                  <Phone className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <div className="min-w-0">
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelPhone')}</p>
+                    <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.telefon}</p>
+                  </div>
                 </a>
               )}
               {websiteHref && (
-                <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="group bg-white rounded-xl border p-6 hover:shadow-md transition-all">
-                  <Globe className="w-5 h-5 mb-3" style={{ color: 'var(--plattform)' }} />
-                  <p className="text-small mb-1" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelWebsite')}</p>
-                  <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.website}</p>
+                <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
+                  <Globe className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
+                  <div className="min-w-0">
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelWebsite')}</p>
+                    <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.website}</p>
+                  </div>
                 </a>
               )}
             </div>
           )}
 
-          <div className="flex flex-wrap gap-3">
-            <CtaButton href={`/${locale}/starten`} label={t('ctaStart')} icon={<Flag />} />
-            <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('ctaAllProjects')} icon={<FolderOpen />} variant="white" />
-          </div>
+          {joinEnabled && (
+            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+          )}
         </div>
       </section>
 
