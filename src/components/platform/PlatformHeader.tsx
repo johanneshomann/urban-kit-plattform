@@ -8,6 +8,7 @@ import { logoutAction } from '@/actions/auth'
 import { NotificationBell } from './NotificationBell'
 import type { NotificationItem } from './NotificationBell'
 import { ChatPopup } from './chat/ChatPopup'
+import { LanguageSwitcher } from '@/components/public/LanguageSwitcher'
 
 interface PlatformHeaderProps {
   locale: string
@@ -85,8 +86,9 @@ export function PlatformHeader({ locale, cityName, notificationItems = [], canCr
         <span className="font-normal"> – {cityName}</span>
       </Link>
 
-      {/* Right — Chat popup + Bell + Avatar menu */}
+      {/* Right — Language + Chat popup + Bell + Avatar menu */}
       <div className="flex items-center justify-end gap-5">
+        <LanguageSwitcher className="text-small" style={{ color: INK }} {...hoverAccent} />
         <ChatPopup canCreateGroups={canCreateGroups} />
         <NotificationBell locale={locale} items={notificationItems} />
         <AvatarMenu locale={locale} />
