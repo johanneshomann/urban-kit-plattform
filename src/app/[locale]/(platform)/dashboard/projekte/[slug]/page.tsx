@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { House, Settings2 } from 'lucide-react'
+import { House, Settings2, Info, ArrowRight } from 'lucide-react'
 
 import { cookies } from 'next/headers'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
@@ -13,6 +13,7 @@ import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 import { ModuleSection } from '@/components/platform/ModuleSection'
 import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
+import { ProjectGallerySlider } from '@/components/platform/ProjectGallerySlider'
 import { PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
 import { loadWorkspaceCards } from '@/lib/workspace-cards'
 import { loadProjectActivity } from '@/lib/project-activity'
@@ -161,6 +162,10 @@ export default async function ProjectDashboardPage({
     ? convertLexicalToHTML({ data: project.beteiligungsvorhaben as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     : null
 
+  // Plain-text teaser for the "Über das Projekt" strip
+  const plainDescription = (beschreibungHtml ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  const teaserText = plainDescription || project.shortDescription || ''
+
   const accordionDetails = [
     project.startYear ? { label: tw('detailYear'), value: String(project.startYear) } : null,
     (project.stadtbereich ?? []).length > 0
@@ -270,6 +275,22 @@ export default async function ProjectDashboardPage({
         }}
       >
 
+        {/* Über das Projekt — teaser strip */}
+        {teaserText && (
+          <div className="rounded-xl p-5 flex items-start gap-4" style={{ background: P.white, border: `1.5px solid ${P.light}` }}>
+            <div className="rounded-lg flex items-center justify-center shrink-0 p-2" style={{ background: P.light }}>
+              <Info className="w-5 h-5" style={{ color: P.mid }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-display font-semibold mb-1" style={{ color: P.dark }}>{tw('aboutProject')}</p>
+              <p className="text-small line-clamp-2" style={{ color: P.dark, opacity: 0.7 }}>{teaserText}</p>
+            </div>
+            <a href="#projektinfo" className="shrink-0 inline-flex items-center gap-1 text-small font-semibold mt-1" style={{ color: P.accent }}>
+              {tw('teaserMore')} <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        )}
+
         {/* thema tags */}
         {themaList.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
@@ -309,21 +330,24 @@ export default async function ProjectDashboardPage({
           />
         )}
 
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--project-accent) 20%, transparent)' }} />
-          <span className="text-small font-medium" style={{ color: 'color-mix(in srgb, var(--project-accent) 60%, transparent)' }}>{tw('projectInfo')}</span>
-          <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--project-accent) 20%, transparent)' }} />
-        </div>
+        {/* ── Über das Projekt (full) + Bildergalerie ─────────────────────── */}
+        <div id="projektinfo" className="grid gap-6 lg:grid-cols-2 pt-2 scroll-mt-6">
+          <ProjectInfoAccordion
+            beschreibungHtml={beschreibungHtml}
+            beteiligungsvorhabenHtml={beteiligungsvorhabenHtml}
+            details={accordionDetails}
+            kontakt={{ ...project.kontakt, ansprechperson }}
+            galleryImages={[]}
+            defaultOpen
+          />
 
-        {/* Über das Projekt */}
-        <ProjectInfoAccordion
-          beschreibungHtml={beschreibungHtml}
-          beteiligungsvorhabenHtml={beteiligungsvorhabenHtml}
-          details={accordionDetails}
-          kontakt={{ ...project.kontakt, ansprechperson }}
-          galleryImages={galleryImages}
-        />
+          {galleryImages.length > 0 && (
+            <div className="rounded-xl p-5 flex flex-col gap-4" style={{ background: P.white, border: `1.5px solid ${P.light}`, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+              <p className="text-display font-semibold" style={{ color: P.dark }}>{tw('secGallery')}</p>
+              <ProjectGallerySlider images={galleryImages} />
+            </div>
+          )}
+        </div>
 
       </div>
     </>

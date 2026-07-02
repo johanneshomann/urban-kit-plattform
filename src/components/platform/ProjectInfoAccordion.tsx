@@ -29,6 +29,7 @@ interface Props {
   details: DetailItem[]
   kontakt?: ContactInfo | null
   galleryImages: GalleryImage[]
+  defaultOpen?: boolean
 }
 
 const P = {
@@ -44,8 +45,9 @@ export function ProjectInfoAccordion({
   details,
   kontakt,
   galleryImages,
+  defaultOpen = false,
 }: Props) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const t = useTranslations('projectWorkspace')
 
   const hasContent =
