@@ -142,6 +142,14 @@ export function ModuleSection({
 
   if (order.length === 0) return null
 
+  // Stretch cards to fill the row: columns track the card count, capped at 4.
+  const cols = Math.min(order.length, 4)
+  const colClass =
+    cols <= 1 ? 'grid-cols-1'
+    : cols === 2 ? 'grid-cols-1 sm:grid-cols-2'
+    : cols === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'color-mix(in srgb, var(--project-dark) 55%, transparent)' }}>
@@ -149,7 +157,7 @@ export function ModuleSection({
       </h2>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={order} strategy={rectSortingStrategy}>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className={`grid gap-4 ${colClass}`}>
             {order.map((moduleId) => {
               const card = renderCard(moduleId)
               if (!card) return null
