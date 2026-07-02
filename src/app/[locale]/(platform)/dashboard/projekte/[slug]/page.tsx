@@ -3,8 +3,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { House, Settings2, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare, MessageCircle, Kanban, FolderOpen, Bot } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { House, Settings2 } from 'lucide-react'
 
 import { cookies } from 'next/headers'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
@@ -16,6 +15,8 @@ import { ModuleSection } from '@/components/platform/ModuleSection'
 import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
 import { PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
 import { loadWorkspaceCards } from '@/lib/workspace-cards'
+import { loadProjectActivity } from '@/lib/project-activity'
+import { RecentActivityCard } from '@/components/platform/RecentActivityCard'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -87,8 +88,11 @@ export default async function ProjectDashboardPage({
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
   const coverSrc = project.coverImage?.url ?? projectDefaults.coverImage
 
-  // Content previews for the module cards (both sections)
-  const cardData = await loadWorkspaceCards(payload, project.id, modules)
+  // Content previews for the module cards (both sections) + hero activity feed
+  const [cardData, activity] = await Promise.all([
+    loadWorkspaceCards(payload, project.id, modules),
+    loadProjectActivity(payload, project.id, modules),
+  ])
 
   // Fetch current user's membership to read/restore saved module order
   const cookieStore = await cookies()
@@ -189,82 +193,72 @@ export default async function ProjectDashboardPage({
   return (
     <>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden" style={{ height: '40vh', minHeight: '12rem' }}>
-        <img
-          src={coverSrc}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(to top, ${scheme.dark}f0 0%, ${scheme.dark}70 50%, ${scheme.dark}10 100%)`,
-          }}
-        />
+      {/* ── Split hero: text left, cover + activity right ─────────────────── */}
+      <div className="grid lg:grid-cols-2" style={{ background: P.white }}>
+        {/* Left — text */}
+        <div className="px-6 md:px-10 pt-6 pb-8 flex flex-col">
+          <Link href={`/${locale}/dashboard`} className="transition-opacity opacity-40 hover:opacity-90 mb-6" style={{ color: P.dark }}>
+            <House className="w-[1em] h-[1em]" />
+          </Link>
 
-        {/* back — icon only */}
-        <Link
-          href={`/${locale}/dashboard`}
-          className="absolute top-4 left-5 transition-colors text-white/60 hover:text-white"
-          style={{ filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.6))' }}
-        >
-          <House className="w-[1em] h-[1em]" />
-        </Link>
+          {phase && (
+            <span
+              className="self-start text-small font-medium mb-4"
+              style={{
+                color: P.accent,
+                background: 'color-mix(in srgb, var(--project-accent) 12%, transparent)',
+                border: '1.5px solid color-mix(in srgb, var(--project-accent) 30%, transparent)',
+                padding: '0.3em 0.75em', borderRadius: '999px',
+              }}
+            >
+              {tw('phaseLabel', { step: phase.step + 1, label: tax(`phase.${phase.value}`) })}
+            </span>
+          )}
 
-      </div>
+          <h1 className="text-title font-bold leading-tight" style={{ color: P.dark }}>{project.title}</h1>
+          <p className="text-small mt-3 max-w-md" style={{ color: P.dark, opacity: 0.6 }}>
+            {project.shortDescription || tw('heroTagline')}
+          </p>
 
-      {/* ── Title row ─────────────────────────────────────────────────────── */}
-      <div className="px-6 pt-6 pb-4" style={{ background: P.white }}>
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-title font-bold leading-tight" style={{ color: P.dark }}>
-            {project.title}
-          </h1>
-          <div className="flex items-center gap-2 shrink-0 mt-1">
-            {phase && (
-              <span
-                className="text-small font-medium"
-                style={{
-                  color: P.accent,
-                  background: 'color-mix(in srgb, var(--project-accent) 12%, transparent)',
-                  border: `1.5px solid color-mix(in srgb, var(--project-accent) 30%, transparent)`,
-                  padding: '0.3em 0.75em',
-                  borderRadius: '999px',
-                }}
-              >
-                {tw('phaseLabel', { step: phase.step + 1, label: tax(`phase.${phase.value}`) })}
-              </span>
-            )}
-            {canManage && (
-              <Link
-                href={`/${locale}/dashboard/projekte/${slug}/manage`}
-                className="flex items-center gap-1.5 text-small font-medium transition-colors hover:bg-[var(--project-accent)] hover:text-[var(--project-dark)] hover:border-[var(--project-accent)]"
-                style={{
-                  color: P.accent,
-                  background: 'color-mix(in srgb, var(--project-accent) 12%, transparent)',
-                  border: `1.5px solid color-mix(in srgb, var(--project-accent) 30%, transparent)`,
-                  padding: '0.3em 0.75em',
-                  borderRadius: '999px',
-                }}
-              >
-                <Settings2 className="w-[0.9em] h-[0.9em] shrink-0" />
-                {tw('manage')}
-              </Link>
-            )}
-            {canRequestJoin && (
-              <JoinProjectButton
-                slug={slug}
-                locale={locale}
-                status={membershipStatus === 'requested' || membershipStatus === 'rejected' ? membershipStatus : null}
-              />
-            )}
+          {(canManage || canRequestJoin) && (
+            <div className="flex items-center gap-2 mt-5">
+              {canManage && (
+                <Link
+                  href={`/${locale}/dashboard/projekte/${slug}/manage`}
+                  className="flex items-center gap-1.5 text-small font-medium transition-colors hover:bg-[var(--project-accent)] hover:text-[var(--project-dark)] hover:border-[var(--project-accent)]"
+                  style={{
+                    color: P.accent,
+                    background: 'color-mix(in srgb, var(--project-accent) 12%, transparent)',
+                    border: '1.5px solid color-mix(in srgb, var(--project-accent) 30%, transparent)',
+                    padding: '0.3em 0.75em', borderRadius: '999px',
+                  }}
+                >
+                  <Settings2 className="w-[0.9em] h-[0.9em] shrink-0" />
+                  {tw('manage')}
+                </Link>
+              )}
+              {canRequestJoin && (
+                <JoinProjectButton
+                  slug={slug}
+                  locale={locale}
+                  status={membershipStatus === 'requested' || membershipStatus === 'rejected' ? membershipStatus : null}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right — cover image with floating activity card */}
+        <div className="relative min-h-[16rem] lg:min-h-0">
+          <img src={coverSrc} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(to right, ${scheme.white}cc 0%, ${scheme.white}00 30%)` }}
+          />
+          <div className="absolute top-4 right-4 md:top-6 md:right-6">
+            <RecentActivityCard items={activity} locale={locale} moreHref={`/${locale}/dashboard/projekte/${slug}/m/news`} />
           </div>
         </div>
-        {project.shortDescription && (
-          <p className="text-small mt-1.5 max-w-2xl" style={{ color: P.dark, opacity: 0.55 }}>
-            {project.shortDescription}
-          </p>
-        )}
       </div>
 
       {/* ── Content ───────────────────────────────────────────────────────── */}
