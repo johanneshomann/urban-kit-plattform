@@ -40,10 +40,10 @@ export default async function ProjectDashboardPage({
   // Content previews for the module cards (both sections)
   const cardData = await loadWorkspaceCards(payload, project.id, modules)
 
-  // Build ordered module list: use saved order if valid, otherwise use project module order
-  const moduleOrder = savedOrder?.filter((id) => modules.includes(id)).length === modules.length
-    ? savedOrder!
-    : modules
+  // Build ordered module list: keep the user's saved order for active modules,
+  // dropping stale entries for modules that were deactivated since it was saved.
+  const savedActive = (savedOrder ?? []).filter((id) => modules.includes(id))
+  const moduleOrder = savedActive.length === modules.length ? savedActive : modules
 
   // Partition into the two workspace sections, preserving the user's saved order.
   // Chat is excluded from both (it becomes a floating pop-up, not a card).
