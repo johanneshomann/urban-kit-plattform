@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import {
   LayoutDashboard,
   Newspaper, CalendarDays, BarChart2, MessageSquare,
@@ -18,18 +19,6 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
   'urban-agent': Bot,
 }
 
-const MODULE_LABELS: Record<string, string> = {
-  news:          'News',
-  calendar:      'Kalender',
-  polls:         'Umfragen',
-  forum:         'Forum',
-  tasks:         'Aufgaben',
-  chat:          'Chat',
-  board:         'Board',
-  files:         'Dateien',
-  'urban-agent': 'Urban Agent',
-}
-
 const P = {
   white: 'var(--project-white)',
   light: 'var(--project-light)',
@@ -44,7 +33,11 @@ interface ProjectModuleNavProps {
   activeModule?: string | null
 }
 
-export function ProjectModuleNav({ modules, slug, locale, activeModule }: ProjectModuleNavProps) {
+export async function ProjectModuleNav({ modules, slug, locale, activeModule }: ProjectModuleNavProps) {
+  const [t, tm] = await Promise.all([
+    getTranslations({ locale, namespace: 'projectWorkspace' }),
+    getTranslations({ locale, namespace: 'modules' }),
+  ])
   const overviewActive = !activeModule
 
   return (
@@ -62,14 +55,14 @@ export function ProjectModuleNav({ modules, slug, locale, activeModule }: Projec
         }}
       >
         <LayoutDashboard className="w-[0.9em] h-[0.9em] shrink-0" />
-        <span className="max-sm:hidden">Übersicht</span>
+        <span className="max-sm:hidden">{t('overview')}</span>
       </Link>
 
       {/* Module links */}
       {modules.map((moduleId) => {
         const Icon = MODULE_ICONS[moduleId]
-        const label = MODULE_LABELS[moduleId]
-        if (!Icon || !label) return null
+        if (!Icon) return null
+        const label = tm(moduleId)
         const isActive = activeModule === moduleId
 
         return (

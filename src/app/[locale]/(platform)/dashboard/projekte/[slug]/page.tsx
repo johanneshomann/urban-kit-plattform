@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { House, Settings2, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare, MessageCircle, Kanban, FolderOpen, Bot } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -17,34 +18,14 @@ import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion
 
 // ─── module registry ─────────────────────────────────────────────────────────
 
-type ModuleMeta = {
-  label: string
-  icon: LucideIcon
-  collection?: string
-  countLabel: (n: number) => string
-}
-
-const MODULE_META: Record<string, ModuleMeta> = {
-  news:          { label: 'News',        icon: Newspaper,      countLabel: () => '' },
-  calendar:      { label: 'Kalender',    icon: CalendarDays,   countLabel: () => '' },
-  polls:         { label: 'Umfragen',    icon: BarChart2,      collection: 'polls',          countLabel: (n) => n === 0 ? 'Keine aktiven Umfragen'  : `${n} aktive ${n === 1 ? 'Umfrage' : 'Umfragen'}` },
-  forum:         { label: 'Forum',       icon: MessageSquare,  collection: 'forum-threads',  countLabel: (n) => n === 0 ? 'Keine Beiträge'           : `${n} ${n === 1 ? 'Beitrag' : 'Beiträge'}` },
-  tasks:         { label: 'Aufgaben',    icon: CheckSquare,    collection: 'tasks',          countLabel: (n) => n === 0 ? 'Keine Aufgaben'           : `${n} ${n === 1 ? 'Aufgabe' : 'Aufgaben'}` },
-  chat:          { label: 'Chat',        icon: MessageCircle,  collection: 'chat-channels',  countLabel: (n) => n === 0 ? 'Keine Kanäle'             : `${n} ${n === 1 ? 'Kanal' : 'Kanäle'}` },
-  board:         { label: 'Board',       icon: Kanban,         collection: 'board-canvases', countLabel: (n) => n === 0 ? 'Kein Board'               : `${n} ${n === 1 ? 'Board' : 'Boards'}` },
-  files:         { label: 'Dateien',     icon: FolderOpen,     collection: 'file-uploads',   countLabel: (n) => n === 0 ? 'Keine Dateien'            : `${n} ${n === 1 ? 'Datei' : 'Dateien'}` },
-  'urban-agent': { label: 'Urban Agent', icon: Bot,            countLabel: () => '' },
-}
-
-const THEMA_LABELS: Record<string, string> = {
-  mobilitaet:      'Mobilität',
-  wohnraum:        'Wohnraum',
-  gruenflaechen:   'Grünflächen',
-  infrastruktur:   'Infrastruktur',
-  stadtentwicklung:'Stadtentwicklung',
-  kultur:          'Kultur',
-  bildung:         'Bildung',
-  umwelt:          'Umwelt',
+// Collections backing each module's count badge (modules without a badge omitted).
+const MODULE_COLLECTIONS: Record<string, string> = {
+  polls: 'polls',
+  forum: 'forum-threads',
+  tasks: 'tasks',
+  chat: 'chat-rooms',
+  board: 'board-canvases',
+  files: 'file-uploads',
 }
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -110,6 +91,10 @@ export default async function ProjectDashboardPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
+  const [tw, tax] = await Promise.all([
+    getTranslations({ locale, namespace: 'projectWorkspace' }),
+    getTranslations({ locale, namespace: 'taxonomy' }),
+  ])
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -170,11 +155,11 @@ export default async function ProjectDashboardPage({
 
   // Fetch counts for extra modules individually — skip silently if collection isn't registered
   const moduleCountMap: Record<string, number> = {}
-  const countableExtras = extraModules.filter((m) => MODULE_META[m]?.collection)
+  const countableExtras = extraModules.filter((m) => MODULE_COLLECTIONS[m])
   await Promise.all(
     countableExtras.map(async (moduleId) => {
       try {
-        const col = MODULE_META[moduleId]!.collection as Parameters<typeof payload.find>[0]['collection']
+        const col = MODULE_COLLECTIONS[moduleId]! as Parameters<typeof payload.find>[0]['collection']
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = moduleId === 'polls'
           ? { and: [{ project: { equals: project.id } }, { status: { equals: 'active' } }] }
@@ -247,34 +232,22 @@ export default async function ProjectDashboardPage({
     ? convertLexicalToHTML({ data: project.beteiligungsvorhaben as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     : null
 
-  const ALTERSGRUPPE_LABELS: Record<string, string> = {
-    kinder: 'Kinder (0–12)', jugendliche: 'Jugendliche (13–17)',
-    erwachsene: 'Erwachsene (18–64)', senioren: 'Senioren (65+)',
-  }
-  const GENDER_LABELS: Record<string, string> = {
-    maennlich: 'Männlich', weiblich: 'Weiblich', divers: 'Divers', alle: 'Alle',
-  }
-  const STADTBEREICH_LABELS: Record<string, string> = {
-    innenstadt: 'Innenstadt', norden: 'Norden', sueden: 'Süden',
-    osten: 'Osten', westen: 'Westen', gesamtstadt: 'Gesamtstadt',
-  }
-
   const accordionDetails = [
-    project.startYear ? { label: 'Startjahr', value: String(project.startYear) } : null,
+    project.startYear ? { label: tw('detailYear'), value: String(project.startYear) } : null,
     (project.stadtbereich ?? []).length > 0
-      ? { label: 'Stadtbereich', value: (project.stadtbereich ?? []).map((v) => STADTBEREICH_LABELS[v] ?? v).join(', ') }
+      ? { label: tw('detailStadtbereich'), value: (project.stadtbereich ?? []).map((v) => tax(`stadtbereich.${v}`)).join(', ') }
       : null,
     (project.altersgruppe ?? []).length > 0
-      ? { label: 'Altersgruppe', value: (project.altersgruppe ?? []).map((v) => ALTERSGRUPPE_LABELS[v] ?? v).join(', ') }
+      ? { label: tw('detailAltersgruppe'), value: (project.altersgruppe ?? []).map((v) => tax(`altersgruppe.${v}`)).join(', ') }
       : null,
     (project.gender ?? []).length > 0
-      ? { label: 'Zielgruppe', value: (project.gender ?? []).map((v) => GENDER_LABELS[v] ?? v).join(', ') }
+      ? { label: tw('detailZielgruppe'), value: (project.gender ?? []).map((v) => tax(`gender.${v}`)).join(', ') }
       : null,
     project.isPublic != null
-      ? { label: 'Öffentlich', value: project.isPublic ? 'Ja' : 'Nein' }
+      ? { label: tw('detailPublic'), value: project.isPublic ? tw('valueYes') : tw('valueNo') }
       : null,
     project.joinRequestsEnabled != null
-      ? { label: 'Anfragen', value: project.joinRequestsEnabled ? 'Anfragen möglich' : 'Anfragen deaktiviert' }
+      ? { label: tw('detailRequests'), value: project.joinRequestsEnabled ? tw('requestsOn') : tw('requestsOff') }
       : null,
   ].filter((d): d is { label: string; value: string } => d !== null)
 
@@ -334,7 +307,7 @@ export default async function ProjectDashboardPage({
                   borderRadius: '999px',
                 }}
               >
-                Phase {phase.step + 1}/7 · {phase.label}
+                {tw('phaseLabel', { step: phase.step + 1, label: tax(`phase.${phase.value}`) })}
               </span>
             )}
             {canManage && (
@@ -350,7 +323,7 @@ export default async function ProjectDashboardPage({
                 }}
               >
                 <Settings2 className="w-[0.9em] h-[0.9em] shrink-0" />
-                Verwalten
+                {tw('manage')}
               </Link>
             )}
             {canRequestJoin && (
@@ -384,13 +357,13 @@ export default async function ProjectDashboardPage({
         {/* thema tags */}
         {themaList.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            {themaList.map((t) => (
+            {themaList.map((th) => (
               <span
-                key={t}
+                key={th}
                 className="text-small px-2.5 py-0.5 rounded-full"
                 style={{ background: P.white, border: `1px solid color-mix(in srgb, ${P.mid} 20%, transparent)`, color: P.dark, opacity: 0.8 }}
               >
-                {THEMA_LABELS[t] ?? t}
+                {tax(`thema.${th}`)}
               </span>
             ))}
           </div>
@@ -411,7 +384,7 @@ export default async function ProjectDashboardPage({
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--project-accent) 20%, transparent)' }} />
-          <span className="text-small font-medium" style={{ color: 'color-mix(in srgb, var(--project-accent) 60%, transparent)' }}>Projektinformationen</span>
+          <span className="text-small font-medium" style={{ color: 'color-mix(in srgb, var(--project-accent) 60%, transparent)' }}>{tw('projectInfo')}</span>
           <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--project-accent) 20%, transparent)' }} />
         </div>
 

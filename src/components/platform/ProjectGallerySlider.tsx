@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface GalleryImage {
@@ -10,6 +11,7 @@ interface GalleryImage {
 }
 
 export function ProjectGallerySlider({ images }: { images: GalleryImage[] }) {
+  const t = useTranslations('projectWorkspace')
   const [slidesPerView, setSlidesPerView] = useState(1)
   const [index, setIndex] = useState(0)
 
@@ -88,7 +90,7 @@ export function ProjectGallerySlider({ images }: { images: GalleryImage[] }) {
       {/* Prev */}
       <button
         onClick={prev}
-        aria-label="Vorheriges Bild"
+        aria-label={t('prevImage')}
         style={{
           position: 'absolute', left: '0.75rem', top: '50%',
           transform: 'translateY(-50%)',
@@ -109,7 +111,7 @@ export function ProjectGallerySlider({ images }: { images: GalleryImage[] }) {
       {/* Next */}
       <button
         onClick={next}
-        aria-label="Nächstes Bild"
+        aria-label={t('nextImage')}
         style={{
           position: 'absolute', right: '0.75rem', top: '50%',
           transform: 'translateY(-50%)',
@@ -139,7 +141,7 @@ export function ProjectGallerySlider({ images }: { images: GalleryImage[] }) {
           <button
             key={i}
             onClick={() => setIndex(i)}
-            aria-label={`Position ${i + 1}`}
+            aria-label={t('position', { n: i + 1 })}
             style={{
               width: i === index ? '1.25rem' : '0.4rem',
               height: '0.4rem',

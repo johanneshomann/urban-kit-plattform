@@ -16,6 +16,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useTranslations } from 'next-intl'
 import { GripVertical } from 'lucide-react'
 
 import { saveModuleOrderAction } from '@/actions/projects'
@@ -44,6 +45,7 @@ interface Props {
 }
 
 function SortableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const t = useTranslations('projectWorkspace')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   return (
@@ -77,7 +79,7 @@ function SortableCard({ id, children }: { id: string; children: React.ReactNode 
           background: 'var(--project-white)',
           color: 'var(--project-mid)',
         }}
-        aria-label="Karte verschieben"
+        aria-label={t('moveCard')}
       >
         <GripVertical style={{ width: '1rem', height: '1rem' }} />
       </button>

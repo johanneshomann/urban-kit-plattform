@@ -313,7 +313,16 @@
     "resultsFound": "{count, plural, one {# Projekt gefunden} other {# Projekte gefunden}}",
     "emptyResults": "Keine Projekte gefunden.",
     "resetFilters": "Filter zurücksetzen",
-    "toProject": "Zum Projekt →"
+    "filterLabel": "Filter",
+    "resetAll": "Alle zurücksetzen",
+    "resetGroup": "{group} zurücksetzen",
+    "resetValue": "zurücksetzen",
+    "columns": "Spalten",
+    "viewSettings": "Ansicht anpassen",
+    "excerptLabel": "Auszug",
+    "excerptShow": "Anzeigen",
+    "excerptHide": "Ausblenden",
+    "imageLabel": "Bild"
   },
   "zusammenarbeit": {
     "metaTitle": "Zusammenarbeit – Urban KIT",
@@ -445,96 +454,213 @@
     "s0Ziel": "<p>Grundverständnis und Motivation schaffen: Wozu machen wir Beteiligung überhaupt? Welche Werte, Haltungen und Leitlinien tragen uns? Nur wenn allen klar ist, <strong>warum Beteiligung wichtig ist</strong>, entsteht Vertrauen, Offenheit und Energie für den gesamten Prozess.</p>",
     "s0Intro": "<p>Angenommen, es gibt eine gute Idee — eine neue App, ein Platzumbau, eine Mobilitätsstrategie. Noch vor der Frage „Was genau wollen wir verändern?“ steht die Frage: <strong>„Warum wollen wir Menschen beteiligen?“</strong> Geht es nur um Pflicht oder um echten Willen zur Mitgestaltung? Ein klar formuliertes „Warum“ ist der Startschuss, der Menschen motiviert, überhaupt einzusteigen.</p>",
     "s0Todos": [
-      { "bold": "Motivation klären", "text": "Warum Beteiligung? Pflicht, Image, Qualität, Legitimation, Innovation?" },
-      { "bold": "Haltung & Werte definieren", "text": "Offenheit: Welche Fragen sind wirklich offen?" },
-      { "bold": "Transparenz", "text": "Wie gehen wir mit Ergebnissen um?" },
-      { "bold": "Diversität", "text": "Welche Stimmen wollen wir unbedingt hören?" },
-      { "bold": "Rahmenbedingungen benennen", "text": "Ressourcen (Zeit, Budget, Personal) und Grenzen (politisch, rechtlich, organisatorisch)" },
-      { "bold": "Vision formulieren", "text": "Ein gemeinsamer Satz, der alle trägt: „Wir machen Beteiligung, weil …“" }
+      {
+        "bold": "Motivation klären",
+        "text": "Warum Beteiligung? Pflicht, Image, Qualität, Legitimation, Innovation?"
+      },
+      {
+        "bold": "Haltung & Werte definieren",
+        "text": "Offenheit: Welche Fragen sind wirklich offen?"
+      },
+      {
+        "bold": "Transparenz",
+        "text": "Wie gehen wir mit Ergebnissen um?"
+      },
+      {
+        "bold": "Diversität",
+        "text": "Welche Stimmen wollen wir unbedingt hören?"
+      },
+      {
+        "bold": "Rahmenbedingungen benennen",
+        "text": "Ressourcen (Zeit, Budget, Personal) und Grenzen (politisch, rechtlich, organisatorisch)"
+      },
+      {
+        "bold": "Vision formulieren",
+        "text": "Ein gemeinsamer Satz, der alle trägt: „Wir machen Beteiligung, weil …“"
+      }
     ],
     "s0Wichtig": "<p>Ohne ehrliches „Warum“ droht Scheinpartizipation. Ein gemeinsames Wertefundament schützt vor Konflikten in späteren Schritten. <strong>Haltung prägt den ganzen Prozess — mehr als jedes Tool.</strong></p>",
     "s0Methoden": [
-      { "name": "Kick-off-Dialog", "description": "Internes Teamgespräch · Vision & Werte sammeln" },
-      { "name": "Warum-Workshop", "description": "5-Why-Methode · Purpose Statement entwickeln" }
+      {
+        "name": "Kick-off-Dialog",
+        "description": "Internes Teamgespräch · Vision & Werte sammeln"
+      },
+      {
+        "name": "Warum-Workshop",
+        "description": "5-Why-Methode · Purpose Statement entwickeln"
+      }
     ],
     "s1Title": "Kontext verstehen",
     "s1Ziel": "<p>Den Ist-Zustand, die Stakeholder und das Themenfeld kennenlernen.</p>",
     "s1Intro": "<p>Bevor geplant wird, muss verstanden werden — wer ist betroffen, was gibt es bereits, was wird erwartet?</p>",
     "s1Todos": [
-      { "bold": "Stakeholder-Analyse", "text": "Wer ist betroffen, wer hat Einfluss, wer sollte einbezogen werden?" },
-      { "bold": "Dokumentensichtung", "text": "Bestehende Pläne, Beschlüsse, Gutachten recherchieren" },
-      { "bold": "Erste Gespräche", "text": "Informelle Interviews mit Schlüsselpersonen" }
+      {
+        "bold": "Stakeholder-Analyse",
+        "text": "Wer ist betroffen, wer hat Einfluss, wer sollte einbezogen werden?"
+      },
+      {
+        "bold": "Dokumentensichtung",
+        "text": "Bestehende Pläne, Beschlüsse, Gutachten recherchieren"
+      },
+      {
+        "bold": "Erste Gespräche",
+        "text": "Informelle Interviews mit Schlüsselpersonen"
+      }
     ],
     "s1Wichtig": "<p>Ohne solide Einarbeitung entstehen blinde Flecken, die später Vertrauen kosten.</p>",
     "s1Methoden": [
-      { "name": "Stakeholder-Map", "description": "Visualisierung von Akteuren & Beziehungen" },
-      { "name": "Desk Research", "description": "Sichtung bestehender Dokumente & Pläne" }
+      {
+        "name": "Stakeholder-Map",
+        "description": "Visualisierung von Akteuren & Beziehungen"
+      },
+      {
+        "name": "Desk Research",
+        "description": "Sichtung bestehender Dokumente & Pläne"
+      }
     ],
     "s2Title": "Beteiligungskonzept entwickeln",
     "s2Ziel": "<p>Ein schlüssiges Konzept erarbeiten, das Ziele, Zielgruppen, Formate und Zeitplan festlegt.</p>",
     "s2Intro": "<p>Das Konzept ist der Fahrplan. Es beantwortet: Wen beteiligen wir, womit, wann und wie?</p>",
     "s2Todos": [
-      { "bold": "Ziele konkretisieren", "text": "Was soll Beteiligung bewirken?" },
-      { "bold": "Zielgruppen definieren", "text": "Wen wollen wir erreichen, wen müssen wir erreichen?" },
-      { "bold": "Formate auswählen", "text": "Online, analog, hybrid — was passt zum Kontext?" },
-      { "bold": "Zeitplan erstellen", "text": "Meilensteine, Puffer, politische Termine berücksichtigen" }
+      {
+        "bold": "Ziele konkretisieren",
+        "text": "Was soll Beteiligung bewirken?"
+      },
+      {
+        "bold": "Zielgruppen definieren",
+        "text": "Wen wollen wir erreichen, wen müssen wir erreichen?"
+      },
+      {
+        "bold": "Formate auswählen",
+        "text": "Online, analog, hybrid — was passt zum Kontext?"
+      },
+      {
+        "bold": "Zeitplan erstellen",
+        "text": "Meilensteine, Puffer, politische Termine berücksichtigen"
+      }
     ],
     "s2Wichtig": "<p>Ein Konzept ohne Ressourcenplanung ist ein Wunschzettel. Realistisch bleiben.</p>",
     "s2Methoden": [
-      { "name": "Beteiligungsmatrix", "description": "Formate & Zielgruppen abgleichen" },
-      { "name": "Projektstrukturplan", "description": "Aufgaben, Verantwortlichkeiten, Termine" }
+      {
+        "name": "Beteiligungsmatrix",
+        "description": "Formate & Zielgruppen abgleichen"
+      },
+      {
+        "name": "Projektstrukturplan",
+        "description": "Aufgaben, Verantwortlichkeiten, Termine"
+      }
     ],
     "s3Title": "Operativ planen",
     "s3Ziel": "<p>Die operative Ebene klären: Wer macht was bis wann, mit welchen Ressourcen?</p>",
     "s3Intro": "<p>Jetzt wird aus dem Konzept ein konkreter Aktionsplan mit Verantwortlichkeiten und Budgets.</p>",
     "s3Todos": [
-      { "bold": "Aufgaben verteilen", "text": "Klare Rollen und Verantwortlichkeiten festlegen" },
-      { "bold": "Budget planen", "text": "Kosten für Räume, Materialien, Kommunikation, Personal" },
-      { "bold": "Kommunikationsplan", "text": "Wie informieren wir die Öffentlichkeit über die Beteiligung?" }
+      {
+        "bold": "Aufgaben verteilen",
+        "text": "Klare Rollen und Verantwortlichkeiten festlegen"
+      },
+      {
+        "bold": "Budget planen",
+        "text": "Kosten für Räume, Materialien, Kommunikation, Personal"
+      },
+      {
+        "bold": "Kommunikationsplan",
+        "text": "Wie informieren wir die Öffentlichkeit über die Beteiligung?"
+      }
     ],
     "s3Wichtig": "<p>Ohne klare Verantwortlichkeiten bleibt alles an einer Person hängen.</p>",
     "s3Methoden": [
-      { "name": "Gantt-Chart", "description": "Zeitliche Planung visualisieren" },
-      { "name": "Kommunikationskonzept", "description": "Zielgruppen & Kanäle festlegen" }
+      {
+        "name": "Gantt-Chart",
+        "description": "Zeitliche Planung visualisieren"
+      },
+      {
+        "name": "Kommunikationskonzept",
+        "description": "Zielgruppen & Kanäle festlegen"
+      }
     ],
     "s4Title": "Beteiligung durchführen",
     "s4Ziel": "<p>Die geplanten Beteiligungsformate umsetzen und dokumentieren.</p>",
     "s4Intro": "<p>Jetzt passiert das eigentliche Beteiligungsgeschehen — Veranstaltungen, Workshops, Umfragen.</p>",
     "s4Todos": [
-      { "bold": "Formate durchführen", "text": "Vorbereitung, Moderation, Dokumentation" },
-      { "bold": "Ergebnisse sichern", "text": "Protokolle, Fotos, Visualisierungen" },
-      { "bold": "Laufende Kommunikation", "text": "Teilnehmende über Fortschritte informieren" }
+      {
+        "bold": "Formate durchführen",
+        "text": "Vorbereitung, Moderation, Dokumentation"
+      },
+      {
+        "bold": "Ergebnisse sichern",
+        "text": "Protokolle, Fotos, Visualisierungen"
+      },
+      {
+        "bold": "Laufende Kommunikation",
+        "text": "Teilnehmende über Fortschritte informieren"
+      }
     ],
     "s4Wichtig": "<p>Dokumentation ist kein Nachgedanke — sie ist Teil des Prozesses und schafft Vertrauen.</p>",
     "s4Methoden": [
-      { "name": "World Café", "description": "Gruppenformat für breite Themenexploration" },
-      { "name": "Online-Umfrage", "description": "Digitale Beteiligung für breite Zielgruppen" }
+      {
+        "name": "World Café",
+        "description": "Gruppenformat für breite Themenexploration"
+      },
+      {
+        "name": "Online-Umfrage",
+        "description": "Digitale Beteiligung für breite Zielgruppen"
+      }
     ],
     "s5Title": "Prozess begleiten & steuern",
     "s5Ziel": "<p>Den laufenden Prozess reflektieren und bei Bedarf nachsteuern.</p>",
     "s5Intro": "<p>Beteiligung ist kein linearer Prozess. Regelmäßige Reflexion hilft, Kurs zu halten.</p>",
     "s5Todos": [
-      { "bold": "Zwischenfazit ziehen", "text": "Was läuft gut, was nicht?" },
-      { "bold": "Rückmeldungen einholen", "text": "Von Teilnehmenden und intern" },
-      { "bold": "Anpassungen vornehmen", "text": "Flexibel auf Veränderungen reagieren" }
+      {
+        "bold": "Zwischenfazit ziehen",
+        "text": "Was läuft gut, was nicht?"
+      },
+      {
+        "bold": "Rückmeldungen einholen",
+        "text": "Von Teilnehmenden und intern"
+      },
+      {
+        "bold": "Anpassungen vornehmen",
+        "text": "Flexibel auf Veränderungen reagieren"
+      }
     ],
     "s5Wichtig": "<p>Starre Pläne in dynamischen Kontexten zu verfolgen kostet mehr als flexibles Reagieren.</p>",
     "s5Methoden": [
-      { "name": "Prozessreview", "description": "Interne Reflexionsrunde" },
-      { "name": "Feedback-Bogen", "description": "Strukturierte Rückmeldung von Teilnehmenden" }
+      {
+        "name": "Prozessreview",
+        "description": "Interne Reflexionsrunde"
+      },
+      {
+        "name": "Feedback-Bogen",
+        "description": "Strukturierte Rückmeldung von Teilnehmenden"
+      }
     ],
     "s6Title": "Abschließen & übergeben",
     "s6Ziel": "<p>Die Beteiligung würdig abschließen, Ergebnisse übergeben und Gelerntes festhalten.</p>",
     "s6Intro": "<p>Der Abschluss ist genauso wichtig wie der Start. Teilnehmende wollen wissen, was aus ihren Beiträgen wurde.</p>",
     "s6Todos": [
-      { "bold": "Ergebnisbericht erstellen", "text": "Was wurde gehört, was wird umgesetzt, was nicht (und warum)?" },
-      { "bold": "Rückmeldung geben", "text": "Teilnehmende über Entscheidungen informieren" },
-      { "bold": "Evaluation durchführen", "text": "Was haben wir gelernt für das nächste Mal?" }
+      {
+        "bold": "Ergebnisbericht erstellen",
+        "text": "Was wurde gehört, was wird umgesetzt, was nicht (und warum)?"
+      },
+      {
+        "bold": "Rückmeldung geben",
+        "text": "Teilnehmende über Entscheidungen informieren"
+      },
+      {
+        "bold": "Evaluation durchführen",
+        "text": "Was haben wir gelernt für das nächste Mal?"
+      }
     ],
     "s6Wichtig": "<p>Ein fehlender Abschluss zerstört Vertrauen. <strong>Menschen wollen wissen, was mit ihren Beiträgen passiert ist.</strong></p>",
     "s6Methoden": [
-      { "name": "Abschlussbericht", "description": "Zusammenfassung & Entscheidungsprotokoll" },
-      { "name": "Lessons-Learned-Workshop", "description": "Reflexion für zukünftige Projekte" }
+      {
+        "name": "Abschlussbericht",
+        "description": "Zusammenfassung & Entscheidungsprotokoll"
+      },
+      {
+        "name": "Lessons-Learned-Workshop",
+        "description": "Reflexion für zukünftige Projekte"
+      }
     ]
   },
   "projectDetail": {

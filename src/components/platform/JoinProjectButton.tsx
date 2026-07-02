@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { UserPlus, Clock, X } from 'lucide-react'
 import { requestToJoinProject, cancelJoinRequest } from '@/actions/join-request'
 
@@ -22,6 +23,7 @@ export function JoinProjectButton({ slug, locale, status }: { slug: string; loca
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const t = useTranslations('projectWorkspace')
 
   const run = (fn: () => Promise<{ error?: string; ok?: boolean }>) => {
     setError(null)
@@ -37,18 +39,18 @@ export function JoinProjectButton({ slug, locale, status }: { slug: string; loca
       <>
         <span className={pill} style={pillStyle}>
           <Clock className="w-[0.9em] h-[0.9em] shrink-0" />
-          Anfrage ausstehend
+          {t('joinPending')}
         </span>
         <button
           type="button"
           onClick={() => run(() => cancelJoinRequest(slug, locale))}
           disabled={pending}
-          title="Anfrage zurückziehen"
+          title={t('joinWithdrawTitle')}
           className={`${pill} cursor-pointer transition-colors hover:bg-[var(--project-accent)] hover:text-[var(--project-white)] disabled:opacity-40`}
           style={pillStyle}
         >
           <X className="w-[0.9em] h-[0.9em] shrink-0" />
-          Zurückziehen
+          {t('joinWithdraw')}
         </button>
         {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
       </>
@@ -65,7 +67,7 @@ export function JoinProjectButton({ slug, locale, status }: { slug: string; loca
         style={pillStyle}
       >
         <UserPlus className="w-[0.9em] h-[0.9em] shrink-0" />
-        {pending ? 'Wird gesendet …' : 'Mitmachen'}
+        {pending ? t('joinSending') : t('join')}
       </button>
       {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
     </>

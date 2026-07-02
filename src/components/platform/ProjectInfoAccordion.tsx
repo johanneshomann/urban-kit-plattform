@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Info, ChevronDown, Mail, Phone, Globe, User, type LucideIcon } from 'lucide-react'
 import { ProjectGallerySlider } from '@/components/platform/ProjectGallerySlider'
 
@@ -45,6 +46,7 @@ export function ProjectInfoAccordion({
   galleryImages,
 }: Props) {
   const [open, setOpen] = useState(false)
+  const t = useTranslations('projectWorkspace')
 
   const hasContent =
     beschreibungHtml || beteiligungsvorhabenHtml || details.length > 0 ||
@@ -93,7 +95,7 @@ export function ProjectInfoAccordion({
             <Info style={{ width: '1em', height: '1em', color: P.mid }} />
           </div>
           <span style={{ fontSize: 'var(--text-display, 1rem)', fontWeight: 600, color: P.dark }}>
-            Über das Projekt
+            {t('aboutProject')}
           </span>
         </div>
         <ChevronDown
@@ -129,7 +131,7 @@ export function ProjectInfoAccordion({
 
             {/* Beschreibung */}
             {beschreibungHtml && (
-              <Section label="Beschreibung">
+              <Section label={t('secDescription')}>
                 <div
                   className="prose prose-sm max-w-none text-text"
                   style={{ color: P.dark }}
@@ -140,7 +142,7 @@ export function ProjectInfoAccordion({
 
             {/* Beteiligungsvorhaben */}
             {beteiligungsvorhabenHtml && (
-              <Section label="Beteiligungsvorhaben">
+              <Section label={t('secParticipation')}>
                 <div
                   className="prose prose-sm max-w-none text-text"
                   style={{ color: P.dark }}
@@ -151,7 +153,7 @@ export function ProjectInfoAccordion({
 
             {/* Detail chips */}
             {details.length > 0 && (
-              <Section label="Details">
+              <Section label={t('secDetails')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {details.map((d) => (
                     <div key={d.label} style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
@@ -167,7 +169,7 @@ export function ProjectInfoAccordion({
 
             {/* Kontakt */}
             {kontakt && (kontakt.email || kontakt.telefon || kontakt.website || kontakt.ansprechperson) && (
-              <Section label="Kontakt">
+              <Section label={t('secContact')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   {kontakt.ansprechperson && (
                     <ContactRow icon={User} value={kontakt.ansprechperson} />
@@ -187,7 +189,7 @@ export function ProjectInfoAccordion({
 
             {/* Gallery */}
             {galleryImages.length >= 2 && (
-              <Section label="Bildergalerie">
+              <Section label={t('secGallery')}>
                 <ProjectGallerySlider images={galleryImages} />
               </Section>
             )}
