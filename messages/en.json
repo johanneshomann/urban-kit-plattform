@@ -853,5 +853,11 @@
     "nextImage": "Next image",
     "position": "Position {n}",
     "modulePlaceholder": "Module {module} — UI will be implemented in a later phase."
+  },
+  "filesBrowse": {
+    "title": "Files",
+    "empty": "No files yet.",
+    "view": "View",
+    "download": "Download"
   }
 }
