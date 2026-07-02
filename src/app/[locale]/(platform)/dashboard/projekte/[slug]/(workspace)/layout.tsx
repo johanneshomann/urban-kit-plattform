@@ -4,7 +4,6 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 import { loadProjectActivity } from '@/lib/project-activity'
-import { resolveColorScheme } from '@/lib/colorScheme'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { ProjectHero } from '@/components/platform/ProjectHero'
@@ -35,7 +34,6 @@ export default async function WorkspaceLayout({
   ])
   const activity = await loadProjectActivity(payload, project.id, modules)
 
-  const scheme = resolveColorScheme(project.colorScheme)
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
   const phaseLabel = phase ? tw('phaseLabel', { step: phase.step + 1, label: tax(`phase.${phase.value}`) }) : null
 
@@ -51,7 +49,6 @@ export default async function WorkspaceLayout({
         canManage={ctx.canManage}
         canRequestJoin={ctx.canRequestJoin}
         joinStatus={ctx.membershipStatus === 'requested' || ctx.membershipStatus === 'rejected' ? ctx.membershipStatus : null}
-        schemeWhite={scheme.white}
         activitySlot={
           <RecentActivityCard items={activity} locale={locale} moreHref={`/${locale}/dashboard/projekte/${slug}/m/news`} />
         }

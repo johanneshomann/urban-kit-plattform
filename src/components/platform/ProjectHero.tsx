@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { House, Settings2 } from 'lucide-react'
+import { House, Settings2, ArrowRight } from 'lucide-react'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 
 const P = {
@@ -32,8 +32,6 @@ export interface ProjectHeroProps {
   canManage: boolean
   canRequestJoin: boolean
   joinStatus: 'requested' | 'rejected' | null
-  /** Hex white of the project scheme — used for the cover gradient. */
-  schemeWhite: string
   /** Server-rendered RecentActivityCard, passed through as a slot. */
   activitySlot: React.ReactNode
 }
@@ -45,7 +43,7 @@ export interface ProjectHeroProps {
  */
 export function ProjectHero({
   locale, slug, title, shortDescription, coverSrc, phaseLabel,
-  canManage, canRequestJoin, joinStatus, schemeWhite, activitySlot,
+  canManage, canRequestJoin, joinStatus, activitySlot,
 }: ProjectHeroProps) {
   const t = useTranslations('projectWorkspace')
   const pathname = usePathname()
@@ -78,6 +76,13 @@ export function ProjectHero({
           <p className="text-small mt-3 max-w-md" style={{ color: P.dark, opacity: 0.6 }}>
             {shortDescription || t('heroTagline')}
           </p>
+          <Link
+            href={`${root}/info`}
+            className="inline-flex items-center gap-1 text-small font-semibold mt-3 transition-opacity hover:opacity-70"
+            style={{ color: P.accent }}
+          >
+            {t('aboutProject')} <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {(canManage || canRequestJoin) && (
@@ -101,12 +106,16 @@ export function ProjectHero({
         )}
       </div>
 
-      {/* Right — cover image with floating activity card */}
+      {/* Right — cover image (masked so it truly fades out to the left) with floating activity card */}
       <div className={`relative transition-all duration-500 ${compact ? 'min-h-[6rem]' : 'min-h-[16rem]'} lg:min-h-0`}>
-        <img src={coverSrc} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div
-          className="absolute inset-0"
-          style={{ background: `linear-gradient(to right, ${schemeWhite}cc 0%, ${schemeWhite}00 30%)` }}
+        <img
+          src={coverSrc}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent 0%, black 45%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 45%)',
+          }}
         />
         <div className={`absolute top-4 right-4 md:top-6 md:right-6 transition-opacity duration-500 ${compact ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           {activitySlot}
