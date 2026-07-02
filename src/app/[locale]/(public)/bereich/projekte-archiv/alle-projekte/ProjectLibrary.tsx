@@ -181,7 +181,7 @@ export function ProjectLibrary({ projects, locale }: { projects: Project[]; loca
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-display font-black tracking-tight mb-3 group-hover:text-[var(--projekte-dark)] transition-colors" style={{ color: 'var(--plattform-ink-accent)' }}>
+                    <h3 className="text-display font-black tracking-tight mb-3 group-hover:text-[var(--projekte-dark)] transition-colors" style={{ color: 'var(--plattform-black)' }}>
                       {p.title}
                     </h3>
 
