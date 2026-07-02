@@ -16,6 +16,8 @@ COPY . .
 # NEXT_PUBLIC_* vars are inlined at build time, so they must be available here (not just at runtime)
 ARG NEXT_PUBLIC_HOCUSPOCUS_URL
 ENV NEXT_PUBLIC_HOCUSPOCUS_URL=$NEXT_PUBLIC_HOCUSPOCUS_URL
+ARG NEXT_PUBLIC_SERVER_URL
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 RUN rm -f src/app/\(payload\)/admin/importMap.js && npm run generate:types && npm run generate:importmap && npm run build
 
 # Runner — copies full node_modules for reliable Payload module resolution
