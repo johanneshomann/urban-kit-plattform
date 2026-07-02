@@ -2,6 +2,7 @@ import type React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import { ProjectThemeScope } from '@/components/platform/ProjectThemeScope'
 
 /**
  * Scopes the project's colour scheme to the whole `[slug]` subtree — the
@@ -33,7 +34,14 @@ export default async function ProjectLayout({
     // fall through to default scheme
   }
 
-  const cssVars = schemeToCssVars(resolveColorScheme(colorScheme))
+  const scheme = resolveColorScheme(colorScheme)
+  const cssVars = schemeToCssVars(scheme)
 
-  return <div style={cssVars as React.CSSProperties}>{children}</div>
+  return (
+    <div style={cssVars as React.CSSProperties}>
+      {/* Lift the scheme onto <html> so the platform header can adopt it */}
+      <ProjectThemeScope scheme={scheme} />
+      {children}
+    </div>
+  )
 }
