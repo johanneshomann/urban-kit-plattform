@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier } from '@/lib/visibility'
-import { ProjectModuleNav } from '@/components/platform/ProjectModuleNav'
+import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
 import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
 import { CalendarFeed } from '@/components/platform/modules/calendar/CalendarFeed'
@@ -25,7 +25,10 @@ export default async function ModulePage({
   params: Promise<{ locale: string; slug: string; moduleType: string }>
 }) {
   const { locale, slug, moduleType } = await params
-  const tm = await getTranslations({ locale, namespace: 'modules' })
+  const [tm, tw] = await Promise.all([
+    getTranslations({ locale, namespace: 'modules' }),
+    getTranslations({ locale, namespace: 'projectWorkspace' }),
+  ])
   const payload = await getPayload({ config })
 
   const projectResult = await payload.find({
@@ -64,9 +67,14 @@ export default async function ModulePage({
   }
 
   return (
-    <div>
-      <ProjectModuleNav modules={modules} slug={slug} locale={locale} activeModule={moduleType} />
-      <main className="p-6 md:p-8 max-w-4xl mx-auto w-full" style={{ minHeight: 'calc(100svh - 8rem)' }}>
+    <div style={{ background: 'var(--project-light)', minHeight: 'calc(100svh - 14rem)' }}>
+      <ProjectBreadcrumb
+        items={[
+          { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
+          { label: tm(moduleType) },
+        ]}
+      />
+      <main className="p-6 md:p-8 max-w-4xl mx-auto w-full">
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} tier={tier} />
           : moduleType === 'calendar'
