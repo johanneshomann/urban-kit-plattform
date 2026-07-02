@@ -2,26 +2,22 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { Info, ArrowRight } from 'lucide-react'
 
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { ModuleSection } from '@/components/platform/ModuleSection'
-import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
-import { ProjectGallerySlider } from '@/components/platform/ProjectGallerySlider'
 import { PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
 import { loadWorkspaceCards } from '@/lib/workspace-cards'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 
 const P = {
-  white:  'var(--project-white)',
-  light:  'var(--project-light)',
-  mid:    'var(--project-mid)',
-  dark:   'var(--project-dark)',
-  accent: 'var(--project-accent)',
+  white: 'var(--project-white)',
+  light: 'var(--project-light)',
+  mid:   'var(--project-mid)',
+  dark:  'var(--project-dark)',
 } as const
 
 // ─── page ─────────────────────────────────────────────────────────────────────
-// The hero lives in the (workspace) layout — this page renders only the content.
+// The hero lives in the (workspace) layout; project info has its own subpage
+// (./info). This page renders the module sections only.
 
 export default async function ProjectDashboardPage({
   params,
@@ -56,47 +52,6 @@ export default async function ProjectDashboardPage({
 
   const themaList = (project.thema ?? []).filter(Boolean)
 
-  // richText → HTML
-  const beschreibungHtml = project.projektbeschreibung
-    ? convertLexicalToHTML({ data: project.projektbeschreibung as Parameters<typeof convertLexicalToHTML>[0]['data'] })
-    : null
-  const beteiligungsvorhabenHtml = project.beteiligungsvorhaben
-    ? convertLexicalToHTML({ data: project.beteiligungsvorhaben as Parameters<typeof convertLexicalToHTML>[0]['data'] })
-    : null
-
-  // Plain-text teaser for the "Über das Projekt" strip
-  const plainDescription = (beschreibungHtml ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-  const teaserText = plainDescription || project.shortDescription || ''
-
-  const accordionDetails = [
-    project.startYear ? { label: tw('detailYear'), value: String(project.startYear) } : null,
-    (project.stadtbereich ?? []).length > 0
-      ? { label: tw('detailStadtbereich'), value: (project.stadtbereich ?? []).map((v) => tax(`stadtbereich.${v}`)).join(', ') }
-      : null,
-    (project.altersgruppe ?? []).length > 0
-      ? { label: tw('detailAltersgruppe'), value: (project.altersgruppe ?? []).map((v) => tax(`altersgruppe.${v}`)).join(', ') }
-      : null,
-    (project.gender ?? []).length > 0
-      ? { label: tw('detailZielgruppe'), value: (project.gender ?? []).map((v) => tax(`gender.${v}`)).join(', ') }
-      : null,
-    project.isPublic != null
-      ? { label: tw('detailPublic'), value: project.isPublic ? tw('valueYes') : tw('valueNo') }
-      : null,
-    project.joinRequestsEnabled != null
-      ? { label: tw('detailRequests'), value: project.joinRequestsEnabled ? tw('requestsOn') : tw('requestsOff') }
-      : null,
-  ].filter((d): d is { label: string; value: string } => d !== null)
-
-  const galleryImages = (project.gallery ?? [])
-    .filter((g) => !!g.image?.url)
-    .map((g) => ({ url: g.image!.url!, alt: g.image?.alt ?? null, caption: g.caption ?? null }))
-
-  const ansprechperson = project.ansprechperson
-    ? [project.ansprechperson.firstName, project.ansprechperson.lastName].filter(Boolean).join(' ') ||
-      project.ansprechperson.email ||
-      null
-    : null
-
   return (
     <div
       className="p-6 md:p-8 flex flex-col gap-6"
@@ -105,22 +60,6 @@ export default async function ProjectDashboardPage({
         minHeight: 'calc(100svh - 14rem)',
       }}
     >
-
-      {/* Über das Projekt — teaser strip */}
-      {teaserText && (
-        <div className="rounded-xl p-5 flex items-start gap-4" style={{ background: P.white, border: `1.5px solid ${P.light}` }}>
-          <div className="rounded-lg flex items-center justify-center shrink-0 p-2" style={{ background: P.light }}>
-            <Info className="w-5 h-5" style={{ color: P.mid }} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-display font-semibold mb-1" style={{ color: P.dark }}>{tw('aboutProject')}</p>
-            <p className="text-small line-clamp-2" style={{ color: P.dark, opacity: 0.7 }}>{teaserText}</p>
-          </div>
-          <a href="#projektinfo" className="shrink-0 inline-flex items-center gap-1 text-small font-semibold mt-1" style={{ color: P.accent }}>
-            {tw('teaserMore')} <ArrowRight className="w-3.5 h-3.5" />
-          </a>
-        </div>
-      )}
 
       {/* thema tags */}
       {themaList.length > 0 && (
@@ -160,25 +99,6 @@ export default async function ProjectDashboardPage({
           {...cardData}
         />
       )}
-
-      {/* ── Über das Projekt (full) + Bildergalerie ─────────────────────── */}
-      <div id="projektinfo" className="grid gap-6 lg:grid-cols-2 pt-2 scroll-mt-6">
-        <ProjectInfoAccordion
-          beschreibungHtml={beschreibungHtml}
-          beteiligungsvorhabenHtml={beteiligungsvorhabenHtml}
-          details={accordionDetails}
-          kontakt={{ ...project.kontakt, ansprechperson }}
-          galleryImages={[]}
-          defaultOpen
-        />
-
-        {galleryImages.length > 0 && (
-          <div className="rounded-xl p-5 flex flex-col gap-4" style={{ background: P.white, border: `1.5px solid ${P.light}`, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
-            <p className="text-display font-semibold" style={{ color: P.dark }}>{tw('secGallery')}</p>
-            <ProjectGallerySlider images={galleryImages} />
-          </div>
-        )}
-      </div>
 
     </div>
   )
