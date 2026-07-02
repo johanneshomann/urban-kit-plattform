@@ -62,16 +62,29 @@ async function getHeroImages(): Promise<HeroImage[]> {
   }
 }
 
-async function getActiveProjects() {
+interface ActiveProject {
+  id: string
+  title: string
+  slug: string
+  shortDescription?: string
+  status?: string
+  thema?: string[]
+  startYear?: number
+  createdAt: string
+  coverImage?: { url?: string | null } | string | null
+}
+
+async function getActiveProjects(): Promise<ActiveProject[]> {
   try {
     const payload = await getPayload({ config })
     const result = await payload.find({
       collection: 'projects',
       where: { and: [{ status: { equals: 'active' } }, { isPublic: { equals: true } }] },
       limit: 4,
+      depth: 1,
       overrideAccess: true,
     })
-    return result.docs as unknown as { id: string; title: string; slug: string; shortDescription?: string }[]
+    return result.docs as unknown as ActiveProject[]
   } catch {
     return []
   }
@@ -83,11 +96,12 @@ export default async function PublicHomePage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const [{ cityName, cityLogoUrl }, projects, heroImages, t] = await Promise.all([
+  const [{ cityName, cityLogoUrl }, projects, heroImages, t, tax] = await Promise.all([
     getCitySettings(),
     getActiveProjects(),
     getHeroImages(),
     getTranslations({ locale, namespace: 'home' }),
+    getTranslations({ locale, namespace: 'taxonomy' }),
   ])
 
   return (
@@ -220,18 +234,57 @@ export default async function PublicHomePage({
             <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('projectsEmpty')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-              {projects.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/${locale}/projekte/${p.slug}`}
-                  className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--projekte-light)] transition-all min-h-48"
-                >
-                  <h3 className="text-display font-black tracking-tight mb-5 transition-colors" style={{ color: 'var(--projekte-dark)' }}>
-                    {p.title}
-                  </h3>
-                  {p.shortDescription && <p className="text-text line-clamp-2" style={{ color: 'var(--plattform-ink)' }}>{p.shortDescription}</p>}
-                </Link>
-              ))}
+              {projects.map((p, i) => {
+                const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
+                const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()
+                return (
+                  <div key={p.id} className="card-in" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
+                    <Link
+                      href={`/${locale}/projekte/${p.slug}`}
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                    >
+                      {/* Cover image strip */}
+                      <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0" style={{ background: 'var(--projekte-light)' }}>
+                        {cover ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={cover} alt="" aria-hidden className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <FolderOpen className="w-1/3 h-1/3 opacity-20" strokeWidth={1} aria-hidden style={{ color: 'var(--projekte-dark)' }} />
+                          </div>
+                        )}
+                        <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
+                          {p.status ? (
+                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--projekte-dark)' }}>
+                              {tax(`status.${p.status}`)}
+                            </span>
+                          ) : <span />}
+                          <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col gap-4 p-7 flex-1">
+                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--projekte-dark)' }}>
+                          {p.title}
+                        </h3>
+                        {p.shortDescription && (
+                          <p className="text-small line-clamp-3" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>{p.shortDescription}</p>
+                        )}
+                        {(p.thema ?? []).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-auto">
+                            {(p.thema ?? []).map((th) => (
+                              <span key={th} className="text-small px-3 py-0.5 rounded-full" style={{ background: 'var(--projekte-light)', color: 'var(--plattform-ink)' }}>
+                                {tax(`thema.${th}`)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
+                )
+              })}
             </div>
           )}
           <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('projectsAllCta')} icon={<FolderOpen />} variant="projekte" />
