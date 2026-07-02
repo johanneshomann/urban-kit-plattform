@@ -98,11 +98,11 @@ export default async function ModulePage({
           : moduleType === 'chat'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('chat')} />
-              : <div className="h-[calc(100svh-12rem)]"><ChatLayout projectSlug={slug} canCreateGroups={false} /></div>)
+              : <div className="h-[calc(100svh-22rem)] min-h-[24rem]"><ChatLayout projectSlug={slug} canCreateGroups={false} /></div>)
           : moduleType === 'board'
           ? (!boardData
               ? <ModuleConsumptionPlaceholder title={tm('board')} />
-              : <div className="h-[calc(100svh-12rem)]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
+              : <div className="h-[calc(100svh-22rem)] min-h-[24rem]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
