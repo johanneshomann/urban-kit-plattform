@@ -16,6 +16,8 @@ import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLo
 import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 import { ChatLayout } from '@/components/platform/chat/ChatLayout'
 import { ensureProjectRoomMemberships } from '@/lib/chat/access'
+import { BoardView, type BoardRef } from '@/components/platform/board/BoardView'
+import { cookies } from 'next/headers'
 
 export default async function ModulePage({
   params,
@@ -50,6 +52,17 @@ export default async function ModulePage({
     await ensureProjectRoomMemberships(payload, project.id, userId)
   }
 
+  // Board needs the project's canvases + a WS token (the user's Payload JWT)
+  let boardData: { boards: BoardRef[]; token: string; wsUrl: string; userName: string } | null = null
+  if (moduleType === 'board' && tier !== 'public' && userId && user) {
+    const res = await payload.find({ collection: 'board-canvases', where: { project: { equals: project.id } }, sort: '-createdAt', limit: 200, depth: 0, overrideAccess: true })
+    const boards: BoardRef[] = res.docs.map((d) => { const b = d as { id: string | number; name?: string | null }; return { id: String(b.id), name: b.name ?? 'Board' } })
+    const token = (await cookies()).get('payload-token')?.value ?? ''
+    const u = user as { firstName?: string | null; lastName?: string | null; email?: string }
+    const userName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email || 'Teilnehmer:in'
+    boardData = { boards, token, wsUrl: process.env.NEXT_PUBLIC_HOCUSPOCUS_URL ?? 'ws://localhost:1234', userName }
+  }
+
   return (
     <div>
       <ProjectModuleNav modules={modules} slug={slug} locale={locale} activeModule={moduleType} />
@@ -78,6 +91,10 @@ export default async function ModulePage({
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('chat')} />
               : <div className="h-[calc(100svh-12rem)]"><ChatLayout projectSlug={slug} canCreateGroups={false} /></div>)
+          : moduleType === 'board'
+          ? (!boardData
+              ? <ModuleConsumptionPlaceholder title={tm('board')} />
+              : <div className="h-[calc(100svh-12rem)]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>
