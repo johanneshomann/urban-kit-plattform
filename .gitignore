@@ -24,6 +24,7 @@ media/
 # Artifacts
 urban-kit-plattform@1.0.0
 next
+.claude/
 
 # OS
 .DS_Store
