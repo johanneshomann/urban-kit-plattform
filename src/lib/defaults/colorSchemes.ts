@@ -10,15 +10,6 @@ export type ColorScheme = {
 
 export const defaultColorSchemes: ColorScheme[] = [
   {
-    name: 'Stadtpark',
-    light:  '#e8f5ee',
-    mid:    '#4a9e6b',
-    dark:   '#1e5c38',
-    accent: '#f5a623',
-    white:  '#fafffe',
-    black:  '#0f2018',
-  },
-  {
     name: 'Sandstein',
     light:  '#faf0e4',
     mid:    '#c9955c',
@@ -28,15 +19,6 @@ export const defaultColorSchemes: ColorScheme[] = [
     black:  '#2e1a08',
   },
   {
-    name: 'Nachtblau',
-    light:  '#e8f0f8',
-    mid:    '#2c5f8a',
-    dark:   '#142d45',
-    accent: '#f0a500',
-    white:  '#f8fbff',
-    black:  '#0a1520',
-  },
-  {
     name: 'Terrakotta',
     light:  '#faeae4',
     mid:    '#c0522e',
@@ -44,24 +26,6 @@ export const defaultColorSchemes: ColorScheme[] = [
     accent: '#4a8c7a',
     white:  '#fffaf8',
     black:  '#2e1208',
-  },
-  {
-    name: 'Schiefer',
-    light:  '#eaf0f3',
-    mid:    '#5c7a8a',
-    dark:   '#2c3d47',
-    accent: '#e07c5a',
-    white:  '#f8fafb',
-    black:  '#141e24',
-  },
-  {
-    name: 'Lavendel',
-    light:  '#f0eaf8',
-    mid:    '#7c5ca8',
-    dark:   '#3d2060',
-    accent: '#5aa87c',
-    white:  '#fdfbff',
-    black:  '#180d30',
   },
   {
     name: 'Kupfer',
@@ -89,14 +53,5 @@ export const defaultColorSchemes: ColorScheme[] = [
     accent: '#f07840',
     white:  '#f8fdfd',
     black:  '#061818',
-  },
-  {
-    name: 'Kirsche',
-    light:  '#fae8f0',
-    mid:    '#b03060',
-    dark:   '#601830',
-    accent: '#5a7830',
-    white:  '#fffafc',
-    black:  '#200810',
   },
 ]

@@ -20,7 +20,7 @@ const lexicalDocument = (...nodes: object[]) => ({
 })
 
 export const projectDefaults = {
-  colorScheme: 'Stadtpark',
+  colorScheme: 'Sandstein',
   coverImage: '/defaults/project-cover.jpg',
   gallery: [
     { image: '/defaults/default-1.jpg', caption: '' },
