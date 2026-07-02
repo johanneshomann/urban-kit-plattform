@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { ScrollTopLink } from '@/components/platform/ScrollTopLink'
 
 export type CardBadge = { label: string; tone?: 'accent' | 'neutral' }
 
@@ -42,13 +42,13 @@ export function ModuleCardShell({
 
       <div className="flex-1 min-h-0">{children}</div>
 
-      <Link
+      <ScrollTopLink
         href={href}
         className="mt-4 inline-flex items-center gap-1 text-small font-semibold transition-opacity hover:opacity-70"
         style={{ color: 'var(--project-accent)' }}
       >
         {ctaLabel} <ArrowRight className="w-3.5 h-3.5" />
-      </Link>
+      </ScrollTopLink>
     </div>
   )
 }
