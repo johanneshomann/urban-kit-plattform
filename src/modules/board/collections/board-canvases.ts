@@ -12,9 +12,11 @@ export const BoardCanvases: CollectionConfig = {
   admin: { useAsTitle: 'name' },
   fields: [
     { name: 'name', type: 'text', required: true },
-    // ADR-2: yjs_updates is the authoritative source of truth (written by Hocuspocus extension).
-    // snapshot is derived — rebuilt from the Yjs log on demand, NEVER written independently.
-    { name: 'snapshot', type: 'json', admin: { description: 'Derived from Yjs log. Do not write directly.' } },
+    // ADR-2 (Mongo addendum): the authoritative Yjs document state, base64-encoded.
+    // Written only by the Hocuspocus Database extension via /api/internal/board-doc.
+    { name: 'yjsState', type: 'text', admin: { description: 'Base64 Yjs state. Written by the realtime sidecar; do not edit.' } },
+    // Derived preview — rebuilt from the Yjs state on demand, never written independently.
+    { name: 'snapshot', type: 'json', admin: { description: 'Derived from Yjs state. Do not write directly.' } },
     { name: 'project', type: 'relationship', relationTo: 'projects' },
   ],
   timestamps: true,
