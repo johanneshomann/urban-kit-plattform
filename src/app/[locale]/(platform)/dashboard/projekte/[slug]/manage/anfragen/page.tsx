@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { RequestsManager, type RequestItem } from '@/components/platform/manage/RequestsManager'
 
@@ -13,6 +14,7 @@ export default async function ManageAnfragenPage({
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
+  const t = await getTranslations({ locale, namespace: 'manage' })
   const payload = await getPayload({ config })
   const res = await payload.find({
     collection: 'project-memberships',
@@ -29,7 +31,7 @@ export default async function ManageAnfragenPage({
     const m = doc as any
     const u = m.user
     if (!u || typeof u !== 'object') continue
-    const name = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email || 'Unbekannt'
+    const name = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email || t('requests.unknownName')
     requests.push({
       membershipId: String(m.id),
       name,

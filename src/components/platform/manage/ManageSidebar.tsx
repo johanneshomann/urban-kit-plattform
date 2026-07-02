@@ -3,25 +3,25 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   ArrowLeft, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare,
   MessageCircle, Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users, UserPlus, Settings,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { MODULE_LABELS } from '@/lib/options/modules'
 
 const MODULE_ICONS: Record<string, LucideIcon> = {
   news: Newspaper, calendar: CalendarDays, polls: BarChart2, forum: MessageSquare,
   tasks: CheckSquare, chat: MessageCircle, board: Kanban, files: FolderOpen, 'urban-agent': Bot,
 }
 
-const PROJEKT_ITEMS: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: 'allgemein', label: 'Allgemein', icon: Info },
-  { key: 'darstellung', label: 'Darstellung', icon: Palette },
-  { key: 'module', label: 'Module', icon: LayoutGrid },
-  { key: 'mitglieder', label: 'Mitglieder', icon: Users },
-  { key: 'anfragen', label: 'Anfragen', icon: UserPlus },
-  { key: 'einstellungen', label: 'Einstellungen', icon: Settings },
+const PROJEKT_ITEMS: { key: string; labelKey: string; icon: LucideIcon }[] = [
+  { key: 'allgemein', labelKey: 'sidebar.general', icon: Info },
+  { key: 'darstellung', labelKey: 'sidebar.appearance', icon: Palette },
+  { key: 'module', labelKey: 'sidebar.modules', icon: LayoutGrid },
+  { key: 'mitglieder', labelKey: 'sidebar.members', icon: Users },
+  { key: 'anfragen', labelKey: 'sidebar.requests', icon: UserPlus },
+  { key: 'einstellungen', labelKey: 'sidebar.settings', icon: Settings },
 ]
 
 const base = 'flex items-center gap-2 px-3 py-2 rounded-lg text-small transition-colors w-full'
@@ -72,6 +72,8 @@ interface ManageSidebarProps {
 }
 
 export function ManageSidebar({ locale, slug, projectTitle, enabledModules, requestCount = 0 }: ManageSidebarProps) {
+  const t = useTranslations('manage')
+  const tModules = useTranslations('modules')
   const pathname = usePathname()
   const manageBase = `/${locale}/dashboard/projekte/${slug}/manage`
 
@@ -94,25 +96,25 @@ export function ManageSidebar({ locale, slug, projectTitle, enabledModules, requ
       </div>
 
       <nav className="flex-1 py-2 px-2 flex flex-col gap-0.5 overflow-y-auto">
-        <NavLink href={manageBase} label="Übersicht" icon={LayoutGrid} active={isActive(manageBase, true)} />
+        <NavLink href={manageBase} label={t('sidebar.overview')} icon={LayoutGrid} active={isActive(manageBase, true)} />
 
-        <GroupLabel>Inhalte</GroupLabel>
+        <GroupLabel>{t('sidebar.contentGroup')}</GroupLabel>
         {enabledModules.length === 0 && (
-          <p className="px-3 py-1 text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>Keine Module aktiv</p>
+          <p className="px-3 py-1 text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('sidebar.noModules')}</p>
         )}
         {enabledModules.map((m) => {
           const href = `${manageBase}/inhalte/${m}`
-          return <NavLink key={m} href={href} label={MODULE_LABELS[m] ?? m} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(href)} />
+          return <NavLink key={m} href={href} label={tModules(m)} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(href)} />
         })}
 
-        <GroupLabel>Projekt</GroupLabel>
-        {PROJEKT_ITEMS.map(({ key, label, icon }) => {
+        <GroupLabel>{t('sidebar.projectGroup')}</GroupLabel>
+        {PROJEKT_ITEMS.map(({ key, labelKey, icon }) => {
           const href = `${manageBase}/${key}`
           return (
             <NavLink
               key={key}
               href={href}
-              label={label}
+              label={t(labelKey)}
               icon={icon}
               active={isActive(href)}
               badge={key === 'anfragen' ? requestCount : undefined}

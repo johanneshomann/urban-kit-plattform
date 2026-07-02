@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Play, Square, ChevronDown, ChevronUp, Pencil, BarChart2, Download, X } from 'lucide-react'
 import {
   createProjectPoll, editPollDraft, setPollStatus, deleteProjectPoll,
@@ -19,16 +20,16 @@ export interface PollItem {
   closesAt?: string | null
 }
 
-const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
-  draft: { label: 'Entwurf', bg: '#fef9c3', fg: '#854d0e' },
-  active: { label: 'Aktiv', bg: '#dcfce7', fg: '#166534' },
-  closed: { label: 'Geschlossen', bg: '#f3f4f6', fg: '#4b5563' },
+const STATUS_META: Record<string, { labelKey: string; bg: string; fg: string }> = {
+  draft: { labelKey: 'polls.statusDraft', bg: '#fef9c3', fg: '#854d0e' },
+  active: { labelKey: 'polls.statusActive', bg: '#dcfce7', fg: '#166534' },
+  closed: { labelKey: 'polls.statusClosed', bg: '#f3f4f6', fg: '#4b5563' },
 }
 const QUESTION_TYPES = [
-  { value: 'single', label: 'Einfachauswahl' },
-  { value: 'multiple', label: 'Mehrfachauswahl' },
-  { value: 'text', label: 'Freitext' },
-  { value: 'scale', label: 'Skala (1–5)' },
+  { value: 'single', labelKey: 'polls.typeSingle' },
+  { value: 'multiple', labelKey: 'polls.typeMultiple' },
+  { value: 'text', labelKey: 'polls.typeText' },
+  { value: 'scale', labelKey: 'polls.typeScale' },
 ]
 
 const card = 'rounded-xl border'
@@ -47,6 +48,7 @@ function isoToLocalInput(iso?: string | null): string {
 }
 
 export function PollsManager({ slug, locale, polls }: { slug: string; locale: string; polls: PollItem[] }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -126,68 +128,68 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Umfragen</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>Umfragen erstellen, aktivieren und auswerten. Neue Umfragen starten als Entwurf.</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('polls.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('polls.subtitle')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 
       <button type="button" onClick={() => (showForm ? (setShowForm(false), setEditingId(null)) : openCreate())}
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta font-semibold mb-4" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
         {showForm ? <ChevronUp className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        {showForm ? 'Formular schließen' : 'Neue Umfrage'}
+        {showForm ? t('polls.closeForm') : t('polls.newPoll')}
       </button>
 
       {showForm && (
         <div className={`${card} p-5 mb-6`} style={cardStyle}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{editingId ? 'Entwurf bearbeiten' : 'Neue Umfrage'}</h2>
+            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{editingId ? t('polls.editDraft') : t('polls.newPoll')}</h2>
             <button type="button" onClick={() => { setShowForm(false); setEditingId(null) }} className="p-1 rounded" style={{ color: 'var(--project-dark)', opacity: 0.6 }}><X className="w-4 h-4" /></button>
           </div>
           <div className="flex flex-col gap-3">
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel der Umfrage …" className={`${inputCls} w-full`} style={inputStyle} />
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder="Beschreibung (optional)" className={`${inputCls} w-full`} style={inputStyle} />
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('polls.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder={t('polls.descriptionPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
             <div className="grid sm:grid-cols-2 gap-2">
               <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>Endet am (optional)</label>
+                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('polls.closesAtLabel')}</label>
                 <input type="datetime-local" value={closesAt} onChange={(e) => setClosesAt(e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
               </div>
               <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>Sichtbarkeit</label>
+                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('polls.visibilityLabel')}</label>
                 <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
-                  <option value="PUBLIC">Öffentlich</option><option value="INTERNAL">Intern</option><option value="TEAM">Team</option>
+                  <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="INTERNAL">{t('polls.visibilityInternal')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
                 </select>
               </div>
             </div>
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-dark)' }}>
-                <input type="checkbox" checked={allowAnonymous} onChange={(e) => setAllowAnonymous(e.target.checked)} /> Anonyme Abstimmung erlauben
+                <input type="checkbox" checked={allowAnonymous} onChange={(e) => setAllowAnonymous(e.target.checked)} /> {t('polls.allowAnonymous')}
               </label>
               <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-dark)' }}>
-                <input type="checkbox" checked={showLiveResults} onChange={(e) => setShowLiveResults(e.target.checked)} /> Live-Ergebnisse anzeigen
+                <input type="checkbox" checked={showLiveResults} onChange={(e) => setShowLiveResults(e.target.checked)} /> {t('polls.showLiveResults')}
               </label>
             </div>
 
-            <p className="text-small font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>Fragen</p>
+            <p className="text-small font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>{t('polls.questionsHeading')}</p>
             {questions.map((q, i) => (
               <div key={i} className="rounded-lg border p-3 flex flex-col gap-2" style={cardStyle}>
                 <div className="flex gap-2">
-                  <input type="text" value={q.text} onChange={(e) => setQ(i, { text: e.target.value })} placeholder={`Frage ${i + 1} …`} className={`${inputCls} flex-1`} style={inputStyle} />
+                  <input type="text" value={q.text} onChange={(e) => setQ(i, { text: e.target.value })} placeholder={t('polls.questionPlaceholder', { number: i + 1 })} className={`${inputCls} flex-1`} style={inputStyle} />
                   <select value={q.type} onChange={(e) => setQ(i, { type: e.target.value })} className={inputCls} style={inputStyle}>
-                    {QUESTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    {QUESTION_TYPES.map((qt) => <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>)}
                   </select>
-                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, idx) => idx !== i))} disabled={questions.length === 1} title="Frage entfernen" className="p-2 rounded-lg disabled:opacity-30" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, idx) => idx !== i))} disabled={questions.length === 1} title={t('polls.removeQuestion')} className="p-2 rounded-lg disabled:opacity-30" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
                 </div>
                 {(q.type === 'single' || q.type === 'multiple') && (
-                  <textarea value={q.optionsText} onChange={(e) => setQ(i, { optionsText: e.target.value })} rows={3} placeholder={'Eine Antwortoption pro Zeile'} className={`${inputCls} w-full`} style={inputStyle} />
+                  <textarea value={q.optionsText} onChange={(e) => setQ(i, { optionsText: e.target.value })} rows={3} placeholder={t('polls.optionsPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
                 )}
               </div>
             ))}
-            <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="flex items-center gap-1.5 text-small font-semibold self-start" style={{ color: 'var(--project-dark)' }}><Plus className="w-4 h-4" /> Frage hinzufügen</button>
+            <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="flex items-center gap-1.5 text-small font-semibold self-start" style={{ color: 'var(--project-dark)' }}><Plus className="w-4 h-4" /> {t('polls.addQuestion')}</button>
 
             <div>
               <button type="button" onClick={submit} disabled={pending || !title.trim() || questions.every((q) => !q.text.trim())}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
-                {editingId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editingId ? 'Entwurf speichern' : 'Umfrage erstellen'}
+                {editingId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editingId ? t('polls.saveDraft') : t('polls.createPoll')}
               </button>
             </div>
           </div>
@@ -197,7 +199,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
       {/* List */}
       <div className="flex flex-col gap-2">
         {polls.length === 0 ? (
-          <p className="text-text py-8 text-center" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>Noch keine Umfragen.</p>
+          <p className="text-text py-8 text-center" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('polls.emptyState')}</p>
         ) : polls.map((p) => {
           const meta = STATUS_META[p.status] ?? STATUS_META.draft
           const open = resultsFor === p.id
@@ -207,44 +209,44 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
                 <div className="flex-1 min-w-0">
                   <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>{p.title}</p>
                   <p className="text-small mt-0.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
-                    {p.questionCount} {p.questionCount === 1 ? 'Frage' : 'Fragen'} · {p.voteCount} {p.voteCount === 1 ? 'Stimme' : 'Stimmen'}
-                    {p.closesAt && ` · endet ${new Date(p.closesAt).toLocaleDateString('de-DE')}`}
+                    {t('polls.questionCount', { count: p.questionCount })} · {t('polls.voteCount', { count: p.voteCount })}
+                    {p.closesAt && ` · ${t('polls.closesOn', { date: new Date(p.closesAt).toLocaleDateString('de-DE') })}`}
                   </p>
                 </div>
-                <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{meta.label}</span>
+                <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{t(meta.labelKey)}</span>
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5 mt-3">
                 {p.status === 'draft' && (
                   <>
-                    <button type="button" onClick={() => openEdit(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> Bearbeiten</button>
-                    <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> Aktivieren</button>
+                    <button type="button" onClick={() => openEdit(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> {t('polls.edit')}</button>
+                    <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> {t('polls.activate')}</button>
                   </>
                 )}
                 {p.status === 'active' && (
-                  <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> Schließen</button>
+                  <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> {t('polls.close')}</button>
                 )}
                 {p.status !== 'draft' && (
                   <>
                     <button type="button" onClick={() => toggleResults(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
-                      <BarChart2 className="w-3.5 h-3.5" /> {open ? 'Ergebnisse ausblenden' : 'Ergebnisse'} {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      <BarChart2 className="w-3.5 h-3.5" /> {open ? t('polls.hideResults') : t('polls.results')} {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
-                    <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> CSV</button>
+                    <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> {t('polls.exportCsv')}</button>
                   </>
                 )}
                 {confirmDelete === p.id ? (
                   <span className="flex items-center gap-1.5 ml-auto">
-                    <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>Löschen</button>
-                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>Abbrechen</button>
+                    <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('polls.delete')}</button>
+                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>{t('polls.cancel')}</button>
                   </span>
                 ) : (
-                  <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title="Löschen" className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('polls.delete')} className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
                 )}
               </div>
 
               {open && results && (
                 <div className="mt-3 pt-3 border-t flex flex-col gap-4" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 15%, transparent)' }}>
-                  <p className="text-small font-semibold" style={{ color: 'var(--project-dark)' }}>{results.participantCount} {results.participantCount === 1 ? 'Teilnehmer:in' : 'Teilnehmer:innen'}</p>
+                  <p className="text-small font-semibold" style={{ color: 'var(--project-dark)' }}>{t('polls.participantCount', { count: results.participantCount })}</p>
                   {results.questions.map((q) => (
                     <div key={q.id}>
                       <p className="text-text font-medium mb-1.5" style={{ color: 'var(--project-dark)' }}>{q.text}</p>
@@ -265,7 +267,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
                       )}
                       {q.type === 'scale' && q.scale && (
                         <div>
-                          <p className="text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>Durchschnitt: <strong>{q.scale.average.toFixed(2)}</strong> ({q.scale.count} Stimmen)</p>
+                          <p className="text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>{t('polls.averageLabel')} <strong>{q.scale.average.toFixed(2)}</strong> {t('polls.scaleVoteCount', { count: q.scale.count })}</p>
                           <div className="flex items-end gap-2 h-20">
                             {[1, 2, 3, 4, 5].map((n) => {
                               const c = q.scale!.distribution[n] ?? 0
@@ -282,7 +284,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
                       )}
                       {q.type === 'text' && (
                         q.textAnswers.length === 0
-                          ? <p className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>Keine Antworten.</p>
+                          ? <p className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('polls.noAnswers')}</p>
                           : <ul className="flex flex-col gap-1">{q.textAnswers.map((a, i) => <li key={i} className="text-small px-3 py-1.5 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}>{a}</li>)}</ul>
                       )}
                     </div>

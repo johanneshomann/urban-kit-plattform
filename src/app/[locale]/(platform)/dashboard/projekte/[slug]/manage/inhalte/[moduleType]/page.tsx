@@ -1,8 +1,8 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { MODULE_LABELS } from '@/lib/options/modules'
 import { lexicalToMarkdown, lexicalToHtml } from '@/lib/richtext'
 import { ManagePlaceholder } from '@/components/platform/manage/ManagePlaceholder'
 import { NewsManager, type NewsItem } from '@/components/platform/manage/NewsManager'
@@ -19,6 +19,8 @@ export default async function ManageInhaltePage({
   params: Promise<{ locale: string; slug: string; moduleType: string }>
 }) {
   const { locale, slug, moduleType } = await params
+  const t = await getTranslations({ locale, namespace: 'manage' })
+  const tModules = await getTranslations({ locale, namespace: 'modules' })
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) notFound()
 
@@ -117,9 +119,9 @@ export default async function ManageInhaltePage({
   if (moduleType === 'forum') {
     const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
     const personName = (u: unknown): string => {
-      if (!u || typeof u !== 'object') return 'Unbekannt'
+      if (!u || typeof u !== 'object') return t('inhalte.unknownAuthor')
       const o = u as { firstName?: string; lastName?: string; email?: string }
-      return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
+      return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || t('inhalte.unknownAuthor')
     }
     const threadsRes = await payload.find({ collection: 'forum-threads', where: { project: { equals: ctx.project.id } }, sort: '-createdAt', limit: 300, depth: 1, overrideAccess: true })
     const threadIdList = threadsRes.docs.map((t) => (t as { id: string | number }).id)
@@ -181,7 +183,7 @@ export default async function ManageInhaltePage({
       roomsRes.docs.map(async (doc) => {
         const r = doc as { id: string | number; name?: string | null }
         const members = await payload.count({ collection: 'chat-room-members', where: { and: [{ room: { equals: r.id } }, { status: { equals: 'active' } }] }, overrideAccess: true })
-        return { id: String(r.id), name: r.name ?? 'Raum', memberCount: members.totalDocs }
+        return { id: String(r.id), name: r.name ?? t('inhalte.roomFallback'), memberCount: members.totalDocs }
       }),
     )
     return <ChatRoomsManager slug={slug} locale={locale} rooms={rooms} />
@@ -195,15 +197,15 @@ export default async function ManageInhaltePage({
     })
     const boards: BoardItem[] = res.docs.map((doc) => {
       const b = doc as { id: string | number; name?: string | null }
-      return { id: String(b.id), name: b.name ?? 'Board' }
+      return { id: String(b.id), name: b.name ?? t('inhalte.boardFallback') }
     })
     return <BoardsManager slug={slug} locale={locale} boards={boards} />
   }
 
   return (
     <ManagePlaceholder
-      title={MODULE_LABELS[moduleType] ?? moduleType}
-      hint="Die Inhaltsverwaltung für dieses Modul wird in einer späteren Phase ergänzt."
+      title={tModules(moduleType)}
+      hint={t('inhalte.placeholderHint')}
     />
   )
 }

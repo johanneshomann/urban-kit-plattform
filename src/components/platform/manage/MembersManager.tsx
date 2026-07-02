@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Trash2, UserCircle, Users } from 'lucide-react'
 import { updateMemberRole, removeMember, setMemberTeam } from '@/actions/manage/members'
 
@@ -15,12 +16,13 @@ export interface MemberItem {
 }
 
 const ROLE_OPTIONS = [
-  { value: 'PM', label: 'Projektmanager:in' },
-  { value: 'Citizen', label: 'Bürger:in' },
-  { value: 'Follower', label: 'Follower' },
-]
+  { value: 'PM', labelKey: 'members.rolePm' },
+  { value: 'Citizen', labelKey: 'members.roleCitizen' },
+  { value: 'Follower', labelKey: 'members.roleFollower' },
+] as const
 
 export function MembersManager({ slug, locale, members }: { slug: string; locale: string; members: MemberItem[] }) {
+  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -38,9 +40,9 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>Mitglieder</h1>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('members.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
-        {members.length} {members.length === 1 ? 'aktives Mitglied' : 'aktive Mitglieder'} in diesem Projekt.
+        {t('members.count', { count: members.length })}
       </p>
 
       {error && (
@@ -58,7 +60,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
             <div className="flex-1 min-w-0">
               <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>
                 {m.name}
-                {m.isSelf && <span className="text-small font-normal ml-2" style={{ opacity: 0.5 }}>(Du)</span>}
+                {m.isSelf && <span className="text-small font-normal ml-2" style={{ opacity: 0.5 }}>{t('members.you')}</span>}
               </p>
               <p className="text-small truncate" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>{m.email}</p>
             </div>
@@ -71,7 +73,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
                   type="button"
                   disabled={pending || teamLocked}
                   onClick={() => run(() => setMemberTeam(slug, locale, m.membershipId, !m.isTeam))}
-                  title={teamLocked ? 'Projektmanager:innen sind immer im Team' : 'Team-Mitglied (Zugriff auf interne Module wie Aufgaben)'}
+                  title={teamLocked ? t('members.teamLockedHint') : t('members.teamHint')}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-medium shrink-0 border transition-colors disabled:cursor-default"
                   style={{
                     background: teamActive ? 'var(--project-dark)' : 'transparent',
@@ -81,7 +83,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
                   }}
                 >
                   <Users className="w-3.5 h-3.5" />
-                  Team
+                  {t('members.teamLabel')}
                 </button>
               )
             })()}
@@ -93,7 +95,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
               className="px-3 py-1.5 rounded-lg border text-small outline-none shrink-0"
               style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }}
             >
-              {ROLE_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              {ROLE_OPTIONS.map((r) => <option key={r.value} value={r.value}>{t(r.labelKey)}</option>)}
             </select>
 
             {confirmRemove === m.membershipId ? (
@@ -105,7 +107,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
                   className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40"
                   style={{ background: '#b91c1c', color: 'white' }}
                 >
-                  Entfernen
+                  {t('members.confirmRemove')}
                 </button>
                 <button
                   type="button"
@@ -114,7 +116,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
                   className="px-3 py-1.5 rounded-lg text-small"
                   style={{ color: 'var(--project-dark)', opacity: 0.7 }}
                 >
-                  Abbrechen
+                  {t('members.cancel')}
                 </button>
               </div>
             ) : (
@@ -122,7 +124,7 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
                 type="button"
                 onClick={() => setConfirmRemove(m.membershipId)}
                 disabled={pending}
-                title="Mitglied entfernen"
+                title={t('members.removeTitle')}
                 className="p-2 rounded-lg shrink-0 transition-colors disabled:opacity-40"
                 style={{ color: '#b91c1c' }}
               >
