@@ -25,6 +25,14 @@ export const MODULE_LABELS: Record<string, string> = {
   'urban-agent': 'Urban Agent',
 }
 
+/**
+ * Project-workspace section grouping (logged-in project page).
+ *   Mitmachen (participation) vs. Zusammen arbeiten (collaboration).
+ * Chat is intentionally excluded — it surfaces as a floating pop-up, not a card.
+ */
+export const PARTICIPATE_MODULES = ['news', 'calendar', 'polls', 'forum'] as const
+export const COLLABORATE_MODULES = ['tasks', 'board', 'files', 'urban-agent'] as const
+
 /** Modules that currently have a content-authoring UI in the manage area. */
 export const AUTHORABLE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls', 'files'])
 

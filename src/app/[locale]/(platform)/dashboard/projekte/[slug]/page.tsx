@@ -11,10 +11,10 @@ import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { projectDefaults } from '@/lib/defaults/project'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
-import { ProjectModuleNav } from '@/components/platform/ProjectModuleNav'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
-import { DraggableModuleGrid } from '@/components/platform/DraggableModuleGrid'
+import { ModuleSection } from '@/components/platform/ModuleSection'
 import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
+import { PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
 
 // ─── module registry ─────────────────────────────────────────────────────────
 
@@ -222,6 +222,12 @@ export default async function ProjectDashboardPage({
     ? savedOrder!
     : defaultOrder
 
+  // Partition into the two workspace sections, preserving the user's saved order.
+  // Chat is excluded from both (it becomes a floating pop-up, not a card).
+  const isActiveMember = membershipStatus === 'active'
+  const participateItems = moduleOrder.filter((id) => (PARTICIPATE_MODULES as readonly string[]).includes(id))
+  const collaborateItems = moduleOrder.filter((id) => (COLLABORATE_MODULES as readonly string[]).includes(id))
+
   const themaList = (project.thema ?? []).filter(Boolean)
 
   // richText → HTML
@@ -342,9 +348,6 @@ export default async function ProjectDashboardPage({
         )}
       </div>
 
-      {/* ── Module nav strip ──────────────────────────────────────────────── */}
-      <ProjectModuleNav modules={modules} slug={slug} locale={locale} />
-
       {/* ── Content ───────────────────────────────────────────────────────── */}
       <div
         className="p-6 md:p-8 flex flex-col gap-6"
@@ -369,9 +372,11 @@ export default async function ProjectDashboardPage({
           </div>
         )}
 
-        {/* 2-col draggable module grid */}
-        <DraggableModuleGrid
-          initialOrder={moduleOrder}
+        {/* Mitmachen — always present (news + calendar guaranteed) */}
+        <ModuleSection
+          title={tw('sectionParticipate')}
+          items={participateItems}
+          fullOrder={moduleOrder}
           membershipId={membershipId}
           projectSlug={slug}
           locale={locale}
@@ -380,6 +385,22 @@ export default async function ProjectDashboardPage({
           moduleCountMap={moduleCountMap}
           activePolls={activePolls}
         />
+
+        {/* Zusammen arbeiten — only for active members, only if non-empty */}
+        {isActiveMember && collaborateItems.length > 0 && (
+          <ModuleSection
+            title={tw('sectionCollaborate')}
+            items={collaborateItems}
+            fullOrder={moduleOrder}
+            membershipId={membershipId}
+            projectSlug={slug}
+            locale={locale}
+            newsPosts={newsPosts}
+            calEvents={calEvents}
+            moduleCountMap={moduleCountMap}
+            activePolls={activePolls}
+          />
+        )}
 
         {/* Divider */}
         <div className="flex items-center gap-3">

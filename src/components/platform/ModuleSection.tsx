@@ -7,7 +7,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -33,21 +33,27 @@ type NewsPost = { id: string; title: string; slug: string; publishedAt?: string 
 type CalEvent = { id: string; title: string; startDate: string; location?: string | null }
 type Poll = { id: string; title: string }
 
-interface Props {
-  initialOrder: string[]
-  membershipId: string | null
-  projectSlug: string
-  locale: string
+export interface ModuleCardData {
   newsPosts: NewsPost[]
   calEvents: CalEvent[]
   moduleCountMap: Record<string, number>
   activePolls: Poll[]
 }
 
+interface Props extends ModuleCardData {
+  title: string
+  /** This section's module ids, in display order. */
+  items: string[]
+  /** The full saved module order (all sections) — used for persistence. */
+  fullOrder: string[]
+  membershipId: string | null
+  projectSlug: string
+  locale: string
+}
+
 function SortableCard({ id, children }: { id: string; children: React.ReactNode }) {
   const t = useTranslations('projectWorkspace')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-
   return (
     <div
       ref={setNodeRef}
@@ -69,7 +75,7 @@ function SortableCard({ id, children }: { id: string; children: React.ReactNode 
         {...attributes}
         {...listeners}
         style={{
-          width: '2rem',
+          width: '1.75rem',
           flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
@@ -87,21 +93,13 @@ function SortableCard({ id, children }: { id: string; children: React.ReactNode 
   )
 }
 
-export function DraggableModuleGrid({
-  initialOrder,
-  membershipId,
-  projectSlug,
-  locale,
-  newsPosts,
-  calEvents,
-  moduleCountMap,
-  activePolls,
+export function ModuleSection({
+  title, items, fullOrder, membershipId, projectSlug, locale,
+  newsPosts, calEvents, moduleCountMap, activePolls,
 }: Props) {
-  const [order, setOrder] = useState(initialOrder)
+  const [order, setOrder] = useState(items)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -109,54 +107,53 @@ export function DraggableModuleGrid({
       if (!over || active.id === over.id) return
       const oldIndex = order.indexOf(active.id as string)
       const newIndex = order.indexOf(over.id as string)
+      if (oldIndex < 0 || newIndex < 0) return
       const newOrder = arrayMove(order, oldIndex, newIndex)
       setOrder(newOrder)
       if (membershipId) {
-        saveModuleOrderAction(membershipId, newOrder)
+        // Splice this section's new sequence back into the full order.
+        const inSection = new Set(newOrder)
+        let k = 0
+        const merged = fullOrder.map((id) => (inSection.has(id) ? newOrder[k++] : id))
+        saveModuleOrderAction(membershipId, merged)
       }
     },
-    [order, membershipId]
+    [order, fullOrder, membershipId],
   )
 
   function renderCard(moduleId: string) {
     const count = moduleCountMap[moduleId] ?? 0
     switch (moduleId) {
-      case 'news':
-        return <NewsDashboardCard posts={newsPosts} projectSlug={projectSlug} locale={locale} />
-      case 'calendar':
-        return <CalendarDashboardCard events={calEvents} projectSlug={projectSlug} locale={locale} />
-      case 'polls':
-        return <PollsDashboardCard polls={activePolls} projectSlug={projectSlug} locale={locale} />
-      case 'forum':
-        return <ForumDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'tasks':
-        return <TasksDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'board':
-        return <BoardDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'files':
-        return <FilesDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
-      case 'urban-agent':
-        return <UrbanAgentDashboardCard projectSlug={projectSlug} locale={locale} />
-      default:
-        return null
+      case 'news': return <NewsDashboardCard posts={newsPosts} projectSlug={projectSlug} locale={locale} />
+      case 'calendar': return <CalendarDashboardCard events={calEvents} projectSlug={projectSlug} locale={locale} />
+      case 'polls': return <PollsDashboardCard polls={activePolls} projectSlug={projectSlug} locale={locale} />
+      case 'forum': return <ForumDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
+      case 'tasks': return <TasksDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
+      case 'board': return <BoardDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
+      case 'files': return <FilesDashboardCard count={count} projectSlug={projectSlug} locale={locale} />
+      case 'urban-agent': return <UrbanAgentDashboardCard projectSlug={projectSlug} locale={locale} />
+      default: return null
     }
   }
 
+  if (order.length === 0) return null
+
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={order} strategy={rectSortingStrategy}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          {order.map((moduleId) => {
-            const card = renderCard(moduleId)
-            if (!card) return null
-            return (
-              <SortableCard key={moduleId} id={moduleId}>
-                {card}
-              </SortableCard>
-            )
-          })}
-        </div>
-      </SortableContext>
-    </DndContext>
+    <section className="flex flex-col gap-3">
+      <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'color-mix(in srgb, var(--project-dark) 55%, transparent)' }}>
+        {title}
+      </h2>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={order} strategy={rectSortingStrategy}>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {order.map((moduleId) => {
+              const card = renderCard(moduleId)
+              if (!card) return null
+              return <SortableCard key={moduleId} id={moduleId}>{card}</SortableCard>
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </section>
   )
 }

@@ -780,6 +780,8 @@
   },
   "projectWorkspace": {
     "overview": "Overview",
+    "sectionParticipate": "Participate",
+    "sectionCollaborate": "Work together",
     "manage": "Manage",
     "phaseLabel": "Phase {step}/7 · {label}",
     "projectInfo": "Project information",
