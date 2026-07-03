@@ -51,6 +51,24 @@ Dev runs in tmux. npm installs are network-fragile; repair with
   Verbs: ADD, CHANGE, FIX, REMOVE.
 - No co-author trailers.
 
+## Keep this documentation alive
+
+These files are only useful while they match the code. When your change makes
+any of them stale, **update the doc in the same commit series** (own commit,
+e.g. `CHANGE – docs: …`):
+
+- New/removed module, collection, or field with access implications →
+  [docs/modules.md](docs/modules.md), [docs/access-control.md](docs/access-control.md)
+- Roles, visibility tiers, guards, auth/cookie flow → [docs/access-control.md](docs/access-control.md)
+- Env vars, Docker services, domains → [docs/env-reference.md](docs/env-reference.md), [docs/deployment.md](docs/deployment.md)
+- Stack, routing, realtime, theming decisions → [docs/architecture.md](docs/architecture.md)
+- New locale/namespace conventions → [docs/i18n.md](docs/i18n.md)
+- New commands, conventions, recurring gotchas → this file (and keep
+  `CLAUDE.md` a thin importer — content belongs here, not there)
+
+Don't document aspirations: write what the code does now. If you notice a doc
+is already wrong, fix it even if unrelated to your task.
+
 ## Gotchas
 
 - `src/payload-types.ts` is generated and gitignored — never edit it.
