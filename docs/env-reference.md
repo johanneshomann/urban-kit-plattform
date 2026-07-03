@@ -1,38 +1,40 @@
 # Environment Variable Reference
 
-## Required
+Canonical list — matches `.env.example` and `docker-compose.yml`.
+
+## Required (compose fails without them)
 
 | Variable | Description |
 |---|---|
-| `PAYLOAD_SECRET` | Secret used by Payload to sign tokens. Min 32 chars. |
-| `DATABASE_URI` | PostgreSQL connection string. |
-| `S3_ACCESS_KEY` | MinIO / S3 access key. |
-| `S3_SECRET_KEY` | MinIO / S3 secret key. |
-| `HOCUSPOCUS_SECRET` | Shared secret between web and hocuspocus sidecar. |
+| `PAYLOAD_SECRET` | Payload token signing secret. Min 32 random chars. |
+| `HOCUSPOCUS_SECRET` | Shared secret between `web` and the `hocuspocus` sidecar (`x-hocuspocus-secret` header on `/api/internal/*`). Must be identical on both services. |
+| `NEXT_PUBLIC_HOCUSPOCUS_URL` | Browser-facing WebSocket URL for the Board (**build-time arg**, baked into the bundle). `ws://localhost:1234` in dev, `wss://…` in production. |
 
-## Optional
+## Core
 
 | Variable | Default | Description |
 |---|---|---|
-| `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3000` | Public URL for og: tags and RSS links. |
-| `NEXT_PUBLIC_APP_DOMAIN` | `app.urbankit.de` | Subdomain that receives workspace rewrite. |
-| `S3_ENDPOINT` | `http://minio:9000` | S3-compatible storage endpoint. |
-| `S3_BUCKET_MEDIA` | `media` | Bucket for Payload media uploads. |
-| `S3_BUCKET_FILES` | `project-files` | Bucket for project file uploads. |
-| `REDIS_URL` | `redis://redis:6379` | Redis connection string for rate limiting. |
-| `HOCUSPOCUS_URL` | `ws://hocuspocus:1234` | WebSocket URL for collaborative features. |
-| `SMTP_HOST` | `localhost` | SMTP server hostname. |
-| `SMTP_PORT` | `1025` | SMTP server port. |
-| `SMTP_USER` | — | SMTP username (if required). |
-| `SMTP_PASS` | — | SMTP password (if required). |
-| `OPENAI_API_KEY` | — | Enables OpenAI provider for Urban Agent. |
-| `ANTHROPIC_API_KEY` | — | Enables Anthropic provider for Urban Agent (takes priority over OpenAI). |
-| `OLLAMA_BASE_URL` | — | Enables local Ollama provider (fallback if no cloud keys). |
-| `SEED_ADMIN_EMAIL` | `admin@urbankit.local` | Admin user email created by seed script. |
-| `SEED_ADMIN_PASSWORD` | `Admin1234!` | Admin user password created by seed script. |
+| `DATABASE_URI` | `mongodb://localhost:27017/urban_kit` | MongoDB connection string. Compose pins it to the internal `mongo` service. |
+| `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3000` | Public URL for metadata/og tags (**build-time arg**). |
+| `NEXT_PUBLIC_APP_DOMAIN` | `app.urbankit.de` | Workspace domain; drives middleware domain-splitting and the parent-domain session cookie. |
+| `NEXT_PUBLIC_PUBLIC_DOMAIN` | `urbankit.de` | Public portal domain (informational; middleware derives the portal domain by stripping `app.`). |
+| `PAYLOAD_INTERNAL_URL` | `http://localhost:3000` | Where the sidecar reaches Payload (compose: `http://web:3000`). |
+| `HOCUSPOCUS_URL` | `ws://localhost:1234` | Server-side WS URL (sidecar address). |
 
-## Notes
+## Urban Agent (optional — module works with any one provider)
 
-- In Docker Compose, variables marked `:?` in the compose file will cause a hard failure at startup if unset — this is intentional to prevent misconfigured deployments.
-- `DATABASE_URI` is hard-coded in `docker-compose.yml` to use the internal `postgres` service. Override in `.env` for external databases.
-- The `HOCUSPOCUS_SECRET` must match between the `web` service (`HOCUSPOCUS_SECRET`) and the `hocuspocus` service (`HOCUSPOCUS_SECRET`). Docker Compose handles this automatically from a single `.env` file.
+| Variable | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | Preferred provider. |
+| `OPENAI_API_KEY` | Used if no Anthropic key. |
+| `OLLAMA_BASE_URL` | Local fallback (e.g. `http://localhost:11434`). |
+
+## SMTP (optional)
+
+`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — passed to
+the container; defaults target a local dev mailcatcher (`localhost:1025`).
+
+## Vestigial (in `.env.example`, currently unused in code)
+
+`S3_*` (media lives on a Docker volume, not S3) and `REDIS_URL` — kept only
+as placeholders for planned features; safe to leave unset.

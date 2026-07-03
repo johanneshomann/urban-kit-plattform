@@ -1,108 +1,90 @@
-# Deployment Guide
+# Deployment
 
-## Prerequisites
+Docker Compose with three services (see `docker-compose.yml`):
 
-- Docker & Docker Compose v2
-- A `.env` file based on `.env.example`
+| Service | Image / build | Host port | Notes |
+|---|---|---|---|
+| `web` | `Dockerfile` (Next standalone) | `127.0.0.1:3020` | runs `payload migrate` then `next start` (`start.sh`) |
+| `hocuspocus` | `hocuspocus/Dockerfile` | `127.0.0.1:1234` | realtime sidecar for the Board module |
+| `mongo` | `mongo:7` | `127.0.0.1:27019` | volume `mongo_data` |
 
-## Production Setup
+Media uploads live on the `media_data` volume (`/app/media`) — no external
+object storage.
 
-### 1. Configure environment
+## Setup
 
 ```bash
 cp .env.example .env
-# Edit .env and set all required variables (see docs/env-reference.md)
-```
+# set at minimum: PAYLOAD_SECRET, HOCUSPOCUS_SECRET, NEXT_PUBLIC_HOCUSPOCUS_URL,
+# NEXT_PUBLIC_SERVER_URL  (see docs/env-reference.md)
 
-**Required variables** (Docker Compose will fail without them):
-- `PAYLOAD_SECRET` — random 32+ character string
-- `S3_ACCESS_KEY` / `S3_SECRET_KEY` — MinIO credentials
-- `HOCUSPOCUS_SECRET` — shared secret between web and hocuspocus
-
-### 2. Build and start
-
-```bash
 docker compose up -d --build
+docker compose ps          # wait for healthy
+curl http://localhost:3020/api/health
 ```
 
-Services start in dependency order:
-1. `postgres` — waits for healthcheck
-2. `redis` — waits for healthcheck
-3. `minio` — waits for healthcheck, then `minio-init` creates buckets
-4. `web` — waits for all three to be healthy
-5. `hocuspocus` — waits for `web` to be healthy
+Compose fails fast on missing required vars (`:?` syntax) — intentional.
 
-### 3. Run migrations and seed
+**Build-time args:** `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_HOCUSPOCUS_URL`
+are baked into the client bundle at build time (Docker build args). Changing
+them requires a rebuild, not just a restart.
 
-```bash
-# Run Payload migrations (creates DB schema)
-docker compose exec web npm run payload migrate
+## Domains
 
-# Seed color schemes and demo content (idempotent)
-docker compose exec web npm run payload -- tsx scripts/seed.ts
-```
+One deployment serves both hosts; `src/middleware.ts` splits them (see
+[architecture.md](./architecture.md)):
 
-### 4. Verify
+- `urbankit.de` → public portal
+- `app.urbankit.de` → logged-in workspace
 
-```bash
-# All services healthy
-docker compose ps
+Point both DNS records at the same server. The board WebSocket needs its own
+public endpoint: set `NEXT_PUBLIC_HOCUSPOCUS_URL` to a `wss://` URL (e.g.
+`wss://ws.urbankit.de`) proxied to port 1234 — plain `ws://` is blocked as
+mixed content on https pages.
 
-# Web app
-curl http://localhost:3000
-
-# Admin panel
-open http://localhost:3000/admin
-```
-
-## Nginx reverse proxy (recommended)
+### Nginx sketch
 
 ```nginx
-server {
-    listen 80;
-    server_name urbankit.de app.urbankit.de;
-    return 301 https://$host$request_uri;
-}
-
+# portal + app → next
 server {
     listen 443 ssl;
     server_name urbankit.de app.urbankit.de;
+    location / {
+        proxy_pass http://127.0.0.1:3020;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 
-    ssl_certificate /etc/letsencrypt/live/urbankit.de/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/urbankit.de/privkey.pem;
-
-    location /api/ws {
-        proxy_pass http://localhost:1234;
+# board websocket
+server {
+    listen 443 ssl;
+    server_name ws.urbankit.de;
+    location / {
+        proxy_pass http://127.0.0.1:1234;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
 }
 ```
+
+`Host` must be forwarded unchanged — the middleware's domain routing and the
+login "open workspace in new tab" flow depend on it.
 
 ## Updates
 
 ```bash
 git pull
-docker compose up -d --build web
-docker compose exec web npm run payload migrate
+docker compose up -d --build web hocuspocus
 ```
+
+Migrations run automatically on container start (`start.sh`).
 
 ## Backups
 
 ```bash
-# PostgreSQL dump
-docker compose exec postgres pg_dump -U urban_kit urban_kit > backup-$(date +%Y%m%d).sql
-
-# MinIO data (on the host)
-docker run --rm -v urban-kit-plattform_minio_data:/data -v $(pwd):/backup alpine \
-  tar czf /backup/minio-$(date +%Y%m%d).tar.gz /data
+docker compose exec mongo mongodump --db urban_kit --archive > backup-$(date +%Y%m%d).archive
+docker run --rm -v urban-kit-plattform_media_data:/data -v $(pwd):/backup alpine \
+  tar czf /backup/media-$(date +%Y%m%d).tar.gz /data
 ```
