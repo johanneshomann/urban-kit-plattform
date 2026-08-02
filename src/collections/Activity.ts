@@ -3,6 +3,10 @@ import { isAdmin, isAuthenticated } from '@/lib/access'
 
 export const Activity: CollectionConfig = {
   slug: 'activity',
+  labels: {
+    singular: { en: 'Activity', de: 'Aktivität' },
+    plural: { en: 'Activities', de: 'Aktivitäten' },
+  },
   access: {
     read: isAuthenticated,
     create: () => false, // only via emitActivity helper

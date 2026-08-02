@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const Teams: CollectionConfig = {
   slug: 'teams',
+  labels: {
+    singular: { en: 'Team', de: 'Team' },
+    plural: { en: 'Teams', de: 'Teams' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

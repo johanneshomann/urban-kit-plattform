@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const ForumComments: CollectionConfig = {
   slug: 'forum-comments',
+  labels: {
+    singular: { en: 'Forum comment', de: 'Forenkommentar' },
+    plural: { en: 'Forum comments', de: 'Forenkommentare' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

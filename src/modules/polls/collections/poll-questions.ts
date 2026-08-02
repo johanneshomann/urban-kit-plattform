@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const PollQuestions: CollectionConfig = {
   slug: 'poll-questions',
+  labels: {
+    singular: { en: 'Poll question', de: 'Umfragefrage' },
+    plural: { en: 'Poll questions', de: 'Umfragefragen' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const ChatMessages: CollectionConfig = {
   slug: 'chat-messages',
+  labels: {
+    singular: { en: 'Chat message', de: 'Chat-Nachricht' },
+    plural: { en: 'Chat messages', de: 'Chat-Nachrichten' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

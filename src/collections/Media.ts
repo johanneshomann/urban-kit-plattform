@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  labels: {
+    singular: { en: 'Media', de: 'Medium' },
+    plural: { en: 'Media', de: 'Medien' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

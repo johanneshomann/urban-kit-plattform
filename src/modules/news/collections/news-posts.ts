@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const NewsPosts: CollectionConfig = {
   slug: 'news-posts',
+  labels: {
+    singular: { en: 'News post', de: 'News-Beitrag' },
+    plural: { en: 'News posts', de: 'News-Beiträge' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

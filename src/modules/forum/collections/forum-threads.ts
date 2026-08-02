@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const ForumThreads: CollectionConfig = {
   slug: 'forum-threads',
+  labels: {
+    singular: { en: 'Forum thread', de: 'Forumsthema' },
+    plural: { en: 'Forum threads', de: 'Forumsthemen' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

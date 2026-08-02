@@ -9,6 +9,10 @@ import { isAuthenticated } from '@/lib/access'
  */
 export const FileUploads: CollectionConfig = {
   slug: 'file-uploads',
+  labels: {
+    singular: { en: 'File', de: 'Datei' },
+    plural: { en: 'Files', de: 'Dateien' },
+  },
   access: {
     // Authenticated users may read all (UI gates by tier); logged-out only PUBLIC.
     read: ({ req: { user } }) => (user ? true : { visibility: { equals: 'PUBLIC' } }),

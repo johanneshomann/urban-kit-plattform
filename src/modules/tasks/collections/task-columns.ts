@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const TaskColumns: CollectionConfig = {
   slug: 'task-columns',
+  labels: {
+    singular: { en: 'Task column', de: 'Aufgabenspalte' },
+    plural: { en: 'Task columns', de: 'Aufgabenspalten' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

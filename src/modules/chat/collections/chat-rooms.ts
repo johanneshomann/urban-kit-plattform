@@ -13,6 +13,10 @@ import { isAuthenticated } from '@/lib/access'
  */
 export const ChatRooms: CollectionConfig = {
   slug: 'chat-rooms',
+  labels: {
+    singular: { en: 'Chat room', de: 'Chat-Raum' },
+    plural: { en: 'Chat rooms', de: 'Chat-Räume' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

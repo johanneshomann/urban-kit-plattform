@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 /** One upvote per user per thread — uniqueness enforced in the action layer. */
 export const ForumThreadVotes: CollectionConfig = {
   slug: 'forum-thread-votes',
+  labels: {
+    singular: { en: 'Thread vote', de: 'Themenstimme' },
+    plural: { en: 'Thread votes', de: 'Themenstimmen' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

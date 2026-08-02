@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const Folders: CollectionConfig = {
   slug: 'folders',
+  labels: {
+    singular: { en: 'Folder', de: 'Ordner' },
+    plural: { en: 'Folders', de: 'Ordner' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const CalendarEvents: CollectionConfig = {
   slug: 'calendar-events',
+  labels: {
+    singular: { en: 'Calendar event', de: 'Termin' },
+    plural: { en: 'Calendar events', de: 'Termine' },
+  },
   access: {
     read: () => true,
     create: isAuthenticated,

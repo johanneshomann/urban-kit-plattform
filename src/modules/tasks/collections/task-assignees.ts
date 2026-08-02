@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const TaskAssignees: CollectionConfig = {
   slug: 'task-assignees',
+  labels: {
+    singular: { en: 'Task assignee', de: 'Aufgabenzuweisung' },
+    plural: { en: 'Task assignees', de: 'Aufgabenzuweisungen' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

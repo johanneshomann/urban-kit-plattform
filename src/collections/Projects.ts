@@ -17,6 +17,10 @@ import {
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
+  labels: {
+    singular: { en: 'Project', de: 'Projekt' },
+    plural: { en: 'Projects', de: 'Projekte' },
+  },
   access: {
     read: () => true,
     create: isAdmin,

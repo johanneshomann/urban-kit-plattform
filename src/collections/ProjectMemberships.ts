@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const ProjectMemberships: CollectionConfig = {
   slug: 'project-memberships',
+  labels: {
+    singular: { en: 'Project membership', de: 'Projektmitgliedschaft' },
+    plural: { en: 'Project memberships', de: 'Projektmitgliedschaften' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

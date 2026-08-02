@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const Notifications: CollectionConfig = {
   slug: 'notifications',
+  labels: {
+    singular: { en: 'Notification', de: 'Benachrichtigung' },
+    plural: { en: 'Notifications', de: 'Benachrichtigungen' },
+  },
   access: {
     read: isAuthenticated,
     create: () => false, // only via emitNotification helper

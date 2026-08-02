@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 /** One row per "Ich nehme teil" — uniqueness enforced in the action layer. */
 export const EventAttendees: CollectionConfig = {
   slug: 'event-attendees',
+  labels: {
+    singular: { en: 'Event attendee', de: 'Teilnehmer:in' },
+    plural: { en: 'Event attendees', de: 'Teilnehmer:innen' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

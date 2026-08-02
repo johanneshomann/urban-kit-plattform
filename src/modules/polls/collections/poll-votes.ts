@@ -2,6 +2,10 @@ import type { CollectionConfig } from 'payload'
 
 export const PollVotes: CollectionConfig = {
   slug: 'poll-votes',
+  labels: {
+    singular: { en: 'Poll vote', de: 'Umfragestimme' },
+    plural: { en: 'Poll votes', de: 'Umfragestimmen' },
+  },
   access: {
     // Votes are write-once; only admins can read raw votes (results are aggregated)
     read: ({ req }) => Boolean(req.user),

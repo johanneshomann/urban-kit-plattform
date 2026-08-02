@@ -3,6 +3,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const BoardCanvases: CollectionConfig = {
   slug: 'board-canvases',
+  labels: {
+    singular: { en: 'Board', de: 'Board' },
+    plural: { en: 'Boards', de: 'Boards' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,

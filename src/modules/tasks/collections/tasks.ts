@@ -4,6 +4,10 @@ import { isAuthenticated } from '@/lib/access'
 
 export const Tasks: CollectionConfig = {
   slug: 'tasks',
+  labels: {
+    singular: { en: 'Task', de: 'Aufgabe' },
+    plural: { en: 'Tasks', de: 'Aufgaben' },
+  },
   access: {
     read: isAuthenticated,
     create: isAuthenticated,
