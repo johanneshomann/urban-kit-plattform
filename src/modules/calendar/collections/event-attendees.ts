@@ -11,9 +11,9 @@ export const EventAttendees: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'event', type: 'relationship', relationTo: 'calendar-events', required: true },
-    { name: 'user', type: 'relationship', relationTo: 'users', required: true },
-    { name: 'project', type: 'relationship', relationTo: 'projects' },
+    { name: 'event', type: 'relationship', relationTo: 'calendar-events', required: true, label: { en: 'Event', de: 'Termin' } },
+    { name: 'user', type: 'relationship', relationTo: 'users', required: true, label: { en: 'User', de: 'Benutzer:in' } },
+    { name: 'project', type: 'relationship', relationTo: 'projects', label: { en: 'Project', de: 'Projekt' } },
   ],
   timestamps: true,
 }

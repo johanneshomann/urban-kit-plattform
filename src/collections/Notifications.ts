@@ -10,20 +10,21 @@ export const Notifications: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'user', type: 'relationship', relationTo: 'users', required: true },
+    { name: 'user', type: 'relationship', relationTo: 'users', required: true, label: { en: 'User', de: 'Benutzer:in' } },
     {
       name: 'type',
       type: 'select',
+      label: { en: 'Type', de: 'Typ' },
       required: true,
       options: [
-        { label: 'Eingeladen', value: 'invited' },
-        { label: 'Aufgabe zugewiesen', value: 'task_assigned' },
-        { label: 'Umfrage beendet', value: 'poll_closed' },
-        { label: 'Beitrittsanfrage', value: 'join_request' },
-        { label: 'Neuer Inhalt', value: 'new_content' },
+        { label: { en: 'Invited', de: 'Eingeladen' }, value: 'invited' },
+        { label: { en: 'Task assigned', de: 'Aufgabe zugewiesen' }, value: 'task_assigned' },
+        { label: { en: 'Poll closed', de: 'Umfrage beendet' }, value: 'poll_closed' },
+        { label: { en: 'Join request', de: 'Beitrittsanfrage' }, value: 'join_request' },
+        { label: { en: 'New content', de: 'Neuer Inhalt' }, value: 'new_content' },
       ],
     },
-    { name: 'read', type: 'checkbox', defaultValue: false },
+    { name: 'read', type: 'checkbox', defaultValue: false, label: { en: 'Read', de: 'Gelesen' } },
     {
       name: 'reference',
       type: 'group',

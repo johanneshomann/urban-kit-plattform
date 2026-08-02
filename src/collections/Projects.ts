@@ -4,7 +4,7 @@ import { projectDefaults } from '@/lib/defaults/project'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 import {
   DEFAULT_PROJEKTPHASE,
-  projektphaseOptions,
+  projektphaseOptionsLocalized,
   statusFromProjektphase,
 } from '@/lib/options/projektphasen'
 import { ensureDefaultMedia, DEFAULT_GALLERY_KEYS } from '@/lib/defaults/media'
@@ -37,11 +37,12 @@ export const Projects: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'title', type: 'text', required: true },
+    { name: 'title', type: 'text', required: true, label: { en: 'Title', de: 'Titel' } },
     {
       name: 'coverImage',
       type: 'upload',
       relationTo: 'media',
+      label: { en: 'Cover image', de: 'Titelbild' },
       defaultValue: async ({ req }) => {
         try {
           return (await ensureDefaultMedia(req.payload)).cover
@@ -53,6 +54,7 @@ export const Projects: CollectionConfig = {
     {
       name: 'gallery',
       type: 'array',
+      label: { en: 'Gallery', de: 'Galerie' },
       defaultValue: async ({ req }) => {
         try {
           const media = await ensureDefaultMedia(req.payload)
@@ -62,15 +64,21 @@ export const Projects: CollectionConfig = {
         }
       },
       fields: [
-        { name: 'image', type: 'upload', relationTo: 'media', required: true },
-        { name: 'caption', type: 'text' },
+        { name: 'image', type: 'upload', relationTo: 'media', required: true, label: { en: 'Image', de: 'Bild' } },
+        { name: 'caption', type: 'text', label: { en: 'Caption', de: 'Bildunterschrift' } },
       ],
     },
-    { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'shortDescription', type: 'text', defaultValue: projectDefaults.shortDescription },
+    { name: 'slug', type: 'text', required: true, unique: true, label: { en: 'Slug', de: 'Slug' } },
+    {
+      name: 'shortDescription',
+      type: 'text',
+      label: { en: 'Short description', de: 'Kurzbeschreibung' },
+      defaultValue: projectDefaults.shortDescription,
+    },
     {
       name: 'colorScheme',
       type: 'select',
+      label: { en: 'Color scheme', de: 'Farbschema' },
       defaultValue: projectDefaults.colorScheme,
       options: defaultColorSchemes.map((s) => ({ label: s.name, value: s.name })),
       admin: {
@@ -79,21 +87,35 @@ export const Projects: CollectionConfig = {
         },
       },
     },
-    { name: 'isPublic', type: 'checkbox', defaultValue: projectDefaults.isPublic },
-    { name: 'joinRequestsEnabled', type: 'checkbox', defaultValue: projectDefaults.joinRequestsEnabled },
+    {
+      name: 'isPublic',
+      type: 'checkbox',
+      label: { en: 'Publicly visible', de: 'Öffentlich sichtbar' },
+      defaultValue: projectDefaults.isPublic,
+    },
+    {
+      name: 'joinRequestsEnabled',
+      type: 'checkbox',
+      label: { en: 'Allow join requests', de: 'Beitrittsanfragen erlauben' },
+      defaultValue: projectDefaults.joinRequestsEnabled,
+    },
     {
       name: 'projektphase',
       type: 'select',
+      label: { en: 'Project phase', de: 'Projektphase' },
       defaultValue: DEFAULT_PROJEKTPHASE,
-      options: projektphaseOptions,
+      options: projektphaseOptionsLocalized,
       admin: {
-        description:
-          'Aktuelle Phase im Beteiligungsprozess. Bestimmt automatisch den Status des Projekts.',
+        description: {
+          en: 'Current phase of the participation process. Automatically determines the project status.',
+          de: 'Aktuelle Phase im Beteiligungsprozess. Bestimmt automatisch den Status des Projekts.',
+        },
       },
     },
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', de: 'Status' },
       defaultValue: projectDefaults.status,
       admin: {
         components: {
@@ -101,60 +123,79 @@ export const Projects: CollectionConfig = {
         },
       },
       options: [
-        { label: 'Aktiv', value: 'active' },
-        { label: 'In Planung', value: 'planning' },
-        { label: 'Abgeschlossen', value: 'completed' },
-        { label: 'Archiviert', value: 'archived' },
+        { label: { en: 'Active', de: 'Aktiv' }, value: 'active' },
+        { label: { en: 'In planning', de: 'In Planung' }, value: 'planning' },
+        { label: { en: 'Completed', de: 'Abgeschlossen' }, value: 'completed' },
+        { label: { en: 'Archived', de: 'Archiviert' }, value: 'archived' },
       ],
     },
     {
       name: 'thema',
       type: 'select',
       hasMany: true,
-      options: THEMA_OPTIONS,
+      label: { en: 'Topics', de: 'Thema' },
+      options: THEMA_OPTIONS.map((o) => ({ label: o.labelLocalized, value: o.value })),
     },
-    { name: 'startYear', type: 'number' },
+    { name: 'startYear', type: 'number', label: { en: 'Start year', de: 'Startjahr' } },
     {
       name: 'modules',
       type: 'select',
       hasMany: true,
+      label: { en: 'Modules', de: 'Module' },
       defaultValue: ['news', 'calendar'],
       options: [
-        { label: 'News', value: 'news' },
-        { label: 'Kalender', value: 'calendar' },
-        { label: 'Umfragen', value: 'polls' },
-        { label: 'Forum', value: 'forum' },
-        { label: 'Aufgaben', value: 'tasks' },
-        { label: 'Chat', value: 'chat' },
-        { label: 'Board', value: 'board' },
-        { label: 'Dateien', value: 'files' },
-        { label: 'Urban Agent', value: 'urban-agent' },
+        { label: { en: 'News', de: 'News' }, value: 'news' },
+        { label: { en: 'Calendar', de: 'Kalender' }, value: 'calendar' },
+        { label: { en: 'Polls', de: 'Umfragen' }, value: 'polls' },
+        { label: { en: 'Forum', de: 'Forum' }, value: 'forum' },
+        { label: { en: 'Tasks', de: 'Aufgaben' }, value: 'tasks' },
+        { label: { en: 'Chat', de: 'Chat' }, value: 'chat' },
+        { label: { en: 'Board', de: 'Board' }, value: 'board' },
+        { label: { en: 'Files', de: 'Dateien' }, value: 'files' },
+        { label: { en: 'Urban Agent', de: 'Urban Agent' }, value: 'urban-agent' },
       ],
     },
-    { name: 'projektbeschreibung', type: 'richText', defaultValue: projectDefaults.projektbeschreibung },
-    { name: 'beteiligungsvorhaben', type: 'richText' },
+    {
+      name: 'projektbeschreibung',
+      type: 'richText',
+      label: { en: 'Project description', de: 'Projektbeschreibung' },
+      defaultValue: projectDefaults.projektbeschreibung,
+    },
+    {
+      name: 'beteiligungsvorhaben',
+      type: 'richText',
+      label: { en: 'Participation intent', de: 'Beteiligungsvorhaben' },
+    },
     {
       name: 'altersgruppe',
       type: 'select',
       hasMany: true,
+      label: { en: 'Age groups', de: 'Altersgruppe' },
       defaultValue: projectDefaults.altersgruppe,
-      options: ALTERSGRUPPE_OPTIONS,
+      options: ALTERSGRUPPE_OPTIONS.map((o) => ({ label: o.labelLocalized, value: o.value })),
     },
     {
       name: 'gender',
       type: 'select',
       hasMany: true,
+      label: { en: 'Target groups', de: 'Zielgruppe' },
       defaultValue: projectDefaults.gender,
-      options: GENDER_OPTIONS,
+      options: GENDER_OPTIONS.map((o) => ({ label: o.labelLocalized, value: o.value })),
     },
-    { name: 'ansprechperson', type: 'relationship', relationTo: 'users' },
+    {
+      name: 'ansprechperson',
+      type: 'relationship',
+      relationTo: 'users',
+      label: { en: 'Contact person', de: 'Ansprechperson' },
+    },
     {
       name: 'kontakt',
       type: 'group',
+      label: { en: 'Contact', de: 'Kontakt' },
       fields: [
-        { name: 'email', type: 'email' },
-        { name: 'telefon', type: 'text' },
-        { name: 'website', type: 'text' },
+        { name: 'email', type: 'email', label: { en: 'Email', de: 'E-Mail' } },
+        { name: 'telefon', type: 'text', label: { en: 'Phone', de: 'Telefon' } },
+        { name: 'website', type: 'text', label: { en: 'Website', de: 'Website' } },
       ],
     },
     {
@@ -162,12 +203,14 @@ export const Projects: CollectionConfig = {
       type: 'join',
       collection: 'project-memberships',
       on: 'project',
+      label: { en: 'Members', de: 'Mitglieder' },
     },
     {
       name: 'stadtbereich',
       type: 'select',
       hasMany: true,
-      options: STADTBEREICH_OPTIONS,
+      label: { en: 'City districts', de: 'Stadtbereich' },
+      options: STADTBEREICH_OPTIONS.map((o) => ({ label: o.labelLocalized, value: o.value })),
     },
   ],
 }

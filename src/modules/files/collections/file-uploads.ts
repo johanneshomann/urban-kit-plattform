@@ -19,21 +19,22 @@ export const FileUploads: CollectionConfig = {
   admin: { useAsTitle: 'filename' },
   upload: { staticDir: path.resolve(process.cwd(), 'uploads/files') },
   fields: [
-    { name: 'label', type: 'text' }, // optional friendly display name
-    { name: 'folder', type: 'relationship', relationTo: 'folders' },
+    { name: 'label', type: 'text', label: { en: 'Label', de: 'Bezeichnung' } }, // optional friendly display name
+    { name: 'folder', type: 'relationship', relationTo: 'folders', label: { en: 'Folder', de: 'Ordner' } },
     {
       name: 'visibility',
       type: 'select',
+      label: { en: 'Visibility', de: 'Sichtbarkeit' },
       defaultValue: 'INTERNAL',
       options: [
-        { label: 'Öffentlich', value: 'PUBLIC' },
-        { label: 'Intern', value: 'INTERNAL' },
-        { label: 'Team', value: 'TEAM' },
+        { label: { en: 'Public', de: 'Öffentlich' }, value: 'PUBLIC' },
+        { label: { en: 'Internal', de: 'Intern' }, value: 'INTERNAL' },
+        { label: { en: 'Team', de: 'Team' }, value: 'TEAM' },
       ],
     },
-    { name: 'visibilityTeam', type: 'relationship', relationTo: 'teams' },
-    { name: 'uploadedBy', type: 'relationship', relationTo: 'users' },
-    { name: 'project', type: 'relationship', relationTo: 'projects' },
+    { name: 'visibilityTeam', type: 'relationship', relationTo: 'teams', label: { en: 'Team (visibility)', de: 'Team (Sichtbarkeit)' } },
+    { name: 'uploadedBy', type: 'relationship', relationTo: 'users', label: { en: 'Uploaded by', de: 'Hochgeladen von' } },
+    { name: 'project', type: 'relationship', relationTo: 'projects', label: { en: 'Project', de: 'Projekt' } },
   ],
   timestamps: true,
 }

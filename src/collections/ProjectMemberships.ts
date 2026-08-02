@@ -10,26 +10,28 @@ export const ProjectMemberships: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'user', type: 'relationship', relationTo: 'users', required: true },
-    { name: 'project', type: 'relationship', relationTo: 'projects', required: true },
+    { name: 'user', type: 'relationship', relationTo: 'users', required: true, label: { en: 'User', de: 'Benutzer:in' } },
+    { name: 'project', type: 'relationship', relationTo: 'projects', required: true, label: { en: 'Project', de: 'Projekt' } },
     {
       name: 'role',
       type: 'select',
+      label: { en: 'Role', de: 'Rolle' },
       required: true,
       options: [
-        { label: 'Projektmanager', value: 'PM' },
-        { label: 'Bürger:in', value: 'Citizen' },
-        { label: 'Follower', value: 'Follower' },
+        { label: { en: 'Project manager', de: 'Projektmanager' }, value: 'PM' },
+        { label: { en: 'Citizen', de: 'Bürger:in' }, value: 'Citizen' },
+        { label: { en: 'Follower', de: 'Follower' }, value: 'Follower' },
       ],
     },
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', de: 'Status' },
       defaultValue: 'active',
       options: [
-        { label: 'Angefragt', value: 'requested' },
-        { label: 'Aktiv', value: 'active' },
-        { label: 'Abgelehnt', value: 'rejected' },
+        { label: { en: 'Requested', de: 'Angefragt' }, value: 'requested' },
+        { label: { en: 'Active', de: 'Aktiv' }, value: 'active' },
+        { label: { en: 'Rejected', de: 'Abgelehnt' }, value: 'rejected' },
       ],
     },
     {
@@ -37,6 +39,7 @@ export const ProjectMemberships: CollectionConfig = {
       // content (e.g. the Aufgaben board). PMs are always team members.
       name: 'isTeam',
       type: 'checkbox',
+      label: { en: 'Team member', de: 'Teammitglied' },
       defaultValue: false,
     },
     {

@@ -3,45 +3,56 @@
  * fields. Consumed by the Payload collection AND the manage UI, so the two
  * never drift. Each export is a `{ label, value }[]` plus a `*_VALUES` set for
  * server-side validation.
+ *
+ * `label` keeps the German display string used by the manage UI and the
+ * Payload admin's German view; `labelLocalized` is the DE/EN pair handed to the
+ * Payload `select` options so the admin panel switches languages too.
  */
 
 export interface FieldOption {
   label: string
+  labelLocalized: { en: string; de: string }
   value: string
 }
 
+const opt = (de: string, en: string, value: string): FieldOption => ({
+  label: de,
+  labelLocalized: { en, de },
+  value,
+})
+
 export const THEMA_OPTIONS: FieldOption[] = [
-  { label: 'Mobilität', value: 'mobilitaet' },
-  { label: 'Wohnraum', value: 'wohnraum' },
-  { label: 'Grünflächen', value: 'gruenflaechen' },
-  { label: 'Infrastruktur', value: 'infrastruktur' },
-  { label: 'Stadtentwicklung', value: 'stadtentwicklung' },
-  { label: 'Kultur', value: 'kultur' },
-  { label: 'Bildung', value: 'bildung' },
-  { label: 'Umwelt', value: 'umwelt' },
+  opt('Mobilität', 'Mobility', 'mobilitaet'),
+  opt('Wohnraum', 'Housing', 'wohnraum'),
+  opt('Grünflächen', 'Green spaces', 'gruenflaechen'),
+  opt('Infrastruktur', 'Infrastructure', 'infrastruktur'),
+  opt('Stadtentwicklung', 'Urban development', 'stadtentwicklung'),
+  opt('Kultur', 'Culture', 'kultur'),
+  opt('Bildung', 'Education', 'bildung'),
+  opt('Umwelt', 'Environment', 'umwelt'),
 ]
 
 export const STADTBEREICH_OPTIONS: FieldOption[] = [
-  { label: 'Innenstadt', value: 'innenstadt' },
-  { label: 'Norden', value: 'norden' },
-  { label: 'Süden', value: 'sueden' },
-  { label: 'Osten', value: 'osten' },
-  { label: 'Westen', value: 'westen' },
-  { label: 'Gesamtstadt', value: 'gesamtstadt' },
+  opt('Innenstadt', 'City centre', 'innenstadt'),
+  opt('Norden', 'North', 'norden'),
+  opt('Süden', 'South', 'sueden'),
+  opt('Osten', 'East', 'osten'),
+  opt('Westen', 'West', 'westen'),
+  opt('Gesamtstadt', 'Whole city', 'gesamtstadt'),
 ]
 
 export const ALTERSGRUPPE_OPTIONS: FieldOption[] = [
-  { label: 'Kinder (0–12)', value: 'kinder' },
-  { label: 'Jugendliche (13–17)', value: 'jugendliche' },
-  { label: 'Erwachsene (18–64)', value: 'erwachsene' },
-  { label: 'Senioren (65+)', value: 'senioren' },
+  opt('Kinder (0–12)', 'Children (0–12)', 'kinder'),
+  opt('Jugendliche (13–17)', 'Teenagers (13–17)', 'jugendliche'),
+  opt('Erwachsene (18–64)', 'Adults (18–64)', 'erwachsene'),
+  opt('Senioren (65+)', 'Seniors (65+)', 'senioren'),
 ]
 
 export const GENDER_OPTIONS: FieldOption[] = [
-  { label: 'Männlich', value: 'maennlich' },
-  { label: 'Weiblich', value: 'weiblich' },
-  { label: 'Divers', value: 'divers' },
-  { label: 'Alle', value: 'alle' },
+  opt('Männlich', 'Male', 'maennlich'),
+  opt('Weiblich', 'Female', 'weiblich'),
+  opt('Divers', 'Diverse', 'divers'),
+  opt('Alle', 'All', 'alle'),
 ]
 
 const valuesOf = (opts: FieldOption[]) => new Set(opts.map((o) => o.value))

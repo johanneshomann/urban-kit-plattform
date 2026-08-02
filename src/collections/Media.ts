@@ -15,19 +15,20 @@ export const Media: CollectionConfig = {
   // /app/media) write to the same place regardless of config-dir resolution
   upload: { staticDir: path.resolve(process.cwd(), 'media') },
   fields: [
-    { name: 'alt', type: 'text' },
-    { name: 'folder', type: 'relationship', relationTo: 'folders' },
-    { name: 'project', type: 'relationship', relationTo: 'projects' },
+    { name: 'alt', type: 'text', label: { en: 'Alt text', de: 'Alt-Text' } },
+    { name: 'folder', type: 'relationship', relationTo: 'folders', label: { en: 'Folder', de: 'Ordner' } },
+    { name: 'project', type: 'relationship', relationTo: 'projects', label: { en: 'Project', de: 'Projekt' } },
     {
       name: 'visibility',
       type: 'select',
+      label: { en: 'Visibility', de: 'Sichtbarkeit' },
       defaultValue: 'INTERNAL',
       options: [
-        { label: 'Öffentlich', value: 'PUBLIC' },
-        { label: 'Intern', value: 'INTERNAL' },
-        { label: 'Team', value: 'TEAM' },
+        { label: { en: 'Public', de: 'Öffentlich' }, value: 'PUBLIC' },
+        { label: { en: 'Internal', de: 'Intern' }, value: 'INTERNAL' },
+        { label: { en: 'Team', de: 'Team' }, value: 'TEAM' },
       ],
     },
-    { name: 'uploadedBy', type: 'relationship', relationTo: 'users' },
+    { name: 'uploadedBy', type: 'relationship', relationTo: 'users', label: { en: 'Uploaded by', de: 'Hochgeladen von' } },
   ],
 }

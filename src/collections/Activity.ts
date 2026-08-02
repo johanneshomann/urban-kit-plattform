@@ -13,9 +13,9 @@ export const Activity: CollectionConfig = {
     defaultColumns: ['type', 'user', 'project', 'createdAt'],
   },
   fields: [
-    { name: 'type', type: 'text', required: true },
-    { name: 'user', type: 'relationship', relationTo: 'users' },
-    { name: 'project', type: 'relationship', relationTo: 'projects' },
+    { name: 'type', type: 'text', required: true, label: { en: 'Type', de: 'Typ' } },
+    { name: 'user', type: 'relationship', relationTo: 'users', label: { en: 'User', de: 'Benutzer:in' } },
+    { name: 'project', type: 'relationship', relationTo: 'projects', label: { en: 'Project', de: 'Projekt' } },
     {
       name: 'reference',
       type: 'group',

@@ -10,8 +10,8 @@ export const PollOptions: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'question', type: 'relationship', relationTo: 'poll-questions', required: true },
-    { name: 'text', type: 'text', required: true },
-    { name: 'order', type: 'number', defaultValue: 0 },
+    { name: 'question', type: 'relationship', relationTo: 'poll-questions', required: true, label: { en: 'Question', de: 'Frage' } },
+    { name: 'text', type: 'text', required: true, label: { en: 'Option', de: 'Antwortoption' } },
+    { name: 'order', type: 'number', defaultValue: 0, label: { en: 'Order', de: 'Reihenfolge' } },
   ],
 }

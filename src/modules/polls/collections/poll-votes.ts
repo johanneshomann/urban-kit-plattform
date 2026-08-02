@@ -10,13 +10,13 @@ export const PollVotes: CollectionConfig = {
     delete: () => false,
   },
   fields: [
-    { name: 'poll', type: 'relationship', relationTo: 'polls', required: true },
-    { name: 'question', type: 'relationship', relationTo: 'poll-questions', required: true },
-    { name: 'option', type: 'relationship', relationTo: 'poll-options' },
-    { name: 'textAnswer', type: 'text' },
-    { name: 'scaleAnswer', type: 'number' },
+    { name: 'poll', type: 'relationship', relationTo: 'polls', required: true, label: { en: 'Poll', de: 'Umfrage' } },
+    { name: 'question', type: 'relationship', relationTo: 'poll-questions', required: true, label: { en: 'Question', de: 'Frage' } },
+    { name: 'option', type: 'relationship', relationTo: 'poll-options', label: { en: 'Option', de: 'Antwortoption' } },
+    { name: 'textAnswer', type: 'text', label: { en: 'Text answer', de: 'Textantwort' } },
+    { name: 'scaleAnswer', type: 'number', label: { en: 'Scale answer', de: 'Skalenantwort' } },
     // Authenticated votes: user ID. Anonymous: null (session token checked separately)
-    { name: 'user', type: 'relationship', relationTo: 'users' },
+    { name: 'user', type: 'relationship', relationTo: 'users', label: { en: 'User', de: 'Benutzer:in' } },
     // Signed session token for anonymous duplicate prevention (not stored in plain text in prod)
     { name: 'sessionToken', type: 'text', admin: { hidden: true } },
   ],

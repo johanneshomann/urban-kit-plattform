@@ -11,11 +11,11 @@ export const NewsComments: CollectionConfig = {
   },
   admin: { useAsTitle: 'body' },
   fields: [
-    { name: 'post', type: 'relationship', relationTo: 'news-posts', required: true },
-    { name: 'body', type: 'textarea', required: true },
-    { name: 'author', type: 'relationship', relationTo: 'users' },
+    { name: 'post', type: 'relationship', relationTo: 'news-posts', required: true, label: { en: 'Post', de: 'Beitrag' } },
+    { name: 'body', type: 'textarea', required: true, label: { en: 'Body', de: 'Text' } },
+    { name: 'author', type: 'relationship', relationTo: 'users', label: { en: 'Author', de: 'Autor:in' } },
     // denormalized for project-scoped moderation/cleanup queries
-    { name: 'project', type: 'relationship', relationTo: 'projects' },
+    { name: 'project', type: 'relationship', relationTo: 'projects', label: { en: 'Project', de: 'Projekt' } },
   ],
   timestamps: true,
 }

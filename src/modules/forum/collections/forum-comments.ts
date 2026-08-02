@@ -11,9 +11,9 @@ export const ForumComments: CollectionConfig = {
     delete: isAuthenticated,
   },
   fields: [
-    { name: 'thread', type: 'relationship', relationTo: 'forum-threads', required: true },
-    { name: 'content', type: 'richText', editor: lexicalEditor(), required: true },
-    { name: 'author', type: 'relationship', relationTo: 'users' },
+    { name: 'thread', type: 'relationship', relationTo: 'forum-threads', required: true, label: { en: 'Thread', de: 'Thema' } },
+    { name: 'content', type: 'richText', editor: lexicalEditor(), required: true, label: { en: 'Content', de: 'Inhalt' } },
+    { name: 'author', type: 'relationship', relationTo: 'users', label: { en: 'Author', de: 'Autor:in' } },
   ],
   timestamps: true,
 }

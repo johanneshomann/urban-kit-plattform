@@ -161,6 +161,11 @@ and their collections: [docs/modules.md](docs/modules.md).
    (`NEXT_PUBLIC_HOCUSPOCUS_URL`) with the user's Payload JWT; the sidecar
    authorizes rooms server-to-server via `/api/internal/authorize-room` (shared
    `HOCUSPOCUS_SECRET`) and persists Yjs state through `/api/internal/board-doc`.
+9. **Admin labels are localized DE-first.** All collection/global `label`,
+   select `options` and admin descriptions use `{ en, de }` objects (DE is the
+   source). Never add a bare German string to a field the admin renders — and
+   keep shared select options (Projektthemen, Phasen, …) in the central
+   helpers under `src/lib/options/` so the admin and the manage UI stay in sync.
 
 ---
 
