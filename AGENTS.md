@@ -6,6 +6,93 @@ Payload CMS 3 embedded (MongoDB). Start with
 [docs/architecture.md](docs/architecture.md); the full doc index is
 [docs/README.md](docs/README.md).
 
+> The **product is German-first**. UI copy, field names and content default to
+> German (`de`); English (`en`) is a fallback. See [docs/i18n.md](docs/i18n.md).
+
+---
+
+## What this project is
+
+UrbanKIT is the digital civic-participation platform of a city: the public
+portal lets anyone browse participation projects; a logged-in workspace
+(`app.urbankit.de`) provides per-project collaboration through swappable
+feature **modules** (news, calendar, polls, forum, tasks, chat, board, files,
+urban-agent).
+
+- **Framework:** Next.js 15 (App Router, RSC-first) + React 19, Turbopack dev
+- **CMS / API / Auth:** Payload CMS 3 embedded (`/admin` + `/api`)
+- **Database:** MongoDB 7 via `@payloadcms/db-mongodb` (Mongoose)
+- **Styling:** Tailwind CSS 4 + CSS custom properties (design tokens)
+- **Icons:** `lucide-react`
+- **i18n:** `next-intl` (`de` default, `en`) — UI chrome only, see [docs/i18n.md](docs/i18n.md)
+- **Realtime board:** Hocuspocus sidecar (Yjs over WebSocket) + Excalidraw
+- **AI:** Urban Agent module — Anthropic > OpenAI > Ollama fallback
+- **Language/runtime:** TypeScript, ESM (`"type": "module"`), npm
+
+### Reading & commenting the code
+
+Comments are **English** and explain the *why*, not the *what* — they're
+targeted, not exhaustive. Expect a short doc-comment header on non-obvious
+modules (server actions, `lib/` helpers, API routes, module plugins) and
+`// NOTE:` flags at genuine gotchas (e.g. the build-time env args, the
+cookie-domain logic, the `as any` Payload slug casts). Trivial presentational
+components are intentionally left uncommented. Match that bar: comment what
+would otherwise need reverse-engineering, and skip the obvious.
+
+---
+
+## Commands
+
+```bash
+npm run dev:all          # Next (turbopack, :3000) + Hocuspocus WS sidecar (:1234); needs local MongoDB
+npm run dev              # Next only (turbopack)
+npm run dev:ws           # Hocuspocus WS sidecar only
+npm run build            # production build
+npm run start            # start production build
+npm run generate:types   # REQUIRED after any Payload collection/field/global change
+npm run generate:importmap  # after adding/moving a custom admin component
+npm run payload          # Payload CLI (migrations etc.)
+npm run lint             # next lint
+npx tsc --noEmit         # typecheck (run before committing)
+```
+
+- Dev runs in tmux. npm installs are network-fragile; repair with
+  `rm -rf node_modules && npm ci`.
+- **Admin panel:** `http://localhost:3000/admin`.
+- Hocuspocus sidecar: `http://localhost:1234` (WebSocket).
+
+---
+
+## Repository map
+
+```
+hocuspocus/                 # Realtime sidecar (Yjs over WebSocket, Hocuspocus)
+docs/                       # deeper references (see below)
+messages/                   # next-intl message catalogs: de.json, en.json
+src/
+  middleware.ts             # domain split (portal ↔ workspace) + next-intl
+  payload.config.ts         # Payload entry: collections, globals, plugins, editor, db
+  collections/              # core Payload collections (see docs/architecture.md)
+  globals/                  # PlatformSettings, PlatformPages, LegalSettings
+  modules/                  # self-registering feature modules (registry.ts + index.ts)
+  actions/                  # server actions (auth, join-request, polls, manage/* …)
+  app/
+    (payload)/              # Admin UI + Payload REST/GraphQL
+    [locale]/(public)/      # Portal: frontpage, bereich/*, projekte/[slug], legal
+    [locale]/(platform)/    # Workspace: login/register, dashboard/** (incl. manage/)
+    api/                    # custom routes: chat/*, internal/*, rss, ics, search, urban-agent
+  components/               # platform/, public/, payload/, ui/, accessibility/
+  lib/                      # auth, access, visibility, theme, options, defaults, helpers
+  i18n/                     # next-intl routing, navigation, request
+  styles/                   # globals.css (design tokens, Tailwind)
+  types/                    # shared TS types (+ generated payload-types.ts, gitignored)
+```
+
+Full inventory: [docs/architecture.md](docs/architecture.md). Project modules
+and their collections: [docs/modules.md](docs/modules.md).
+
+---
+
 ## Read before touching…
 
 - Roles, memberships, visibility, auth → [docs/access-control.md](docs/access-control.md)
@@ -13,17 +100,7 @@ Payload CMS 3 embedded (MongoDB). Start with
 - UI copy / message catalogs → [docs/i18n.md](docs/i18n.md)
 - Env vars / Docker / domains → [docs/env-reference.md](docs/env-reference.md), [docs/deployment.md](docs/deployment.md)
 
-## Commands
-
-```bash
-npm run dev:all          # Next (turbopack) + Hocuspocus WS sidecar; needs local MongoDB
-npm run generate:types   # REQUIRED after any Payload collection/field change
-npx tsc --noEmit         # typecheck (run before committing)
-npm run lint
-```
-
-Dev runs in tmux. npm installs are network-fragile; repair with
-`rm -rf node_modules && npm ci`.
+---
 
 ## Hard rules
 
@@ -43,6 +120,46 @@ Dev runs in tmux. npm installs are network-fragile; repair with
    (`--plattform-*`, `--project-*` chameleon vars). Match the existing
    inline-style + Tailwind idiom of the surrounding file.
 
+---
+
+## Conventions & gotchas
+
+1. **Generated types.** `src/payload-types.ts` is generated and gitignored —
+   never edit it. Run `npm run generate:types` after any collection/field/global
+   change (see Commands). MongoDB: new optional fields need no migration; stale
+   keys on old docs are simply ignored.
+2. **Two domains, one deployment.** `NEXT_PUBLIC_SERVER_URL` /
+   `NEXT_PUBLIC_HOCUSPOCUS_URL` are baked at Docker build time (build args), not
+   runtime env. The middleware skips `/admin` and `/api` entirely; domain-splitting
+   only applies to the production hostnames — localhost serves everything.
+3. **Session cookie.** The `payload-token` cookie is scoped to the parent domain
+   (`.urbankit.de`) in production so one login is valid on both hosts; on
+   localhost it stays host-only. Logout clears both the parent-domain and the
+   legacy host-only cookie.
+4. **Module registry.** Each module lives in `src/modules/<id>/` with a
+   `manifest.ts` (id, name, icon, hasPublicContent) and a `plugin.ts` (Payload
+   plugin registering the module's collections). Modules self-register via
+   `src/modules/registry.ts`; `payload.config.ts` pulls all registered plugins in.
+   Adding a module = new folder + registry entry + option in `projects.modules` +
+   entries in `src/lib/options/modules.ts` (labels, ordering, section grouping).
+5. **Visibility model.** Content documents carry a `visibility` field
+   (`PUBLIC` / `INTERNAL` / `TEAM`); a viewer's tier is derived from their active
+   membership (`public` / `member` / `team`). Always filter with
+   `visibilityWhere(tier)` and gate with `canView`/`getViewerTier` — see
+   [docs/access-control.md](docs/access-control.md).
+6. **Rich text.** Public-facing rich-text fields are Lexical. Server actions
+   that receive Markdown convert via `markdownToLexical` (`src/lib/richtext.ts`);
+   rendering on the client uses `lexicalToHtml`. Keep these two helpers in sync.
+7. **Dev-server 500s** mentioning "module factory is not available" are turbopack
+   HMR staleness — recompile/restart, not a code bug.
+8. **Chat & Board access.** Chat is same-origin polling (`/api/chat/*`), not a
+   WebSocket. The Board connects to the Hocuspocus sidecar
+   (`NEXT_PUBLIC_HOCUSPOCUS_URL`) with the user's Payload JWT; the sidecar
+   authorizes rooms server-to-server via `/api/internal/authorize-room` (shared
+   `HOCUSPOCUS_SECRET`) and persists Yjs state through `/api/internal/board-doc`.
+
+---
+
 ## Git conventions
 
 - Commit granularly, one concern per commit; **commit only, never push**
@@ -50,6 +167,8 @@ Dev runs in tmux. npm installs are network-fragile; repair with
 - Message format: `VERB – details` (e.g. `FIX – Workspace module cards: …`).
   Verbs: ADD, CHANGE, FIX, REMOVE.
 - No co-author trailers.
+
+---
 
 ## Keep this documentation alive
 
@@ -69,14 +188,23 @@ e.g. `CHANGE – docs: …`):
 Don't document aspirations: write what the code does now. If you notice a doc
 is already wrong, fix it even if unrelated to your task.
 
-## Gotchas
+---
 
-- `src/payload-types.ts` is generated and gitignored — never edit it.
-- `NEXT_PUBLIC_SERVER_URL` / `NEXT_PUBLIC_HOCUSPOCUS_URL` are baked at Docker
-  build time (build args), not runtime env.
-- MongoDB: new optional fields need no migration; stale keys on old docs are
-  simply ignored.
-- The middleware skips `/admin` and `/api` entirely; domain-splitting only
-  applies to the production hostnames — localhost serves everything.
-- Dev-server 500s mentioning "module factory is not available" are turbopack
-  HMR staleness — recompile/restart, not a code bug.
+## Where to look first by task
+
+- **Add/change a project field** → `src/collections/Projects.ts`, then
+  `npm run generate:types`.
+- **Add a module** → new folder in `src/modules/<id>/` (manifest + plugin +
+  collections), register in `src/modules/index.ts`, wire options in
+  `src/lib/options/modules.ts`, then `npm run generate:types`.
+- **Change access/visibility** → `src/lib/visibility.ts`, `src/lib/auth/`,
+  `src/lib/access/`, plus the guards used by the action/route.
+- **Workspace / module UI** → `src/app/[locale]/(platform)/dashboard/projekte/[slug]/(workspace)/`
+  + `src/components/platform/modules/<id>/`.
+- **Manage (PM) UI & actions** → `.../manage/` + `src/actions/manage/`.
+- **Public portal** → `src/app/[locale]/(public)/` + `src/components/public/`.
+- **I18n/UI copy** → `messages/de.json` + `messages/en.json` (keep key-identical).
+- **Deploy / env / Docker** → `docker-compose.yml`, `Dockerfile`, `start.sh`,
+  `hocuspocus/` — see [docs/deployment.md](docs/deployment.md).
+- **Realtime board / chat** → `hocuspocus/server.js`, `src/app/api/internal/`,
+  `src/app/api/chat/`, `src/components/platform/board/`.

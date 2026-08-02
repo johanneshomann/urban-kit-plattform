@@ -31,7 +31,7 @@ folder + registry entry + option in `projects.modules` + entries in
 | `polls` | polls, poll-questions, poll-options, poll-votes | |
 | `forum` | forum-threads, forum-comments, forum-thread-votes | |
 | `tasks` | tasks, task-columns, task-assignees | TEAM-only (Aufgaben board) |
-| `chat` | chat-rooms, chat-room-members, chat-messages, chat-channels, direct-conversations | popup UI, polling |
+| `chat` | chat-rooms, chat-room-members, chat-messages | popup UI, polling |
 | `board` | board-canvases | Excalidraw + Yjs via Hocuspocus |
 | `files` | file-uploads, folders | has public content |
 | `urban-agent` | — | LLM chat (Anthropic > OpenAI > Ollama) |

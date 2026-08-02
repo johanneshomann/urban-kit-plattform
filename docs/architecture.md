@@ -8,13 +8,14 @@ logged-in workspace.
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js (App Router, RSC-first) + TypeScript |
+| Framework | Next.js 15 (App Router, RSC-first) + React 19, Turbopack dev |
 | CMS / API / Auth | Payload CMS 3 (embedded in the Next app, `/admin` + `/api`) |
-| Database | MongoDB (`@payloadcms/db-mongodb`) |
+| Database | MongoDB 7 (`@payloadcms/db-mongodb`) |
 | Styling | Tailwind CSS 4 + CSS custom properties (design tokens) |
-| i18n | next-intl (`de`, `en`) — see [i18n.md](./i18n.md) |
+| i18n | next-intl (`de`, `en`) — UI chrome only, see [i18n.md](./i18n.md) |
 | Realtime board | Hocuspocus sidecar (Yjs over WebSocket) + Excalidraw |
 | AI | Urban Agent module — Anthropic > OpenAI > Ollama fallback |
+| Language/runtime | TypeScript, ESM (`"type": "module"`), npm |
 
 ## Two domains, one deployment
 
@@ -32,6 +33,32 @@ The session cookie (`payload-token`) is scoped to the parent domain
 login on the portal, the workspace opens on the app domain in a new tab
 (`src/actions/auth.ts` → `LoginForm`).
 
+## Repository map
+
+```
+hocuspocus/                 # Realtime sidecar (Yjs over WebSocket, Hocuspocus)
+docs/                       # deeper references (this index)
+messages/                   # next-intl message catalogs: de.json, en.json
+public/                     # static assets, default project media, fonts
+src/
+  middleware.ts             # domain split (portal ↔ workspace) + next-intl
+  payload.config.ts         # Payload entry: collections, globals, plugins, editor, db
+  collections/              # core Payload collections (users, media, projects, …)
+  globals/                  # PlatformSettings, PlatformPages, LegalSettings
+  modules/                  # self-registering feature modules (registry.ts + index.ts)
+  actions/                  # server actions (auth, join-request, polls, manage/* …)
+  app/
+    (payload)/              # Admin UI + Payload REST/GraphQL
+    [locale]/(public)/      # Portal: frontpage, bereich/*, projekte/[slug], legal
+    [locale]/(platform)/    # Workspace: login/register, dashboard/** (incl. manage/)
+    api/                    # custom routes: chat/*, internal/*, rss, ics, search, urban-agent
+  components/               # platform/, public/, payload/, ui/, accessibility/
+  lib/                      # auth, access, visibility, theme, options, defaults, helpers
+  i18n/                     # next-intl routing, navigation, request
+  styles/                   # globals.css (design tokens, Tailwind)
+  types/                    # shared TS types (+ generated payload-types.ts, gitignored)
+```
+
 ## Route groups
 
 ```
@@ -48,20 +75,32 @@ src/app/[locale]/
 
 `src/app/api/` adds custom routes next to Payload's: `chat/*` (polling),
 `urban-agent`, `internal/*` (server-to-server for the Hocuspocus sidecar),
-`health`.
+`health`, `rss`, `ics`, `search`.
 
 ## Data model
 
-Core collections (`src/collections/`): `users`, `media`, `projects`, `teams`,
-`project-memberships`, `activity`, `notifications`.
-Globals (`src/globals/`): `PlatformSettings` (city name, colors → CSS vars via
-`src/lib/theme.ts`), `PlatformPages`, `LegalSettings` (the only localized
-content).
+Core collections (`src/collections/`):
 
-Everything else is contributed by **modules** — self-contained feature packages
-(news, calendar, polls, forum, tasks, chat, board, files, urban-agent) that
-register their own Payload collections via a plugin registry. See
-[modules.md](./modules.md).
+| Collection | Slug | Purpose |
+|---|---|---|
+| Users | `users` | Auth-enabled; roles `admin`/`user`; affiliations (citizen, student, cityEmployee, …), conditional `cityInfo` |
+| Media | `media` | Uploads (absolute path, volume-backed); visibility + project + uploadedBy |
+| Projects | `projects` | Title, slug, coverImage/gallery, colorScheme, projektphase (derives status), thema/stadtbereich, modules, rich-text, contact |
+| Teams | `teams` | Name, slug, project relationship, optional groups array |
+| ProjectMemberships | `project-memberships` | user × project; role (PM/Citizen/Follower), status (requested/active/rejected), isTeam, moduleOrder |
+| Activity | `activity` | Read-only activity feed (created via `emitActivity` helper) |
+| Notifications | `notifications` | Per-user notifications (created via `emitNotification` helper) |
+
+Everything else is contributed by **modules** — see [modules.md](./modules.md)
+for the full collection inventory per module.
+
+Globals (`src/globals/`):
+
+| Global | Slug | Purpose |
+|---|---|---|
+| PlatformSettings | `platform-settings` | City name/logo, hero slideshow, joinRequest flag, all platform color tokens (`--plattform-*`, `--projekte-*`, …) |
+| PlatformPages | `platform-pages` | Rich-text page content for Grundlagen / Zusammenarbeit / Mitmachen (localized) |
+| LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 
 ## Access control
 
@@ -70,6 +109,14 @@ chat-room role) collapse into a 3-tier visibility model (`PUBLIC` /
 `INTERNAL` / `TEAM`). Collection-level Payload access is intentionally coarse;
 real enforcement lives in server actions and route guards. See
 [access-control.md](./access-control.md).
+
+## Modules
+
+Each module in `src/modules/<id>/` self-registers via `src/modules/registry.ts`
+with a `manifest.ts` (id, name, icon, hasPublicContent) and a `plugin.ts`
+(Payload plugin registering the module's collections). `payload.config.ts`
+pulls all registered plugins in. Projects enable a subset via `projects.modules`
+(default: `news`, `calendar`). See [modules.md](./modules.md).
 
 ## Realtime
 
@@ -86,9 +133,10 @@ real enforcement lives in server actions and route guards. See
 ## Theming
 
 `PlatformSettings` colors become CSS custom properties (`--plattform-*`,
-`--projekte-*`, …) injected at the root. Inside a project, a theme scope sets
-`--project-*` vars so the header and workspace "chameleon" into the project's
-color scheme with a CSS transition (see `PlatformHeader.tsx`).
+`--projekte-*`, …) injected at the root via `src/lib/theme.ts`. Inside a
+project, a theme scope sets `--project-*` vars so the header and workspace
+"chameleon" into the project's color scheme with a CSS transition (see
+`PlatformHeader.tsx`).
 
 ## Development runtime
 

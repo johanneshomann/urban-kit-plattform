@@ -10,4 +10,4 @@
 | [env-reference.md](./env-reference.md) | configuring environment variables |
 
 Agent/contributor conventions live in [AGENTS.md](../AGENTS.md) at the repo
-root (imported by `CLAUDE.md`).
+root (referenced by `CLAUDE.md`).
