@@ -98,7 +98,7 @@ Globals (`src/globals/`):
 
 | Global | Slug | Purpose |
 |---|---|---|
-| PlatformSettings | `platform-settings` | City name/logo, hero slideshow, joinRequest flag, all platform color tokens (`--plattform-*`, `--projekte-*`, …) |
+| PlatformSettings | `platform-settings` | City name/logo, hero slideshow, joinRequest flag, all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Allgemein / Farben) with native color-picker fields + reset-to-defaults |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 
 ## Access control

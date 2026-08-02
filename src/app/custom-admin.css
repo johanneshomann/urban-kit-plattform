@@ -1,1 +1,33 @@
-/* Custom admin styles */
+/* Custom admin styles — editorial polish only, accessibility-safe.
+   Uses Payload's own CSS variables so light/dark themes stay intact. */
+
+/* Keyboard focus rings for the custom color picker fields */
+.uk-color-swatch:focus-visible,
+.uk-color-hex:focus-visible {
+  outline: 2px solid var(--theme-elevation-500);
+  outline-offset: 2px;
+}
+
+/* Slightly larger hit target for the swatch button (touch + motor accessibility) */
+.uk-color-swatch {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Field descriptions: keep readable contrast in both themes */
+.field-description {
+  color: var(--theme-elevation-450) !important;
+}
+
+/* Tab description blocks sit closer to the content below them */
+.tabs__description {
+  margin-bottom: 0.75rem;
+}
+
+/* Respect reduced-motion preferences — no decorative transitions on our fields */
+@media (prefers-reduced-motion: reduce) {
+  .uk-color-swatch,
+  .uk-color-hex {
+    transition: none;
+  }
+}
