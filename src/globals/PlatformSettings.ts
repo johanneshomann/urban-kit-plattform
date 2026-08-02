@@ -89,11 +89,6 @@ export const PlatformSettings: GlobalConfig = {
               defaultValue: true,
               label: 'Beitrittsanfragen erlauben',
             },
-            {
-              name: 'description',
-              type: 'textarea',
-              label: { en: 'Short description', de: 'Kurzbeschreibung' },
-            },
           ],
         },
         {
