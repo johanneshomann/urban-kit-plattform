@@ -40,10 +40,10 @@ export const PlatformSettings: GlobalConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: { en: 'General', de: 'Allgemein' },
+          label: { en: 'City', de: 'Stadt' },
           description: {
-            en: 'City identity and the public frontpage hero.',
-            de: 'Stadt-Identität und der öffentliche Startseiten-Bereich.',
+            en: 'City identity shown across the public portal (header, hero, metadata).',
+            de: 'Stadt-Identität, die im öffentlichen Portal erscheint (Header, Hero, Metadaten).',
           },
           fields: [
             {
@@ -62,6 +62,15 @@ export const PlatformSettings: GlobalConfig = {
               required: false,
               admin: { description: 'Optionales Logo der Stadt (erscheint im Header)' },
             },
+          ],
+        },
+        {
+          label: { en: 'General', de: 'Allgemein' },
+          description: {
+            en: 'Public frontpage hero and general platform behaviour.',
+            de: 'Öffentlicher Startseiten-Bereich und allgemeines Plattform-Verhalten.',
+          },
+          fields: [
             {
               name: 'heroImages',
               type: 'array',
