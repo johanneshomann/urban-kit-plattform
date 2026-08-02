@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useField, useFormFields } from '@payloadcms/ui'
+import { useField, useFormFields, useTranslation } from '@payloadcms/ui'
 import { statusFromProjektphase, type ProjektStatus } from '@/lib/options/projektphasen'
 
 // Labels arrive localized ({ en, de }) — render the German/current one.
@@ -28,9 +28,11 @@ const STATUS_COLORS: Record<ProjektStatus, { bg: string; fg: string }> = {
 
 export function StatusField({ field }: { field: { label?: unknown } }) {
   const { value, setValue } = useField<string>({ path: 'status' })
+  const { i18n } = useTranslation()
   const phase = useFormFields(([fields]) => fields?.projektphase?.value as string | undefined)
   const derived = statusFromProjektphase(phase)
   const label = labelOf(field)
+  const de = i18n.language?.startsWith('de')
 
   // Keep the form value in sync live, before saving. The server-side
   // beforeChange hook re-derives the same value as the authoritative backstop.
@@ -60,7 +62,7 @@ export function StatusField({ field }: { field: { label?: unknown } }) {
         </span>
       </div>
       <p style={{ marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
-        Wird automatisch aus der Projektphase abgeleitet.
+        {de ? 'Wird automatisch aus der Projektphase abgeleitet.' : 'Derived automatically from the project phase.'}
       </p>
     </div>
   )

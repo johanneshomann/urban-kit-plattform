@@ -2,24 +2,34 @@ import type { GlobalConfig, Field } from 'payload'
 import { isAdmin } from '@/lib/access'
 import { COLOR_DEFAULTS } from '@/lib/color-tokens'
 
+type Localized = { en: string; de: string }
+
 /**
  * A brand color field rendered with the native color-picker UI
- * (swatch + hex/text input, kept in sync). Empty falls back to the per-field
- * default in src/lib/theme.ts when injected into the public site.
+ * (swatch + hex/text input, kept in sync). Label + description are localized
+ * DE-first; empty falls back to the per-field default in src/lib/theme.ts
+ * when injected into the public site.
  */
-const colorField = (name: keyof typeof COLOR_DEFAULTS, label: string, description: string): Field => ({
+const colorField = (
+  name: keyof typeof COLOR_DEFAULTS,
+  label: Localized,
+  descriptionHint: Localized,
+): Field => ({
   name,
   type: 'text',
   label,
   defaultValue: COLOR_DEFAULTS[name],
   admin: {
-    description: `${description} Hex oder CSS-Farbwert – leer = Standardwert.`,
+    description: {
+      en: `${descriptionHint.en} Hex or CSS color value – empty = default.`,
+      de: `${descriptionHint.de} Hex oder CSS-Farbwert – leer = Standardwert.`,
+    },
     components: { Field: '@/components/payload/ColorPicker#ColorPicker' },
   },
 })
 
 /** A collapsible group of four color fields (one per platform area). */
-const colorGroup = (label: string, fields: Field[]): Field => ({
+const colorGroup = (label: Localized, fields: Field[]): Field => ({
   type: 'collapsible',
   label,
   fields,
@@ -49,18 +59,18 @@ export const PlatformSettings: GlobalConfig = {
             {
               name: 'cityName',
               type: 'text',
-              label: 'Stadtname',
+              label: { en: 'City name', de: 'Stadtname' },
               required: true,
               defaultValue: 'Stadt Detmold',
-              admin: { description: 'Name der Stadt, z. B. „Stadt Detmold"' },
+              admin: { description: { en: 'Name of the city, e.g. “Stadt Detmold”.', de: 'Name der Stadt, z. B. „Stadt Detmold".' } },
             },
             {
               name: 'cityLogo',
               type: 'upload',
-              label: 'Stadt-Logo',
+              label: { en: 'City logo', de: 'Stadt-Logo' },
               relationTo: 'media',
               required: false,
-              admin: { description: 'Optionales Logo der Stadt (erscheint im Header)' },
+              admin: { description: { en: 'Optional city logo (shown in the header).', de: 'Optionales Logo der Stadt (erscheint im Header).' } },
             },
           ],
         },
@@ -74,9 +84,9 @@ export const PlatformSettings: GlobalConfig = {
             {
               name: 'heroImages',
               type: 'array',
-              label: 'Hero-Bilder (Diashow)',
+              label: { en: 'Hero images (slideshow)', de: 'Hero-Bilder (Diashow)' },
               admin: {
-                description: 'Bilder werden auf der Startseite automatisch durchgeblendet.',
+                description: { en: 'Images cross-fade automatically on the frontpage.', de: 'Bilder werden auf der Startseite automatisch durchgeblendet.' },
               },
               fields: [
                 {
@@ -84,11 +94,12 @@ export const PlatformSettings: GlobalConfig = {
                   type: 'upload',
                   relationTo: 'media',
                   required: true,
+                  label: { en: 'Image', de: 'Bild' },
                 },
                 {
                   name: 'caption',
                   type: 'text',
-                  label: 'Bildunterschrift (optional)',
+                  label: { en: 'Caption (optional)', de: 'Bildunterschrift (optional)' },
                 },
               ],
             },
@@ -96,7 +107,7 @@ export const PlatformSettings: GlobalConfig = {
               name: 'joinRequestsEnabled',
               type: 'checkbox',
               defaultValue: true,
-              label: 'Beitrittsanfragen erlauben',
+              label: { en: 'Allow join requests', de: 'Beitrittsanfragen erlauben' },
             },
           ],
         },
@@ -107,33 +118,33 @@ export const PlatformSettings: GlobalConfig = {
             de: 'Markenfarben des öffentlichen Portals. Ein leeres Feld nutzt den Standardwert. Änderungen greifen beim nächsten Seitenaufruf.',
           },
           fields: [
-            colorGroup('Farben – Bereich Projekte', [
-              colorField('projektesMain', 'Projekte (Main)', ''),
-              colorField('projektesLight', 'Projekte Light', ''),
-              colorField('projektesAccent', 'Projekte Accent', ''),
-              colorField('projektesDark', 'Projekte Dark', ''),
+            colorGroup({ en: 'Area colors – Projects', de: 'Farben – Bereich Projekte' }, [
+              colorField('projektesMain', { en: 'Projects (main)', de: 'Projekte (Main)' }, { en: 'Primary color of the “Projekte” area.', de: 'Primärfarbe des Bereichs „Projekte“.' }),
+              colorField('projektesLight', { en: 'Projects light', de: 'Projekte Light' }, { en: 'Light tint of the “Projekte” area.', de: 'Heller Ton des Bereichs „Projekte“.' }),
+              colorField('projektesAccent', { en: 'Projects accent', de: 'Projekte Accent' }, { en: 'Accent of the “Projekte” area.', de: 'Akzentfarbe des Bereichs „Projekte“.' }),
+              colorField('projektesDark', { en: 'Projects dark', de: 'Projekte Dark' }, { en: 'Darkest shade of the “Projekte” area.', de: 'Dunkelste Schattierung des Bereichs „Projekte“.' }),
             ]),
-            colorGroup('Farben – Bereich Grundlagen', [
-              colorField('grundlagenMain', 'Grundlagen (Main)', ''),
-              colorField('grundlagenLight', 'Grundlagen Light', ''),
-              colorField('grundlagenAccent', 'Grundlagen Accent', ''),
-              colorField('grundlagenDark', 'Grundlagen Dark', ''),
+            colorGroup({ en: 'Area colors – Basics', de: 'Farben – Bereich Grundlagen' }, [
+              colorField('grundlagenMain', { en: 'Basics (main)', de: 'Grundlagen (Main)' }, { en: 'Primary color of the “Grundlagen” area.', de: 'Primärfarbe des Bereichs „Grundlagen“.' }),
+              colorField('grundlagenLight', { en: 'Basics light', de: 'Grundlagen Light' }, { en: 'Light tint of the “Grundlagen” area.', de: 'Heller Ton des Bereichs „Grundlagen“.' }),
+              colorField('grundlagenAccent', { en: 'Basics accent', de: 'Grundlagen Accent' }, { en: 'Accent of the “Grundlagen” area.', de: 'Akzentfarbe des Bereichs „Grundlagen“.' }),
+              colorField('grundlagenDark', { en: 'Basics dark', de: 'Grundlagen Dark' }, { en: 'Darkest shade of the “Grundlagen” area.', de: 'Dunkelste Schattierung des Bereichs „Grundlagen“.' }),
             ]),
-            colorGroup('Farben – Bereich Zusammenarbeit', [
-              colorField('zusammenarbeitMain', 'Zusammenarbeit (Main)', ''),
-              colorField('zusammenarbeitLight', 'Zusammenarbeit Light', ''),
-              colorField('zusammenarbeitAccent', 'Zusammenarbeit Accent', ''),
-              colorField('zusammenarbeitDark', 'Zusammenarbeit Dark', ''),
+            colorGroup({ en: 'Area colors – Collaboration', de: 'Farben – Bereich Zusammenarbeit' }, [
+              colorField('zusammenarbeitMain', { en: 'Collaboration (main)', de: 'Zusammenarbeit (Main)' }, { en: 'Primary color of the “Zusammenarbeit” area.', de: 'Primärfarbe des Bereichs „Zusammenarbeit“.' }),
+              colorField('zusammenarbeitLight', { en: 'Collaboration light', de: 'Zusammenarbeit Light' }, { en: 'Light tint of the “Zusammenarbeit” area.', de: 'Heller Ton des Bereichs „Zusammenarbeit“.' }),
+              colorField('zusammenarbeitAccent', { en: 'Collaboration accent', de: 'Zusammenarbeit Accent' }, { en: 'Accent of the “Zusammenarbeit” area.', de: 'Akzentfarbe des Bereichs „Zusammenarbeit“.' }),
+              colorField('zusammenarbeitDark', { en: 'Collaboration dark', de: 'Zusammenarbeit Dark' }, { en: 'Darkest shade of the “Zusammenarbeit” area.', de: 'Dunkelste Schattierung des Bereichs „Zusammenarbeit“.' }),
             ]),
-            colorGroup('Farben – Plattform', [
-              colorField('plattform', 'Plattform', ''),
-              colorField('plattformLight', 'Plattform Light', ''),
-              colorField('plattformInk', 'Plattform Ink', ''),
-              colorField('plattformInkAccent', 'Plattform Ink Accent', ''),
-              colorField('plattformAccent', 'Plattform Accent', ''),
-              colorField('plattformWhite', 'Plattform White', ''),
-              colorField('plattformWhiteTransparent', 'Plattform White Transparent', ''),
-              colorField('plattformBlack', 'Plattform Black', ''),
+            colorGroup({ en: 'Platform colors', de: 'Farben – Plattform' }, [
+              colorField('plattform', { en: 'Platform', de: 'Plattform' }, { en: 'Primary platform color.', de: 'Primäre Plattformfarbe.' }),
+              colorField('plattformLight', { en: 'Platform light', de: 'Plattform Light' }, { en: 'Light platform surface.', de: 'Helle Plattformfläche.' }),
+              colorField('plattformInk', { en: 'Platform ink', de: 'Plattform Ink' }, { en: 'Default body-copy color.', de: 'Standardfarbe für Fließtext.' }),
+              colorField('plattformInkAccent', { en: 'Platform ink accent', de: 'Plattform Ink Accent' }, { en: 'Strong text / heading color.', de: 'Kräftige Text-/Überschriftenfarbe.' }),
+              colorField('plattformAccent', { en: 'Platform accent', de: 'Plattform Accent' }, { en: 'Hover / highlight accent.', de: 'Akzent für Hover und Hervorhebungen.' }),
+              colorField('plattformWhite', { en: 'Platform white', de: 'Plattform White' }, { en: 'Card / surface white.', de: 'Weiß für Karten und Flächen.' }),
+              colorField('plattformWhiteTransparent', { en: 'Platform white (transparent)', de: 'Plattform White Transparent' }, { en: 'Translucent white overlay.', de: 'Transparente weiße Überlagerung.' }),
+              colorField('plattformBlack', { en: 'Platform black', de: 'Plattform Black' }, { en: 'Contrast black for dark accents.', de: 'Kontrast-Schwarz für dunkle Akzente.' }),
             ]),
             {
               name: 'resetColors',
