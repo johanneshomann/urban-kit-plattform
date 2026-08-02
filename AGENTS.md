@@ -1,4 +1,4 @@
-# AGENTS.md — working on UrbanKIT
+line o# AGENTS.md — working on UrbanKIT
 
 Civic-participation platform: public portal (`urbankit.de`) + logged-in
 workspace (`app.urbankit.de`) served by one Next.js App Router app with
@@ -119,6 +119,10 @@ and their collections: [docs/modules.md](docs/modules.md).
 5. **Design tokens, not hex** — colors come from CSS custom properties
    (`--plattform-*`, `--project-*` chameleon vars). Match the existing
    inline-style + Tailwind idiom of the surrounding file.
+6. **Docs ride along** — every change that touches the architecture, data
+   model, modules, access control, i18n, env vars, or commands **must update
+   the affected docs and this file in the same commit series**. Stale docs are
+   a bug. (See "Keep this documentation alive" below.)
 
 ---
 
@@ -172,9 +176,13 @@ and their collections: [docs/modules.md](docs/modules.md).
 
 ## Keep this documentation alive
 
-These files are only useful while they match the code. When your change makes
-any of them stale, **update the doc in the same commit series** (own commit,
-e.g. `CHANGE – docs: …`):
+**Rule for agents: if your code change makes any doc or `.md` file stale,
+update it in the same commit series — before you call the change done.**
+Documentation that describes code is only useful while it matches the code;
+leaving it behind is a bug, not a chore. Prefer one own commit per doc change
+(e.g. `CHANGE – docs: …`).
+
+Which doc to touch when:
 
 - New/removed module, collection, or field with access implications →
   [docs/modules.md](docs/modules.md), [docs/access-control.md](docs/access-control.md)
@@ -184,9 +192,18 @@ e.g. `CHANGE – docs: …`):
 - New locale/namespace conventions → [docs/i18n.md](docs/i18n.md)
 - New commands, conventions, recurring gotchas → this file (and keep
   `CLAUDE.md` a thin importer — content belongs here, not there)
+- New/renamed paths, route groups, or components inventory →
+  [docs/architecture.md](docs/architecture.md), and the repository map here
 
-Don't document aspirations: write what the code does now. If you notice a doc
-is already wrong, fix it even if unrelated to your task.
+Guiding principles:
+
+- **Don't document aspirations** — write what the code does *now*.
+- **Proactively fix stale docs** — if you notice a doc is already wrong while
+  working on something else, fix it in the same change.
+- **Never leave docs in a broken state** — a change that breaks the documented
+  architecture without updating the docs is incomplete.
+- This file (`AGENTS.md`) and the docs are first-class citizens of every
+  change, not an afterthought.
 
 ---
 
