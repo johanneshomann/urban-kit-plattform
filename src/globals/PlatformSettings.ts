@@ -1,6 +1,6 @@
 import type { GlobalConfig, Field } from 'payload'
 import { isAdmin } from '@/lib/access'
-import { COLOR_DEFAULTS } from '@/lib/theme'
+import { COLOR_DEFAULTS } from '@/lib/color-tokens'
 
 /**
  * A brand color field rendered with the native color-picker UI

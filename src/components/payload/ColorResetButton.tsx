@@ -1,8 +1,8 @@
 'use client'
 
 import { useForm, useTranslation } from '@payloadcms/ui'
-import { COLOR_DEFAULTS } from '@/lib/theme'
-import type { PlatformColors } from '@/lib/theme'
+import { COLOR_DEFAULTS } from '@/lib/color-tokens'
+import type { PlatformColors } from '@/lib/color-tokens'
 
 /**
  * Resets every color field in Platform Settings back to COLOR_DEFAULTS.
