@@ -5,13 +5,13 @@ export interface ActivityEvent {
   type: string
   userId?: string
   projectId?: string
-  reference?: { collection: string; id: string }
+  reference?: { collectionSlug: string; id: string }
 }
 
 export interface NotificationEvent {
   type: 'invited' | 'task_assigned' | 'poll_closed' | 'join_request' | 'new_content'
   userId: string
-  reference?: { collection: string; id: string }
+  reference?: { collectionSlug: string; id: string }
 }
 
 export async function emitActivity(event: ActivityEvent): Promise<void> {

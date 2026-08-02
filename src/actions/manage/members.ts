@@ -164,7 +164,7 @@ export async function respondToJoinRequest(
         await emitNotification({
           type: 'invited',
           userId,
-          reference: { collection: 'projects', id: ctx.project.id },
+          reference: { collectionSlug: 'projects', id: ctx.project.id },
         })
       }
     }

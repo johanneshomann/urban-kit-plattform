@@ -42,7 +42,7 @@ async function notifyProjectManagers(projectId: string) {
       await emitNotification({
         type: 'join_request',
         userId,
-        reference: { collection: 'projects', id: projectId },
+        reference: { collectionSlug: 'projects', id: projectId },
       })
     }
   }

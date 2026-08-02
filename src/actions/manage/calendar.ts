@@ -102,7 +102,7 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
       },
       overrideAccess: true,
     })
-    await emitActivity({ type: 'calendar.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collection: 'calendar-events', id: String(event.id) } })
+    await emitActivity({ type: 'calendar.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collectionSlug: 'calendar-events', id: String(event.id) } })
   } catch {
     return { error: 'Termin konnte nicht erstellt werden.' }
   }

@@ -31,7 +31,7 @@ async function getProjectNewsPost(payload: Payload, projectId: string, postId: s
 }
 
 /** Notify all active members (except the author) of newly published content. */
-async function notifyMembers(payload: Payload, projectId: string, exceptUserId: string, reference: { collection: string; id: string }) {
+async function notifyMembers(payload: Payload, projectId: string, exceptUserId: string, reference: { collectionSlug: string; id: string }) {
   const members = await payload.find({
     collection: 'project-memberships',
     where: { and: [{ project: { equals: projectId } }, { status: { equals: 'active' } }] },
@@ -77,7 +77,7 @@ export async function createProjectNewsPost(
       },
       overrideAccess: true,
     })
-    await emitActivity({ type: 'news.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collection: 'news-posts', id: String(post.id) } })
+    await emitActivity({ type: 'news.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collectionSlug: 'news-posts', id: String(post.id) } })
   } catch {
     return { error: 'Beitrag konnte nicht erstellt werden.' }
   }
@@ -189,8 +189,8 @@ export async function setNewsPublish(
     await payload.update({ collection: 'news-posts', id: postId, data: { publishedAt }, overrideAccess: true })
 
     if (mode === 'now' && !wasLive) {
-      await emitActivity({ type: 'news.published', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collection: 'news-posts', id: postId } })
-      await notifyMembers(payload, ctx.project.id, String(ctx.user.id), { collection: 'news-posts', id: postId })
+      await emitActivity({ type: 'news.published', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collectionSlug: 'news-posts', id: postId } })
+      await notifyMembers(payload, ctx.project.id, String(ctx.user.id), { collectionSlug: 'news-posts', id: postId })
     }
   } catch {
     return { error: 'Status konnte nicht geändert werden.' }

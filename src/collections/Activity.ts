@@ -20,7 +20,7 @@ export const Activity: CollectionConfig = {
       name: 'reference',
       type: 'group',
       fields: [
-        { name: 'collection', type: 'text' },
+        { name: 'collectionSlug', type: 'text' },
         { name: 'id', type: 'text' },
       ],
     },

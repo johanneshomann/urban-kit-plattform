@@ -68,7 +68,7 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
     })
     if (input.assigneeIds?.length) {
       await syncAssignees(payload, pm.project.id, String(task.id), input.assigneeIds)
-      for (const uid of input.assigneeIds) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collection: 'tasks', id: String(task.id) } })
+      for (const uid of input.assigneeIds) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: String(task.id) } })
     }
   } catch {
     return { error: 'Aufgabe konnte nicht erstellt werden.' }

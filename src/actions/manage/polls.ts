@@ -139,7 +139,7 @@ export async function createProjectPoll(
       type: 'poll.created',
       userId: String(ctx.user.id),
       projectId: ctx.project.id,
-      reference: { collection: 'polls', id: String(poll.id) },
+      reference: { collectionSlug: 'polls', id: String(poll.id) },
     })
   } catch {
     return { error: 'Umfrage konnte nicht erstellt werden.' }
@@ -172,7 +172,7 @@ export async function setPollStatus(
         type: 'poll.activated',
         userId: String(ctx.user.id),
         projectId: ctx.project.id,
-        reference: { collection: 'polls', id: pollId },
+        reference: { collectionSlug: 'polls', id: pollId },
       })
     }
   } catch {

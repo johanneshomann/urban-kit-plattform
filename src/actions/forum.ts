@@ -54,7 +54,7 @@ export async function createThread(slug: string, locale: string, input: { title:
       data: { title, slug: uniqueSlug(title, 'thema'), content, visibility: 'INTERNAL', author: pm.user.id, project: pm.project.id },
       overrideAccess: true,
     })
-    await emitActivity({ type: 'forum.thread.created', userId: String(pm.user.id), projectId: pm.project.id, reference: { collection: 'forum-threads', id: String(thread.id) } })
+    await emitActivity({ type: 'forum.thread.created', userId: String(pm.user.id), projectId: pm.project.id, reference: { collectionSlug: 'forum-threads', id: String(thread.id) } })
   } catch {
     return { error: 'Thema konnte nicht erstellt werden.' }
   }
