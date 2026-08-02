@@ -13,7 +13,6 @@ import { ProjectMemberships } from './collections/ProjectMemberships'
 import { Activity } from './collections/Activity'
 import { Notifications } from './collections/Notifications'
 import { PlatformSettings } from './globals/PlatformSettings'
-import { PlatformPages } from './globals/PlatformPages'
 import { LegalSettings } from './globals/LegalSettings'
 import { moduleRegistry } from './modules/registry'
 import './modules/index' // registers all module plugins
@@ -35,8 +34,8 @@ export default buildConfig({
     fallbackLanguage: 'de',
   },
   // Content localization. Only fields explicitly marked `localized: true` are
-  // stored per-locale — today that is ONLY the public page globals
-  // (PlatformPages, LegalSettings). All project content stays single-value and
+  // stored per-locale — today that is ONLY the legal texts global
+  // (LegalSettings). All project content stays single-value and
   // language-agnostic (no `localized` flag).
   localization: {
     locales: [
@@ -55,7 +54,7 @@ export default buildConfig({
     Activity,
     Notifications,
   ],
-  globals: [PlatformSettings, PlatformPages, LegalSettings],
+  globals: [PlatformSettings, LegalSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? 'dev-secret-change-me',
   typescript: {

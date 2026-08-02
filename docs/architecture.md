@@ -44,7 +44,7 @@ src/
   middleware.ts             # domain split (portal ↔ workspace) + next-intl
   payload.config.ts         # Payload entry: collections, globals, plugins, editor, db
   collections/              # core Payload collections (users, media, projects, …)
-  globals/                  # PlatformSettings, PlatformPages, LegalSettings
+  globals/                  # PlatformSettings, LegalSettings
   modules/                  # self-registering feature modules (registry.ts + index.ts)
   actions/                  # server actions (auth, join-request, polls, manage/* …)
   app/
@@ -99,7 +99,6 @@ Globals (`src/globals/`):
 | Global | Slug | Purpose |
 |---|---|---|
 | PlatformSettings | `platform-settings` | City name/logo, hero slideshow, joinRequest flag, all platform color tokens (`--plattform-*`, `--projekte-*`, …) |
-| PlatformPages | `platform-pages` | Rich-text page content for Grundlagen / Zusammenarbeit / Mitmachen (localized) |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 
 ## Access control

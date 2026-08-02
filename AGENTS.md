@@ -73,7 +73,7 @@ src/
   middleware.ts             # domain split (portal ↔ workspace) + next-intl
   payload.config.ts         # Payload entry: collections, globals, plugins, editor, db
   collections/              # core Payload collections (see docs/architecture.md)
-  globals/                  # PlatformSettings, PlatformPages, LegalSettings
+  globals/                  # PlatformSettings, LegalSettings
   modules/                  # self-registering feature modules (registry.ts + index.ts)
   actions/                  # server actions (auth, join-request, polls, manage/* …)
   app/
