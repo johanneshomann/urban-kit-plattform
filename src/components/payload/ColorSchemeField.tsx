@@ -3,12 +3,21 @@
 import { useField } from '@payloadcms/ui'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 
-export function ColorSchemeField({ field }: { field: { label?: string } }) {
+// Labels arrive localized ({ en, de }) — render the German/current one.
+function labelOf(field: { label?: unknown }): string {
+  const l = field?.label
+  if (typeof l === 'string') return l
+  if (l && typeof l === 'object' && 'de' in l) return String(l.de)
+  return 'Farbschema'
+}
+
+export function ColorSchemeField({ field }: { field: { label?: unknown } }) {
   const { value, setValue } = useField<string>({ path: 'colorScheme' })
+  const label = labelOf(field)
 
   return (
     <div className="field-type">
-      <label className="field-label">{field.label ?? 'Farbschema'}</label>
+      <label className="field-label">{label}</label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
         {defaultColorSchemes.map((scheme) => {
           const isSelected = value === scheme.name
