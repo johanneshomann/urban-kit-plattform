@@ -52,6 +52,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         dotColor="var(--zusammenarbeit-accent)"
         activeColor="var(--zusammenarbeit-dark)"
         items={[
+          { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'raum', label: t('roomEyebrow'), icon: 'Layers' },
           { id: 'module', label: nav('modules'), icon: 'Layout' },
         ]}
