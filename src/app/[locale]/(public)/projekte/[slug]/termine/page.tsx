@@ -120,7 +120,7 @@ export default async function ProjectTermineIndexPage({
   return (
     <div className="flex flex-col">
       {/* Hero — chip row, min-vh, no border into content */}
-      <section className="relative h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24" style={{ background: 'var(--plattform-light)' }}>
+      <section className="relative min-h-[500px] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-16 md:py-24" style={{ background: 'var(--plattform-light)' }}>
         <CalendarDays
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -130,7 +130,7 @@ export default async function ProjectTermineIndexPage({
         <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
-            <EyebrowBadge label={t('termineBreadcrumbLabel')} opacity={0.8} />
+            <EyebrowBadge label={t('termineBreadcrumbLabel')} />
           </div>
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t('termineAllTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
