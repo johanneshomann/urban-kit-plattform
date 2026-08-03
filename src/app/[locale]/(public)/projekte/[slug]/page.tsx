@@ -11,6 +11,7 @@ import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
+import { GalleryLightbox } from '@/components/public/GalleryLightbox'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
@@ -676,35 +677,7 @@ export default async function PublicProjectPage({
             <h2 className="text-title font-black tracking-tight mb-12">
               {t.rich('galerieTitle', { accent })}
             </h2>
-            <div
-              className={
-                galleryImages.length > 3
-                  ? 'flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-6 px-6 md:-mx-16 md:px-16 lg:-mx-24 lg:px-24'
-                  : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
-              }
-            >
-              {galleryImages.map((img, i) => (
-                <figure
-                  key={i}
-                  className={`rounded-xl shadow-sm overflow-hidden ${
-                    galleryImages.length > 3 ? 'snap-start shrink-0 w-[85%] sm:w-[55%] lg:w-[38%]' : ''
-                  }`}
-                  style={{ background: 'var(--plattform-light)' }}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.alt ?? img.caption ?? t('imageAlt', { title: project.title, n: i + 1 })}
-                    className="w-full aspect-video object-cover"
-                    loading="lazy"
-                  />
-                  {img.caption && (
-                    <figcaption className="p-4 text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
-                      {img.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
+            <GalleryLightbox images={galleryImages} locale={locale} />
           </div>
         </section>
       )}
