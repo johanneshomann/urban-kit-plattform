@@ -363,7 +363,7 @@ export default async function PublicProjectPage({
       </section>
 
       {/* Über das Projekt */}
-      <section id="about" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      <section id="about" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
         <div className="w-full">
           <EyebrowBadge label={t('aboutEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-10">
@@ -456,7 +456,7 @@ export default async function PublicProjectPage({
       </section>
 
       {/* Beteiligung */}
-      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
+      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
         <Megaphone
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -545,7 +545,7 @@ export default async function PublicProjectPage({
       {/* Aktuelles — public news & events. Blocks without content don't render:
           empty states are for members who can act on them, not for visitors. */}
       {hasAktuelles && (
-        <section id="aktuelles" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+        <section id="aktuelles" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
             <EyebrowBadge label={t('aktuellesEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
@@ -671,7 +671,7 @@ export default async function PublicProjectPage({
 
       {/* Galerie — grid for a few images, horizontal snap strip for many */}
       {galleryImages.length > 0 && (
-        <section id="galerie" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
+        <section id="galerie" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
             <EyebrowBadge label={t('galerieEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
@@ -683,7 +683,7 @@ export default async function PublicProjectPage({
       )}
 
       {/* Kontakt & Mitmachen */}
-      <section id="kontakt" className="scroll-mt-20 relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      <section id="kontakt" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
         <HandHeart
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
