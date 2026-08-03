@@ -677,7 +677,7 @@
     "rowAltersgruppe": "Altersgruppe",
     "rowZielgruppe": "Zielgruppe",
     "participationEyebrow": "Beteiligung",
-    "participationTitle": "So läuft die Beteiligung<accent>.</accent>",
+    "participationTitle": "So läuft {project}<accent>.</accent>",
     "participationBody": "Jedes Projekt durchläuft sieben Phasen – von der ersten Idee bis zum Abschluss. Hier wird sichtbar, wo das Projekt gerade steht und wie eine Beteiligung möglich ist.",
     "aktuellesEyebrow": "Aktuelles",
     "aktuellesTitle": "Neues aus dem Projekt<accent>:</accent>",

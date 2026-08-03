@@ -584,7 +584,7 @@ export default async function PublicProjectPage({
         <div className="relative z-10 w-full">
           <EyebrowBadge label={t('participationEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-12">
-            {t.rich('participationTitle', { accent })}
+            {t.rich('participationTitle', { project: project.title, accent })}
           </h2>
 
           {/* Phasen-Stepper — numbered journey, done ✓, current highlighted + "Aktuell" pill */}
