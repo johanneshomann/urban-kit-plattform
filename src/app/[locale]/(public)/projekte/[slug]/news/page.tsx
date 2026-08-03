@@ -5,6 +5,7 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
+import { ProjectBackButton } from '@/components/public/ProjectBackButton'
 import { ArrowLeft } from 'lucide-react'
 
 type Project = { id: string; title: string; slug: string; isPublic?: boolean | null }
@@ -71,7 +72,7 @@ export default async function ProjectNewsIndexPage({
   return (
     <div className="flex flex-col">
       {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
-      <section className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
+      <section className="relative h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24" style={{ background: 'var(--plattform-light)' }}>
         <ArrowLeft
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -80,14 +81,7 @@ export default async function ProjectNewsIndexPage({
         />
         <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <a
-              href={`/${locale}/projekte/${project.slug}`}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110"
-              style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
-              aria-label={pd('newsBackLabel')}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </a>
+            <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
             <EyebrowBadge label={pd('newsBreadcrumbLabel')} opacity={0.8} />
           </div>
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
@@ -99,9 +93,9 @@ export default async function ProjectNewsIndexPage({
         </div>
       </section>
 
-      {/* Content — shared plattform content width, no border above */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
-        <div className="w-full mx-auto" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+      {/* Content — methoden column: section-level max-width, no border above */}
+      <main className="mx-auto w-full max-w-[var(--plattform-content-width)] flex-1 px-6 md:px-16 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
+        <div>
           {posts.length === 0 ? (
             <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('empty')}</p>
           ) : (

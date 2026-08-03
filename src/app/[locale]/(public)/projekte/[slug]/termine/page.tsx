@@ -6,7 +6,8 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import type { Where } from 'payload'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
-import { ArrowLeft, CalendarDays, MapPin, Download } from 'lucide-react'
+import { ProjectBackButton } from '@/components/public/ProjectBackButton'
+import { CalendarDays, MapPin, Download } from 'lucide-react'
 
 type Project = { id: string; title: string; slug: string; isPublic?: boolean | null }
 type CalEvent = { id: string; title: string; startDate: string; location?: string | null }
@@ -119,7 +120,7 @@ export default async function ProjectTermineIndexPage({
   return (
     <div className="flex flex-col">
       {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
-      <section className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
+      <section className="relative h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24" style={{ background: 'var(--plattform-light)' }}>
         <CalendarDays
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -128,14 +129,7 @@ export default async function ProjectTermineIndexPage({
         />
         <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <Link
-              href={`/${locale}/projekte/${project.slug}`}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110"
-              style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
-              aria-label={t('termineBackLabel')}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
+            <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
             <EyebrowBadge label={t('termineBreadcrumbLabel')} opacity={0.8} />
           </div>
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
@@ -148,8 +142,8 @@ export default async function ProjectTermineIndexPage({
       </section>
 
       {/* Content — shared plattform content width, no border above */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
-        <div className="w-full mx-auto" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+      <main className="mx-auto w-full max-w-[var(--plattform-content-width)] flex-1 px-6 md:px-16 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
+        <div>
           <div className="flex items-center gap-2 mb-8">
             <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
             <h2 className="text-display font-black tracking-tight">{t('termineHeading')}</h2>
