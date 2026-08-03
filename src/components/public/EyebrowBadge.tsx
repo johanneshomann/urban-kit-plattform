@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { Asterisk } from 'lucide-react'
 
 interface EyebrowBadgeProps {
@@ -6,6 +7,7 @@ interface EyebrowBadgeProps {
   color?: string
   opacity?: number
   className?: string
+  style?: CSSProperties
 }
 
 export function EyebrowBadge({
@@ -14,11 +16,12 @@ export function EyebrowBadge({
   color = 'var(--plattform-white)',
   opacity,
   className,
+  style,
 }: EyebrowBadgeProps) {
   return (
     <div
       className={`self-start inline-flex items-center gap-1 mb-4 px-3 py-1 rounded-md text-small font-normal tracking-widest leading-none${className ? ` ${className}` : ''}`}
-      style={{ background: bg, color, ...(opacity !== undefined ? { opacity } : {}) }}
+      style={{ background: bg, color, ...(opacity !== undefined ? { opacity } : {}), ...style }}
     >
       <Asterisk className="w-[1em] h-[1em] shrink-0" />
       {label}

@@ -82,7 +82,7 @@ export default async function ProjectNewsIndexPage({
         <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
-            <EyebrowBadge label={pd('newsBreadcrumbLabel')} />
+            <EyebrowBadge label={pd('newsBreadcrumbLabel')} style={{ alignSelf: 'center', marginBottom: 0 }} />
           </div>
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t('allTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
