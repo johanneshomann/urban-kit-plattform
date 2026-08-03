@@ -33,16 +33,28 @@ export default function ProjectTemplate({ children }: { children: ReactNode }) {
     const prev = lastPath
     lastPath = pathname
 
-    // Leaving the current page for a deeper one: remember where we were so back
-    // navigation can restore it. When arriving from a shallower page, scroll to
-    // the remembered position once the new content is mounted.
-    if (prev && sameProject(prev, pathname)) {
-      if (depth(pathname) > depth(prev)) {
+    // Deeper navigation: the PREVIOUS page is about to unmount. Its cleanup
+    // below captures the still-visible scroll position BEFORE the new page
+    // paints — capturing in the new mount would already read 0.
+    if (prev && sameProject(prev, pathname) && depth(pathname) > depth(prev)) {
+      return () => {
+        // Cleanup still runs with the old page on screen → correct window.scrollY.
         scrollByPath.set(prev, window.scrollY)
-      } else if (scrollByPath.has(pathname)) {
-        // Defer to next frame so the slide animation has its start state.
-        requestAnimationFrame(() => window.scrollTo(0, scrollByPath.get(pathname) ?? 0))
       }
+    }
+
+    // Back navigation: scroll to the remembered position once the new page has
+    // painted. A single rAF can fire before the story sections (100svh) have
+    // laid out, clamping to top — so we defer twice and fall back with a timer.
+    if (sameProject(prev ?? '', pathname) && scrollByPath.has(pathname)) {
+      const target = scrollByPath.get(pathname) ?? 0
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, target)
+          // Safety net: if the page grew after layout, restore again shortly after.
+          setTimeout(() => window.scrollTo(0, target), 60)
+        })
+      })
     }
   }, [pathname])
 
