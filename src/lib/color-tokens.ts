@@ -35,10 +35,10 @@ export interface PlatformColors {
 }
 
 export const COLOR_DEFAULTS: PlatformColors = {
-  projektesMain:    '#ffd085',
-  projektesLight:   '#ffe3b3',
-  projektesAccent:  '#ffb347',
-  projektesDark:    '#ff9c1a',
+  projektesMain:    '#ffdfab',
+  projektesLight:   '#ffebc9',
+  projektesAccent:  '#ff9c1a',
+  projektesDark:    '#ffb950',
 
   grundlagenMain:   '#d8d9ff',
   grundlagenLight:  '#eeeeff',
