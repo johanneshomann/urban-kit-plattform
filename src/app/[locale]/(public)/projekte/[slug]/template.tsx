@@ -62,5 +62,5 @@ export default function ProjectTemplate({ children }: { children: ReactNode }) {
   const goingDeeper = same && depth(pathname) > depth(lastPath)
   const directionClass = goingDeeper ? 'animate-slide-left' : 'animate-slide-right'
 
-  return <div className={same ? directionClass : ''}>{children}</div>
+  return <div key={pathname} className={same ? directionClass : ''}>{children}</div>
 }
