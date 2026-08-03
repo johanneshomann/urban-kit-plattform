@@ -22,7 +22,9 @@ export async function generateMetadata({
   }
 }
 
-const accentZ = (chunks: ReactNode) => <span style={{ color: 'var(--zusammenarbeit-dark)' }}>{chunks}</span>
+// Text accent on light backgrounds — `-accent` is the darkest tone (the `-dark`
+// token is the mid chip/ball background, mirroring the projekte scheme).
+const accentZ = (chunks: ReactNode) => <span style={{ color: 'var(--zusammenarbeit-accent)' }}>{chunks}</span>
 
 // `nameKey`/`descKey` reference the `module` namespace.
 const MODULES = [
@@ -53,6 +55,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         label={nav('areaCollab')}
         dotColor="var(--zusammenarbeit-accent)"
         activeColor="var(--zusammenarbeit-dark)"
+        switchIconColor="var(--plattform-ink)"
+        labelColor="var(--plattform-ink)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'raum', label: t('roomEyebrow'), icon: 'Layers' },
@@ -60,8 +64,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         ]}
         switchPages={[
           { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--plattform-ink)' },
-          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
-          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
+          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)', iconColor: 'var(--plattform-ink)' },
+          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)', iconColor: 'var(--plattform-ink)' },
         ]}
       />
 
@@ -97,7 +101,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           />
 
           <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-            <EyebrowBadge label={t('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={t('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-ink)" />
 
             <h1 className="text-hero font-black leading-none tracking-tight mb-8">
               {t.rich('heroTitle', { accentZ })}
@@ -122,7 +126,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-ink)" />
             <h2 className="text-title font-black tracking-tight mb-5">
               {t.rich('roomTitle', { accentZ })}
             </h2>
@@ -148,7 +152,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-ink)" />
             <h2 className="text-hero font-black leading-none tracking-tight mb-5">
               {tm.rich('heroTitle', { accentZ })}
             </h2>
@@ -170,7 +174,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label={tm('overviewEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={tm('overviewEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-ink)" />
             <h2 className="text-title font-black tracking-tight mb-12">
               {tm.rich('overviewTitle', { accentZ })}
             </h2>
@@ -184,7 +188,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
                     className="flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white"
                   >
                     <div className="flex items-center gap-2">
-                      <Icon className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--zusammenarbeit-dark)' }} />
+                      <Icon className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--zusammenarbeit-accent)' }} />
                       <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>
                         {tm(m.nameKey)}
                       </h3>

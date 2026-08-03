@@ -28,7 +28,9 @@ export async function generateMetadata({
   }
 }
 
-const accentG = (chunks: ReactNode) => <span style={{ color: 'var(--grundlagen-dark)' }}>{chunks}</span>
+// Text accent on light backgrounds — `-accent` is the darkest tone (the `-dark`
+// token is the mid chip/ball background, mirroring the projekte scheme).
+const accentG = (chunks: ReactNode) => <span style={{ color: 'var(--grundlagen-accent)' }}>{chunks}</span>
 const br = () => <br />
 
 // Tag renderers for the rich article bodies stored in the catalogs.
@@ -85,6 +87,8 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         label={nav('areaBasics')}
         dotColor="var(--grundlagen-accent)"
         activeColor="var(--grundlagen-dark)"
+        switchIconColor="var(--plattform-ink)"
+        labelColor="var(--plattform-ink)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'grundlagen', label: t('basicsEyebrow'), icon: 'BookOpen' },
@@ -95,8 +99,8 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         ]}
         switchPages={[
           { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--plattform-ink)' },
-          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
-          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
+          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)', iconColor: 'var(--plattform-ink)' },
+          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)', iconColor: 'var(--plattform-ink)' },
         ]}
       />
 
@@ -116,7 +120,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
 
         {/* Main content — left-aligned, upper area */}
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentG, br })}
           </h1>
@@ -140,7 +144,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
 
           <h2 className="text-title font-black tracking-tight mb-6">
             {t('basicsTitle')}
@@ -173,7 +177,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t('methodsTitle')}
           </h2>
@@ -261,7 +265,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tp.rich('heroTitle', { accentG })}
           </h2>
@@ -287,7 +291,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tpp.rich('heroTitle', { accentG })}
           </h2>
@@ -313,7 +317,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tr.rich('heroTitle', { accentG })}
           </h2>

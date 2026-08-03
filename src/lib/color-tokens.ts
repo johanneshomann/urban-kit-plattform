@@ -40,15 +40,17 @@ export const COLOR_DEFAULTS: PlatformColors = {
   projektesAccent:  '#ff9c1a',
   projektesDark:    '#ffb950',
 
+  // Role structure mirrors projekte: light/main = surfaces, dark = chip/ball
+  // backgrounds (mid tone), accent = darkest tone for text accents.
   grundlagenMain:   '#d8d9ff',
   grundlagenLight:  '#eeeeff',
-  grundlagenAccent: '#a0a2e8',
-  grundlagenDark:   '#7375c4',
+  grundlagenAccent: '#7375c4',
+  grundlagenDark:   '#a0a2e8',
 
   zusammenarbeitMain:   '#b2deb7',
   zusammenarbeitLight:  '#dff2e1',
-  zusammenarbeitAccent: '#6dbf74',
-  zusammenarbeitDark:   '#3d9445',
+  zusammenarbeitAccent: '#3d9445',
+  zusammenarbeitDark:   '#6dbf74',
 
   plattform:          '#007734',
   plattformLight:     '#f0f0f0',

@@ -35,15 +35,15 @@ const MENUS: Record<string, NavItem[]> = {
   bereiche: [
     {
       href: '/bereich/projekte-archiv', label: 'areaProjects', icon: FolderOpen,
-      hoverColor: 'var(--projekte-dark)', iconColor: 'var(--projekte-dark)',
+      hoverColor: 'var(--projekte-accent)', iconColor: 'var(--projekte-accent)',
     },
     {
       href: '/bereich/zusammenarbeit', label: 'areaCollab', icon: Users,
-      hoverColor: 'var(--zusammenarbeit-dark)', iconColor: 'var(--zusammenarbeit-dark)',
+      hoverColor: 'var(--zusammenarbeit-accent)', iconColor: 'var(--zusammenarbeit-accent)',
     },
     {
       href: '/bereich/grundlagen', label: 'areaBasics', icon: BookOpen,
-      hoverColor: 'var(--grundlagen-dark)', iconColor: 'var(--grundlagen-dark)',
+      hoverColor: 'var(--grundlagen-accent)', iconColor: 'var(--grundlagen-accent)',
     },
   ],
 }

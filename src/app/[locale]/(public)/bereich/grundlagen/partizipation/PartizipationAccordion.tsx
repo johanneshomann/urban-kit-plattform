@@ -30,7 +30,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
                 className="flex items-center justify-center w-[1.4em] h-[1.4em] rounded-full text-small font-black shrink-0 transition-colors duration-200"
                 style={{
                   background: 'var(--grundlagen-dark)',
-                  color: 'white',
+                  color: 'var(--plattform-ink)',
                   filter: isHovered ? 'drop-shadow(0 4px 6px rgba(0,0,0,0.10)) drop-shadow(0 2px 4px rgba(0,0,0,0.10))' : 'none',
                   transition: 'filter 150ms',
                 }}
@@ -45,7 +45,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
               </span>
               <ChevronDown
                 className={`w-[1em] h-[1em] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                style={{ color: 'var(--grundlagen-dark)' }}
+                style={{ color: 'var(--grundlagen-accent)' }}
               />
             </button>
 

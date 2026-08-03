@@ -23,7 +23,7 @@ function StepContent({ step }: { step: ProjektStep }) {
     <div className="space-y-8">
       {/* Title */}
       <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>
-        {step.title}<span style={{ color: 'var(--grundlagen-dark)' }}>.</span>
+        {step.title}<span style={{ color: 'var(--grundlagen-accent)' }}>.</span>
       </h3>
 
       {/* Ziel + Intro */}
@@ -34,7 +34,7 @@ function StepContent({ step }: { step: ProjektStep }) {
       <ul className="flex flex-col gap-2">
         {step.todos.map((todo, i) => (
           <li key={i} className="flex items-start gap-2 text-text" style={{ color: 'var(--plattform-ink)' }}>
-            <Circle className="w-[0.55em] h-[0.55em] shrink-0 mt-[0.4em]" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-dark)' }} />
+            <Circle className="w-[0.55em] h-[0.55em] shrink-0 mt-[0.4em]" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-accent)' }} />
             <span><strong>{todo.bold}</strong>{todo.text ? ` — ${todo.text}` : ''}</span>
           </li>
         ))}
@@ -93,7 +93,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
                 className="flex items-center justify-center w-[1.4em] h-[1.4em] rounded-full text-small font-black shrink-0"
                 style={{
                   background: 'var(--grundlagen-dark)',
-                  color: 'white',
+                  color: 'var(--plattform-ink)',
                   filter: isHovered ? 'drop-shadow(0 4px 6px rgba(0,0,0,0.10)) drop-shadow(0 2px 4px rgba(0,0,0,0.10))' : 'none',
                   transition: 'filter 150ms',
                 }}
@@ -105,7 +105,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
               </span>
               <ChevronDown
                 className={`w-[1em] h-[1em] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                style={{ color: 'var(--grundlagen-dark)' }}
+                style={{ color: 'var(--grundlagen-accent)' }}
               />
             </button>
 
