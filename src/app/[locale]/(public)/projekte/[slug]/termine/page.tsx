@@ -5,8 +5,6 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import type { Where } from 'payload'
-import { PublicNavServer } from '@/components/public/PublicNavServer'
-import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ArrowLeft, CalendarDays, MapPin, Download } from 'lucide-react'
 
@@ -119,9 +117,7 @@ export default async function ProjectTermineIndexPage({
   }
 
   return (
-    <div className="min-h-svh flex flex-col">
-      <PublicNavServer locale={locale} />
-
+    <div className="flex flex-col">
       {/* Header */}
       <section className="px-6 md:px-16 lg:px-24 pt-20 md:pt-28 pb-10 md:pb-14 border-b" style={{ background: 'var(--plattform-light)' }}>
         <EyebrowBadge label={project.title} />
@@ -164,7 +160,6 @@ export default async function ProjectTermineIndexPage({
         )}
       </main>
 
-      <PublicFooter locale={locale} />
     </div>
   )
 }

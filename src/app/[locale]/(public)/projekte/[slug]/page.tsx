@@ -315,9 +315,7 @@ export default async function PublicProjectPage({
   ].filter(Boolean) as { id: string; label: string; icon: string }[]
 
   return (
-    <div className="min-h-svh flex flex-col">
-      <PublicNavServer locale={locale} />
-
+    <div className="flex flex-col">
       <SectionDotsNav items={navSections} label={t('heroEyebrow')} />
 
       {/* Hero — cover image behind a calm white wash, project colour only as badge */}
@@ -790,7 +788,6 @@ export default async function PublicProjectPage({
         </div>
       </section>
 
-      <PublicFooter locale={locale} />
     </div>
   )
 }

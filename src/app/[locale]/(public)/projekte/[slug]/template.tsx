@@ -10,6 +10,7 @@ import { usePathname } from 'next/navigation'
 let lastPath = ''
 
 const depth = (p: string) => p.split('/').filter(Boolean).length
+const projectPrefix = (p: string) => p.split('/').slice(0, 4).join('/')
 
 /**
  * Full-page slide transition wrapper for project sub-pages. On client
@@ -25,9 +26,11 @@ export default function ProjectTemplate({ children }: { children: ReactNode }) {
     lastPath = pathname
   }, [pathname])
 
-  const prevDepth = lastPath ? depth(lastPath) : depth(pathname)
-  const goingDeeper = depth(pathname) > prevDepth
+  // Only animate between pages *inside the same project stack* — entering from
+  // the landing page or another project must not slide. First load: no lastPath.
+  const sameProject = lastPath ? projectPrefix(lastPath) === projectPrefix(pathname) : false
+  const goingDeeper = sameProject && depth(pathname) > depth(lastPath)
   const directionClass = goingDeeper ? 'animate-slide-left' : 'animate-slide-right'
 
-  return <div className={lastPath ? directionClass : ''}>{children}</div>
+  return <div className={sameProject ? directionClass : ''}>{children}</div>
 }

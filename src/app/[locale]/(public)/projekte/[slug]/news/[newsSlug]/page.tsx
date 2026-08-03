@@ -4,8 +4,6 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { lexicalToHtml } from '@/lib/richtext'
-import { PublicNavServer } from '@/components/public/PublicNavServer'
-import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
@@ -125,8 +123,7 @@ export default async function PublicProjectNewsPage({
     : null
 
   return (
-    <div className="min-h-svh flex flex-col">
-      <PublicNavServer locale={locale} />
+    <div className="flex flex-col">
 
       {/* Article header */}
       <section className="relative border-b overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
@@ -184,7 +181,6 @@ export default async function PublicProjectNewsPage({
         </article>
       </main>
 
-      <PublicFooter locale={locale} />
     </div>
   )
 }
