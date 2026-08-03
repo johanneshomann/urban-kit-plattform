@@ -10,6 +10,7 @@ import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
+import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
@@ -19,6 +20,12 @@ import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import {
+  Home,
+  Info,
+  Flag,
+  Layers,
+  Image,
+  Contact,
   FolderOpen,
   Newspaper,
   CalendarDays,
@@ -296,12 +303,26 @@ export default async function PublicProjectPage({
     ? kontakt.website.startsWith('http') ? kontakt.website : `https://${kontakt.website}`
     : null
 
+  // Section rail — mirrors the methodensammlung dot nav. Always-present sections
+  // are hero, about, beteiligung, kontakt; "aktuelles" and "galerie" appear only
+  // when they have content (same conditionals as the sections below).
+  const navSections = [
+    { id: 'hero', label: locale === 'de' ? 'Start' : 'Start', icon: 'Home' },
+    { id: 'about', label: t('aboutEyebrow'), icon: 'Info' },
+    { id: 'beteiligung', label: t('participationEyebrow'), icon: 'Flag' },
+    hasAktuelles && { id: 'aktuelles', label: t('aktuellesEyebrow'), icon: 'Layers' },
+    galleryImages.length > 0 && { id: 'galerie', label: t('galerieEyebrow'), icon: 'Image' },
+    { id: 'kontakt', label: t('joinEyebrow'), icon: 'Contact' },
+  ].filter(Boolean) as { id: string; label: string; icon: string }[]
+
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
 
+      <SectionDotsNav items={navSections} label={t('heroEyebrow')} />
+
       {/* Hero — cover image behind a calm white wash, project colour only as badge */}
-      <section className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden border-b" style={{ background: 'var(--plattform-light)' }}>
+      <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="absolute inset-0" aria-hidden="true">
           <img src={coverSrc} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-white/85" />
@@ -341,7 +362,7 @@ export default async function PublicProjectPage({
       </section>
 
       {/* Über das Projekt */}
-      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      <section id="about" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="w-full">
           <EyebrowBadge label={t('aboutEyebrow')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-10">
@@ -434,7 +455,7 @@ export default async function PublicProjectPage({
       </section>
 
       {/* Beteiligung */}
-      <section className="relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
+      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
         <Megaphone
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -523,7 +544,7 @@ export default async function PublicProjectPage({
       {/* Aktuelles — public news & events. Blocks without content don't render:
           empty states are for members who can act on them, not for visitors. */}
       {hasAktuelles && (
-        <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+        <section id="aktuelles" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
           <div className="w-full">
             <EyebrowBadge label={t('aktuellesEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
@@ -649,7 +670,7 @@ export default async function PublicProjectPage({
 
       {/* Galerie — grid for a few images, horizontal snap strip for many */}
       {galleryImages.length > 0 && (
-        <section className="px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
+        <section id="galerie" className="scroll-mt-20 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
           <div className="w-full">
             <EyebrowBadge label={t('galerieEyebrow')} opacity={0.6} />
             <h2 className="text-title font-black tracking-tight mb-12">
@@ -689,7 +710,7 @@ export default async function PublicProjectPage({
       )}
 
       {/* Kontakt & Mitmachen */}
-      <section className="relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      <section id="kontakt" className="scroll-mt-20 relative overflow-hidden px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
         <HandHeart
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}

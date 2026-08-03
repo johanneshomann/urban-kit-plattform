@@ -52,7 +52,7 @@ src/
     [locale]/(public)/      # Portal: frontpage, bereich/*, projekte/[slug], legal
     [locale]/(platform)/    # Workspace: login/register, dashboard/** (incl. manage/)
     api/                    # custom routes: chat/*, internal/*, rss, ics, search, urban-agent
-  components/               # platform/, public/, payload/, ui/, accessibility/
+  components/               # platform/, public/ (incl. SectionDotsNav), payload/, ui/, accessibility/
   lib/                      # auth, access, visibility, theme, options, defaults, helpers
   i18n/                     # next-intl routing, navigation, request
   styles/                   # globals.css (design tokens, Tailwind)
