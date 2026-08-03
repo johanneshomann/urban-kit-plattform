@@ -47,6 +47,8 @@ interface SectionDotsNavProps {
    * color) that expands to reveal the other Bereich pages as icon links.
    */
   switchPages?: SwitchPage[]
+  /** Icon color on the switch ball; defaults to `--plattform-white` (projekte chips use ink). */
+  switchIconColor?: string
   /** Rail-wide idle dot color; defaults to `--plattform`. */
   dotColor?: string
   /** Rail-wide active/bubble color; defaults to `--plattform-accent`. */
@@ -62,7 +64,7 @@ interface SectionDotsNavProps {
  *   current Bereich; the current page renders filled.
  * Desktop-only by design (hidden below `md`).
  */
-export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], dotColor, activeColor }: SectionDotsNavProps) {
+export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], switchIconColor, dotColor, activeColor }: SectionDotsNavProps) {
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [revealId, setRevealId] = useState<string | null>(null)
@@ -227,7 +229,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
                   >
                     <SwitchIcon
                       className={`w-4 h-4 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
-                      style={{ color: 'var(--plattform-white)' }}
+                      style={{ color: switchIconColor ?? 'var(--plattform-white)' }}
                     />
                   </span>
                 )
