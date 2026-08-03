@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { lexicalToHtml } from '@/lib/richtext'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
+import { ProjectBackButton } from '@/components/public/ProjectBackButton'
 import { CtaButton } from '@/components/public/CtaButton'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
 import { getUser } from '@/lib/auth/getUser'
@@ -130,7 +131,15 @@ export default async function PublicProjectNewsPage({
         {/* Project colour bar — the page's "badge" */}
         <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: scheme.mid }} />
         <div className="px-6 md:px-16 lg:px-24 pt-20 md:pt-28 pb-10 md:pb-14">
-          <EyebrowBadge label={project.title} bg={scheme.light} color={scheme.dark} />
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
+            <EyebrowBadge
+              label={project.title}
+              bg={scheme.light}
+              color={scheme.dark}
+              style={{ alignSelf: 'center', marginBottom: 0 }}
+            />
+          </div>
           <h1 className="text-title font-black leading-tight tracking-tight mb-5 max-w-4xl">
             {post.title}<span style={{ color: 'var(--plattform)' }}>.</span>
           </h1>

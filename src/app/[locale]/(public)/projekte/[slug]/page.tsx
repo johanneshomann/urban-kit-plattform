@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
@@ -12,6 +11,7 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { GalleryLightbox } from '@/components/public/GalleryLightbox'
+import { AktuellesSection, type AktuellesNewsPost, type AktuellesCalEvent } from '@/components/public/AktuellesSection'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
@@ -28,16 +28,12 @@ import {
   Image,
   Contact,
   FolderOpen,
-  Newspaper,
-  CalendarDays,
-  MapPin,
   Mail,
   Phone,
   Globe,
   UserRound,
   HandHeart,
   Megaphone,
-  Download,
   BarChart3,
   Check,
 } from 'lucide-react'
@@ -75,9 +71,6 @@ type Project = {
   } | null
   ansprechperson?: { firstName?: string | null; lastName?: string | null; email?: string | null } | null
 }
-
-type NewsPost = { id: string; title: string; slug: string; publishedAt?: string | null }
-type CalEvent = { id: string; title: string; startDate: string; location?: string | null }
 
 async function getPublicProject(slug: string): Promise<Project | null> {
   try {
@@ -126,11 +119,6 @@ export async function generateMetadata({
   }
 }
 
-const formatDate = (iso: string | null | undefined, dateLocale: string) =>
-  iso
-    ? new Date(iso).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })
-    : null
-
 export default async function PublicProjectPage({
   params,
 }: {
@@ -167,8 +155,10 @@ export default async function PublicProjectPage({
   const modules: string[] = project.modules ?? ['news', 'calendar']
   const now = new Date().toISOString()
 
-  // Public news & upcoming public events — only for enabled modules
-  const [newsResult, eventsResult] = await Promise.all([
+  // Public news & events — full lists for the expandable "Aktuelles" section.
+  // Upcoming and past events are both always fetched so the section's sort
+  // toggle can merge them either way.
+  const [newsResult, upcomingResult, pastResult] = await Promise.all([
     modules.includes('news')
       ? payload.find({
           collection: 'news-posts',
@@ -180,7 +170,7 @@ export default async function PublicProjectPage({
             ],
           },
           sort: '-publishedAt',
-          limit: 3,
+          limit: 100,
           depth: 0,
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))
@@ -196,20 +186,13 @@ export default async function PublicProjectPage({
             ],
           },
           sort: 'startDate',
-          limit: 3,
+          limit: 100,
           depth: 0,
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))
       : Promise.resolve({ docs: [] }),
-  ])
-  const newsPosts = newsResult.docs as unknown as NewsPost[]
-  const upcomingEvents = eventsResult.docs as unknown as CalEvent[]
-
-  // No upcoming events → fall back to the most recent past ones, so finished
-  // projects show their event history instead of a permanent empty state.
-  const pastEvents: CalEvent[] =
-    modules.includes('calendar') && upcomingEvents.length === 0
-      ? ((await payload.find({
+    modules.includes('calendar')
+      ? payload.find({
           collection: 'calendar-events',
           where: {
             and: [
@@ -219,13 +202,15 @@ export default async function PublicProjectPage({
             ],
           },
           sort: '-startDate',
-          limit: 3,
+          limit: 100,
           depth: 0,
           overrideAccess: true,
-        }).catch(() => ({ docs: [] }))).docs as unknown as CalEvent[])
-      : []
-  const calEvents = upcomingEvents.length > 0 ? upcomingEvents : pastEvents
-  const eventsArePast = upcomingEvents.length === 0 && pastEvents.length > 0
+        }).catch(() => ({ docs: [] }))
+      : Promise.resolve({ docs: [] }),
+  ])
+  const newsPosts = newsResult.docs as unknown as AktuellesNewsPost[]
+  const upcomingEvents = upcomingResult.docs as unknown as AktuellesCalEvent[]
+  const pastEvents = pastResult.docs as unknown as AktuellesCalEvent[]
 
   // Public polls — active/closed polls visible to the public tier (anonymous voting where allowed)
   const publicPolls = modules.includes('polls')
@@ -245,7 +230,7 @@ export default async function PublicProjectPage({
     ? (await payload.count({ collection: 'file-uploads', where: { and: [{ project: { equals: project.id } }, { visibility: { equals: 'PUBLIC' } }] }, overrideAccess: true }).catch(() => ({ totalDocs: 0 }))).totalDocs
     : 0
 
-  const hasAktuelles = newsPosts.length > 0 || calEvents.length > 0 || publicPolls.length > 0 || publicFilesCount > 0
+  const hasAktuelles = newsPosts.length > 0 || upcomingEvents.length > 0 || pastEvents.length > 0 || publicPolls.length > 0 || publicFilesCount > 0
 
   // richText → HTML
   const beschreibungHtml = project.projektbeschreibung
@@ -361,7 +346,7 @@ export default async function PublicProjectPage({
       {/* Über das Projekt */}
       <section id="about" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
         <div className="w-full">
-          <EyebrowBadge label={t('aboutEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('aboutEyebrow')} />
           <h2 className="text-title font-black tracking-tight mb-10">
             {t.rich('aboutTitle', { accent })}
           </h2>
@@ -455,96 +440,19 @@ export default async function PublicProjectPage({
       {hasAktuelles && (
         <section id="aktuelles" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
-            <EyebrowBadge label={t('aktuellesEyebrow')} opacity={0.6} />
+            <EyebrowBadge label={t('aktuellesEyebrow')} />
             <h2 className="text-title font-black tracking-tight mb-12">
               {t.rich('aktuellesTitle', { accent })}
             </h2>
 
-            <div className={`grid grid-cols-1 gap-12 items-start ${newsPosts.length > 0 && calEvents.length > 0 ? 'lg:grid-cols-2' : ''}`}>
-              {/* News */}
-              {newsPosts.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-6">
-                    <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                    <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
-                    <Link href={`/${locale}/projekte/${project.slug}/news`} className="ml-auto text-small hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>{t('newsAllCta')}</Link>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    {newsPosts.map((n, i) => (
-                      <div key={n.id} className="card-in" style={{ animationDelay: `${i * 60}ms` }}>
-                        <Link
-                          href={`/${locale}/projekte/${project.slug}/news/${n.slug}`}
-                          className="group block bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
-                        >
-                          {n.publishedAt && (
-                            <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                              {formatDate(n.publishedAt, dateLocale)}
-                            </p>
-                          )}
-                          <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
-                            {n.title}
-                          </p>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Termine — upcoming, or the most recent past ones as history */}
-              {calEvents.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-6">
-                    <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-                    <h3 className="text-display font-black tracking-tight">
-                      {eventsArePast ? t('termineVergangen') : t('termineHeading')}
-                    </h3>
-                    <Link href={`/${locale}/projekte/${project.slug}/termine`} className="ml-auto text-small hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>{t('termineAllCta')}</Link>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    {calEvents.map((ev, i) => {
-                      const d = new Date(ev.startDate)
-                      return (
-                        <div key={ev.id} className="card-in flex items-center gap-5 bg-white rounded-xl p-6 shadow-sm" style={{ animationDelay: `${i * 60}ms` }}>
-                          <div
-                            className="shrink-0 w-16 rounded-lg py-2 text-center"
-                            style={{ background: 'var(--plattform-light)', opacity: eventsArePast ? 0.7 : 1 }}
-                          >
-                            <p className="text-display font-black leading-none" style={{ color: 'var(--plattform-ink-accent)' }}>
-                              {d.toLocaleDateString(dateLocale, { day: '2-digit' })}
-                            </p>
-                            <p className="text-small uppercase tracking-widest" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
-                              {d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')}
-                            </p>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
-                              {ev.title}
-                            </p>
-                            {ev.location && (
-                              <p className="flex items-center gap-1.5 text-small mt-1" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
-                                <MapPin className="w-[1em] h-[1em] shrink-0" />
-                                {ev.location}
-                              </p>
-                            )}
-                          </div>
-                          {!eventsArePast && (
-                            <a
-                              href={`/api/ics/event/${ev.id}`}
-                              title={t('addToCalendar')}
-                              className="shrink-0 p-2 rounded-lg transition-opacity opacity-60 hover:opacity-100"
-                              style={{ color: 'var(--plattform-ink)' }}
-                            >
-                              <Download className="w-[1.1em] h-[1.1em] shrink-0" />
-                            </a>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+            <AktuellesSection
+              locale={locale}
+              dateLocale={dateLocale}
+              slug={project.slug}
+              posts={newsPosts}
+              upcoming={upcomingEvents}
+              past={pastEvents}
+            />
 
             {/* Umfragen — public polls (themed for --project-* vars) */}
             {publicPolls.length > 0 && (
@@ -580,7 +488,7 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('participationChip')} opacity={0.6} />
+          <EyebrowBadge label={t('participationChip')} />
           <h2 className="text-title font-black tracking-tight mb-12">
             {t.rich('participationTitle', { project: project.title, accent })}
           </h2>
@@ -714,7 +622,7 @@ export default async function PublicProjectPage({
       {galleryImages.length > 0 && (
         <section id="galerie" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
-            <EyebrowBadge label={t('galerieEyebrow')} opacity={0.6} />
+            <EyebrowBadge label={t('galerieEyebrow')} />
             <h2 className="text-title font-black tracking-tight mb-12">
               {t.rich('galerieTitle', { accent })}
             </h2>
@@ -732,7 +640,7 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('joinEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('joinEyebrow')} />
           <h2 className="text-title font-black tracking-tight mb-5">
             {t.rich('joinTitle', { accent })}
           </h2>
