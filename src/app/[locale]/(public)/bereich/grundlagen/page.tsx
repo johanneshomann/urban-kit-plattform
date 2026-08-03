@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
-import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
@@ -8,10 +7,11 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { CtaButton } from '@/components/public/CtaButton'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
-import { BookOpen, ExternalLink, Handshake, Route, Scale, type LucideIcon } from 'lucide-react'
+import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
+import { getMethodTeasers, METHODEN_URL } from '@/lib/methodensammlung'
 
 export async function generateMetadata({
   params,
@@ -45,14 +45,6 @@ const richTags = {
 const PARTIZIPATION_KEYS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11']
 const RECHT_KEYS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7']
 
-// `titleKey`/`textKey` reference the `grundlagen` namespace; hrefs anchor the
-// on-page chapters below.
-const GRUNDLAGEN: { href: string; titleKey: string; icon: LucideIcon; textKey: string }[] = [
-  { href: '#partizipation', titleKey: 'cardPartTitle', icon: Handshake, textKey: 'cardPartText' },
-  { href: '#projektplanung', titleKey: 'cardPlanTitle', icon: Route, textKey: 'cardPlanText' },
-  { href: '#recht', titleKey: 'cardLawTitle', icon: Scale, textKey: 'cardLawText' },
-]
-
 export default async function BereichGrundlagenPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const [t, tp, tpp, tr, tax, nav] = await Promise.all([
@@ -72,6 +64,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     title: tr(`${k}Title`),
     content: tr.rich(`${k}Body`, richTags),
   }))
+  const methodTeasers = await getMethodTeasers(locale === 'en' ? 'en' : 'de', 6)
   const projektSteps: ProjektStep[] = PROJEKTPHASEN.map((phase, i) => ({
     phase: tax(`phase.${phase.value}`),
     title: tpp(`s${i}Title`),
@@ -97,8 +90,9 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           { id: 'recht', label: nav('legalFramework'), icon: 'Scale' },
         ]}
         switchPages={[
-          { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)' },
+          { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--plattform-ink)' },
           { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
+          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
         ]}
       />
 
@@ -129,74 +123,9 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
 
       </section>
 
-      {/* Grundlagen */}
+      {/* Grundlagen — what this Bereich is for; fades into the Methoden chapter */}
       <section
         id="grundlagen"
-        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
-        style={{ background: 'var(--grundlagen-light)' }}
-      >
-        <div className="relative z-10 w-full">
-        <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
-
-        <h2 className="text-title font-black tracking-tight mb-6">
-          {t('basicsTitle')}
-        </h2>
-
-        <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
-          {t('basicsBody')}
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {GRUNDLAGEN.map((item) => {
-            const Icon = item.icon
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="group flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white hover:bg-[var(--grundlagen-light)]"
-              >
-                <div className="flex items-center gap-2">
-                  <Icon className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--grundlagen-dark)' }} />
-                  <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>{t(item.titleKey)}</h3>
-                </div>
-                <p className="text-text flex-1" style={{ color: 'var(--plattform-ink)' }}>{t(item.textKey)}</p>
-                <span className="text-small opacity-60 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--plattform-ink)' }}>
-                  {t('readMore')}
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-
-        {/* Methoden — two cards */}
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <Link
-            href="#methoden"
-            className="group flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white hover:bg-[var(--grundlagen-light)]"
-          >
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--grundlagen-dark)' }} />
-              <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>{t('whatMethodsTitle')}</h3>
-            </div>
-          </Link>
-          <a
-            href="https://methoden.urbankit.de"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white hover:bg-[var(--grundlagen-light)]"
-          >
-            <div className="flex items-center gap-2">
-              <ExternalLink className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--grundlagen-dark)' }} />
-              <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>{t('methodsCollection')}</h3>
-            </div>
-          </a>
-        </div>
-        </div>
-      </section>
-
-      {/* Methoden */}
-      <section
-        id="methoden"
         className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
         style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}
       >
@@ -207,13 +136,76 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+
           <h2 className="text-title font-black tracking-tight mb-6">
+            {t('basicsTitle')}
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4 max-w-5xl">
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('basicsBody')}
+            </p>
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('basicsP2')}
+            </p>
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('basicsP3')}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Methoden — chapter hero: continuous main block with the method teasers below */}
+      <section
+        id="methoden"
+        className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
+        style={{ background: 'var(--grundlagen)' }}
+      >
+        <BookOpen
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+          strokeWidth={1}
+          aria-hidden="true"
+          style={{ color: 'var(--grundlagen-dark)' }}
+        />
+        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
+          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t('methodsTitle')}
           </h2>
-          <p className="text-text leading-relaxed max-w-2xl mb-10" style={{ color: 'var(--plattform-ink)' }}>
+          <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
             {t('methodsBody')}
           </p>
+        </div>
+      </section>
+
+      {/* Method teasers — six published methods pulled from the Methodensammlung API */}
+      <section
+        className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'var(--grundlagen)' }}
+      >
+        <div className="relative z-10 w-full">
+          {methodTeasers.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+              {methodTeasers.map((m) => (
+                <a
+                  key={m.id}
+                  href={`${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white"
+                >
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-[1.1em] h-[1.1em] shrink-0 text-text opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--grundlagen-dark)' }} />
+                    <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>{m.title}</h3>
+                  </div>
+                  {m.auszug && (
+                    <p className="text-text line-clamp-3" style={{ color: 'var(--plattform-ink)' }}>{m.auszug}</p>
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
           <CtaButton
             href="https://methoden.urbankit.de"
             label={t('methodsCta')}
