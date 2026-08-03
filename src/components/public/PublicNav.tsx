@@ -4,9 +4,8 @@ import Link from 'next/link'
 import { useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, CircleChevronDown, Menu, X, Home, Folders, Flag, Mail, Info, Archive, Users, BookOpen, Circle, ExternalLink, FolderOpen, Handshake, Route, Scale, Layout } from 'lucide-react'
+import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, Menu, X, Home, Folders, Flag, Mail, Info, Users, BookOpen, FolderOpen } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { BereichSwitcher } from '@/components/public/BereichSwitcher'
 import { LanguageSwitcher } from '@/components/public/LanguageSwitcher'
 
 interface PublicNavProps {
@@ -20,47 +19,36 @@ interface PublicNavProps {
 const CLOSE_DURATION = 280
 
 
-type SubLink = { href: string; label: string; external?: boolean; icon?: LucideIcon }
-type NavItem = { href: string; label: string; icon: LucideIcon; hoverColor?: string; dotColor?: string; subLinks?: SubLink[] }
+type NavItem = { href: string; label: string; icon: LucideIcon; hoverColor?: string; iconColor?: string }
 
-// `label` holds a translation key resolved via t() at render time.
+// `label` holds a translation key resolved via t() at render time. Bereich
+// entries use the same icon as their page hero's ghost illustration, tinted in
+// the Bereich's dark color.
 const MENUS: Record<string, NavItem[]> = {
   allgemein: [
     { href: '/', label: 'home', icon: Home },
     { href: '/bereich/projekte-archiv/alle-projekte', label: 'allProjects', icon: Folders },
     { href: '/starten', label: 'start', icon: Flag },
+    { href: '/ueber-urbankit', label: 'aboutExplained', icon: Info },
     { href: '/kontakt', label: 'contact', icon: Mail },
   ],
-  informationen: [
-    { href: '/ueber-urbankit', label: 'aboutExplained', icon: Info },
+  bereiche: [
     {
-      href: '/bereich/projekte-archiv', label: 'areaProjects', icon: Archive,
-      hoverColor: 'var(--projekte-dark)', dotColor: 'var(--projekte-dark)',
-      subLinks: [
-        { href: '/bereich/projekte-archiv/alle-projekte', label: 'allProjects', icon: FolderOpen },
-      ],
+      href: '/bereich/projekte-archiv', label: 'areaProjects', icon: FolderOpen,
+      hoverColor: 'var(--projekte-dark)', iconColor: 'var(--projekte-dark)',
     },
     {
       href: '/bereich/zusammenarbeit', label: 'areaCollab', icon: Users,
-      hoverColor: 'var(--zusammenarbeit-dark)', dotColor: 'var(--zusammenarbeit-dark)',
-      subLinks: [
-        { href: '/bereich/zusammenarbeit/module', label: 'modules', icon: Layout },
-      ],
+      hoverColor: 'var(--zusammenarbeit-dark)', iconColor: 'var(--zusammenarbeit-dark)',
     },
     {
       href: '/bereich/grundlagen', label: 'areaBasics', icon: BookOpen,
-      hoverColor: 'var(--grundlagen-dark)', dotColor: 'var(--grundlagen-dark)',
-      subLinks: [
-        { href: 'https://methoden.urbankit.de', label: 'methods', external: true, icon: ExternalLink },
-        { href: '/bereich/grundlagen/partizipation', label: 'participation', icon: Handshake },
-        { href: '/bereich/grundlagen/projektplanung', label: 'projectPlanning', icon: Route },
-        { href: '/bereich/grundlagen/recht', label: 'legalFramework', icon: Scale },
-      ],
+      hoverColor: 'var(--grundlagen-dark)', iconColor: 'var(--grundlagen-dark)',
     },
   ],
 }
 
-type MenuKey = 'allgemein' | 'informationen'
+type MenuKey = 'allgemein' | 'bereiche'
 
 function useAnimatedOpen(duration: number) {
   const [active, setActive] = useState(false)
@@ -91,8 +79,6 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
   const [activeMenu, setActiveMenu] = useState<MenuKey | null>(null)
   const [desktopClosing, setDesktopClosing] = useState(false)
   const [dropdownLeft, setDropdownLeft] = useState(0)
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null)
-  const [mobileOpenAccordion, setMobileOpenAccordion] = useState<string | null>(null)
   const desktopTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const desktopClose = useCallback(() => {
@@ -102,7 +88,6 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
       desktopTimer.current = setTimeout(() => {
         setActiveMenu(null)
         setDesktopClosing(false)
-        setOpenAccordion(null)
       }, CLOSE_DURATION)
     }, 220)
   }, [])
@@ -117,14 +102,6 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
   const desktopCancelClose = useCallback(() => {
     if (desktopTimer.current) clearTimeout(desktopTimer.current)
     setDesktopClosing(false)
-  }, [])
-
-  const toggleDesktopAccordion = useCallback((href: string) => {
-    setOpenAccordion(prev => prev === href ? null : href)
-  }, [])
-
-  const toggleMobileAccordion = useCallback((href: string) => {
-    setMobileOpenAccordion(prev => prev === href ? null : href)
   }, [])
 
   const mobile = useAnimatedOpen(CLOSE_DURATION)
@@ -149,7 +126,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
         {/* Desktop triggers — left */}
         <div>
         <div className="hidden md:flex items-center gap-8">
-          {(['allgemein', 'informationen'] as MenuKey[]).map((key) => {
+          {(['allgemein', 'bereiche'] as MenuKey[]).map((key) => {
             const active = activeMenu === key && !desktopClosing
             return (
               <button
@@ -235,67 +212,22 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
           >
             <div key={activeMenu} className={`${desktopClosing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-white border border-t-0 rounded-b-xl shadow-md`}>
               <div className="px-6 py-6 flex flex-col gap-1">
-                {MENUS[activeMenu].map(({ href, label, icon: Icon, hoverColor, dotColor, subLinks }) => {
+                {MENUS[activeMenu].map(({ href, label, icon: Icon, hoverColor, iconColor }) => {
                   const active = isActive(href)
                   const activeColor = hoverColor ?? 'var(--plattform-ink-accent)'
                   return (
-                  <div key={href}>
-                    <div className="flex items-center justify-between gap-2 py-1.5">
-                      <Link
-                        href={`${l}${href}`}
-                        onClick={desktopClose}
-                        className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
-                        style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
-                        onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
-                      >
-                        {dotColor
-                          ? <Circle className="text-text w-[1em] h-[1em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: dotColor }} />
-                          : <Icon className="text-text w-[1em] h-[1em] shrink-0" />
-                        }
-                        {t(label)}
-                      </Link>
-                      {subLinks && (
-                        <button
-                          onClick={() => toggleDesktopAccordion(href)}
-                          className="p-2 -mr-2 rounded transition-colors text-[var(--plattform-ink)]"
-                          style={{ color: openAccordion === href ? (hoverColor ?? 'var(--plattform)') : undefined }}
-                          onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                          onMouseLeave={e => (e.currentTarget.style.color = openAccordion === href ? (hoverColor ?? 'var(--plattform)') : '')}
-                        >
-                          <CircleChevronDown className={`text-text w-[1em] h-[1em] shrink-0 transition-transform duration-200 ${openAccordion === href ? 'rotate-180' : ''}`} />
-                        </button>
-                      )}
-                    </div>
-
-                    {subLinks && (
-                      <div className={`grid transition-all duration-200 ease-in-out ${openAccordion === href ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                        <div className="overflow-hidden">
-                          <div className="pl-6 flex flex-col gap-0 pt-0.5 pb-1">
-                            {subLinks.map((sub) => {
-                              const SubIcon = sub.icon
-                              const subActive = !sub.external && isActive(sub.href)
-                              return (
-                                <Link
-                                  key={sub.href}
-                                  href={sub.external ? sub.href : `${l}${sub.href}`}
-                                  target={sub.external ? '_blank' : undefined}
-                                  rel={sub.external ? 'noopener noreferrer' : undefined}
-                                  onClick={desktopClose}
-                                  className={`flex items-center gap-1.5 text-small py-0.5 transition-colors ${subActive ? 'font-bold' : 'font-normal'}`}
-                                  style={{ color: subActive ? activeColor : 'var(--plattform-ink)' }}
-                                  onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                                  onMouseLeave={e => (e.currentTarget.style.color = subActive ? activeColor : 'var(--plattform-ink)')}
-                                >
-                                  {SubIcon && <SubIcon className="text-small w-[1em] h-[1em] shrink-0" />}
-                                  {t(sub.label)}
-                                </Link>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  <div key={href} className="flex items-center justify-between gap-2 py-1.5">
+                    <Link
+                      href={`${l}${href}`}
+                      onClick={desktopClose}
+                      className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
+                      style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
+                    >
+                      <Icon className="text-text w-[1em] h-[1em] shrink-0" style={iconColor ? { color: iconColor } : undefined} />
+                      {t(label)}
+                    </Link>
                   </div>
                   )
                 })}
@@ -305,7 +237,6 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
         )}
       </header>
 
-      <BereichSwitcher locale={locale} />
 
       {/* Mobile click-outside backdrop */}
       {mobile.active && (
@@ -340,69 +271,25 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             {/* Divider */}
             <div className="my-3 border-t" style={{ borderColor: 'var(--plattform-ink)', opacity: 0.15 }} />
 
-            {/* Informationen */}
+            {/* Bereiche */}
             <div>
               <div className="flex flex-col gap-1">
-                {MENUS.informationen.map(({ href, label, icon: Icon, dotColor, hoverColor, subLinks }) => {
+                {MENUS.bereiche.map(({ href, label, icon: Icon, iconColor, hoverColor }) => {
                   const active = isActive(href)
                   const activeColor = hoverColor ?? 'var(--plattform-ink-accent)'
                   return (
-                  <div key={href}>
-                    <div className="flex items-center justify-between py-2">
-                      <Link
-                        href={`${l}${href}`}
-                        onClick={mobile.close}
-                        className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
-                        style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
-                        onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
-                      >
-                        {dotColor
-                          ? <Circle className="text-text w-[1em] h-[1em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: dotColor }} />
-                          : <Icon className="text-text w-[1em] h-[1em] shrink-0" />
-                        }
-                        {t(label)}
-                      </Link>
-                      {subLinks && (
-                        <button
-                          onClick={() => toggleMobileAccordion(href)}
-                          className="p-2 -mr-2 rounded transition-colors text-[var(--plattform-ink)]"
-                          style={{ color: mobileOpenAccordion === href ? (hoverColor ?? 'var(--plattform)') : undefined }}
-                          onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                          onMouseLeave={e => (e.currentTarget.style.color = mobileOpenAccordion === href ? (hoverColor ?? 'var(--plattform)') : '')}
-                        >
-                          <CircleChevronDown className={`text-text w-[1.2em] h-[1.2em] shrink-0 transition-transform duration-200 ${mobileOpenAccordion === href ? 'rotate-180' : ''}`} />
-                        </button>
-                      )}
-                    </div>
-                    {subLinks && (
-                      <div className={`grid transition-all duration-200 ease-in-out ${mobileOpenAccordion === href ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                        <div className="overflow-hidden">
-                          <div className="pl-7 flex flex-col gap-0 pt-0.5 pb-1">
-                            {subLinks.map((sub) => {
-                              const SubIcon = sub.icon
-                              const subActive = !sub.external && isActive(sub.href)
-                              return (
-                                <Link
-                                  key={sub.href}
-                                  href={sub.external ? sub.href : `${l}${sub.href}`}
-                                  target={sub.external ? '_blank' : undefined}
-                                  rel={sub.external ? 'noopener noreferrer' : undefined}
-                                  onClick={mobile.close}
-                                  className={`flex items-center gap-1.5 py-0.5 text-small transition-colors ${subActive ? 'font-bold' : 'font-normal'}`}
-                                  style={{ color: subActive ? activeColor : 'var(--plattform-ink)' }}
-                                  onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                                  onMouseLeave={e => (e.currentTarget.style.color = subActive ? activeColor : 'var(--plattform-ink)')}
-                                >
-                                  {SubIcon && <SubIcon className="text-small w-[1em] h-[1em] shrink-0" />}
-                                  {t(sub.label)}
-                                </Link>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  <div key={href} className="flex items-center justify-between py-2">
+                    <Link
+                      href={`${l}${href}`}
+                      onClick={mobile.close}
+                      className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
+                      style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
+                    >
+                      <Icon className="text-text w-[1em] h-[1em] shrink-0" style={iconColor ? { color: iconColor } : undefined} />
+                      {t(label)}
+                    </Link>
                   </div>
                   )
                 })}
