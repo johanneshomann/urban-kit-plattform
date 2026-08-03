@@ -2,6 +2,9 @@
 
 :root {
   --plattform-content-width: 72rem;
+  /* Height of the color melt at the bottom of full-vh sections (hero → content etc.).
+     Sections fade via linear-gradient(... calc(100% - var(--section-fade-height)), <next color>). */
+  --section-fade-height: 120px;
 }
 
 @keyframes slide-left-enter {
