@@ -37,7 +37,6 @@ import {
   UserRound,
   HandHeart,
   Megaphone,
-  Rss,
   Download,
   BarChart3,
 } from 'lucide-react'
@@ -560,14 +559,6 @@ export default async function PublicProjectPage({
                     <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                     <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
                     <Link href={`/${locale}/projekte/${project.slug}/news`} className="ml-auto text-small hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>{t('newsAllCta')}</Link>
-                    <a
-                      href={`/api/rss?project=${project.slug}`}
-                      className="ml-auto inline-flex items-center gap-1.5 text-small hover:underline"
-                      style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}
-                    >
-                      <Rss className="w-[1em] h-[1em] shrink-0" />
-                      RSS
-                    </a>
                   </div>
                   <div className="flex flex-col gap-4">
                     {newsPosts.map((n, i) => (
