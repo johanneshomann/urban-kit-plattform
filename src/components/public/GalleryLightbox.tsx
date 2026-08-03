@@ -73,12 +73,12 @@ export function GalleryLightbox({ images, locale }: { images: GalleryImage[]; lo
               key={i}
               type="button"
               onClick={() => setOpenIndex(i)}
-              aria-label={img.caption || img.alt || t('galleryImage', { n: i + 1 })}
+              aria-label={img.caption || t('galleryImage', { n: i + 1 })}
               className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-zoom-in"
             >
               <img
                 src={img.url}
-                alt={img.alt ?? img.caption ?? ''}
+                alt={img.caption ?? ''}
                 className="w-full h-48 sm:h-56 object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
@@ -91,7 +91,11 @@ export function GalleryLightbox({ images, locale }: { images: GalleryImage[]; lo
             <div
               aria-hidden
               className="pointer-events-none absolute inset-x-0 bottom-0 h-24 z-10 transition-opacity duration-300"
-              style={{ background: `linear-gradient(to bottom, transparent, ${expanded ? 'transparent' : 'var(--plattform-light)'})` }}
+              style={{
+                background: 'linear-gradient(to bottom, transparent, var(--plattform-light))',
+                opacity: expanded ? 0 : 1,
+                transition: 'opacity 0.35s ease',
+              }}
             />
             <button
               type="button"
@@ -145,9 +149,9 @@ export function GalleryLightbox({ images, locale }: { images: GalleryImage[]; lo
 
           <figure key={openIndex} className="lightbox-zoom flex flex-col items-center gap-3 max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             <img src={items[openIndex].url} alt={items[openIndex].alt ?? ''} className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-lg" />
-            {(items[openIndex].caption || items[openIndex].alt) && (
+            {items[openIndex].caption && (
               <figcaption className="text-small text-center px-4" style={{ color: 'var(--plattform-white)' }}>
-                {items[openIndex].caption || items[openIndex].alt}
+                {items[openIndex].caption}
               </figcaption>
             )}
           </figure>

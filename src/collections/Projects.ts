@@ -59,6 +59,10 @@ export const Projects: CollectionConfig = {
       name: 'gallery',
       type: 'array',
       label: { en: 'Gallery', de: 'Galerie' },
+      labels: {
+        singular: { en: 'Gallery image', de: 'Galeriebild' },
+        plural: { en: 'Gallery images', de: 'Galeriebilder' },
+      },
       defaultValue: async ({ req }) => {
         try {
           const media = await ensureDefaultMedia(req.payload)
