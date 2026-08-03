@@ -67,6 +67,8 @@
     "aboutBody": "UrbanKIT is the digital tool for citizen participation in {city}. It shows what is being planned and provides space for questions, discussion and your own voice – to actively help shape decisions.",
     "aboutCta": "UrbanKIT explained",
     "sectionsEyebrow": "Orientation",
+    "dotSections": "The three areas",
+    "dotProjects": "All projects",
     "sectionsTitle": "Three areas<accent>.</accent> One goal<accent>.</accent>",
     "sectionsBody": "UrbanKIT brings participation together in one place and separates it visibly by colour: making projects visible, enabling collaboration and opening up knowledge – a place to stay informed and to help shape projects.",
     "areaProjectsTitle": "Projects & Archive",
@@ -110,7 +112,7 @@
   },
   "publicNav": {
     "triggerAllgemein": "General",
-    "triggerInformationen": "Information",
+    "triggerBereiche": "Areas",
     "home": "Home",
     "allProjects": "All projects",
     "start": "Get started",
@@ -685,8 +687,12 @@
     "newsHeading": "News",
     "termineHeading": "Events",
     "addToCalendar": "Add to calendar",
-    "newsAllCta": "View all news",
-    "termineAllCta": "View all events",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortUpcoming": "Upcoming first",
+    "sortPast": "Past first",
+    "showMore": "Show more",
+    "showLess": "Show less",
     "galerieEyebrow": "Gallery",
     "galerieTitle": "Impressions<accent>.</accent>",
     "imageAlt": "{title} – image {n}",
@@ -717,24 +723,14 @@
     "joinConfirmCancel": "Cancel",
     "joinConfirmSubmit": "Send request",
     "joinConfirmSending": "Sending …",
-    "rowMitglieder": "Members",
-    "termineAllTitle": "Events",
-    "noUpcoming": "No events available.",
-    "newsBackLabel": "Back to project",
-    "termineBackLabel": "Back to project",
-    "newsBreadcrumbLabel": "Project · All news",
-    "termineBreadcrumbLabel": "Project · All events",
-    "newsSubtitle": "News from the {project} project",
-    "termineSubtitle": "Events from the {project} project"
+    "rowMitglieder": "Members"
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",
     "metaDesc": "News from the {project} project on UrbanKIT.",
     "empty": "This post has no content yet.",
     "toProject": "To the project",
-    "allProjects": "All projects",
-    "allTitle": "News",
-    "allHeading": "Latest posts"
+    "allProjects": "All projects"
   },
   "team": {
     "groups": "Groups"
