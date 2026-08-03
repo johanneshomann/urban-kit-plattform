@@ -15,9 +15,10 @@ interface Props {
   hoverColor?: string
   cardBg?: string
   defaultOpen?: number[]
+  bordered?: boolean
 }
 
-export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', defaultOpen = [0] }: Props) {
+export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', defaultOpen = [0], bordered = true }: Props) {
   const [open, setOpen] = useState<Set<number>>(new Set(defaultOpen))
   const [hovered, setHovered] = useState<number | null>(null)
 
@@ -40,7 +41,7 @@ export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', d
         return (
           <div
             key={f.title}
-            className="rounded-xl border transition-all hover:shadow-md cursor-pointer"
+            className={`rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer${bordered ? ' border' : ''}`}
             style={{ background: cardBg }}
             onClick={() => toggle(i)}
             onMouseEnter={() => setHovered(i)}

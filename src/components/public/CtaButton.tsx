@@ -5,13 +5,14 @@ interface CtaButtonProps {
   href: string
   label: string
   icon: ReactElement<JSX.IntrinsicElements['svg']>
-  variant?: 'plattform' | 'projekte' | 'grundlagen' | 'zusammenarbeit' | 'white'
+  variant?: 'plattform' | 'projekte' | 'projekteLight' | 'grundlagen' | 'zusammenarbeit' | 'white'
   wide?: boolean
 }
 
 const variantClasses: Record<NonNullable<CtaButtonProps['variant']>, string> = {
   plattform: 'text-white bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]',
   projekte: 'bg-[var(--projekte)] hover:bg-[var(--projekte-dark)] text-[var(--plattform-ink)] hover:text-white',
+  projekteLight: 'bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)] text-[var(--plattform-ink)] hover:text-white',
   grundlagen: 'bg-[var(--grundlagen)] hover:bg-[var(--grundlagen-dark)] text-[var(--plattform-ink)] hover:text-white',
   zusammenarbeit: 'bg-[var(--zusammenarbeit)] hover:bg-[var(--zusammenarbeit-dark)] text-[var(--plattform-ink)] hover:text-white',
   white: 'bg-white hover:bg-gray-100 text-[var(--plattform-ink)]',
