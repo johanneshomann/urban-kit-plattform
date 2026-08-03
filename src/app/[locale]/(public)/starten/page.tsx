@@ -10,6 +10,7 @@ import { FeatureAccordion } from './FeatureAccordion'
 import { getCitySettings } from '@/lib/instance'
 import { Flag, Folders, Info } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
+import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 
 export async function generateMetadata({
   params,
@@ -34,18 +35,21 @@ const STEPS = [
     number: '1',
     titleKey: 'step1Title',
     descKey: 'step1Desc',
+    dotIcon: 'UserPlus',
     cta: { ctaKey: 'step1Cta', href: 'register', icon: Flag },
   },
   {
     number: '2',
     titleKey: 'step2Title',
     descKey: 'step2Desc',
+    dotIcon: 'Folders',
     cta: { ctaKey: 'step2Cta', href: 'bereich/projekte-archiv/alle-projekte', icon: Folders },
   },
   {
     number: '3',
     titleKey: 'step3Title',
     descKey: 'step3Desc',
+    dotIcon: 'HandHeart',
     cta: null,
   },
 ]
@@ -57,12 +61,21 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
     getTranslations({ locale, namespace: 'starten' }),
   ])
 
+  // Section rail — matches the DOM order below. The hero is deliberately not an
+  // item: the rail only appears once the hero is scrolled out of frame.
+  const navSections = [
+    ...STEPS.map((step) => ({ id: `schritt-${step.number}`, label: `${t('stepLabel', { number: step.number })}: ${t(step.titleKey)}`, icon: step.dotIcon })),
+    { id: 'einladung', label: t('invEyebrow'), icon: 'Ticket' },
+    { id: 'cta', label: t('ctaEyebrow'), icon: 'Flag' },
+  ]
+
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <SectionDotsNav items={navSections} label={t('heroEyebrow')} appearAfterId="hero" />
 
-      {/* Hero */}
-      <section className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 border-b overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
+      {/* Hero — fades into the white first step; sections alternate light/white below */}
+      <section id="hero" className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 overflow-hidden" style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}>
         <Flag
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
@@ -70,7 +83,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           style={{ color: 'var(--plattform)' }}
         />
         <ScrollHint />
-        <EyebrowBadge label={t('heroEyebrow')} opacity={0.6} />
+        <EyebrowBadge label={t('heroEyebrow')} />
         <h1 className="text-hero font-black leading-none tracking-tight mb-5">
           {t.rich('heroTitle', { accent, br })}
         </h1>
@@ -79,12 +92,17 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
         </p>
       </section>
 
-      {/* Steps */}
-      {STEPS.map((step) => (
+      {/* Steps — alternate white/light, each fading into the next section's color */}
+      {STEPS.map((step, i) => {
+        const isWhite = i % 2 === 0
+        const bg = isWhite ? 'var(--plattform-white)' : 'var(--plattform-light)'
+        const next = isWhite ? 'var(--plattform-light)' : 'var(--plattform-white)'
+        return (
         <section
           key={step.number}
-          className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b"
-          style={{ background: 'var(--plattform-light)' }}
+          id={`schritt-${step.number}`}
+          className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+          style={{ background: `linear-gradient(to bottom, ${bg} calc(100% - var(--section-fade-height)), ${next})` }}
         >
           {/* Ghost number */}
           <span
@@ -98,7 +116,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
-              <EyebrowBadge label={t('stepLabel', { number: step.number })} opacity={0.6} />
+              <EyebrowBadge label={t('stepLabel', { number: step.number })} />
               <h2 className="text-title font-black tracking-tight mb-5">
                 <span style={{ color: 'var(--plattform)' }}>{step.number}. </span>{t(step.titleKey)}
               </h2>
@@ -108,18 +126,19 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
               )}
             </div>
 
-            {/* Right — feature accordion */}
-            <FeatureAccordion stepIndex={parseInt(step.number) - 1} />
+            {/* Right — feature accordion (light cards on white sections, white cards on light) */}
+            <FeatureAccordion stepIndex={parseInt(step.number) - 1} cardBg={isWhite ? 'var(--plattform-light)' : undefined} />
           </div>
         </section>
-      ))}
+        )
+      })}
 
-      {/* Invitation */}
-      <section className="relative min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      {/* Invitation — light, fades into the white CTA */}
+      <section id="einladung" className="relative min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
           {/* Left */}
           <div>
-            <EyebrowBadge label={t('invEyebrow')} opacity={0.6} />
+            <EyebrowBadge label={t('invEyebrow')} />
             <h2 className="text-title font-black tracking-tight mb-5">
               {t.rich('invTitle', { accent, br })}
             </h2>
@@ -131,7 +150,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           {/* Right */}
           <div className="flex flex-col gap-4">
             {/* Code form card */}
-            <div className="bg-white rounded-xl border p-6 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div className="bg-white rounded-xl p-6 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all">
               <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('invCodeLabel')}</p>
               <InvitationForm />
               <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('invHint')}</p>
@@ -140,9 +159,9 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)' }}>
-        <EyebrowBadge label={t('ctaEyebrow')} opacity={0.6} />
+      {/* CTA — white, seamless into the white footer */}
+      <section id="cta" className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-white)' }}>
+        <EyebrowBadge label={t('ctaEyebrow')} />
         <h2 className="text-hero font-black leading-none tracking-tight mb-5">
           {t.rich('ctaTitle', { accent })}
         </h2>
