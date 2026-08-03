@@ -12,8 +12,8 @@ const MAX_HEIGHT = '29rem'
 
 /**
  * Project gallery: clickable grid → fullscreen lightbox. Grid clamps to two
- * rows with a centered chevron reveal (methodensammlung ExpandableContent
- * pattern). Lightbox: keyboard arrows, Escape, scroll-lock, focus trap.
+ * rows with a centered chevron reveal. Lightbox: keyboard arrows, Escape,
+ * scroll-lock, focus trap.
  */
 export function GalleryLightbox({ images, locale }: { images: GalleryImage[]; locale: string }) {
   const t = useTranslations('projectDetail')

@@ -119,7 +119,7 @@ export default async function ProjectTermineIndexPage({
 
   return (
     <div className="flex flex-col">
-      {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
+      {/* Hero — chip row, min-vh, no border into content */}
       <section className="relative h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24" style={{ background: 'var(--plattform-light)' }}>
         <CalendarDays
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"

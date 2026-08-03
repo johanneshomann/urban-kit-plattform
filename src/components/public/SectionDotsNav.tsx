@@ -10,7 +10,7 @@ export type DotItem = { id: string; label: string; icon?: string }
  * Fixed right-side section dot rail for the public project page. Tracks scroll
  * position via IntersectionObserver and highlights the most-visible section;
  * hovering (or briefly after a change) reveals a label bubble. Desktop-only by
- * design (hidden below `md`), mirroring the methodensammlung pattern.
+ * design (hidden below `md`).
  */
 export function SectionDotsNav({ items, label }: { items: DotItem[]; label: string }) {
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)

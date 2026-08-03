@@ -4,10 +4,9 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 
 /**
- * History-aware back control for project sub-pages — mirrors the
- * methodensammlung's BackButton. Returns via browser history (so the slide +
- * scroll-restore stack applies); falls back to `fallback` when the page was
- * opened directly and there is no in-app history.
+ * History-aware back control for project sub-pages. Returns via browser
+ * history (so the slide + scroll-restore stack applies); falls back to
+ * `fallback` when the page was opened directly and there is no in-app history.
  */
 export function ProjectBackButton({
   locale = 'de',

@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ProjectBackButton } from '@/components/public/ProjectBackButton'
-import { ArrowLeft } from 'lucide-react'
+import { Newspaper } from 'lucide-react'
 
 type Project = { id: string; title: string; slug: string; isPublic?: boolean | null }
 type NewsPost = { id: string; title: string; slug: string; publishedAt?: string | null; featuredImage?: { url?: string; alt?: string | null } | null }
@@ -71,9 +71,9 @@ export default async function ProjectNewsIndexPage({
 
   return (
     <div className="flex flex-col">
-      {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
+      {/* Hero — chip row, min-vh, no border into content */}
       <section className="relative h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24" style={{ background: 'var(--plattform-light)' }}>
-        <ArrowLeft
+        <Newspaper
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"

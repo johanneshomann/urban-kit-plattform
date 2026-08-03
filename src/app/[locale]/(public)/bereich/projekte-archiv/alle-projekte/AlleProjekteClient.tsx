@@ -1,10 +1,9 @@
 'use client'
 
 /**
- * Public project archive: a searchable, filterable catalogue. The search box +
- * filter toolbar design is ported from the sibling `urban-kit-methodensammlung`
- * project (collapsible filter panel, chip groups, active-filter pills, column
- * settings) but rethemed to the plattform's `--projekte-*` / `--plattform-*`
+ * Public project archive: a searchable, filterable catalogue — search box +
+ * filter toolbar (collapsible filter panel, chip groups, active-filter pills,
+ * column settings) themed via the plattform's `--projekte-*` / `--plattform-*`
  * tokens. All filtering happens in the browser over the full project list.
  */
 
@@ -53,7 +52,7 @@ function valuesFor(p: Project, key: FilterKey): (string | number)[] {
 
 /**
  * Small reset affordance: a dot that morphs into an × on hover, with a portalled
- * tooltip that escapes the panel's overflow. Ported from methodensammlung.
+ * tooltip that escapes the panel's overflow.
  */
 function ClearDot({ onClear, tooltip }: { onClear: (e: React.MouseEvent) => void; tooltip: string }) {
   const [hovered, setHovered] = useState(false)
