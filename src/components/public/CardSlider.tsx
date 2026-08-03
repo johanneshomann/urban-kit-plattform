@@ -8,11 +8,83 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
  * floating round prev/next buttons that fade out at the ends and page by
  * ~90% of the visible width. Slides come in as children — each child should
  * wrap itself in `snap-start shrink-0 basis-*` sizing.
+ *
+ * `autoplay`: the track drifts slowly to the right, starting 500ms after the
+ * slider enters the viewport. Hovering pauses; any manual interaction (wheel,
+ * touch, nav buttons) hands control back to the user for good; the drift stops
+ * at the end of the track.
  */
-export function CardSlider({ children, locale = 'de' }: { children: ReactNode; locale?: string }) {
+export function CardSlider({ children, locale = 'de', autoplay = false }: { children: ReactNode; locale?: string; autoplay?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(false)
+  const autoState = useRef({ running: false, stopped: !autoplay, pos: 0, raf: 0, delay: 0 as ReturnType<typeof setTimeout> | 0 })
+
+  // Permanently stop the drift — the user has taken over.
+  function stopAuto() {
+    const a = autoState.current
+    a.stopped = true
+    a.running = false
+    if (a.raf) cancelAnimationFrame(a.raf)
+    if (a.delay) clearTimeout(a.delay)
+  }
+
+  useEffect(() => {
+    if (!autoplay) return
+    const root = rootRef.current
+    const el = trackRef.current
+    if (!root || !el) return
+    const a = autoState.current
+
+    const tick = () => {
+      if (!a.running || a.stopped) return
+      a.pos = Math.min(a.pos + 0.4, el.scrollWidth - el.clientWidth)
+      el.scrollLeft = a.pos
+      if (a.pos >= el.scrollWidth - el.clientWidth) { a.running = false; return }
+      a.raf = requestAnimationFrame(tick)
+    }
+    const start = () => {
+      if (a.stopped || a.running) return
+      a.pos = el.scrollLeft
+      a.running = true
+      a.raf = requestAnimationFrame(tick)
+    }
+    const pause = () => {
+      a.running = false
+      if (a.raf) cancelAnimationFrame(a.raf)
+    }
+
+    // Begin 500ms after the slider scrolls into frame; pause while out of frame.
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        a.delay = setTimeout(start, 500)
+      } else {
+        if (a.delay) clearTimeout(a.delay)
+        pause()
+      }
+    }, { threshold: 0.3 })
+    io.observe(root)
+
+    // Hover pauses (resumes on leave); manual input stops for good.
+    const onEnter = () => pause()
+    const onLeave = () => start()
+    root.addEventListener('mouseenter', onEnter)
+    root.addEventListener('mouseleave', onLeave)
+    el.addEventListener('wheel', stopAuto, { passive: true })
+    el.addEventListener('touchstart', stopAuto, { passive: true })
+
+    return () => {
+      io.disconnect()
+      pause()
+      if (a.delay) clearTimeout(a.delay)
+      root.removeEventListener('mouseenter', onEnter)
+      root.removeEventListener('mouseleave', onLeave)
+      el.removeEventListener('wheel', stopAuto)
+      el.removeEventListener('touchstart', stopAuto)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoplay])
 
   function update() {
     const el = trackRef.current
@@ -36,13 +108,14 @@ export function CardSlider({ children, locale = 'de' }: { children: ReactNode; l
   function scroll(dir: 1 | -1) {
     const el = trackRef.current
     if (!el) return
+    stopAuto()
     el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' })
   }
 
   const showNav = canPrev || canNext
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <div
         ref={trackRef}
         className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory -mx-1 px-1 pb-2"

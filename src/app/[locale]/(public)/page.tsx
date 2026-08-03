@@ -76,17 +76,32 @@ interface ActiveProject {
   coverImage?: { url?: string | null } | string | null
 }
 
+// Always aims for exactly six cards: active projects first, backfilled with the
+// most recent other public projects when fewer than six are active.
 async function getActiveProjects(): Promise<ActiveProject[]> {
   try {
     const payload = await getPayload({ config })
     const result = await payload.find({
       collection: 'projects',
       where: { and: [{ status: { equals: 'active' } }, { isPublic: { equals: true } }] },
-      limit: 4,
+      sort: '-createdAt',
+      limit: 6,
       depth: 1,
       overrideAccess: true,
     })
-    return result.docs as unknown as ActiveProject[]
+    let docs = result.docs as unknown as ActiveProject[]
+    if (docs.length < 6) {
+      const fill = await payload.find({
+        collection: 'projects',
+        where: { and: [{ status: { not_equals: 'active' } }, { isPublic: { equals: true } }] },
+        sort: '-createdAt',
+        limit: 6 - docs.length,
+        depth: 1,
+        overrideAccess: true,
+      })
+      docs = [...docs, ...(fill.docs as unknown as ActiveProject[])]
+    }
+    return docs
   } catch {
     return []
   }
@@ -111,7 +126,7 @@ export default async function PublicHomePage({
   const navSections = [
     { id: 'ueber', label: t('aboutEyebrow'), icon: 'MessageCircleQuestion' },
     { id: 'bereiche', label: t('dotSections'), icon: 'LayoutGrid' },
-    { id: 'aktuelle-projekte', label: t('dotProjects'), icon: 'FolderOpen', dotColor: 'var(--projekte)', activeColor: 'var(--projekte-dark)' },
+    { id: 'aktuelle-projekte', label: t('dotProjects'), icon: 'FolderOpen', dotColor: 'var(--projekte-accent)', activeColor: 'var(--projekte-dark)' },
     { id: 'mitmachen', label: t('joinEyebrow'), icon: 'HandHeart' },
   ]
 
@@ -246,7 +261,7 @@ export default async function PublicHomePage({
             <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('projectsEmpty')}</p>
           ) : (
             <div className="mb-8">
-            <CardSlider locale={locale}>
+            <CardSlider locale={locale} autoplay>
               {projects.map((p, i) => {
                 const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
                 const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()
@@ -268,7 +283,7 @@ export default async function PublicHomePage({
                         )}
                         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                           {p.status ? (
-                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--projekte-dark)' }}>
+                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
                               {tax(`status.${p.status}`)}
                             </span>
                           ) : <span />}
@@ -278,7 +293,7 @@ export default async function PublicHomePage({
 
                       {/* Content */}
                       <div className="flex flex-col gap-4 p-7 flex-1">
-                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--projekte-dark)' }}>
+                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>
                           {p.title}
                         </h3>
                         {p.shortDescription && (
