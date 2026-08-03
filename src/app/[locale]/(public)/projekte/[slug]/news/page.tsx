@@ -104,7 +104,7 @@ export default async function ProjectNewsIndexPage({
                 <li key={post.id}>
                   <Link
                     href={`/${locale}/projekte/${project.slug}/news/${post.slug}`}
-                    className="group relative overflow-hidden rounded-xl p-6 shadow-sm hover:shadow-md transition-all block"
+                    className="group relative overflow-hidden rounded-xl p-6 shadow-sm hover:shadow-md transition-all block bg-[var(--plattform-light)]"
                   >
                     {/* Hover image — same white/85 wash as the project hero */}
                     {post.featuredImage?.url && (
