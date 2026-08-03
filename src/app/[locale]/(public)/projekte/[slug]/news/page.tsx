@@ -5,10 +5,10 @@ import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
-import { ArrowLeft, Newspaper } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 type Project = { id: string; title: string; slug: string; isPublic?: boolean | null }
-type NewsPost = { id: string; title: string; slug: string; publishedAt?: string | null }
+type NewsPost = { id: string; title: string; slug: string; publishedAt?: string | null; featuredImage?: { url?: string; alt?: string | null } | null }
 
 async function getPublicNews(slug: string): Promise<{ project: Project; posts: NewsPost[] } | null> {
   try {
@@ -34,7 +34,7 @@ async function getPublicNews(slug: string): Promise<{ project: Project; posts: N
       },
       sort: '-publishedAt',
       limit: 200,
-      depth: 0,
+      depth: 1,
       overrideAccess: true,
     })
     return { project, posts: postsResult.docs as unknown as NewsPost[] }
@@ -62,6 +62,7 @@ export default async function ProjectNewsIndexPage({
 }) {
   const { locale, slug } = await params
   const t = await getTranslations({ locale, namespace: 'newsDetail' })
+  const pd = await getTranslations({ locale, namespace: 'projectDetail' })
   const data = await getPublicNews(slug)
   if (!data) notFound()
   const { project, posts } = data
@@ -69,53 +70,72 @@ export default async function ProjectNewsIndexPage({
 
   return (
     <div className="flex flex-col">
-      {/* Header */}
-      <section className="px-6 md:px-16 lg:px-24 pt-20 md:pt-28 pb-10 md:pb-14 border-b" style={{ background: 'var(--plattform-light)' }}>
-        <EyebrowBadge label={project.title} />
-        <h1 className="text-title font-black leading-tight tracking-tight mb-5">
-          {t('allTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
-        </h1>
-        <Link
-          href={`/${locale}/projekte/${project.slug}`}
-          className="inline-flex items-center gap-1.5 text-small transition-opacity opacity-60 hover:opacity-100"
-          style={{ color: 'var(--plattform-ink)' }}
-        >
-          <ArrowLeft className="w-[1em] h-[1em]" /> {t('toProject')}
-        </Link>
+      {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
+      <section className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
+        <ArrowLeft
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
+          strokeWidth={1}
+          aria-hidden="true"
+          style={{ color: 'var(--plattform)' }}
+        />
+        <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <a
+              href={`/${locale}/projekte/${project.slug}`}
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110"
+              style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
+              aria-label={pd('newsBackLabel')}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </a>
+            <EyebrowBadge label={pd('newsBreadcrumbLabel')} opacity={0.8} />
+          </div>
+          <h1 className="text-hero font-black leading-none tracking-tight mb-5">
+            {t('allTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
+          </h1>
+          <p className="text-text max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
+            {pd('newsSubtitle', { project: project.title })}
+          </p>
+        </div>
       </section>
 
-      {/* News list */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'white' }}>
-        <div className="flex items-center gap-2 mb-8">
-          <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-          <h2 className="text-display font-black tracking-tight">{t('allHeading')}</h2>
+      {/* Content — shared plattform content width, no border above */}
+      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
+        <div className="w-full mx-auto" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+          {posts.length === 0 ? (
+            <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('empty')}</p>
+          ) : (
+            <ol className="flex flex-col gap-4">
+              {posts.map((post) => (
+                <li key={post.id}>
+                  <Link
+                    href={`/${locale}/projekte/${project.slug}/news/${post.slug}`}
+                    className="group relative overflow-hidden rounded-xl p-6 shadow-sm hover:shadow-md transition-all block"
+                  >
+                    {/* Hover image — same white/85 wash as the project hero */}
+                    {post.featuredImage?.url && (
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden>
+                        <img src={post.featuredImage.url} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-white/85" />
+                      </div>
+                    )}
+                    <div className="relative z-10">
+                      {post.publishedAt && (
+                        <time className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                          {new Date(post.publishedAt).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })}
+                        </time>
+                      )}
+                      <p className="text-text font-bold mt-1 group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
+                        {post.title}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-
-        {posts.length === 0 ? (
-          <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('empty')}</p>
-        ) : (
-          <ol className="flex flex-col gap-4 max-w-3xl">
-            {posts.map((post) => (
-              <li key={post.id}>
-                <Link
-                  href={`/${locale}/projekte/${project.slug}/news/${post.slug}`}
-                  className="group block bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-all"
-                >
-                  {post.publishedAt && (
-                    <time className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
-                      {new Date(post.publishedAt).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })}
-                    </time>
-                  )}
-                  <p className="text-text font-bold mt-1 group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
-                    {post.title}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        )}
       </main>
-
     </div>
   )
 }

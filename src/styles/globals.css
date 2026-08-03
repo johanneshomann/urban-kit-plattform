@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root {
+  --plattform-content-width: 72rem;
+}
+
 @keyframes slide-left-enter {
   from { transform: translateX(100%); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }

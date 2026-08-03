@@ -118,46 +118,62 @@ export default async function ProjectTermineIndexPage({
 
   return (
     <div className="flex flex-col">
-      {/* Header */}
-      <section className="px-6 md:px-16 lg:px-24 pt-20 md:pt-28 pb-10 md:pb-14 border-b" style={{ background: 'var(--plattform-light)' }}>
-        <EyebrowBadge label={project.title} />
-        <h1 className="text-title font-black leading-tight tracking-tight mb-5">
-          {t('termineAllTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
-        </h1>
-        <Link
-          href={`/${locale}/projekte/${project.slug}`}
-          className="inline-flex items-center gap-1.5 text-small transition-opacity opacity-60 hover:opacity-100"
-          style={{ color: 'var(--plattform-ink)' }}
-        >
-          <ArrowLeft className="w-[1em] h-[1em]" /> {t('metaFallbackTitle')}
-        </Link>
+      {/* Hero — methodensammlung-style: chip row, min-vh, no border into content */}
+      <section className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
+        <CalendarDays
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
+          strokeWidth={1}
+          aria-hidden="true"
+          style={{ color: 'var(--plattform)' }}
+        />
+        <div className="relative z-10 w-full" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <Link
+              href={`/${locale}/projekte/${project.slug}`}
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110"
+              style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
+              aria-label={t('termineBackLabel')}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <EyebrowBadge label={t('termineBreadcrumbLabel')} opacity={0.8} />
+          </div>
+          <h1 className="text-hero font-black leading-none tracking-tight mb-5">
+            {t('termineAllTitle')}<span style={{ color: 'var(--plattform)' }}>.</span>
+          </h1>
+          <p className="text-text max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
+            {t('termineSubtitle', { project: project.title })}
+          </p>
+        </div>
       </section>
 
-      {/* Upcoming */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'white' }}>
-        <div className="flex items-center gap-2 mb-8">
-          <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
-          <h2 className="text-display font-black tracking-tight">{t('termineHeading')}</h2>
-        </div>
-        {upcoming.length === 0 ? (
-          <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('noUpcoming')}</p>
-        ) : (
-          <ol className="flex flex-col gap-4 max-w-3xl">
-            {upcoming.map(renderEvent)}
-          </ol>
-        )}
-
-        {past.length > 0 && (
-          <>
-            <div className="flex items-center gap-2 mb-8 mt-16">
-              <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)', opacity: 0.5 }} />
-              <h2 className="text-display font-black tracking-tight" style={{ opacity: 0.6 }}>{t('termineVergangen')}</h2>
-            </div>
-            <ol className="flex flex-col gap-4 max-w-3xl">
-              {past.map(renderEvent)}
+      {/* Content — shared plattform content width, no border above */}
+      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-20" style={{ background: 'var(--plattform-white)' }}>
+        <div className="w-full mx-auto" style={{ maxWidth: 'var(--plattform-content-width)' }}>
+          <div className="flex items-center gap-2 mb-8">
+            <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
+            <h2 className="text-display font-black tracking-tight">{t('termineHeading')}</h2>
+          </div>
+          {upcoming.length === 0 ? (
+            <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('noUpcoming')}</p>
+          ) : (
+            <ol className="flex flex-col gap-4">
+              {upcoming.map(renderEvent)}
             </ol>
-          </>
-        )}
+          )}
+
+          {past.length > 0 && (
+            <>
+              <div className="flex items-center gap-2 mb-8 mt-16">
+                <CalendarDays className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)', opacity: 0.5 }} />
+                <h2 className="text-display font-black tracking-tight" style={{ opacity: 0.6 }}>{t('termineVergangen')}</h2>
+              </div>
+              <ol className="flex flex-col gap-4">
+                {past.map(renderEvent)}
+              </ol>
+            </>
+          )}
+        </div>
       </main>
 
     </div>

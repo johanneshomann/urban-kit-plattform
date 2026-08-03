@@ -719,7 +719,13 @@
     "joinConfirmSending": "Sending …",
     "rowMitglieder": "Members",
     "termineAllTitle": "Events",
-    "noUpcoming": "No events available."
+    "noUpcoming": "No events available.",
+    "newsBackLabel": "Back to project",
+    "termineBackLabel": "Back to project",
+    "newsBreadcrumbLabel": "Project · All news",
+    "termineBreadcrumbLabel": "Project · All events",
+    "newsSubtitle": "News from the {project} project",
+    "termineSubtitle": "Events from the {project} project"
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",
