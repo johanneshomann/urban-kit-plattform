@@ -49,6 +49,8 @@ interface SectionDotsNavProps {
   switchPages?: SwitchPage[]
   /** Icon color on the switch ball; defaults to `--plattform-white` (projekte chips use ink). */
   switchIconColor?: string
+  /** Text color of the label bubbles; defaults to `--plattform-white` (projekte chips use ink). */
+  labelColor?: string
   /** Rail-wide idle dot color; defaults to `--plattform`. */
   dotColor?: string
   /** Rail-wide active/bubble color; defaults to `--plattform-accent`. */
@@ -64,7 +66,7 @@ interface SectionDotsNavProps {
  *   current Bereich; the current page renders filled.
  * Desktop-only by design (hidden below `md`).
  */
-export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], switchIconColor, dotColor, activeColor }: SectionDotsNavProps) {
+export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], switchIconColor, labelColor, dotColor, activeColor }: SectionDotsNavProps) {
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [revealId, setRevealId] = useState<string | null>(null)
@@ -141,7 +143,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
       className="absolute right-full mr-1 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-small whitespace-nowrap px-2.5 py-1 rounded-lg pointer-events-none"
       style={{
         background: color,
-        color: 'var(--plattform-white)',
+        color: labelColor ?? 'var(--plattform-white)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         opacity: shown ? 1 : 0,
         transform: shown ? 'translateX(0)' : 'translateX(6px)',
@@ -154,6 +156,89 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
   )
 
   return (
+    <>
+      {/* Bereich switcher — fixed top right under the header, accessibility-button sizing;
+          reveals all Bereiche horizontally to the left */}
+      {switchPages.length > 0 && (
+        <div
+          aria-hidden={!visible}
+          className="fixed top-[4.5rem] right-4 lg:right-6 z-40 hidden md:flex items-center justify-end"
+          style={{
+            opacity: visible ? 1 : 0,
+            pointerEvents: visible ? undefined : 'none',
+            transition: 'opacity 0.4s ease',
+          }}
+        >
+          <div
+            className="grid transition-all duration-300 ease-in-out"
+            style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
+          >
+            <div className="overflow-hidden">
+              <div className="flex items-center gap-2 pr-2">
+                {switchPages.map((page) => {
+                  const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
+                  const showLabel = hoveredId === page.href
+                  return (
+                    <Link
+                      key={page.href}
+                      href={page.href}
+                      aria-label={page.label}
+                      onMouseEnter={() => setHoveredId(page.href)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      className="relative flex items-center justify-center group"
+                    >
+                      {/* Label bubble below the ball (the row sits under the header) */}
+                      <span
+                        className="absolute top-full mt-1 left-1/2 -translate-x-1/2 inline-flex items-center text-small whitespace-nowrap px-2.5 py-1 rounded-lg pointer-events-none"
+                        style={{
+                          background: page.color,
+                          color: page.iconColor ?? 'var(--plattform-white)',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                          opacity: showLabel ? 1 : 0,
+                          transform: showLabel ? 'translate(-50%, 0)' : 'translate(-50%, -4px)',
+                          transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)',
+                        }}
+                      >
+                        {page.label}
+                      </span>
+                      <span
+                        className="flex items-center justify-center h-12 w-12 rounded-full shadow-lg transition-transform duration-200 group-hover:scale-105"
+                        style={{ background: page.color }}
+                      >
+                        {Icon && <Icon className="h-6 w-6" style={{ color: page.iconColor ?? 'var(--plattform-white)' }} />}
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setSwitchOpen((v) => !v)}
+            aria-expanded={switchOpen}
+            aria-label={label}
+            className="relative flex items-center justify-center cursor-pointer group"
+          >
+            {(() => {
+              const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
+              return (
+                <span
+                  className="flex items-center justify-center h-12 w-12 rounded-full shadow-lg transition-transform duration-200 group-hover:scale-105"
+                  style={{ background: railActive }}
+                >
+                  <SwitchIcon
+                    className={`h-6 w-6 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
+                    style={{ color: switchIconColor ?? 'var(--plattform-white)' }}
+                  />
+                </span>
+              )
+            })()}
+          </button>
+        </div>
+      )}
+
     <nav
       aria-label={label}
       aria-hidden={!visible}
@@ -164,86 +249,6 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
         transition: 'opacity 0.4s ease',
       }}
     >
-      {/* Bereich switcher — a colored ball that reveals all Bereiche horizontally to the left */}
-      {switchPages.length > 0 && (
-        <div className="flex flex-col items-end">
-          <div className="flex items-center justify-end">
-            <div
-              className="grid transition-all duration-300 ease-in-out"
-              style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
-            >
-              <div className="overflow-hidden">
-                <div className="flex items-center">
-                  {switchPages.map((page) => {
-                    const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
-                    const showLabel = hoveredId === page.href
-                    return (
-                      <Link
-                        key={page.href}
-                        href={page.href}
-                        aria-label={page.label}
-                        onMouseEnter={() => setHoveredId(page.href)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        className="relative flex items-center justify-center p-1 group"
-                      >
-                        {/* Label bubble above the ball (the row is horizontal) */}
-                        <span
-                          className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 inline-flex items-center text-small whitespace-nowrap px-2.5 py-1 rounded-lg pointer-events-none"
-                          style={{
-                            background: page.color,
-                            color: page.iconColor ?? 'var(--plattform-white)',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                            opacity: showLabel ? 1 : 0,
-                            transform: showLabel ? 'translate(-50%, 0)' : 'translate(-50%, 4px)',
-                            transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)',
-                          }}
-                        >
-                          {page.label}
-                        </span>
-                        <span
-                          className="flex items-center justify-center w-8 h-8 rounded-full shadow-xs transition-transform duration-200 group-hover:scale-110"
-                          style={{ background: page.color }}
-                        >
-                          {Icon && <Icon className="w-4 h-4" style={{ color: page.iconColor ?? 'var(--plattform-white)' }} />}
-                        </span>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setSwitchOpen((v) => !v)}
-              aria-expanded={switchOpen}
-              aria-label={label}
-              className="relative flex items-center justify-center p-1 cursor-pointer group"
-            >
-              {(() => {
-                const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
-                return (
-                  <span
-                    className="flex items-center justify-center w-8 h-8 rounded-full shadow-xs transition-transform duration-200 group-hover:scale-110"
-                    style={{ background: railActive }}
-                  >
-                    <SwitchIcon
-                      className={`w-4 h-4 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
-                      style={{ color: switchIconColor ?? 'var(--plattform-white)' }}
-                    />
-                  </span>
-                )
-              })()}
-            </button>
-          </div>
-          {(showSections || pages.length > 0) && (
-            <span aria-hidden className="flex items-center justify-center px-2 py-1 self-end">
-              <span className="block h-px w-3" style={{ background: railDot, opacity: 0.5 }} />
-            </span>
-          )}
-        </div>
-      )}
-
       {showSections && items.map((item) => {
         const isActive = activeId === item.id
         const showLabel = hoveredId === item.id || revealId === item.id
@@ -327,5 +332,6 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
         )
       })}
     </nav>
+    </>
   )
 }

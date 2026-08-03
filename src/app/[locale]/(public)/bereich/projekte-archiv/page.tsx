@@ -75,6 +75,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         dotColor="var(--projekte-accent)"
         activeColor="var(--projekte-dark)"
         switchIconColor="var(--plattform-ink)"
+        labelColor="var(--plattform-ink)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'laufend', label: t('ctaActive'), icon: 'FolderOpen' },
