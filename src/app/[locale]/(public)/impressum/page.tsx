@@ -49,7 +49,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
         />
         <ScrollHint />
         <div className="relative z-10 max-w-2xl">
-          <EyebrowBadge label="Rechtliches" opacity={0.6} />
+          <EyebrowBadge label="Rechtliches" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             Impressum<span style={{ color: 'var(--plattform)' }}>.</span>
           </h1>
