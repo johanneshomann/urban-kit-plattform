@@ -582,7 +582,7 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('participationEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('participationChip')} opacity={0.6} />
           <h2 className="text-title font-black tracking-tight mb-12">
             {t.rich('participationTitle', { project: project.title, accent })}
           </h2>
