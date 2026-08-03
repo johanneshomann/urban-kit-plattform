@@ -3,15 +3,11 @@
 import { useEffect, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 
-// Module-level state survives `template` remounts across client navigations,
-// so a freshly mounted template can still know the *previous* path. A ref or
-// component state would reset to the current path on every remount, making the
-// depth comparison always "equal" (→ wrong direction).
+// Module-level state survives `template` remounts across client navigations.
 let lastPath = ''
+let manualScrollInstalled = false
 
-// Scroll position captured per path before we leave for a deeper page, then
-// restored on back-navigation — mirrors the browser's native scroll memory
-// that Next's client navigation doesn't preserve for custom stacks.
+// Scroll position captured per path before leaving, restored on back-navigation.
 const scrollByPath = new Map<string, number>()
 
 const depth = (p: string) => p.split('/').filter(Boolean).length
@@ -19,48 +15,63 @@ const projectPrefix = (p: string) => p.split('/').slice(0, 4).join('/')
 const sameProject = (a: string, b: string) => projectPrefix(a) === projectPrefix(b)
 
 /**
- * Full-page slide transition wrapper for project sub-pages. On client
- * navigation the new template mount compares its path depth against the
- * previous page (stored in module scope), only sliding when the previous page
- * was *inside the same project* — deeper → slide in from the right, shallower
- * → slide in from the left. Scroll position is remembered per path and restored
- * on back-navigation. First visits into the project render without animation.
+ * Full-page slide transition wrapper for project sub-pages, plus custom scroll
+ * memory. Capturing happens in a `popstate` listener (fires BEFORE the browser
+ * swaps the route, so window.scrollY is still the leaving page's) and in the
+ * previous template's cleanup (fallback for in-app link hops). Restoration
+ * retries a few times because Next streams the new page in late.
  */
 export default function ProjectTemplate({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const prev = lastPath
-    lastPath = pathname
+    if (!manualScrollInstalled) {
+      // Disable browser-native restoration so the custom memory is the only
+      // thing that moves the page on back/forward.
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+      manualScrollInstalled = true
+    }
 
-    // Deeper navigation: the PREVIOUS page is about to unmount. Its cleanup
-    // below captures the still-visible scroll position BEFORE the new page
-    // paints — capturing in the new mount would already read 0.
+    const prev = lastPath
+
+    // popstate fires when the URL changes but BEFORE React renders the new
+    // route → window.scrollY is still the page we are leaving.
+    const onPop = () => {
+      const next = window.location.pathname
+      if (prev && sameProject(prev, next)) scrollByPath.set(prev, window.scrollY)
+    }
+    window.addEventListener('popstate', onPop)
+
+    // Going deeper via in-app links: the upcoming path is `pathname`, the
+    // leaving page is `prev`. Its cleanup may already see 0 (DOM swapped) →
+    // only store when the value is plausible.
     if (prev && sameProject(prev, pathname) && depth(pathname) > depth(prev)) {
       return () => {
-        // Cleanup still runs with the old page on screen → correct window.scrollY.
-        scrollByPath.set(prev, window.scrollY)
+        if (window.scrollY > 0) scrollByPath.set(prev, window.scrollY)
+        window.removeEventListener('popstate', onPop)
       }
     }
 
-    // Back navigation: scroll to the remembered position once the new page has
-    // painted. A single rAF can fire before the story sections (100svh) have
-    // laid out, clamping to top — so we defer twice and fall back with a timer.
+    // Back navigation (browser or in-app): restore the saved position once the
+    // new page is actually painted — content streams in, so retry a few times.
     if (sameProject(prev ?? '', pathname) && scrollByPath.has(pathname)) {
       const target = scrollByPath.get(pathname) ?? 0
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo(0, target)
-          // Safety net: if the page grew after layout, restore again shortly after.
-          setTimeout(() => window.scrollTo(0, target), 60)
-        })
-      })
+      const restore = () => {
+        if (window.location.pathname === pathname) window.scrollTo(0, target)
+      }
+      requestAnimationFrame(() => requestAnimationFrame(restore))
+      ;[80, 200, 500].forEach((ms) => setTimeout(restore, ms))
     }
+
+    lastPath = pathname
+    return () => window.removeEventListener('popstate', onPop)
   }, [pathname])
 
   const same = lastPath && sameProject(lastPath, pathname)
   const goingDeeper = same && depth(pathname) > depth(lastPath)
   const directionClass = goingDeeper ? 'animate-slide-left' : 'animate-slide-right'
 
+  // key={pathname} remounts the wrapper per navigation so CSS slide animations
+  // always restart (an unchanged animation-name never re-triggers).
   return <div key={pathname} className={same ? directionClass : ''}>{children}</div>
 }
