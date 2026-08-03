@@ -39,7 +39,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
               </span>
               <span
                 className="flex-1 font-black tracking-tight transition-colors duration-200"
-                style={{ color: isOpen ? 'var(--grundlagen-dark)' : 'var(--plattform-ink-accent)' }}
+                style={{ color: 'var(--plattform-ink-accent)' }}
               >
                 {section.title}
               </span>

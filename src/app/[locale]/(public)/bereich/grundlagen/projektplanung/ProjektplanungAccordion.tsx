@@ -50,7 +50,7 @@ function StepContent({ step }: { step: ProjektStep }) {
 
       {/* Methodenkiste */}
       <div>
-        <p className="text-small uppercase tracking-widest font-black mb-3" style={{ color: 'var(--grundlagen-dark)' }}>
+        <p className="text-small uppercase tracking-widest font-black mb-3" style={{ color: 'var(--plattform-ink)' }}>
           {t('methodbox')}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
               >
                 {i}
               </span>
-              <span className="flex-1 font-black tracking-tight transition-colors duration-200" style={{ color: isOpen ? 'var(--grundlagen-dark)' : 'var(--plattform-ink-accent)' }}>
+              <span className="flex-1 font-black tracking-tight transition-colors duration-200" style={{ color: 'var(--plattform-ink-accent)' }}>
                 {t('stepWord')} {i} · {step.phase}
               </span>
               <ChevronDown
