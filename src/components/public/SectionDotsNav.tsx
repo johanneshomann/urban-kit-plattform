@@ -87,7 +87,7 @@ export function SectionDotsNav({ items, label }: { items: DotItem[]; label: stri
             <span
               className="absolute right-full mr-1 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-small whitespace-nowrap px-2.5 py-1 rounded-lg pointer-events-none"
               style={{
-                background: 'var(--plattform-ink-accent)',
+                background: 'var(--plattform)',
                 color: 'var(--plattform-white)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                 opacity: showLabel ? 1 : 0,
@@ -104,7 +104,7 @@ export function SectionDotsNav({ items, label }: { items: DotItem[]; label: stri
               aria-hidden
               className="block rounded-full"
               style={{
-                background: isActive ? 'var(--plattform-ink-accent)' : 'var(--plattform-accent)',
+                background: isActive ? 'var(--plattform)' : 'var(--plattform-light)',
                 width: isActive ? 14 : 10,
                 height: isActive ? 14 : 10,
                 opacity: 1,
