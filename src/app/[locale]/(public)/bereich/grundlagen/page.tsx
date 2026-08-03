@@ -183,7 +183,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
       {/* Method teasers — six published methods pulled from the Methodensammlung API */}
       <section
         className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
-        style={{ background: 'var(--grundlagen)' }}
+        style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}
       >
         <div className="relative z-10 w-full">
           {methodTeasers.length > 0 && (
@@ -267,7 +267,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           </p>
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen-light)' }}>
+      <section className="px-6 md:px-16 lg:px-24 pt-12 pb-32 md:pt-16 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}>
         <PartizipationAccordion sections={partizipationSections} />
       </section>
 
@@ -293,7 +293,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           </p>
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen)' }}>
+      <section className="px-6 md:px-16 lg:px-24 pt-12 pb-32 md:pt-16 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}>
         <ProjektplanungAccordion steps={projektSteps} />
       </section>
 
