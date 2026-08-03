@@ -24,12 +24,15 @@ export type PageDot = {
   external?: boolean
 }
 
-/** A Bereich link revealed by the switcher: its hero icon in its own color. */
+/** A Bereich link revealed by the switcher: its hero icon on a chip-colored ball. */
 export type SwitchPage = {
   href: string
   label: string
   icon: string
+  /** Ball background — the Bereich's dark (chip) color. */
   color: string
+  /** Icon color on the ball; defaults to `--plattform-white` (projekte chips use ink). */
+  iconColor?: string
 }
 
 interface SectionDotsNavProps {
@@ -159,51 +162,77 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
         transition: 'opacity 0.4s ease',
       }}
     >
-      {/* Bereich switcher — reveals the other Bereich pages as icon links */}
+      {/* Bereich switcher — a colored ball that reveals all Bereiche horizontally to the left */}
       {switchPages.length > 0 && (
         <div className="flex flex-col items-end">
-          <button
-            type="button"
-            onClick={() => setSwitchOpen((v) => !v)}
-            aria-expanded={switchOpen}
-            aria-label={label}
-            className="relative flex items-center justify-center p-2 cursor-pointer"
-          >
-            {(() => {
-              const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
-              return (
-                <SwitchIcon
-                  className={`w-4 h-4 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
-                  style={{ color: railActive }}
-                />
-              )
-            })()}
-          </button>
-          <div className={`grid transition-all duration-300 ease-in-out ${switchOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-            <div className="overflow-hidden flex flex-col items-end">
-              {switchPages.map((page) => {
-                const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
-                const showLabel = hoveredId === page.href
-                return (
-                  <Link
-                    key={page.href}
-                    href={page.href}
-                    aria-label={page.label}
-                    onMouseEnter={() => setHoveredId(page.href)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    className="relative flex items-center justify-center p-2 group"
-                  >
-                    {bubble(page.href, page.label, null, page.color, showLabel)}
-                    {Icon && (
-                      <Icon
-                        className="w-4 h-4 transition-transform duration-200"
-                        style={{ color: page.color, transform: hoveredId === page.href ? 'scale(1.2)' : 'scale(1)' }}
-                      />
-                    )}
-                  </Link>
-                )
-              })}
+          <div className="flex items-center justify-end">
+            <div
+              className="grid transition-all duration-300 ease-in-out"
+              style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
+            >
+              <div className="overflow-hidden">
+                <div className="flex items-center">
+                  {switchPages.map((page) => {
+                    const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
+                    const showLabel = hoveredId === page.href
+                    return (
+                      <Link
+                        key={page.href}
+                        href={page.href}
+                        aria-label={page.label}
+                        onMouseEnter={() => setHoveredId(page.href)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        className="relative flex items-center justify-center p-1 group"
+                      >
+                        {/* Label bubble above the ball (the row is horizontal) */}
+                        <span
+                          className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 inline-flex items-center text-small whitespace-nowrap px-2.5 py-1 rounded-lg pointer-events-none"
+                          style={{
+                            background: page.color,
+                            color: page.iconColor ?? 'var(--plattform-white)',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                            opacity: showLabel ? 1 : 0,
+                            transform: showLabel ? 'translate(-50%, 0)' : 'translate(-50%, 4px)',
+                            transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)',
+                          }}
+                        >
+                          {page.label}
+                        </span>
+                        <span
+                          className="flex items-center justify-center w-8 h-8 rounded-full shadow-xs transition-transform duration-200 group-hover:scale-110"
+                          style={{ background: page.color }}
+                        >
+                          {Icon && <Icon className="w-4 h-4" style={{ color: page.iconColor ?? 'var(--plattform-white)' }} />}
+                        </span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setSwitchOpen((v) => !v)}
+              aria-expanded={switchOpen}
+              aria-label={label}
+              className="relative flex items-center justify-center p-1 cursor-pointer group"
+            >
+              {(() => {
+                const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
+                return (
+                  <span
+                    className="flex items-center justify-center w-8 h-8 rounded-full shadow-xs transition-transform duration-200 group-hover:scale-110"
+                    style={{ background: railActive }}
+                  >
+                    <SwitchIcon
+                      className={`w-4 h-4 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
+                      style={{ color: 'var(--plattform-white)' }}
+                    />
+                  </span>
+                )
+              })()}
+            </button>
           </div>
           {(showSections || pages.length > 0) && (
             <span aria-hidden className="flex items-center justify-center px-2 py-1 self-end">

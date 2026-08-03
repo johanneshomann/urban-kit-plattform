@@ -78,6 +78,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           { id: 'alle-projekte', label: t('ctaAll'), icon: 'Folders' },
         ]}
         switchPages={[
+          { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--plattform-ink)' },
           { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
           { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
         ]}
