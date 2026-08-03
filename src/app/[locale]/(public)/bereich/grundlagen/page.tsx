@@ -11,7 +11,8 @@ import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
-import { getMethodTeasers, METHODEN_URL } from '@/lib/methodensammlung'
+import { getMethodTeasers, methodImageUrl, METHODEN_URL } from '@/lib/methodensammlung'
+import { CardSlider } from '@/components/public/CardSlider'
 
 export async function generateMetadata({
   params,
@@ -186,24 +187,53 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
       >
         <div className="relative z-10 w-full">
           {methodTeasers.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-              {methodTeasers.map((m) => (
-                <a
-                  key={m.id}
-                  href={`${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white"
-                >
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="w-[1.1em] h-[1.1em] shrink-0 text-text opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--grundlagen-dark)' }} />
-                    <h3 className="text-display font-black tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>{m.title}</h3>
+            <div className="mb-12">
+              <CardSlider locale={locale}>
+                {methodTeasers.map((m) => (
+                  <div key={m.id} className="snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]">
+                    {/* Card anatomy mirrors the Methodensammlung's MethodCard */}
+                    <a
+                      href={`${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={m.title}
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                    >
+                      {/* Image strip */}
+                      <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={methodImageUrl(m)}
+                          alt=""
+                          aria-hidden
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col gap-4 p-8 flex-1">
+                        <p className="text-display font-bold leading-tight transition-colors text-[var(--plattform-ink)] group-hover:text-[var(--plattform-ink-accent)]">
+                          {m.title}
+                        </p>
+                        {m.auszug && (
+                          <p className="text-small line-clamp-3" style={{ color: 'var(--plattform-ink)' }}>{m.auszug}</p>
+                        )}
+                        {(m.characteristics ?? []).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-auto">
+                            {(m.characteristics ?? []).map((c) => (
+                              c.name && (
+                                <span key={c.id} className="text-small px-3 py-0.5 rounded-full" style={{ background: 'var(--grundlagen-light)', color: 'var(--plattform-ink)' }}>
+                                  {c.name}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </a>
                   </div>
-                  {m.auszug && (
-                    <p className="text-text line-clamp-3" style={{ color: 'var(--plattform-ink)' }}>{m.auszug}</p>
-                  )}
-                </a>
-              ))}
+                ))}
+              </CardSlider>
             </div>
           )}
           <CtaButton
@@ -219,7 +249,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
       <section
         id="partizipation"
         className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen)' }}
+        style={{ background: 'var(--grundlagen-light)' }}
       >
         <Handshake
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -237,7 +267,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           </p>
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen)' }}>
+      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen-light)' }}>
         <PartizipationAccordion sections={partizipationSections} />
       </section>
 
@@ -271,7 +301,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
       <section
         id="recht"
         className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen)' }}
+        style={{ background: 'var(--grundlagen-light)' }}
       >
         <Scale
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -289,7 +319,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           </p>
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen)' }}>
+      <section className="px-6 md:px-16 lg:px-24 py-12 md:py-16" style={{ background: 'var(--grundlagen-light)' }}>
         <PartizipationAccordion sections={rechtSections} />
       </section>
 
