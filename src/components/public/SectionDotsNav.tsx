@@ -104,7 +104,7 @@ export function SectionDotsNav({ items, label }: { items: DotItem[]; label: stri
               aria-hidden
               className="block rounded-full"
               style={{
-                background: isActive ? 'var(--plattform)' : 'var(--plattform-light)',
+                background: isActive ? 'var(--plattform)' : 'color-mix(in srgb, var(--plattform) 25%, var(--plattform-white))',
                 width: isActive ? 14 : 10,
                 height: isActive ? 14 : 10,
                 opacity: 1,
