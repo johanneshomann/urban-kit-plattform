@@ -12,6 +12,7 @@ import { FolderOpen } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { CardSlider } from '@/components/public/CardSlider'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
+import { BereichThemeScope } from '@/components/public/BereichThemeScope'
 import { ProjekteFeatureAccordion } from './ProjekteFeatureAccordion'
 import { AlleProjekteClient } from './alle-projekte/AlleProjekteClient'
 import type { Project } from './alle-projekte/ProjectLibrary'
@@ -68,6 +69,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <BereichThemeScope accent="var(--projekte-accent)" />
       <SectionDotsNav
         label={nav('areaProjects')}
         dotColor="var(--projekte-accent)"

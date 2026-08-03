@@ -6,6 +6,7 @@ import { PublicFooter } from '@/components/public/PublicFooter'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
+import { BereichThemeScope } from '@/components/public/BereichThemeScope'
 import { Circle, Layers, Users, Layout, Newspaper, BarChart2, CheckSquare, Calendar, MessageSquare, FolderOpen, Bot, MessageCircle, LayoutGrid } from 'lucide-react'
 
 export async function generateMetadata({
@@ -47,6 +48,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <BereichThemeScope accent="var(--zusammenarbeit-accent)" />
       <SectionDotsNav
         label={nav('areaCollab')}
         dotColor="var(--zusammenarbeit-accent)"

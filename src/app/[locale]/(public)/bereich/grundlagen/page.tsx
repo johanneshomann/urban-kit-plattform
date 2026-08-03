@@ -7,6 +7,7 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { CtaButton } from '@/components/public/CtaButton'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
+import { BereichThemeScope } from '@/components/public/BereichThemeScope'
 import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
@@ -79,6 +80,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <BereichThemeScope accent="var(--grundlagen-accent)" />
       <SectionDotsNav
         label={nav('areaBasics')}
         dotColor="var(--grundlagen-accent)"
