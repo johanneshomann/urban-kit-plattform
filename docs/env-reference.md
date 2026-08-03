@@ -21,6 +21,13 @@ Canonical list — matches `.env.example` and `docker-compose.yml`.
 | `PAYLOAD_INTERNAL_URL` | `http://localhost:3000` | Where the sidecar reaches Payload (compose: `http://web:3000`). |
 | `HOCUSPOCUS_URL` | `ws://localhost:1234` | Server-side WS URL (sidecar address). |
 
+## Methodensammlung (optional — method teasers on Bereich Grundlagen)
+
+| Variable | Default | Description |
+|---|---|---|
+| `METHODEN_URL` | `https://methoden.urbankit.de` | Base URL of the Methodensammlung. |
+| `METHODEN_API_KEY` | — | API-client key (its `api-clients` collection) for the GraphQL read of published methods (`Authorization: api-clients API-Key <key>`). Unset ⇒ the Grundlagen page renders without teasers. |
+
 ## Urban Agent (optional — module works with any one provider)
 
 | Variable | Description |
