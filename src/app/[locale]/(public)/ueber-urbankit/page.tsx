@@ -7,6 +7,7 @@ import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
 import { ScrollHint } from '@/components/public/ScrollHint'
+import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { getCitySettings } from '@/lib/instance'
 import { Flag, Landmark, Circle, Info } from 'lucide-react'
 
@@ -35,12 +36,21 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
     getTranslations({ locale, namespace: 'about' }),
   ])
 
+  // Section rail — matches the DOM order below. The hero is deliberately not an
+  // item: the rail only appears once the hero is scrolled out of frame.
+  const navSections = [
+    { id: 'hintergrund', label: t('bgEyebrow'), icon: 'Landmark' },
+    { id: 'plattform', label: t('platformEyebrow'), icon: 'Circle' },
+    { id: 'cta', label: t('ctaEyebrow'), icon: 'Flag' },
+  ]
+
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <SectionDotsNav items={navSections} label={t('heroEyebrow')} appearAfterId="hero" />
 
-      {/* Hero */}
-      <section className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 border-b overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
+      {/* Hero — fades into the white section below; sections alternate light/white */}
+      <section id="hero" className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 overflow-hidden" style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}>
         <Info
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
@@ -49,7 +59,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         />
         <ScrollHint />
         <div className="relative z-10 max-w-2xl">
-          <EyebrowBadge label={t('heroEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('heroEyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { kit, accent })}
           </h1>
@@ -59,8 +69,8 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* Stadt & Entwicklung */}
-      <section className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      {/* Stadt & Entwicklung — white, fades into the light section below */}
+      <section id="hintergrund" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--plattform-white) calc(100% - var(--section-fade-height)), var(--plattform-light))' }}>
         {/* Ghost illustration */}
         <Landmark
           className="absolute right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -70,7 +80,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         />
 
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('bgEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('bgEyebrow')} />
           <h2 className="text-title font-black tracking-tight mb-10 max-w-5xl">
             {t.rich('bgTitle', { accent })}
           </h2>
@@ -88,10 +98,10 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* Drei Bereiche */}
-      <section className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)' }}>
+      {/* Drei Bereiche — light, fades into the white CTA */}
+      <section id="plattform" className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}>
         <div className="w-full">
-          <EyebrowBadge label={t('platformEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('platformEyebrow')} />
           <h2 className="text-title font-black tracking-tight mb-2">
             {t.rich('sectionsTitle', { accent })}
           </h2>
@@ -100,7 +110,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--projekte-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--projekte-dark)' }}>
@@ -112,7 +122,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
               </p>
             </Link>
 
-            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--zusammenarbeit-dark)' }}>
@@ -124,7 +134,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
               </p>
             </Link>
 
-            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-white rounded-xl p-8 border hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-dark)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--grundlagen-dark)' }}>
@@ -139,9 +149,9 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-light)' }}>
-        <EyebrowBadge label={t('ctaEyebrow')} opacity={0.6} />
+      {/* CTA — white, seamless into the white footer */}
+      <section id="cta" className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24" style={{ background: 'var(--plattform-white)' }}>
+        <EyebrowBadge label={t('ctaEyebrow')} />
         <h2 className="text-hero font-black leading-none tracking-tight mb-5">
           {t.rich('ctaTitle', { accent })}
         </h2>
