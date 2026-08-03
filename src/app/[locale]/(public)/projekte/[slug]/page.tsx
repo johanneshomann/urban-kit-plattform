@@ -39,6 +39,7 @@ import {
   Megaphone,
   Download,
   BarChart3,
+  Check,
 } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -303,14 +304,12 @@ export default async function PublicProjectPage({
     ? kontakt.website.startsWith('http') ? kontakt.website : `https://${kontakt.website}`
     : null
 
-  // Section rail — mirrors the methodensammlung dot nav. Always-present sections
-  // are hero, about, beteiligung, kontakt; "aktuelles" and "galerie" appear only
-  // when they have content (same conditionals as the sections below).
+  // Section rail — matches the DOM order below (aktuelles before beteiligung).
   const navSections = [
     { id: 'hero', label: locale === 'de' ? 'Start' : 'Start', icon: 'Home' },
     { id: 'about', label: t('aboutEyebrow'), icon: 'Info' },
-    { id: 'beteiligung', label: t('participationEyebrow'), icon: 'Flag' },
     hasAktuelles && { id: 'aktuelles', label: t('aktuellesEyebrow'), icon: 'Layers' },
+    { id: 'beteiligung', label: t('participationEyebrow'), icon: 'Flag' },
     galleryImages.length > 0 && { id: 'galerie', label: t('galerieEyebrow'), icon: 'Image' },
     { id: 'kontakt', label: t('joinEyebrow'), icon: 'Contact' },
   ].filter(Boolean) as { id: string; label: string; icon: string }[]
@@ -454,95 +453,7 @@ export default async function PublicProjectPage({
         </div>
       </section>
 
-      {/* Beteiligung */}
-      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
-        <Megaphone
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
-          strokeWidth={1}
-          aria-hidden="true"
-          style={{ color: 'var(--plattform)' }}
-        />
-        <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('participationEyebrow')} opacity={0.6} />
-          <h2 className="text-title font-black tracking-tight mb-2">
-            {t.rich('participationTitle', { accent })}
-          </h2>
-          <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            {t('participationBody')}
-          </p>
-
-          {/* Phasen-Stepper — dots on a connecting line, current phase in project colour */}
-          <ol className="hidden md:flex mb-12" aria-label={t('rowPhase')}>
-            {PROJEKTPHASEN.map((ph, i) => {
-              const isCurrent = phase ? ph.step === phase.step : false
-              const isDone = phase ? ph.step < phase.step : false
-              const isLast = i === PROJEKTPHASEN.length - 1
-              return (
-                <li key={ph.value} className={isLast ? 'shrink-0' : 'flex-1'} aria-current={isCurrent ? 'step' : undefined}>
-                  <div className="flex items-center">
-                    <span
-                      className="shrink-0 rounded-full"
-                      style={{
-                        width: isCurrent ? '1rem' : '0.75rem',
-                        height: isCurrent ? '1rem' : '0.75rem',
-                        background: isCurrent || isDone ? 'var(--plattform)' : 'var(--plattform-light)',
-                        boxShadow: isCurrent ? '0 0 0 4px var(--plattform-light)' : undefined,
-                      }}
-                      aria-hidden
-                    />
-                    {!isLast && (
-                      <span
-                        className="flex-1 h-0.5 mx-2"
-                        style={{ background: isDone ? 'var(--plattform)' : 'var(--plattform-light)' }}
-                        aria-hidden
-                      />
-                    )}
-                  </div>
-                  <p
-                    className={`text-small mt-3 pr-4 ${isCurrent ? 'font-semibold' : ''}`}
-                    style={{
-                      color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)',
-                      opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4,
-                    }}
-                  >
-                    {ph.step + 1}. {tax(`phase.${ph.value}`)}
-                  </p>
-                </li>
-              )
-            })}
-          </ol>
-
-          {/* Mobile: compact progress summary */}
-          {phase && (
-            <div className="md:hidden mb-12">
-              <p className="text-small font-semibold mb-2.5" style={{ color: 'var(--plattform-ink)' }}>
-                {t('phaseOf', { current: phase.step + 1, total: PROJEKTPHASEN.length })} · {tax(`phase.${phase.value}`)}
-              </p>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--plattform-light)' }}>
-                <div
-                  className="h-full rounded-full"
-                  style={{ background: 'var(--plattform)', width: `${((phase.step + 1) / PROJEKTPHASEN.length) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {beteiligungsvorhabenHtml && (
-            <div
-              className="max-w-3xl prose text-text leading-relaxed mb-12"
-              style={{ color: 'var(--plattform-ink)' }}
-              dangerouslySetInnerHTML={{ __html: beteiligungsvorhabenHtml }}
-            />
-          )}
-
-          {joinEnabled && (
-            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
-          )}
-        </div>
-      </section>
-
-      {/* Aktuelles — public news & events. Blocks without content don't render:
-          empty states are for members who can act on them, not for visitors. */}
+      {/* Aktuelles — public news & events (before Beteiligung per product order). */}
       {hasAktuelles && (
         <section id="aktuelles" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-light)', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
@@ -662,7 +573,146 @@ export default async function PublicProjectPage({
         </section>
       )}
 
-      {/* Galerie — grid for a few images, horizontal snap strip for many */}
+      {/* Beteiligung */}
+      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
+        <Megaphone
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
+          strokeWidth={1}
+          aria-hidden="true"
+          style={{ color: 'var(--plattform)' }}
+        />
+        <div className="relative z-10 w-full">
+          <EyebrowBadge label={t('participationEyebrow')} opacity={0.6} />
+          <h2 className="text-title font-black tracking-tight mb-12">
+            {t.rich('participationTitle', { accent })}
+          </h2>
+
+          {/* Phasen-Stepper — numbered journey, done ✓, current highlighted + "Aktuell" pill */}
+          <ol className="hidden md:flex mb-12" aria-label={t('rowPhase')}>
+            {PROJEKTPHASEN.map((ph, i) => {
+              const isCurrent = phase ? ph.step === phase.step : false
+              const isDone = phase ? ph.step < phase.step : false
+              const isLast = i === PROJEKTPHASEN.length - 1
+              return (
+                <li key={ph.value} className={isLast ? 'shrink-0' : 'flex-1'} aria-current={isCurrent ? 'step' : undefined}>
+                  <div className="flex items-center">
+                    <span
+                      className="shrink-0 rounded-full inline-flex items-center justify-center text-small font-black leading-none"
+                      style={{
+                        width: isCurrent ? '2.25rem' : '2rem',
+                        height: isCurrent ? '2.25rem' : '2rem',
+                        background: isCurrent || isDone ? 'var(--plattform)' : 'var(--plattform-light)',
+                        color: isCurrent || isDone ? 'var(--plattform-white)' : 'var(--plattform-ink)',
+                        boxShadow: isCurrent ? '0 0 0 4px color-mix(in srgb, var(--plattform) 20%, transparent)' : undefined,
+                      }}
+                      aria-hidden
+                    >
+                      {isDone ? <Check className="w-4 h-4" strokeWidth={3} /> : ph.step + 1}
+                    </span>
+                    {!isLast && (
+                      <span
+                        className="flex-1 h-0.5 mx-3"
+                        style={{ background: isDone ? 'var(--plattform)' : 'var(--plattform-light)' }}
+                        aria-hidden
+                      />
+                    )}
+                  </div>
+                  <p className="flex items-center gap-1.5 mt-3 pr-4" style={{ opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4 }}>
+                    <span
+                      className={`text-small pr-0 ${isCurrent ? 'font-bold' : 'font-semibold'}`}
+                      style={{ color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)' }}
+                    >
+                      {ph.step + 1}. {tax(`phase.${ph.value}`)}
+                    </span>
+                    {isCurrent && (
+                      <span
+                        className="text-small px-2 py-0.5 rounded-full font-semibold leading-none"
+                        style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
+                      >
+                        {t('currentPhase')}
+                      </span>
+                    )}
+                  </p>
+                </li>
+              )
+            })}
+          </ol>
+
+          <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
+            {t('participationBody')}
+          </p>
+
+          {/* Mobile: vertical numbered stepper */}
+          {phase && (
+            <ol className="md:hidden mb-12 flex flex-col" aria-label={t('rowPhase')}>
+              {PROJEKTPHASEN.map((ph, i) => {
+                const isCurrent = ph.step === phase.step
+                const isDone = ph.step < phase.step
+                const isLast = i === PROJEKTPHASEN.length - 1
+                return (
+                  <li key={ph.value} className="flex gap-4" aria-current={isCurrent ? 'step' : undefined}>
+                    <div className="flex flex-col items-center">
+                      <span
+                        className="shrink-0 rounded-full inline-flex items-center justify-center text-small font-black leading-none"
+                        style={{
+                          width: isCurrent ? '2.25rem' : '2rem',
+                          height: isCurrent ? '2.25rem' : '2rem',
+                          background: isCurrent || isDone ? 'var(--plattform)' : 'var(--plattform-light)',
+                          color: isCurrent || isDone ? 'var(--plattform-white)' : 'var(--plattform-ink)',
+                          boxShadow: isCurrent ? '0 0 0 4px color-mix(in srgb, var(--plattform) 20%, transparent)' : undefined,
+                        }}
+                        aria-hidden
+                      >
+                        {isDone ? <Check className="w-4 h-4" strokeWidth={3} /> : ph.step + 1}
+                      </span>
+                      {!isLast && (
+                        <span
+                          className="w-0.5 flex-1 my-1"
+                          style={{ background: isDone ? 'var(--plattform)' : 'var(--plattform-light)' }}
+                          aria-hidden
+                        />
+                      )}
+                    </div>
+                    <p className="flex items-start justify-between gap-2 pt-1 pb-5 flex-1 min-w-0">
+                      <span
+                        className={`text-small ${isCurrent ? 'font-bold' : 'font-semibold'}`}
+                        style={{
+                          color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)',
+                          opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4,
+                        }}
+                      >
+                        {ph.step + 1}. {tax(`phase.${ph.value}`)}
+                      </span>
+                      {isCurrent && (
+                        <span
+                          className="text-small px-2 py-0.5 rounded-full font-semibold leading-none shrink-0 mt-0.5"
+                          style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
+                        >
+                          {t('currentPhase')}
+                        </span>
+                      )}
+                    </p>
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+
+          {beteiligungsvorhabenHtml && (
+            <div
+              className="max-w-3xl prose text-text leading-relaxed mb-12"
+              style={{ color: 'var(--plattform-ink)' }}
+              dangerouslySetInnerHTML={{ __html: beteiligungsvorhabenHtml }}
+            />
+          )}
+
+          {joinEnabled && (
+            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+          )}
+        </div>
+      </section>
+
+      {/* Galerie — clickable lightbox grid */}
       {galleryImages.length > 0 && (
         <section id="galerie" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">

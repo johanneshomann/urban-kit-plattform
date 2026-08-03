@@ -701,6 +701,7 @@
     "labelPhone": "Phone",
     "labelWebsite": "Website",
     "phaseOf": "Phase {current} of {total}",
+    "currentPhase": "Current",
     "termineVergangen": "Past events",
     "pollsHeading": "Polls",
     "filesHeading": "Files",
