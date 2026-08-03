@@ -8,5 +8,5 @@ export default async function ProjekteIndexPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  redirect(`/${locale}/bereich/projekte-archiv/alle-projekte`)
+  redirect(`/${locale}/bereich/projekte-archiv#alle-projekte`)
 }

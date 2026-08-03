@@ -10,8 +10,9 @@ export function ProjekteFeatureAccordion() {
   return (
     <FeatureAccordion
       items={items}
-      color="var(--projekte-dark)"
+      color="var(--plattform-ink)"
       cardBg="white"
+      bordered={false}
     />
   )
 }

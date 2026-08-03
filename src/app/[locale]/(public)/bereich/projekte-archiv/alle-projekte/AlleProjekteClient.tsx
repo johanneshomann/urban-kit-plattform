@@ -17,14 +17,15 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
-import { ScrollHint } from '@/components/public/ScrollHint'
 import type { Project } from './ProjectLibrary'
 
 const STATUS_VALUES = ['active', 'planning', 'completed', 'archived']
 const THEMA_VALUES = ['mobilitaet', 'wohnraum', 'gruenflaechen', 'infrastruktur', 'stadtentwicklung', 'kultur', 'bildung', 'umwelt']
 const STADTBEREICH_VALUES = ['innenstadt', 'norden', 'sueden', 'osten', 'westen', 'gesamtstadt']
 
-const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-dark)' }}>{chunks}</span>
+// Text accent on light backgrounds — `--projekte-accent` is the dark orange
+// (the `-dark` token is tuned lighter for chip/hero backgrounds).
+const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-accent)' }}>{chunks}</span>
 
 type FilterKey = 'status' | 'thema' | 'stadtbereich' | 'year'
 type FilterState = { status: string | null; thema: string | null; stadtbereich: string | null; year: number | null }
@@ -200,7 +201,7 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
   )
 }
 
-export function AlleProjekteClient({ projects, locale }: { projects: Project[]; locale: string; cityName: string }) {
+export function AlleProjekteClient({ projects, locale }: { projects: Project[]; locale: string }) {
   const t = useTranslations('alleProjekte')
   const tax = useTranslations('taxonomy')
 
@@ -302,29 +303,28 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte-light)' }}>
-        <ScrollHint color="var(--projekte-dark)" />
+      {/* Content hero — chapter start: Bereich main color fading into the light library */}
+      <section id="alle-projekte" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte)' }}>
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"
           style={{ color: 'var(--projekte-dark)' }}
         />
-        <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
-          <h1 className="text-hero font-black leading-none tracking-tight mb-5">
+        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--plattform-ink)" />
+          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentP })}
-          </h1>
+          </h2>
           <p className="text-text leading-relaxed max-w-2xl mb-4" style={{ color: 'var(--plattform-ink)' }}>{t('heroP1')}</p>
           <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>{t('heroP2')}</p>
         </div>
       </section>
 
       {/* Library */}
-      <div ref={libraryRef} style={{ background: 'var(--projekte-light)' }}>
+      <div ref={libraryRef} style={{ background: 'var(--projekte)' }}>
         {/* Sticky toolbar + collapsible filter panel */}
-        <div className="sticky top-14 z-20" style={{ background: 'var(--projekte-light)' }}>
+        <div className="sticky top-14 z-20" style={{ background: 'var(--projekte)' }}>
           <div className="px-6 md:px-16 lg:px-24 py-4 flex flex-col gap-2" ref={filterAreaRef}>
             <div className="flex flex-col sm:flex-row gap-2">
               <SearchPill value={search} onChange={setSearch} placeholder={t('searchPlaceholder')} />
@@ -551,7 +551,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                           )}
                           <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                             {p.status ? (
-                              <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--projekte-dark)' }}>
+                              <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
                                 {tax(`status.${p.status}`)}
                               </span>
                             ) : <span />}
@@ -565,14 +565,14 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                         {!showImage && (
                           <div className="flex items-center justify-between gap-2">
                             {p.status ? (
-                              <span className="text-small font-semibold px-3 py-1 rounded-full" style={{ background: 'var(--projekte-light)', color: 'var(--projekte-dark)' }}>
+                              <span className="text-small font-semibold px-3 py-1 rounded-full" style={{ background: 'var(--projekte-light)', color: 'var(--plattform-ink)' }}>
                                 {tax(`status.${p.status}`)}
                               </span>
                             ) : <span />}
                             <span className="text-small font-semibold" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }}>{projYear}</span>
                           </div>
                         )}
-                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--projekte-dark)' }}>
+                        <h3 className="text-display font-black leading-tight tracking-tight" style={{ color: 'var(--plattform-ink-accent)' }}>
                           {p.title}
                         </h3>
                         {showAuszug && p.shortDescription && (
