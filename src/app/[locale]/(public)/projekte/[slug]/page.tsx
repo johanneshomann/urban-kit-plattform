@@ -180,7 +180,7 @@ export default async function PublicProjectPage({
             ],
           },
           sort: '-publishedAt',
-          limit: 4,
+          limit: 3,
           depth: 0,
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))
@@ -196,7 +196,7 @@ export default async function PublicProjectPage({
             ],
           },
           sort: 'startDate',
-          limit: 4,
+          limit: 3,
           depth: 0,
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))
@@ -219,7 +219,7 @@ export default async function PublicProjectPage({
             ],
           },
           sort: '-startDate',
-          limit: 4,
+          limit: 3,
           depth: 0,
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))).docs as unknown as CalEvent[])
@@ -559,6 +559,7 @@ export default async function PublicProjectPage({
                   <div className="flex items-center gap-2 mb-6">
                     <Newspaper className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                     <h3 className="text-display font-black tracking-tight">{t('newsHeading')}</h3>
+                    <Link href={`/${locale}/projekte/${project.slug}/news`} className="ml-auto text-small hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>{t('newsAllCta')}</Link>
                     <a
                       href={`/api/rss?project=${project.slug}`}
                       className="ml-auto inline-flex items-center gap-1.5 text-small hover:underline"
@@ -598,6 +599,7 @@ export default async function PublicProjectPage({
                     <h3 className="text-display font-black tracking-tight">
                       {eventsArePast ? t('termineVergangen') : t('termineHeading')}
                     </h3>
+                    <Link href={`/${locale}/projekte/${project.slug}/termine`} className="ml-auto text-small hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>{t('termineAllCta')}</Link>
                   </div>
                   <div className="flex flex-col gap-4">
                     {calEvents.map((ev, i) => {

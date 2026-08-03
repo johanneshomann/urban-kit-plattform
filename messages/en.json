@@ -684,6 +684,8 @@
     "newsHeading": "News",
     "termineHeading": "Events",
     "addToCalendar": "Add to calendar",
+    "newsAllCta": "View all news",
+    "termineAllCta": "View all events",
     "galerieEyebrow": "Gallery",
     "galerieTitle": "Impressions<accent>.</accent>",
     "imageAlt": "{title} – image {n}",
@@ -713,14 +715,18 @@
     "joinConfirmCancel": "Cancel",
     "joinConfirmSubmit": "Send request",
     "joinConfirmSending": "Sending …",
-    "rowMitglieder": "Members"
+    "rowMitglieder": "Members",
+    "termineAllTitle": "Events",
+    "noUpcoming": "No events available."
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",
     "metaDesc": "News from the {project} project on UrbanKIT.",
     "empty": "This post has no content yet.",
     "toProject": "To the project",
-    "allProjects": "All projects"
+    "allProjects": "All projects",
+    "allTitle": "News",
+    "allHeading": "Latest posts"
   },
   "team": {
     "groups": "Groups"
