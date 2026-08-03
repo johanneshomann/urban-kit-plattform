@@ -65,10 +65,10 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
 
-      {/* Hero */}
+      {/* Hero — fades into the white contact section below */}
       <section
-        className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start overflow-hidden border-b px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20"
-        style={{ background: 'var(--plattform-light)' }}
+        className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start overflow-hidden px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20"
+        style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}
       >
         <Mail
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -78,7 +78,7 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         />
         <ScrollHint />
         <div className="relative z-10">
-          <EyebrowBadge label={t('heroEyebrow')} opacity={0.6} />
+          <EyebrowBadge label={t('heroEyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accent })}
           </h1>
@@ -88,12 +88,12 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      {/* Contact details */}
+      {/* Contact details — white, seamless into the white footer; cards flip to light */}
       <section
         className="min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24"
-        style={{ background: 'var(--plattform-light)' }}
+        style={{ background: 'var(--plattform-white)' }}
       >
-        <EyebrowBadge label={t('contactEyebrow')} opacity={0.6} />
+        <EyebrowBadge label={t('contactEyebrow')} />
         <h2 className="text-title font-black tracking-tight mb-10">
           {t.rich('contactTitle', { accent, br })}
         </h2>
@@ -101,7 +101,7 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left — contact info */}
           <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-xl border p-7 flex flex-col gap-5 hover:shadow-md transition-all">
+            <div className="rounded-xl p-7 flex flex-col gap-5 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
               <div>
                 <p className="text-small uppercase tracking-widest font-black mb-1" style={{ color: 'var(--plattform-ink)' }}>{t('labelOperator')}</p>
                 <p className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{operatorName}</p>

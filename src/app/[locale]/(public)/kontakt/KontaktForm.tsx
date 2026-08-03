@@ -15,7 +15,7 @@ export function KontaktForm() {
 
   if (sent) {
     return (
-      <div className="bg-white rounded-xl border p-7 flex flex-col gap-3 hover:shadow-md transition-all">
+      <div className="rounded-xl p-7 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
         <p className="text-display font-black tracking-tight" style={{ color: 'var(--plattform)' }}>
           {t.rich('sentTitle', { accent: (chunks) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span> })}
         </p>
@@ -27,7 +27,7 @@ export function KontaktForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border p-7 flex flex-col gap-4 hover:shadow-md transition-all">
+    <form onSubmit={handleSubmit} className="rounded-xl p-7 flex flex-col gap-4 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
