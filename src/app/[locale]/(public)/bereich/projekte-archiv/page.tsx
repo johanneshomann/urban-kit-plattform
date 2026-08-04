@@ -13,7 +13,6 @@ import { ScrollHint } from '@/components/public/ScrollHint'
 import { CardSlider } from '@/components/public/CardSlider'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { BereichThemeScope } from '@/components/public/BereichThemeScope'
-import { ProjekteFeatureAccordion } from './ProjekteFeatureAccordion'
 import { AlleProjekteClient } from './alle-projekte/AlleProjekteClient'
 import type { Project } from './alle-projekte/ProjectLibrary'
 
@@ -69,7 +68,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
-      <BereichThemeScope accent="var(--projekte-accent)" />
+      <BereichThemeScope accent="var(--projekte-accent)" onBrand="var(--projekte-on-brand)" />
       <SectionDotsNav
         label={nav('areaProjects')}
         dotColor="var(--projekte-accent)"
@@ -78,8 +77,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         labelColor="var(--projekte-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
-          { id: 'laufend', label: t('ctaActive'), icon: 'FolderOpen' },
           { id: 'intro', label: t('introEyebrow'), icon: 'Info' },
+          { id: 'laufend', label: t('ctaActive'), icon: 'FolderOpen' },
           { id: 'alle-projekte', label: t('ctaAll'), icon: 'Folders' },
         ]}
         switchPages={[
@@ -107,6 +106,24 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
             {t('heroBody')}
           </p>
+        </div>
+      </section>
+
+      {/* Intro — Wieso, Weshalb & Warum — directly under the hero, text only */}
+      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'var(--projekte-light)' }}>
+        <div className="relative z-10 w-full max-w-3xl">
+          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
+          <h2 className="text-title font-black tracking-tight mb-10">
+            {t.rich('introTitle', { accentP })}
+          </h2>
+          <div className="flex flex-col gap-4">
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('introP1', { city: cityName })}
+            </p>
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('introP2')}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -174,35 +191,6 @@ export default async function BereichProjektePage({ params }: { params: Promise<
               })}
             </CardSlider>
           )}
-        </div>
-      </section>
-
-      {/* Intro — Wieso, Weshalb & Warum — fades into the Alle-Projekte chapter hero */}
-      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--projekte-light) calc(100% - var(--section-fade-height)), var(--projekte))' }}>
-        <FolderOpen
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
-          strokeWidth={1}
-          aria-hidden="true"
-          style={{ color: 'var(--projekte-dark)' }}
-        />
-        <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-10">
-            {t.rich('introTitle', { accentP })}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-            {/* Left */}
-            <div className="flex flex-col gap-4">
-              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                {t('introP1', { city: cityName })}
-              </p>
-              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                {t('introP2')}
-              </p>
-            </div>
-            {/* Right */}
-            <ProjekteFeatureAccordion />
-          </div>
         </div>
       </section>
 

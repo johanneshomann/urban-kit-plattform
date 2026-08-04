@@ -50,7 +50,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
-      <BereichThemeScope accent="var(--zusammenarbeit-accent)" />
+      <BereichThemeScope accent="var(--zusammenarbeit-accent)" onBrand="var(--zusammenarbeit-on-brand)" />
       <SectionDotsNav
         label={nav('areaCollab')}
         dotColor="var(--zusammenarbeit-dark)"
