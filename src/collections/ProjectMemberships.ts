@@ -39,12 +39,18 @@ export const ProjectMemberships: CollectionConfig = {
       ],
     },
     {
-      // Part of the project's working team — grants access to TEAM-visibility
-      // content (e.g. the Aufgaben board). PMs are always team members.
-      name: 'isTeam',
-      type: 'checkbox',
-      label: { en: 'Team member', de: 'Teammitglied' },
-      defaultValue: false,
+      // Team tags (from the project's `teams` catalog). A membership tagged
+      // with a team can see TEAM-visibility content scoped to that team.
+      name: 'teams',
+      type: 'text',
+      hasMany: true,
+      label: { en: 'Teams', de: 'Teams' },
+      admin: {
+        description: {
+          en: 'Team tags this member belongs to (must match the project team catalog).',
+          de: 'Team-Tags, zu denen diese Person gehört (müssen dem Projekt-Team-Katalog entsprechen).',
+        },
+      },
     },
     {
       name: 'moduleOrder',

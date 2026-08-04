@@ -22,12 +22,24 @@ export const Folders: CollectionConfig = {
       name: 'visibility',
       type: 'select',
       label: { en: 'Visibility', de: 'Sichtbarkeit' },
-      defaultValue: 'INTERNAL',
+      defaultValue: 'PROJECT',
       options: [
         { label: { en: 'Public', de: 'Öffentlich' }, value: 'PUBLIC' },
-        { label: { en: 'Internal', de: 'Intern' }, value: 'INTERNAL' },
-        { label: { en: 'Team', de: 'Team' }, value: 'TEAM' },
+        { label: { en: 'Project (members)', de: 'Projekt (Mitglieder)' }, value: 'PROJECT' },
+        { label: { en: 'Team (selected)', de: 'Team (ausgewählt)' }, value: 'TEAM' },
       ],
+    },
+    {
+      name: 'visibilityTeams',
+      type: 'text',
+      hasMany: true,
+      label: { en: 'Teams (visibility)', de: 'Teams (Sichtbarkeit)' },
+      admin: {
+        description: {
+          en: 'Team tags that may see this content when visibility is "TEAM" (must be in the project team catalog).',
+          de: 'Team-Tags mit Zugriff, wenn die Sichtbarkeit "TEAM" ist (müssen im Projekt-Team-Katalog stehen).',
+        },
+      },
     },
   ],
   timestamps: true,

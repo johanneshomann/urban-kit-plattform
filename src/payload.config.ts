@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Projects } from './collections/Projects'
-import { Teams } from './collections/Teams'
 import { ProjectMemberships } from './collections/ProjectMemberships'
 import { Activity } from './collections/Activity'
 import { Notifications } from './collections/Notifications'
@@ -49,7 +48,6 @@ export default buildConfig({
     Users,
     Media,
     Projects,
-    Teams,
     ProjectMemberships,
     Activity,
     Notifications,

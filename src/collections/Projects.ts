@@ -144,6 +144,21 @@ export const Projects: CollectionConfig = {
       label: { en: 'Topics', de: 'Thema' },
       options: THEMA_OPTIONS.map((o) => ({ label: o.labelLocalized, value: o.value })),
     },
+    {
+      // Team catalog — the shared vocabulary the PM uses to tag members and
+      // scope TEAM-visibility content (see project-memberships.teams and the
+      // visibilityTeams field on content collections).
+      name: 'teams',
+      type: 'text',
+      hasMany: true,
+      label: { en: 'Teams', de: 'Teams' },
+      admin: {
+        description: {
+          en: 'Team catalog for scoping content and members (e.g. Kernteam, Lenkungsgruppe).',
+          de: 'Team-Katalog zum Scopen von Inhalten und Mitgliedern (z. B. Kernteam, Lenkungsgruppe).',
+        },
+      },
+    },
     { name: 'startYear', type: 'number', label: { en: 'Start year', de: 'Startjahr' } },
     {
       name: 'modules',

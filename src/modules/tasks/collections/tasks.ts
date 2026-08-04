@@ -47,16 +47,28 @@ export const Tasks: CollectionConfig = {
     },
     { name: 'labels', type: 'text', hasMany: true, label: { en: 'Labels', de: 'Labels' } },
     {
+      // Tasks are team-only by design — no PUBLIC option.
       name: 'visibility',
       type: 'select',
       label: { en: 'Visibility', de: 'Sichtbarkeit' },
-      defaultValue: 'INTERNAL',
+      defaultValue: 'PROJECT',
       options: [
-        { label: { en: 'Internal', de: 'Intern' }, value: 'INTERNAL' },
-        { label: { en: 'Team', de: 'Team' }, value: 'TEAM' },
+        { label: { en: 'Project (members)', de: 'Projekt (Mitglieder)' }, value: 'PROJECT' },
+        { label: { en: 'Team (selected)', de: 'Team (ausgewählt)' }, value: 'TEAM' },
       ],
     },
-    { name: 'visibilityTeam', type: 'relationship', relationTo: 'teams', label: { en: 'Team (visibility)', de: 'Team (Sichtbarkeit)' } },
+    {
+      name: 'visibilityTeams',
+      type: 'text',
+      hasMany: true,
+      label: { en: 'Teams (visibility)', de: 'Teams (Sichtbarkeit)' },
+      admin: {
+        description: {
+          en: 'Team tags that may see this content when visibility is "TEAM" (must be in the project team catalog).',
+          de: 'Team-Tags mit Zugriff, wenn die Sichtbarkeit "TEAM" ist (müssen im Projekt-Team-Katalog stehen).',
+        },
+      },
+    },
     { name: 'author', type: 'relationship', relationTo: 'users', label: { en: 'Author', de: 'Autor:in' } },
     {
       name: 'dependencies',
