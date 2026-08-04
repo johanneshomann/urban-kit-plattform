@@ -304,14 +304,14 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
   return (
     <>
       {/* Content hero — chapter start: Bereich main color fading into the light library */}
-      <section id="alle-projekte" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte)' }}>
+      <section id="alle-projekte" className="relative overflow-hidden flex flex-col" style={{ background: 'var(--projekte)' }}>
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"
           style={{ color: 'var(--projekte-dark)' }}
         />
-        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
+        <div className="relative z-10 px-6 md:px-16 lg:px-24 pt-16 pb-8 md:pt-24 md:pb-12">
           <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentP })}

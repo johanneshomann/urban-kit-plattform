@@ -77,7 +77,6 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         labelColor="var(--projekte-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
-          { id: 'intro', label: t('introEyebrow'), icon: 'Info' },
           { id: 'laufend', label: t('ctaActive'), icon: 'FolderOpen' },
           { id: 'alle-projekte', label: t('ctaAll'), icon: 'Folders' },
         ]}
@@ -88,7 +87,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       />
 
       {/* Hero — Bereich scheme: main-tinted hero, light content sections */}
-      <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'linear-gradient(to bottom, var(--projekte) calc(100% - var(--section-fade-height)), var(--projekte-light))' }}>
+      <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte)' }}>
         <ScrollHint color="var(--projekte-dark)" label={nav('scrollMore')} />
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -109,10 +108,10 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         </div>
       </section>
 
-      {/* Intro — Wieso, Weshalb & Warum — directly under the hero, text only */}
-      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'var(--projekte-light)' }}>
-        <div className="relative z-10 w-full max-w-3xl">
-          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
+      {/* About this Bereich — still part of the starting area, fades into Aktuelle Projekte */}
+      <section id="intro" className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--projekte) calc(100% - var(--section-fade-height)), var(--projekte-light))' }}>
+        <div className="relative z-10 w-full max-w-4xl">
+          <EyebrowBadge label={nav('aboutBereich')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-10">
             {t.rich('introTitle', { accentP })}
           </h2>
@@ -128,10 +127,10 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       </section>
 
       {/* Aktuelle Projekte — horizontal showcase (max 5), light like all content sections */}
-      <section id="laufend" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'var(--projekte-light)' }}>
+      <section id="laufend" className="relative overflow-hidden min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'linear-gradient(to bottom, var(--projekte-light) calc(100% - var(--section-fade-height)), var(--projekte))' }}>
         <div className="w-full">
           <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-12">
+          <h2 className="text-hero font-black leading-none tracking-tight mb-12">
             {t.rich('activeTitle', { pcolon })}
           </h2>
           {active.length === 0 ? (
