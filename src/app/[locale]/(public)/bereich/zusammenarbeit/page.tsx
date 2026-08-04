@@ -55,6 +55,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         label={nav('areaCollab')}
         dotColor="var(--zusammenarbeit-accent)"
         activeColor="var(--zusammenarbeit-dark)"
+        switchIconColor="var(--zusammenarbeit-on-brand)"
+        labelColor="var(--zusammenarbeit-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'raum', label: t('roomEyebrow'), icon: 'Layers' },
@@ -62,7 +64,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         ]}
         switchPages={[
           { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--projekte-on-brand)' },
-          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
+          { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)', iconColor: 'var(--zusammenarbeit-on-brand)' },
           { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
         ]}
       />
