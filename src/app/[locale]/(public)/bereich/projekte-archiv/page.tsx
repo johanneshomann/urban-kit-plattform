@@ -110,8 +110,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       </section>
 
       {/* About this Bereich — hero's counterpart in the starting area: text only.
-          Aktuelle Projekte lives in its own section below. */}
-      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-24 md:pt-24 md:pb-32" style={{ background: 'var(--projekte-light)' }}>
+          Stays on the hero's main tone; Aktuelle Projekte below carries the melt. */}
+      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-24 md:pt-24 md:pb-32" style={{ background: 'var(--projekte)' }}>
         <div className="relative z-10 w-full max-w-4xl">
           <EyebrowBadge label={nav('aboutBereich')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-10">
@@ -128,8 +128,9 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         </div>
       </section>
 
-      {/* Aktuelle Projekte — standalone section with its own heading */}
-      <section id="laufend" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'var(--projekte-light)' }}>
+      {/* Aktuelle Projekte — standalone section with its own heading; last of the
+          main-toned run, so it melts into the light Alle-Projekte chapter. */}
+      <section id="laufend" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'linear-gradient(to bottom, var(--projekte) calc(100% - var(--section-fade-height)), var(--projekte-light))' }}>
         <div className="w-full">
           <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-12">
