@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   ArrowLeft, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare,
-  MessageCircle, Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users, UserPlus, Settings,
+  MessageCircle, Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users, UserPlus, Settings, Shield,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -17,6 +17,7 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
 
 const PROJEKT_ITEMS: { key: string; labelKey: string; icon: LucideIcon }[] = [
   { key: 'allgemein', labelKey: 'sidebar.general', icon: Info },
+  { key: 'teams', labelKey: 'sidebar.teams', icon: Shield },
   { key: 'darstellung', labelKey: 'sidebar.appearance', icon: Palette },
   { key: 'module', labelKey: 'sidebar.modules', icon: LayoutGrid },
   { key: 'mitglieder', labelKey: 'sidebar.members', icon: Users },

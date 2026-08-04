@@ -72,7 +72,6 @@ export default async function ManageAllgemeinPage({
     projektbeschreibung,
     beteiligungsvorhaben,
     ansprechperson: ansprechpersonId,
-    teams: Array.isArray(p.teams) ? p.teams : [],
   }
 
   return <AllgemeinForm slug={slug} locale={locale} initial={initial} members={members} />

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { updateProjectSettings } from '@/actions/manage/project'
-import { updateProjectTeams } from '@/actions/manage/settings'
 import {
   THEMA_OPTIONS, STADTBEREICH_OPTIONS, ALTERSGRUPPE_OPTIONS, GENDER_OPTIONS, type FieldOption,
 } from '@/lib/options/project-fields'
@@ -22,7 +21,6 @@ export interface AllgemeinInitial {
   stadtbereich: string[]
   altersgruppe: string[]
   gender: string[]
-  teams: string[]
   kontakt: { email: string; telefon: string; website: string }
   projektbeschreibung: string
   beteiligungsvorhaben: string
@@ -93,8 +91,6 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
   const save = () => {
     setError(null)
     startTransition(async () => {
-      const teamsRes = await updateProjectTeams(slug, locale, state.teams)
-      if (teamsRes.error) { setError(teamsRes.error); return }
       const res = await updateProjectSettings(slug, locale, {
         title: state.title,
         shortDescription: state.shortDescription,
@@ -177,16 +173,6 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
         </Section>
 
         <Section title={t('allgemein.sectionTargetGroups')}>
-          <div>
-            <Label>{t('members.teamLabel')}</Label>
-            <input
-              className={inputCls}
-              style={inputStyle}
-              value={state.teams.join(', ')}
-              onChange={(e) => set('teams', e.target.value.split(',').map((t) => t.trim()).filter(Boolean))}
-              placeholder="Kernteam, Lenkungsgruppe, …"
-            />
-          </div>
           <div><Label>{t('allgemein.labelThema')}</Label><ChipMultiSelect options={THEMA_OPTIONS} value={state.thema} onChange={(v) => set('thema', v)} /></div>
           <div><Label>{t('allgemein.labelStadtbereich')}</Label><ChipMultiSelect options={STADTBEREICH_OPTIONS} value={state.stadtbereich} onChange={(v) => set('stadtbereich', v)} /></div>
           <div><Label>{t('allgemein.labelAltersgruppe')}</Label><ChipMultiSelect options={ALTERSGRUPPE_OPTIONS} value={state.altersgruppe} onChange={(v) => set('altersgruppe', v)} /></div>
