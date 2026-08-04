@@ -157,7 +157,7 @@ function FilterPill({ icon, label, value, onClick }: { icon?: ReactNode; label: 
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-small transition-all cursor-pointer"
-      style={{ color: 'var(--plattform-ink)' }}
+      style={{ color: 'var(--projekte-on-brand)' }}
     >
       {icon}
       <span>{label}:</span>
@@ -336,7 +336,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                   onClick={() => setFilterOpen((v) => !v)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-display cursor-pointer flex-1 sm:flex-none ${filterOpen ? 'sm:min-w-[16rem] bg-[var(--projekte-dark)]' : 'sm:min-w-[12rem] bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
                   style={{
-                    color: 'var(--plattform-ink)',
+                    color: 'var(--projekte-on-brand)',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                     transition: 'background 0.2s, box-shadow 0.2s, min-width 0.4s cubic-bezier(0.22,1,0.36,1)',
                   }}
@@ -361,7 +361,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                     type="button"
                     onClick={() => setSettingsOpen((v) => !v)}
                     className={`h-full min-h-[2.75rem] flex items-center justify-center px-4 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md text-display ${settingsOpen ? 'bg-[var(--projekte-dark)]' : 'bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
-                    style={{ color: 'var(--plattform-ink)' }}
+                    style={{ color: 'var(--projekte-on-brand)' }}
                     aria-label={t('viewSettings')}
                   >
                     <Settings className="w-[1em] h-[1em] shrink-0" />
@@ -452,7 +452,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                           type="button"
                           onClick={() => toggleAccordion(key)}
                           className={`w-full flex items-center justify-between px-5 py-3 text-left cursor-pointer transition-colors ${isOpen ? '' : 'hover:bg-[var(--projekte)]'}`}
-                          style={{ color: 'var(--plattform-ink)' }}
+                          style={{ color: 'var(--projekte-on-brand)' }}
                         >
                           <span className="flex items-center gap-2 text-text">
                             <Icon className="w-[1em] h-[1em]" />

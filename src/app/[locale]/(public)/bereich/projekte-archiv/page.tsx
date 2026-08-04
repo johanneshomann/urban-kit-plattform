@@ -74,8 +74,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         label={nav('areaProjects')}
         dotColor="var(--projekte-accent)"
         activeColor="var(--projekte-dark)"
-        switchIconColor="var(--plattform-ink)"
-        labelColor="var(--plattform-ink)"
+        switchIconColor="var(--projekte-on-brand)"
+        labelColor="var(--projekte-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'laufend', label: t('ctaActive'), icon: 'FolderOpen' },
@@ -83,7 +83,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           { id: 'alle-projekte', label: t('ctaAll'), icon: 'Folders' },
         ]}
         switchPages={[
-          { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--plattform-ink)' },
+          { href: `/${locale}/bereich/projekte-archiv`, label: nav('areaProjects'), icon: 'FolderOpen', color: 'var(--projekte-dark)', iconColor: 'var(--projekte-on-brand)' },
           { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)' },
           { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
         ]}
