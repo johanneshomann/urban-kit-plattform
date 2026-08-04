@@ -3,6 +3,7 @@ import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import type { ViewerContext } from '@/lib/visibility'
 
 /** Project fields consumed by the workspace layout (hero) and page. */
 export type WorkspaceProject = {
@@ -47,6 +48,10 @@ export interface WorkspaceContext {
   canManage: boolean
   canRequestJoin: boolean
   isActiveMember: boolean
+  /** Team tags on the viewer's active membership (from the project catalog). */
+  teams: string[]
+  /** Resolved viewer context (tier + teams) for visibility filtering. */
+  viewer: ViewerContext
 }
 
 /**
@@ -75,6 +80,7 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   let savedOrder: string[] | null = null
   let role: string | null = null
   let membershipStatus: string | null = null
+  let teamTags: string[] = []
   let isLoggedIn = false
 
   if (token) {
@@ -88,12 +94,13 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
         depth: 0,
         overrideAccess: true,
       })
-      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; moduleOrder?: unknown } | undefined
+      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; moduleOrder?: unknown; teams?: string[] | null } | undefined
       if (membership) {
         membershipId = membership.id
         role = membership.role ?? null
         membershipStatus = membership.status ?? null
         if (Array.isArray(membership.moduleOrder)) savedOrder = membership.moduleOrder as string[]
+        teamTags = Array.isArray(membership.teams) ? membership.teams : []
       }
     }
   }
@@ -102,6 +109,14 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   // Offer "Mitmachen" to logged-in users without an active membership (open
   // requests show their pending state; rejected users may ask again).
   const canRequestJoin = isLoggedIn && membershipStatus !== 'active' && project.joinRequestsEnabled !== false
+  const isActiveMember = membershipStatus === 'active'
+
+  const viewer: ViewerContext = {
+    tier: !isActiveMember ? 'public' : role === 'PM' || teamTags.length > 0 ? 'team' : 'member',
+    teams: teamTags,
+    isPM: role === 'PM',
+    active: isActiveMember,
+  }
 
   return {
     project,
@@ -113,6 +128,8 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
     isLoggedIn,
     canManage,
     canRequestJoin,
-    isActiveMember: membershipStatus === 'active',
+    isActiveMember,
+    teams: teamTags,
+    viewer,
   }
 })

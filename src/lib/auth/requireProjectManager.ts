@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getUser } from '@/lib/auth/getUser'
-import { getViewerTier } from '@/lib/visibility'
+import { getViewerContext } from '@/lib/visibility'
 import type { Payload } from 'payload'
 import type { User } from '@/payload-types'
 
@@ -68,8 +68,9 @@ export interface ProjectTeamContext {
 }
 
 /**
- * Resolve a team context (tier 'team' = PM or member flagged isTeam), or null.
- * Used by team-only modules (Tasks). Returns the payload instance too.
+ * Resolve a team context (tier 'team' = PM or a member carrying any team tag
+ * from the project catalog), or null. Used by team-only modules (Tasks).
+ * Returns the payload instance too.
  */
 export async function getProjectTeamContext(slug: string): Promise<ProjectTeamContext | null> {
   const user = await getUser()
@@ -80,8 +81,8 @@ export async function getProjectTeamContext(slug: string): Promise<ProjectTeamCo
   const project = projectRes.docs[0] as ManagedProject | undefined
   if (!project) return null
 
-  const tier = await getViewerTier(payload, String(user.id), project.id)
-  if (tier !== 'team') return null
+  const ctx = await getViewerContext(payload, String(user.id), project.id)
+  if (ctx.tier !== 'team') return null
 
   return { user, project, payload }
 }
