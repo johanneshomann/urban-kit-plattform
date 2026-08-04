@@ -123,18 +123,21 @@ export const PlatformSettings: GlobalConfig = {
               colorField('projektesLight', { en: 'Projects light', de: 'Projekte Light' }, { en: 'Light tint of the “Projekte” area.', de: 'Heller Ton des Bereichs „Projekte“.' }),
               colorField('projektesAccent', { en: 'Projects accent', de: 'Projekte Accent' }, { en: 'Accent of the “Projekte” area.', de: 'Akzentfarbe des Bereichs „Projekte“.' }),
               colorField('projektesDark', { en: 'Projects dark', de: 'Projekte Dark' }, { en: 'Darkest shade of the “Projekte” area.', de: 'Dunkelste Schattierung des Bereichs „Projekte“.' }),
+              colorField('projektesOnBrand', { en: 'Projects on-brand text', de: 'Projekte On-Brand-Text' }, { en: 'Text/icon color on “Projekte” brand surfaces (chips, balls).', de: 'Text-/Iconfarbe auf Markenflächen des Bereichs „Projekte“ (Chips, Buttons).' }),
             ]),
             colorGroup({ en: 'Area colors – Basics', de: 'Farben – Bereich Grundlagen' }, [
               colorField('grundlagenMain', { en: 'Basics (main)', de: 'Grundlagen (Main)' }, { en: 'Primary color of the “Grundlagen” area.', de: 'Primärfarbe des Bereichs „Grundlagen“.' }),
               colorField('grundlagenLight', { en: 'Basics light', de: 'Grundlagen Light' }, { en: 'Light tint of the “Grundlagen” area.', de: 'Heller Ton des Bereichs „Grundlagen“.' }),
               colorField('grundlagenAccent', { en: 'Basics accent', de: 'Grundlagen Accent' }, { en: 'Accent of the “Grundlagen” area.', de: 'Akzentfarbe des Bereichs „Grundlagen“.' }),
               colorField('grundlagenDark', { en: 'Basics dark', de: 'Grundlagen Dark' }, { en: 'Darkest shade of the “Grundlagen” area.', de: 'Dunkelste Schattierung des Bereichs „Grundlagen“.' }),
+              colorField('grundlagenOnBrand', { en: 'Basics on-brand text', de: 'Grundlagen On-Brand-Text' }, { en: 'Text/icon color on “Grundlagen” brand surfaces (chips, balls).', de: 'Text-/Iconfarbe auf Markenflächen des Bereichs „Grundlagen“ (Chips, Buttons).' }),
             ]),
             colorGroup({ en: 'Area colors – Collaboration', de: 'Farben – Bereich Zusammenarbeit' }, [
               colorField('zusammenarbeitMain', { en: 'Collaboration (main)', de: 'Zusammenarbeit (Main)' }, { en: 'Primary color of the “Zusammenarbeit” area.', de: 'Primärfarbe des Bereichs „Zusammenarbeit“.' }),
               colorField('zusammenarbeitLight', { en: 'Collaboration light', de: 'Zusammenarbeit Light' }, { en: 'Light tint of the “Zusammenarbeit” area.', de: 'Heller Ton des Bereichs „Zusammenarbeit“.' }),
               colorField('zusammenarbeitAccent', { en: 'Collaboration accent', de: 'Zusammenarbeit Accent' }, { en: 'Accent of the “Zusammenarbeit” area.', de: 'Akzentfarbe des Bereichs „Zusammenarbeit“.' }),
               colorField('zusammenarbeitDark', { en: 'Collaboration dark', de: 'Zusammenarbeit Dark' }, { en: 'Darkest shade of the “Zusammenarbeit” area.', de: 'Dunkelste Schattierung des Bereichs „Zusammenarbeit“.' }),
+              colorField('zusammenarbeitOnBrand', { en: 'Collaboration on-brand text', de: 'Zusammenarbeit On-Brand-Text' }, { en: 'Text/icon color on “Zusammenarbeit” brand surfaces (chips, balls).', de: 'Text-/Iconfarbe auf Markenflächen des Bereichs „Zusammenarbeit“ (Chips, Buttons).' }),
             ]),
             colorGroup({ en: 'Platform colors', de: 'Farben – Plattform' }, [
               colorField('plattform', { en: 'Platform', de: 'Plattform' }, { en: 'Primary platform color.', de: 'Primäre Plattformfarbe.' }),

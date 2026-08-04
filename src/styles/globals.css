@@ -218,6 +218,9 @@ html.a11y-high-contrast {
   --grundlagen-accent:      #000 !important;
   --zusammenarbeit-dark:    #000 !important;
   --zusammenarbeit-accent:  #000 !important;
+  --projekte-on-brand:      #fff !important;
+  --grundlagen-on-brand:    #fff !important;
+  --zusammenarbeit-on-brand:#fff !important;
   --color-foreground:       #000 !important;
   --color-muted-foreground: #000 !important;
   --color-border:           #000 !important;

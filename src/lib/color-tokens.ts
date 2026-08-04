@@ -12,16 +12,19 @@ export interface PlatformColors {
   projektesMain: string
   projektesLight: string
   projektesAccent: string
+  projektesOnBrand: string
   projektesDark: string
   // Grundlagen
   grundlagenMain: string
   grundlagenLight: string
   grundlagenAccent: string
+  grundlagenOnBrand: string
   grundlagenDark: string
   // Zusammenarbeit
   zusammenarbeitMain: string
   zusammenarbeitLight: string
   zusammenarbeitAccent: string
+  zusammenarbeitOnBrand: string
   zusammenarbeitDark: string
   // Plattform
   plattform: string
@@ -39,6 +42,7 @@ export const COLOR_DEFAULTS: PlatformColors = {
   projektesLight:   '#ffebc9',
   projektesAccent:  '#ff9c1a',
   projektesDark:    '#ffb950',
+  projektesOnBrand: '#1c1c1c',
 
   // Role structure mirrors projekte: light/main = surfaces, dark = chip/ball
   // backgrounds (mid tone), accent = darkest tone for text accents.
@@ -46,11 +50,13 @@ export const COLOR_DEFAULTS: PlatformColors = {
   grundlagenLight:  '#eeeeff',
   grundlagenAccent: '#7375c4',
   grundlagenDark:   '#a0a2e8',
+  grundlagenOnBrand: '#1c1c1c',
 
   zusammenarbeitMain:   '#b2deb7',
   zusammenarbeitLight:  '#dff2e1',
   zusammenarbeitAccent: '#3d9445',
   zusammenarbeitDark:   '#6dbf74',
+  zusammenarbeitOnBrand: '#ffffff',
 
   plattform:          '#007734',
   plattformLight:     '#f0f0f0',

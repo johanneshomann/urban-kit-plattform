@@ -24,16 +24,19 @@ export async function getPlatformColors(): Promise<PlatformColors> {
       projektesLight:   pick(s.projektesLight,   COLOR_DEFAULTS.projektesLight),
       projektesAccent:  pick(s.projektesAccent,  COLOR_DEFAULTS.projektesAccent),
       projektesDark:    pick(s.projektesDark,    COLOR_DEFAULTS.projektesDark),
+      projektesOnBrand: pick(s.projektesOnBrand, COLOR_DEFAULTS.projektesOnBrand),
 
       grundlagenMain:   pick(s.grundlagenMain,   COLOR_DEFAULTS.grundlagenMain),
       grundlagenLight:  pick(s.grundlagenLight,  COLOR_DEFAULTS.grundlagenLight),
       grundlagenAccent: pick(s.grundlagenAccent, COLOR_DEFAULTS.grundlagenAccent),
       grundlagenDark:   pick(s.grundlagenDark,   COLOR_DEFAULTS.grundlagenDark),
+      grundlagenOnBrand: pick(s.grundlagenOnBrand, COLOR_DEFAULTS.grundlagenOnBrand),
 
       zusammenarbeitMain:   pick(s.zusammenarbeitMain,   COLOR_DEFAULTS.zusammenarbeitMain),
       zusammenarbeitLight:  pick(s.zusammenarbeitLight,  COLOR_DEFAULTS.zusammenarbeitLight),
       zusammenarbeitAccent: pick(s.zusammenarbeitAccent, COLOR_DEFAULTS.zusammenarbeitAccent),
       zusammenarbeitDark:   pick(s.zusammenarbeitDark,   COLOR_DEFAULTS.zusammenarbeitDark),
+      zusammenarbeitOnBrand: pick(s.zusammenarbeitOnBrand, COLOR_DEFAULTS.zusammenarbeitOnBrand),
 
       plattform:          pick(s.plattform,          COLOR_DEFAULTS.plattform),
       plattformLight:     pick(s.plattformLight,     COLOR_DEFAULTS.plattformLight),
@@ -55,16 +58,19 @@ export function colorsToCssVars(c: PlatformColors): Record<string, string> {
     '--projekte-light':         c.projektesLight,
     '--projekte-accent':        c.projektesAccent,
     '--projekte-dark':          c.projektesDark,
+    '--projekte-on-brand':      c.projektesOnBrand,
 
     '--grundlagen':             c.grundlagenMain,
     '--grundlagen-light':       c.grundlagenLight,
     '--grundlagen-accent':      c.grundlagenAccent,
     '--grundlagen-dark':        c.grundlagenDark,
+    '--grundlagen-on-brand':    c.grundlagenOnBrand,
 
     '--zusammenarbeit':         c.zusammenarbeitMain,
     '--zusammenarbeit-light':   c.zusammenarbeitLight,
     '--zusammenarbeit-accent':  c.zusammenarbeitAccent,
     '--zusammenarbeit-dark':    c.zusammenarbeitDark,
+    '--zusammenarbeit-on-brand': c.zusammenarbeitOnBrand,
 
     '--plattform':                    c.plattform,
     '--plattform-light':              c.plattformLight,
