@@ -33,7 +33,6 @@ export async function generateMetadata({
 // Text accent on light backgrounds — `--projekte-accent` is the dark orange
 // (the `-dark` token is tuned lighter for chip/hero backgrounds).
 const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-accent)' }}>{chunks}</span>
-const pcolon = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-accent)' }}>{chunks}</span>
 const br = () => <br />
 
 async function getProjects(): Promise<Project[]> {
@@ -128,9 +127,6 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
           {/* Aktuelle Projekte — showcase inside the about block */}
           <div id="laufend" className="mt-16 md:mt-24">
-            <h3 className="text-title font-black tracking-tight mb-12">
-              {t.rich('activeTitle', { pcolon })}
-            </h3>
             {active.length === 0 ? (
               <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
             ) : (
@@ -140,7 +136,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                 const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
                 const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()
                 return (
-                  <div key={p.id} className="card-in snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)]" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
+                  <div key={p.id} className="card-in snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
                     <Link
                       href={`/${locale}/projekte/${p.slug}`}
                       className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
