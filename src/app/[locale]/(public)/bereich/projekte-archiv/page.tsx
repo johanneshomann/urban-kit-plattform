@@ -68,7 +68,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
-      <BereichThemeScope accent="var(--projekte-accent)" onBrand="var(--projekte-on-brand)" />
+      <BereichThemeScope accent="var(--projekte-dark)" onBrand="var(--projekte-on-brand)" />
       <SectionDotsNav
         label={nav('areaProjects')}
         dotColor="var(--projekte-accent)"

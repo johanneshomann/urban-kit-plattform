@@ -90,7 +90,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
-      <BereichThemeScope accent="var(--grundlagen-accent)" onBrand="var(--grundlagen-on-brand)" />
+      <BereichThemeScope accent="var(--grundlagen-dark)" onBrand="var(--grundlagen-on-brand)" />
       <SectionDotsNav
         label={nav('areaBasics')}
         dotColor="var(--grundlagen-accent)"
