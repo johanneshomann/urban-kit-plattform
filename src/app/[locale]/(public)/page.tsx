@@ -10,7 +10,7 @@ import { HeroSlideshow, type HeroImage } from '@/components/public/HeroSlideshow
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { CtaButton } from '@/components/public/CtaButton'
 import { getCitySettings } from '@/lib/instance'
-import { MessageCircleQuestion, Flag, FolderOpen, Info, HandHeart, Circle } from 'lucide-react'
+import { MessageCircleQuestion, Flag, FolderOpen, Info, HandHeart, Users, BookOpen } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { CardSlider } from '@/components/public/CardSlider'
@@ -212,7 +212,7 @@ export default async function PublicHomePage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
-                <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-accent)' }} />
+                <FolderOpen className="text-display w-[1em] h-[1em] shrink-0" style={{ color: 'var(--projekte-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--projekte-accent)' }}>
                   {t('areaProjectsTitle')}
                 </h3>
@@ -223,7 +223,7 @@ export default async function PublicHomePage({
             </Link>
             <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
-                <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-accent)' }} />
+                <Users className="text-display w-[1em] h-[1em] shrink-0" style={{ color: 'var(--zusammenarbeit-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--zusammenarbeit-accent)' }}>
                   {t('areaCollabTitle')}
                 </h3>
@@ -234,7 +234,7 @@ export default async function PublicHomePage({
             </Link>
             <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
-                <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-accent)' }} />
+                <BookOpen className="text-display w-[1em] h-[1em] shrink-0" style={{ color: 'var(--grundlagen-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--grundlagen-accent)' }}>
                   {t('areaBasicsTitle')}
                 </h3>
