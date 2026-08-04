@@ -90,7 +90,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
       {/* Hero — Bereich scheme: main-tinted hero, light content sections */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'linear-gradient(to bottom, var(--projekte) calc(100% - var(--section-fade-height)), var(--projekte-light))' }}>
-        <ScrollHint color="var(--projekte-dark)" />
+        <ScrollHint color="var(--projekte-dark)" label={nav('scrollMore')} />
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}

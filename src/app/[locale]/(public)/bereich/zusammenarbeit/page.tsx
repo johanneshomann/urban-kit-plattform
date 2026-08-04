@@ -76,7 +76,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           className="relative min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
           style={{ background: 'linear-gradient(to bottom, var(--zusammenarbeit) calc(100% - var(--section-fade-height)), var(--zusammenarbeit-light))' }}
         >
-          <ScrollHint color="var(--zusammenarbeit-dark)" />
+          <ScrollHint color="var(--zusammenarbeit-dark)" label={nav('scrollMore')} />
 
           <Users
             className="absolute right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
