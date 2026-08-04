@@ -99,10 +99,9 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         labelColor="var(--grundlagen-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
-          { id: 'grundlagen', label: t('basicsEyebrow'), icon: 'BookOpen' },
-          { id: 'methoden', label: t('methodsEyebrow'), icon: 'Lightbulb' },
-          { id: 'partizipation', label: nav('participation'), icon: 'Handshake' },
+          { id: 'methoden', label: t('methodsTitle'), icon: 'Lightbulb' },
           { id: 'projektplanung', label: nav('projectPlanning'), icon: 'Route' },
+          { id: 'partizipation', label: nav('participation'), icon: 'Handshake' },
           { id: 'recht', label: nav('legalFramework'), icon: 'Scale' },
         ]}
         switchPages={[
@@ -111,11 +110,11 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         ]}
       />
 
-      {/* Hero */}
+      {/* ── Starting area: hero + about this Bereich, one main-colored block ── */}
       <section
         id="hero"
         className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}
+        style={{ background: 'var(--grundlagen)' }}
       >
         <ScrollHint color="var(--grundlagen-dark)" />
         <BookOpen
@@ -135,28 +134,19 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
             {t('heroBody')}
           </p>
         </div>
-
       </section>
 
-      {/* Grundlagen — what this Bereich is for; fades into the Methoden chapter */}
+      {/* About this Bereich — still part of the starting area, fades into Methoden */}
       <section
         id="grundlagen"
-        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
-        style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}
+        className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}
       >
-        <BookOpen
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
-          strokeWidth={1}
-          aria-hidden="true"
-          style={{ color: 'var(--grundlagen-dark)' }}
-        />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-
+          <EyebrowBadge label={nav('aboutBereich')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-6">
             {t('basicsTitle')}
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4 max-w-5xl">
             <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
               {t('basicsBody')}
@@ -171,35 +161,26 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         </div>
       </section>
 
-      {/* Methoden — chapter hero: continuous main block with the method teasers below */}
+      {/* ── Methoden: text, example methods, link to the Methodensammlung ── */}
       <section
         id="methoden"
-        className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen)' }}
+        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}
       >
         <BookOpen
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"
           style={{ color: 'var(--grundlagen-dark)' }}
         />
-        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
+        <div className="relative z-10 w-full">
           <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
+          <h2 className="text-title font-black tracking-tight mb-6">
             {t('methodsTitle')}
           </h2>
-          <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
+          <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
             {t('methodsBody')}
           </p>
-        </div>
-      </section>
-
-      {/* Method teasers — six published methods pulled from the Methodensammlung API */}
-      <section
-        className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
-        style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}
-      >
-        <div className="relative z-10 w-full">
           {methodTeasers.length > 0 && (
             <div className="mb-12">
               <CardSlider locale={locale}>
@@ -254,87 +235,81 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
             href="https://methoden.urbankit.de"
             label={t('methodsCta')}
             icon={<ExternalLink />}
-            variant="grundlagenLight"
+            variant="grundlagen"
           />
         </div>
       </section>
 
-      {/* Partizipation — merged chapter: content hero (main → light) + accordion */}
-      <section
-        id="partizipation"
-        className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen-light)' }}
-      >
-        <Handshake
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
-          strokeWidth={1}
-          aria-hidden="true"
-          style={{ color: 'var(--grundlagen-dark)' }}
-        />
-        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
-            {tp.rich('heroTitle', { accentG })}
-          </h2>
-          <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            {tp('heroBody')}
-          </p>
-        </div>
-      </section>
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}>
-        <PartizipationAccordion sections={partizipationSections} />
-      </section>
-
-      {/* Projektplanung — merged chapter */}
+      {/* ── Projektplanung: text + tabs ── */}
       <section
         id="projektplanung"
-        className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen)' }}
+        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}
       >
         <Route
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"
           style={{ color: 'var(--grundlagen-dark)' }}
         />
-        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
+        <div className="relative z-10 w-full">
           <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
+          <h2 className="text-title font-black tracking-tight mb-6">
             {tpp.rich('heroTitle', { accentG })}
           </h2>
-          <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
+          <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
             {tpp('heroBody')}
           </p>
+          <ProjektplanungAccordion steps={projektSteps} />
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--grundlagen) calc(100% - var(--section-fade-height)), var(--grundlagen-light))' }}>
-        <ProjektplanungAccordion steps={projektSteps} />
-      </section>
 
-      {/* Recht — merged chapter; the accordion below stays flat: hard cut to the footer */}
+      {/* ── Partizipation: text + tabs ── */}
       <section
-        id="recht"
-        className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-        style={{ background: 'var(--grundlagen-light)' }}
+        id="partizipation"
+        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'linear-gradient(to bottom, var(--grundlagen-light) calc(100% - var(--section-fade-height)), var(--grundlagen))' }}
       >
-        <Scale
-          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+        <Handshake
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
           strokeWidth={1}
           aria-hidden="true"
           style={{ color: 'var(--grundlagen-dark)' }}
         />
-        <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-hero font-black leading-none tracking-tight mb-5">
-            {tr.rich('heroTitle', { accentG })}
+        <div className="relative z-10 w-full">
+          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
+          <h2 className="text-title font-black tracking-tight mb-6">
+            {tp.rich('heroTitle', { accentG })}
           </h2>
-          <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            {tr('heroBody')}
+          <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
+            {tp('heroBody')}
           </p>
+          <PartizipationAccordion sections={partizipationSections} />
         </div>
       </section>
-      <section className="px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'var(--grundlagen-light)' }}>
-        <PartizipationAccordion sections={rechtSections} />
+
+      {/* ── Rechtlicher Rahmen: text + tabs — last section stays flat: hard cut to the footer ── */}
+      <section
+        id="recht"
+        className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+        style={{ background: 'var(--grundlagen)' }}
+      >
+        <Scale
+          className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
+          strokeWidth={1}
+          aria-hidden="true"
+          style={{ color: 'var(--grundlagen-dark)' }}
+        />
+        <div className="relative z-10 w-full">
+          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
+          <h2 className="text-title font-black tracking-tight mb-6">
+            {tr.rich('heroTitle', { accentG })}
+          </h2>
+          <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
+            {tr('heroBody')}
+          </p>
+          <PartizipationAccordion sections={rechtSections} />
+        </div>
       </section>
 
       <PublicFooter locale={locale} />
