@@ -12,7 +12,7 @@ import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
-import { getMethodTeasers, methodImageUrl, METHODEN_URL } from '@/lib/methodensammlung'
+import { getMethodTeasers, getPhaseMethodTeasers, methodImageUrl, METHODEN_URL } from '@/lib/methodensammlung'
 import { CardSlider } from '@/components/public/CardSlider'
 
 export async function generateMetadata({
@@ -68,7 +68,11 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     title: tr(`${k}Title`),
     content: tr.rich(`${k}Body`, richTags),
   }))
-  const methodTeasers = await getMethodTeasers(locale === 'en' ? 'en' : 'de', 6)
+  const apiLocale = locale === 'en' ? 'en' as const : 'de' as const
+  const [methodTeasers, phaseMethods] = await Promise.all([
+    getMethodTeasers(apiLocale, 6),
+    getPhaseMethodTeasers(apiLocale, 3),
+  ])
   const projektSteps: ProjektStep[] = PROJEKTPHASEN.map((phase, i) => ({
     phase: tax(`phase.${phase.value}`),
     title: tpp(`s${i}Title`),
@@ -77,6 +81,10 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     todos: tpp.raw(`s${i}Todos`) as TodoItem[],
     wichtig: tpp.rich(`s${i}Wichtig`, richTags),
     methoden: tpp.raw(`s${i}Methoden`) as MethodItem[],
+    methodLinks: (phaseMethods[phase.value] ?? []).map((m) => ({
+      title: m.title,
+      href: `${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`,
+    })),
   }))
 
   return (

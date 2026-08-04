@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronDown, Circle } from 'lucide-react'
+import { ChevronDown, Circle, ExternalLink } from 'lucide-react'
 
 export interface TodoItem { bold: string; text: string }
 export interface MethodItem { name: string; description: string }
@@ -15,6 +15,8 @@ export interface ProjektStep {
   todos: TodoItem[]
   wichtig: React.ReactNode
   methoden: MethodItem[]
+  /** Example methods pulled from the Methodensammlung API; falls back to `methoden` when empty. */
+  methodLinks?: { title: string; href: string }[]
 }
 
 function StepContent({ step }: { step: ProjektStep }) {
@@ -53,18 +55,36 @@ function StepContent({ step }: { step: ProjektStep }) {
         <p className="text-small uppercase tracking-widest font-black mb-3" style={{ color: 'var(--plattform-ink)' }}>
           {t('methodbox')}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {step.methoden.map((m, i) => (
-            <div
-              key={i}
-              className="px-3 py-2 rounded-lg text-small"
-              style={{ background: 'var(--plattform-white-transparent)' }}
-            >
-              <span className="font-black" style={{ color: 'var(--plattform-ink-accent)' }}>{m.name}</span>
-              {m.description && <span className="opacity-60" style={{ color: 'var(--plattform-ink)' }}> · {m.description}</span>}
-            </div>
-          ))}
-        </div>
+        {(step.methodLinks ?? []).length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {step.methodLinks!.map((m) => (
+              <a
+                key={m.href}
+                href={m.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small transition-all shadow-xs hover:shadow-md"
+                style={{ background: 'var(--plattform-white-transparent)' }}
+              >
+                <span className="font-black group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{m.title}</span>
+                <ExternalLink className="w-[1em] h-[1em] shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--grundlagen-accent)' }} />
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {step.methoden.map((m, i) => (
+              <div
+                key={i}
+                className="px-3 py-2 rounded-lg text-small"
+                style={{ background: 'var(--plattform-white-transparent)' }}
+              >
+                <span className="font-black" style={{ color: 'var(--plattform-ink-accent)' }}>{m.name}</span>
+                {m.description && <span className="opacity-60" style={{ color: 'var(--plattform-ink)' }}> · {m.description}</span>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

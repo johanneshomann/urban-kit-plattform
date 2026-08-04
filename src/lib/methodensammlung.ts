@@ -57,6 +57,69 @@ export async function getMethodTeasers(locale: 'de' | 'en', limit = 6): Promise<
   }
 }
 
+/**
+ * Our Projektphasen (src/lib/options/projektphasen.ts) → the Methodensammlung's
+ * `project-phases` taxonomy, matched by German name. `warum-wofuer` has no
+ * counterpart over there and simply yields no example methods.
+ */
+const PHASE_NAME_MAP: Record<string, string | null> = {
+  'warum-wofuer': null,
+  einarbeitung: 'Einarbeitung',
+  konzept: 'Konzeptentwicklung',
+  projektplanung: 'Projektplanung',
+  ausfuehrung: 'Projektausführung',
+  ueberwachung: 'Projektüberwachung',
+  abschluss: 'Projektabschluss',
+}
+
+/**
+ * Up to `limit` example methods per Projektphase, keyed by OUR phase value.
+ * Two round-trips: resolve the phase taxonomy ids by German name, then one
+ * aliased query fetching the methods of every matched phase. Degrades to an
+ * empty map without a key or on any failure.
+ */
+export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Promise<Record<string, MethodTeaser[]>> {
+  const key = process.env.METHODEN_API_KEY
+  if (!key) return {}
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `api-clients API-Key ${key}`,
+  }
+  try {
+    const phasesRes = await fetch(`${METHODEN_URL}/api/graphql`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query: 'query { ProjectPhases(limit: 50, locale: de) { docs { id name } } }' }),
+      next: { revalidate: 3600 },
+    })
+    if (!phasesRes.ok) return {}
+    const phasesJson = (await phasesRes.json()) as { data?: { ProjectPhases?: { docs?: { id: string; name?: string | null }[] } } }
+    const byName = new Map((phasesJson.data?.ProjectPhases?.docs ?? []).map((d) => [d.name ?? '', d.id]))
+
+    const matched = Object.entries(PHASE_NAME_MAP)
+      .map(([ours, theirs], i) => ({ ours, id: theirs ? byName.get(theirs) : undefined, alias: `p${i}` }))
+      .filter((m): m is { ours: string; id: string; alias: string } => !!m.id)
+    if (matched.length === 0) return {}
+
+    const query = `query PhaseMethods($locale: LocaleInputType) { ${matched
+      .map((m) => `${m.alias}: Methods(limit: ${limit}, locale: $locale, fallbackLocale: de, sort: "-updatedAt", where: { projectPhases: { in: ["${m.id}"] } }) { docs { id title slug } }`)
+      .join(' ')} }`
+    const res = await fetch(`${METHODEN_URL}/api/graphql`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query, variables: { locale } }),
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return {}
+    const json = (await res.json()) as { data?: Record<string, { docs?: MethodTeaser[] }> }
+    const out: Record<string, MethodTeaser[]> = {}
+    for (const m of matched) out[m.ours] = json.data?.[m.alias]?.docs ?? []
+    return out
+  } catch {
+    return {}
+  }
+}
+
 // Number of fallback cover images in the Methodensammlung's /method-defaults pool.
 const DEFAULT_POOL_SIZE = 7
 
