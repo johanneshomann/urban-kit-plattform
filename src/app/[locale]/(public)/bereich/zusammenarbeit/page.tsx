@@ -53,8 +53,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
       <BereichThemeScope accent="var(--zusammenarbeit-accent)" />
       <SectionDotsNav
         label={nav('areaCollab')}
-        dotColor="var(--zusammenarbeit-accent)"
-        activeColor="var(--zusammenarbeit-dark)"
+        dotColor="var(--zusammenarbeit-dark)"
+        activeColor="var(--zusammenarbeit-accent)"
         switchIconColor="var(--zusammenarbeit-on-brand)"
         labelColor="var(--zusammenarbeit-on-brand)"
         items={[
