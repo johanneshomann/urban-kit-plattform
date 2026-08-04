@@ -17,7 +17,19 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
-import type { Project } from './ProjectLibrary'
+
+export interface Project {
+  id: string
+  title: string
+  slug: string
+  shortDescription?: string
+  status?: string
+  thema?: string[]
+  stadtbereich?: string[]
+  startYear?: number
+  createdAt: string
+  coverImage?: { url?: string | null; alt?: string | null } | string | null
+}
 
 const STATUS_VALUES = ['active', 'planning', 'completed', 'archived']
 const THEMA_VALUES = ['mobilitaet', 'wohnraum', 'gruenflaechen', 'infrastruktur', 'stadtentwicklung', 'kultur', 'bildung', 'umwelt']

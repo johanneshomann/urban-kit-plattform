@@ -11,10 +11,11 @@ export interface HeroImage {
 interface HeroSlideshowProps {
   images: HeroImage[]
   interval?: number
-  overlayClass?: string
+  /** Wash over the slides — required so the tint stays a caller-side token choice. */
+  overlayClass: string
 }
 
-export function HeroSlideshow({ images, interval = 5000, overlayClass = 'bg-black/50' }: HeroSlideshowProps) {
+export function HeroSlideshow({ images, interval = 5000, overlayClass }: HeroSlideshowProps) {
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {

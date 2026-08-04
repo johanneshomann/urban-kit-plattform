@@ -13,8 +13,7 @@ import { ScrollHint } from '@/components/public/ScrollHint'
 import { CardSlider } from '@/components/public/CardSlider'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { BereichThemeScope } from '@/components/public/BereichThemeScope'
-import { AlleProjekteClient } from './alle-projekte/AlleProjekteClient'
-import type { Project } from './alle-projekte/ProjectLibrary'
+import { AlleProjekteClient, type Project } from './alle-projekte/AlleProjekteClient'
 
 export async function generateMetadata({
   params,
