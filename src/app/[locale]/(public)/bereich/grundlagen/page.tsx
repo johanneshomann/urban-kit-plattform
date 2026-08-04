@@ -175,7 +175,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         />
         <div className="relative z-10 w-full">
           <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-6">
+          <h2 className="text-hero font-black leading-none tracking-tight mb-6">
             {t('methodsTitle')}
           </h2>
           <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
@@ -254,7 +254,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         />
         <div className="relative z-10 w-full">
           <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-6">
+          <h2 className="text-hero font-black leading-none tracking-tight mb-6">
             {tpp.rich('heroTitle', { accentG })}
           </h2>
           <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
@@ -278,7 +278,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         />
         <div className="relative z-10 w-full">
           <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-6">
+          <h2 className="text-hero font-black leading-none tracking-tight mb-6">
             {tp.rich('heroTitle', { accentG })}
           </h2>
           <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
@@ -302,7 +302,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         />
         <div className="relative z-10 w-full">
           <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--grundlagen-on-brand)" />
-          <h2 className="text-title font-black tracking-tight mb-6">
+          <h2 className="text-hero font-black leading-none tracking-tight mb-6">
             {tr.rich('heroTitle', { accentG })}
           </h2>
           <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
