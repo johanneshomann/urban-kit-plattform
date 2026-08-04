@@ -179,7 +179,8 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
             className="grid transition-all duration-300 ease-in-out"
             style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
           >
-            <div className="overflow-hidden">
+            {/* Clip only while collapsed/animating — once open, let the hover bubbles escape */}
+            <div className={switchOpen ? 'overflow-visible' : 'overflow-hidden'}>
               <div className={`flex items-center gap-2 py-3 pl-3 pr-2 transition-opacity duration-300 ${switchOpen ? 'opacity-100' : 'opacity-0'}`}>
                 {switchPages.map((page) => {
                   const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
