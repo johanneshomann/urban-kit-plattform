@@ -734,9 +734,6 @@
     "toProject": "To the project",
     "allProjects": "All projects"
   },
-  "team": {
-    "groups": "Groups"
-  },
   "platform": {
     "roleAdmin": "Admin",
     "roleUser": "User",
