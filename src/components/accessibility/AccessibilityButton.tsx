@@ -145,8 +145,8 @@ export function AccessibilityButton() {
         aria-label={t('open')}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        className="inline-flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105"
-        style={{ background: 'var(--bereich-accent, var(--plattform))', color: 'var(--plattform-white)', transition: 'background 0.3s' }}
+        className="inline-flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg transition-all duration-150 hover:scale-105 cursor-pointer"
+        style={{ background: 'var(--bereich-accent, var(--plattform))', color: 'var(--plattform-white)' }}
       >
         <Accessibility className="h-6 w-6" />
       </button>
