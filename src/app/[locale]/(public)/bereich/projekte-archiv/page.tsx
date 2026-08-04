@@ -110,9 +110,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       </section>
 
       {/* About this Bereich — hero's counterpart in the starting area: text only.
-          Aktuelle Projekte lives in its own section below. Melts in from the
-          hero's --projekte at the top, since this section starts the light run. */}
-      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-24 md:pt-24 md:pb-32" style={{ background: 'linear-gradient(to bottom, var(--projekte), var(--projekte-light) var(--section-fade-height))' }}>
+          Aktuelle Projekte lives in its own section below. */}
+      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-24 md:pt-24 md:pb-32" style={{ background: 'var(--projekte-light)' }}>
         <div className="relative z-10 w-full max-w-4xl">
           <EyebrowBadge label={nav('aboutBereich')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-10">
