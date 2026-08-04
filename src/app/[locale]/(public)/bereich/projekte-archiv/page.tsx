@@ -84,7 +84,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         ]}
         switchPages={[
           { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)', iconColor: 'var(--zusammenarbeit-on-brand)' },
-          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)' },
+          { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)', iconColor: 'var(--grundlagen-on-brand)' },
         ]}
       />
 
