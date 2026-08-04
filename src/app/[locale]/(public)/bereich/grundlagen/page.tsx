@@ -118,7 +118,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
 
         {/* Main content — left-aligned, upper area */}
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentG, br })}
           </h1>
@@ -142,7 +142,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('basicsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
 
           <h2 className="text-title font-black tracking-tight mb-6">
             {t('basicsTitle')}
@@ -175,7 +175,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={t('methodsEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t('methodsTitle')}
           </h2>
@@ -245,7 +245,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
             href="https://methoden.urbankit.de"
             label={t('methodsCta')}
             icon={<ExternalLink />}
-            variant="grundlagen"
+            variant="grundlagenLight"
           />
         </div>
       </section>
@@ -263,7 +263,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tp.rich('heroTitle', { accentG })}
           </h2>
@@ -289,7 +289,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tpp('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tpp.rich('heroTitle', { accentG })}
           </h2>
@@ -315,7 +315,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           style={{ color: 'var(--grundlagen-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-white)" />
+          <EyebrowBadge label={tr('heroEyebrow')} bg="var(--grundlagen-dark)" color="var(--plattform-ink)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {tr.rich('heroTitle', { accentG })}
           </h2>
