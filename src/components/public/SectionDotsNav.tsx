@@ -180,7 +180,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
             style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
           >
             <div className="overflow-hidden">
-              <div className="flex items-center gap-2 pr-2">
+              <div className={`flex items-center gap-2 py-3 pl-3 pr-2 transition-opacity duration-300 ${switchOpen ? 'opacity-100' : 'opacity-0'}`}>
                 {switchPages.map((page) => {
                   const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[page.icon] ?? null
                   const showLabel = hoveredId === page.href
@@ -208,7 +208,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
                         {page.label}
                       </span>
                       <span
-                        className="flex items-center justify-center h-12 w-12 rounded-full shadow-lg transition-transform duration-200 group-hover:scale-105"
+                        className="flex items-center justify-center h-12 w-12 rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
                         style={{ background: page.color }}
                       >
                         {Icon && <Icon className="h-6 w-6" style={{ color: page.iconColor ?? 'var(--plattform-white)' }} />}
@@ -231,7 +231,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
               const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
               return (
                 <span
-                  className="flex items-center justify-center h-12 w-12 rounded-full shadow-lg transition-transform duration-200 group-hover:scale-105"
+                  className="flex items-center justify-center h-12 w-12 rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
                   style={{ background: ballColor }}
                 >
                   <SwitchIcon
