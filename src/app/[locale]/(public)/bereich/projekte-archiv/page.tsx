@@ -33,6 +33,7 @@ export async function generateMetadata({
 // Text accent on light backgrounds — `--projekte-accent` is the dark orange
 // (the `-dark` token is tuned lighter for chip/hero backgrounds).
 const accentP = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-accent)' }}>{chunks}</span>
+const pcolon = (chunks: ReactNode) => <span style={{ color: 'var(--projekte-accent)' }}>{chunks}</span>
 const br = () => <br />
 
 async function getProjects(): Promise<Project[]> {
@@ -76,6 +77,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         labelColor="var(--projekte-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
+          { id: 'intro', label: t('introEyebrow'), icon: 'Info' },
+          { id: 'laufend', label: t('activeEyebrow'), icon: 'FolderOpen' },
           { id: 'alle-projekte', label: t('ctaAll'), icon: 'Folders' },
         ]}
         switchPages={[
@@ -106,32 +109,36 @@ export default async function BereichProjektePage({ params }: { params: Promise<
         </div>
       </section>
 
-      {/* About this Bereich — hero's counterpart in the starting area; the current
-          project showcase is part of this block; fades into Alle Projekte */}
-      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48" style={{ background: 'linear-gradient(to bottom, var(--projekte) calc(100% - var(--section-fade-height)), var(--projekte-light))' }}>
-        <div className="relative z-10 w-full">
-          <div className="max-w-4xl">
-            <EyebrowBadge label={nav('aboutBereich')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
-            <h2 className="text-title font-black tracking-tight mb-10">
-              {t.rich('introTitle', { accentP })}
-            </h2>
-            <div className="flex flex-col gap-4">
-              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                {t('introP1', { city: cityName })}
-              </p>
-              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
-                {t('introP2')}
-              </p>
-            </div>
+      {/* About this Bereich — hero's counterpart in the starting area: text only.
+          Aktuelle Projekte lives in its own section below. */}
+      <section id="intro" className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-24 md:pt-24 md:pb-32" style={{ background: 'var(--projekte-light)' }}>
+        <div className="relative z-10 w-full max-w-4xl">
+          <EyebrowBadge label={nav('aboutBereich')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
+          <h2 className="text-title font-black tracking-tight mb-10">
+            {t.rich('introTitle', { accentP })}
+          </h2>
+          <div className="flex flex-col gap-4">
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('introP1', { city: cityName })}
+            </p>
+            <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+              {t('introP2')}
+            </p>
           </div>
+        </div>
+      </section>
 
-          {/* Aktuelle Projekte — showcase inside the about block */}
-          <div id="laufend" className="mt-16 md:mt-24">
-            {active.length === 0 ? (
-              <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
-            ) : (
-              <CardSlider locale={locale}>
-
+      {/* Aktuelle Projekte — standalone section with its own heading */}
+      <section id="laufend" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'var(--projekte-light)' }}>
+        <div className="w-full">
+          <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
+          <h2 className="text-title font-black tracking-tight mb-12">
+            {t.rich('activeTitle', { pcolon })}
+          </h2>
+          {active.length === 0 ? (
+            <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
+          ) : (
+            <CardSlider locale={locale}>
               {active.slice(0, 5).map((p, i) => {
                 const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
                 const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()
@@ -184,8 +191,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                 )
               })}
             </CardSlider>
-            )}
-          </div>
+          )}
         </div>
       </section>
 
