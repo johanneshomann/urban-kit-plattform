@@ -56,7 +56,7 @@ export const COLOR_DEFAULTS: PlatformColors = {
   zusammenarbeitLight:  '#dff2e1',
   zusammenarbeitAccent: '#3d9445',
   zusammenarbeitDark:   '#6dbf74',
-  zusammenarbeitOnBrand: '#ffffff',
+  zusammenarbeitOnBrand: '#1c1c1c',
 
   plattform:          '#007734',
   plattformLight:     '#f0f0f0',
