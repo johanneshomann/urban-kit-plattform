@@ -135,10 +135,10 @@ function Chip({ label, icon, isActive, isAvailable, onClick }: {
       onClick={unavailable ? undefined : onClick}
       className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-text transition-all ${
         isActive
-          ? 'bg-[var(--projekte-dark)] text-white cursor-pointer'
+          ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)] cursor-pointer'
           : unavailable
             ? 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] opacity-30 cursor-default'
-            : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] hover:text-white cursor-pointer'
+            : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] cursor-pointer'
       }`}
     >
       {icon}
@@ -334,7 +334,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                 <button
                   type="button"
                   onClick={() => setFilterOpen((v) => !v)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-display cursor-pointer flex-1 sm:flex-none ${filterOpen ? 'sm:min-w-[16rem] bg-[var(--projekte)]' : 'sm:min-w-[12rem] bg-white hover:bg-[var(--projekte)]'}`}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-display cursor-pointer flex-1 sm:flex-none ${filterOpen ? 'sm:min-w-[16rem] bg-[var(--projekte-dark)]' : 'sm:min-w-[12rem] bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
                   style={{
                     color: 'var(--plattform-ink)',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
@@ -360,7 +360,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                   <button
                     type="button"
                     onClick={() => setSettingsOpen((v) => !v)}
-                    className={`h-full min-h-[2.75rem] flex items-center justify-center px-4 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md text-display ${settingsOpen ? 'bg-[var(--projekte)]' : 'bg-white hover:bg-[var(--projekte)]'}`}
+                    className={`h-full min-h-[2.75rem] flex items-center justify-center px-4 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md text-display ${settingsOpen ? 'bg-[var(--projekte-dark)]' : 'bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
                     style={{ color: 'var(--plattform-ink)' }}
                     aria-label={t('viewSettings')}
                   >
@@ -382,7 +382,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                                 key={n}
                                 type="button"
                                 onClick={() => setGridCols(n)}
-                                className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-all cursor-pointer text-text ${gridCols === n ? 'bg-[var(--projekte-dark)] text-white' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] hover:text-white'}`}
+                                className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-all cursor-pointer text-text ${gridCols === n ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
                                 aria-label={`${n}`}
                               >
                                 <Icon className="w-[1em] h-[1em]" />
@@ -401,7 +401,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                               key={String(on)}
                               type="button"
                               onClick={() => setShowImage(on)}
-                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showImage === on ? 'bg-[var(--projekte-dark)] text-white' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] hover:text-white'}`}
+                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showImage === on ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
                             >
                               {on ? t('excerptShow') : t('excerptHide')}
                             </button>
@@ -418,7 +418,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                               key={String(on)}
                               type="button"
                               onClick={() => setShowAuszug(on)}
-                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showAuszug === on ? 'bg-[var(--projekte-dark)] text-white' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] hover:text-white'}`}
+                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showAuszug === on ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
                             >
                               {on ? t('excerptShow') : t('excerptHide')}
                             </button>
