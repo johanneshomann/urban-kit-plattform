@@ -124,7 +124,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             <h2 className="text-title font-black tracking-tight mb-6">
               {t('aboutTitle')}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4 max-w-5xl">
+            <div className="flex flex-col gap-4 max-w-4xl">
               <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
                 {t('aboutP1')}
               </p>
