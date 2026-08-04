@@ -147,10 +147,11 @@ and their collections: [docs/modules.md](docs/modules.md).
    Adding a module = new folder + registry entry + option in `projects.modules` +
    entries in `src/lib/options/modules.ts` (labels, ordering, section grouping).
 5. **Visibility model.** Content documents carry a `visibility` field
-   (`PUBLIC` / `INTERNAL` / `TEAM`); a viewer's tier is derived from their active
-   membership (`public` / `member` / `team`). Always filter with
-   `visibilityWhere(tier)` and gate with `canView`/`getViewerTier` — see
-   [docs/access-control.md](docs/access-control.md).
+    (`PUBLIC` / `PROJECT` / `TEAM`) + optional `visibilityTeams: string[]`; a
+    viewer's context (`{ tier, teams, isPM, active }`) is derived from their active
+    membership and the project's `teams` catalog. Always filter with
+    `visibilityWhere(ctx)` and gate with `canViewContent`/`getViewerContext` — see
+    [docs/access-control.md](docs/access-control.md).
 6. **Rich text.** Public-facing rich-text fields are Lexical. Server actions
    that receive Markdown convert via `markdownToLexical` (`src/lib/richtext.ts`);
    rendering on the client uses `lexicalToHtml`. Keep these two helpers in sync.

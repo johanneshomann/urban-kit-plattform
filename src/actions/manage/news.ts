@@ -51,7 +51,7 @@ async function notifyMembers(payload: Payload, projectId: string, exceptUserId: 
 export async function createProjectNewsPost(
   slug: string,
   locale: string,
-  input: { title: string; body?: string; visibility?: string },
+  input: { title: string; body?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
@@ -71,6 +71,7 @@ export async function createProjectNewsPost(
         slug: uniqueSlug(title, 'news'),
         content,
         visibility: vis(input.visibility),
+        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
         author: ctx.user.id,
         project: ctx.project.id,
         // publishedAt left null → draft
@@ -90,7 +91,7 @@ export async function updateProjectNewsPost(
   slug: string,
   locale: string,
   postId: string,
-  input: { title: string; body?: string; visibility?: string },
+  input: { title: string; body?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
@@ -105,6 +106,7 @@ export async function updateProjectNewsPost(
       title,
       content: typeof input.body === 'string' ? (input.body.trim() ? await markdownToLexical(input.body) : null) : undefined,
       visibility: vis(input.visibility),
+      visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
     }
     await payload.update({ collection: 'news-posts', id: postId, data, overrideAccess: true })
   } catch {

@@ -19,7 +19,7 @@ One document per user × project:
 |---|---|---|
 | `role` | `PM` \| `Citizen` \| `Follower` | Projektmanager / Bürger:in / Follower |
 | `status` | `requested` → `active` \| `rejected` | join-request flow; only `active` grants anything |
-| `isTeam` | boolean | working-team flag; PMs count as team implicitly |
+| `teams` | `string[]` | team tags (from the project's `teams` catalog); a membership tagged with a team can see `TEAM`-visibility content scoped to that team |
 
 ## 3. Chat room role — `chat-room-members.role`
 
@@ -28,20 +28,35 @@ only.
 
 ## Visibility tiers — `src/lib/visibility.ts`
 
-Content documents carry a `visibility` field; viewers get a **tier** derived
-from their membership:
+Content documents carry a `visibility` field (`PUBLIC` | `PROJECT` | `TEAM`)
+and an optional `visibilityTeams: string[]`; viewers get a **context**
+(→ `ViewerContext { tier, teams, isPM, active }`) derived from their (active)
+membership:
 
 | Viewer tier | Derived from | May see |
 |---|---|---|
 | `public` | no active membership (incl. logged-out) | `PUBLIC` |
-| `member` | any `active` membership | `PUBLIC`, `INTERNAL` |
-| `team` | `role === 'PM'` or `isTeam` | `PUBLIC`, `INTERNAL`, `TEAM` |
+| `member` | any `active` membership | `PUBLIC`, `PROJECT` |
+| `team` | `role === 'PM'` or `teams` non-empty | `PUBLIC`, `PROJECT`, `TEAM` (PM sees all TEAM; tagged members see TEAM with intersecting `visibilityTeams`) |
 
-Helpers: `viewerTier(membership)`, `canView(tier, visibility)`,
-`visibilityWhere(tier)` (Payload where-clause), `getViewerTier(payload,
-userId, projectId)`. Unknown visibility values are treated as `INTERNAL`
-(safe default). `Citizen` vs `Follower` makes no visibility difference today —
-the effective distinction is member / team / PM.
+Key helpers:
+- `getViewerContext(payload, userId, projectId)` — resolves the full viewer context (tier + teams).
+- `getViewerTier(...)` — thin wrapper, returns scalar tier (kept for backcompat).
+- `canView(tier, visibility)`, `canViewContent(membership, doc)` — pure checks for UI/guard use.
+- `visibilityWhere(ctx)` — a Payload `where` clause filtering content the viewer may see (also tolerates legacy `INTERNAL` values).
+- `normalizeVisibility(v)` maps legacy `INTERNAL` → `PROJECT`.
+
+`Citizen` vs `Follower` makes no visibility difference today — the effective
+distinction is member / team / PM.
+
+### Team catalog & scoping
+
+- **`projects.teams: string[]`** — the PM-editable team vocabulary (catalog) for the project. Members are tagged with these names; content can be scoped to these names.
+- **`project-memberships.teams: string[]`** — which teams this member belongs to.
+- **Content collections (`news-posts`, `calendar-events`, `polls`, `forum-threads`, `tasks`, `file-uploads`, `folders`):** have `visibilityTeams: string[]`. When `visibility === 'TEAM'`, only active members whose `teams` intersect the doc's `visibilityTeams` may see it (PMs see all TEAM content regardless).
+- Legacy `TEAM` docs without `visibilityTeams` fall back to the old behavior: any tagged member sees them.
+- The manage actions (`news.ts`, `calendar.ts`, `polls.ts`, `forum.ts`) validate `visibilityTeams` against the project catalog on create/update.
+- `settings.ts` provides `updateProjectTeams(slug, locale, teams: string[])` to edit the catalog.
 
 ## Guards — `src/lib/auth/`
 
@@ -49,11 +64,12 @@ the effective distinction is member / team / PM.
 - `getProjectManagerContext(slug)` — active PM membership or `null`. Guards
   the `manage/` layout **and every manage server action** (read guard alone
   is not enough).
-- `getProjectTeamContext(slug)` — tier `team` or `null`. Used by team-only
+- `getProjectTeamContext(slug)` — tier `team` (PM or any team tag). Used by team-only
   modules (Tasks).
 - `getWorkspaceContext(slug)` (`src/lib/workspace-context.ts`) — project +
   viewer membership for the workspace subtree, wrapped in `React.cache()`.
-  Exposes `canManage`, `canRequestJoin`, `isActiveMember`.
+  Exposes `canManage`, `canRequestJoin`, `isActiveMember`, `teams: string[]`,
+  `viewer: ViewerContext`.
 
 ## WebSocket authorization (Board)
 

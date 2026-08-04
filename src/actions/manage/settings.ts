@@ -1,14 +1,11 @@
 'use server'
-
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import type { Payload, CollectionSlug, Where } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-
 export type SettingsActionState = { error?: string; ok?: boolean }
-
 export async function updateProjectVisibility(
   slug: string,
   locale: string,
@@ -16,7 +13,6 @@ export async function updateProjectVisibility(
 ): Promise<SettingsActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
-
   try {
     const payload = await getPayload({ config })
     const data: Record<string, unknown> = {
@@ -27,18 +23,15 @@ export async function updateProjectVisibility(
   } catch {
     return { error: 'Einstellungen konnten nicht gespeichert werden.' }
   }
-
   revalidatePath(`/${locale}/dashboard/projekte/${slug}`)
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/einstellungen`)
   return { ok: true }
 }
-
 /** Collect document ids matching a query (no pagination). */
 async function idsOf(payload: Payload, collection: CollectionSlug, where: Where): Promise<string[]> {
   const res = await payload.find({ collection, where, limit: 0, depth: 0, overrideAccess: true })
   return res.docs.map((d) => String((d as { id: string | number }).id))
 }
-
 /** Best-effort delete — never throws, so one module's cleanup can't block the rest. */
 async function tryDeleteMany(payload: Payload, collection: CollectionSlug, where: Where): Promise<void> {
   try {
@@ -47,7 +40,6 @@ async function tryDeleteMany(payload: Payload, collection: CollectionSlug, where
     // ignore — orphaned content is preferable to a half-deleted project
   }
 }
-
 /**
  * Permanently delete a project and all of its project-scoped content. Requires
  * the PM to retype the project title. Cascades across modules (incl. nested
@@ -57,17 +49,13 @@ async function tryDeleteMany(payload: Payload, collection: CollectionSlug, where
 export async function deleteProject(slug: string, locale: string, confirmTitle: string): Promise<SettingsActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
-
   if (confirmTitle.trim() !== ctx.project.title.trim()) {
     return { error: 'Der eingegebene Projektname stimmt nicht überein.' }
   }
-
   const id = ctx.project.id
   const byProject: Where = { project: { equals: id } }
-
   try {
     const payload = await getPayload({ config })
-
     // Polls → votes, options, questions, polls
     const pollIds = await idsOf(payload, 'polls', byProject)
     if (pollIds.length) {
@@ -77,14 +65,12 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
       await tryDeleteMany(payload, 'poll-questions', { poll: { in: pollIds } })
       await tryDeleteMany(payload, 'polls', byProject)
     }
-
     // Forum → comments, threads
     const threadIds = await idsOf(payload, 'forum-threads', byProject)
     if (threadIds.length) {
       await tryDeleteMany(payload, 'forum-comments', { thread: { in: threadIds } })
       await tryDeleteMany(payload, 'forum-threads', byProject)
     }
-
     // Chat → messages, members, rooms (project-scoped rooms only)
     const roomIds = await idsOf(payload, 'chat-rooms', byProject)
     if (roomIds.length) {
@@ -92,7 +78,6 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
       await tryDeleteMany(payload, 'chat-room-members', { room: { in: roomIds } })
       await tryDeleteMany(payload, 'chat-rooms', byProject)
     }
-
     // Tasks → assignees, tasks, columns
     const taskIds = await idsOf(payload, 'tasks', byProject)
     if (taskIds.length) {
@@ -100,7 +85,6 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
       await tryDeleteMany(payload, 'tasks', byProject)
     }
     await tryDeleteMany(payload, 'task-columns', byProject)
-
     // Remaining directly project-scoped collections
     await tryDeleteMany(payload, 'calendar-events', byProject)
     await tryDeleteMany(payload, 'event-attendees', byProject)
@@ -113,13 +97,47 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
     await tryDeleteMany(payload, 'media', byProject)
     await tryDeleteMany(payload, 'activity', byProject)
     await tryDeleteMany(payload, 'project-memberships', byProject)
-
     // Finally the project itself — this one must succeed
     await payload.delete({ collection: 'projects', id, overrideAccess: true })
   } catch {
     return { error: 'Projekt konnte nicht gelöscht werden.' }
   }
-
   revalidatePath(`/${locale}/dashboard`)
   redirect(`/${locale}/dashboard`)
+}
+
+/**
+ * Update the project team catalog (vocabulary for tagging members and scoping content).
+ * Validates: array of unique, non-empty strings.
+ */
+export async function updateProjectTeams(
+  slug: string,
+  locale: string,
+  teams: string[],
+): Promise<SettingsActionState> {
+  const ctx = await getProjectManagerContext(slug)
+  if (!ctx) return { error: 'Nicht berechtigt.' }
+
+  const sanitized = (Array.isArray(teams) ? teams : [])
+    .map((t) => String(t).trim())
+    .filter((t) => t.length > 0)
+
+  if (new Set(sanitized).size !== sanitized.length) {
+    return { error: 'Team-Namen dürfen nicht doppelt vorkommen.' }
+  }
+
+  try {
+    const payload = await getPayload({ config })
+    await payload.update({
+      collection: 'projects',
+      id: ctx.project.id,
+      data: { teams: sanitized },
+      overrideAccess: true,
+    })
+  } catch {
+    return { error: 'Team-Katalog konnte nicht gespeichert werden.' }
+  }
+
+  revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/allgemein`)
+  return { ok: true }
 }

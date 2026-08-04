@@ -23,6 +23,7 @@ export interface EventInput {
   location?: string
   category?: string
   visibility?: string
+  visibilityTeams?: string[]
   body?: string
 }
 
@@ -47,6 +48,7 @@ interface EventData {
   location: string | null
   category: string | null
   visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'
+  visibilityTeams: string[]
   content: CalendarEvent['content'] | null | undefined
 }
 
@@ -78,6 +80,7 @@ async function buildData(input: EventInput): Promise<{ data: EventData } | { err
       location: input.location?.trim() || null,
       category: input.category?.trim() || null,
       visibility: vis(input.visibility),
+      visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
       content,
     },
   }
