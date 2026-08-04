@@ -9,8 +9,8 @@ import { getViewerTier } from '@/lib/visibility'
 
 export type FilesActionState = { error?: string; ok?: boolean }
 
-const VIS = new Set(['PUBLIC', 'INTERNAL', 'TEAM'])
-const vis = (v: unknown): 'PUBLIC' | 'INTERNAL' | 'TEAM' => (VIS.has(v as string) ? (v as 'PUBLIC' | 'INTERNAL' | 'TEAM') : 'INTERNAL')
+const VIS = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
+const vis = (v: unknown): 'PUBLIC' | 'PROJECT' | 'TEAM' => (VIS.has(v as string) ? (v as 'PUBLIC' | 'PROJECT' | 'TEAM') : 'PROJECT')
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 const MAX_BYTES = 50 * 1024 * 1024
 
@@ -93,7 +93,7 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
   if (f.size > MAX_BYTES) return { error: 'Datei ist zu groß (max. 50 MB).' }
 
   const folderId = (formData.get('folderId') as string) || null
-  const visibility = (formData.get('visibility') as string) || 'INTERNAL'
+  const visibility = (formData.get('visibility') as string) || 'PROJECT'
   const label = ((formData.get('label') as string) || '').trim() || undefined
 
   try {

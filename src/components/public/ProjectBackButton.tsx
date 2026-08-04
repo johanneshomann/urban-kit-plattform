@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { ArrowLeft } from 'lucide-react'
 
 /**
@@ -9,14 +10,13 @@ import { ArrowLeft } from 'lucide-react'
  * `fallback` when the page was opened directly and there is no in-app history.
  */
 export function ProjectBackButton({
-  locale = 'de',
   fallback = '/',
 }: {
-  locale?: string
   fallback?: string
 }) {
   const router = useRouter()
-  const label = locale === 'de' ? 'Zurück' : 'Back'
+  const t = useTranslations('common')
+  const label = t('back')
 
   function handleBack() {
     if (typeof window !== 'undefined' && window.history.length > 1) {

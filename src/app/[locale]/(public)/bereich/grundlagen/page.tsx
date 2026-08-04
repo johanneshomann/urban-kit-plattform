@@ -183,7 +183,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           </p>
           {methodTeasers.length > 0 && (
             <div className="mb-12">
-              <CardSlider locale={locale}>
+              <CardSlider>
                 {methodTeasers.map((m) => (
                   <div key={m.id} className="snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]">
                     {/* Card anatomy mirrors the Methodensammlung's MethodCard */}

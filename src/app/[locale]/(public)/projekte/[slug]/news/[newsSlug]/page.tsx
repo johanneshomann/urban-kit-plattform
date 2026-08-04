@@ -132,7 +132,7 @@ export default async function PublicProjectNewsPage({
         <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: scheme.mid }} />
         <div className="px-6 md:px-16 lg:px-24 pt-20 md:pt-28 pb-10 md:pb-14">
           <div className="flex flex-wrap items-center gap-3 mb-5">
-            <ProjectBackButton locale={locale} fallback={`/${locale}/projekte/${project.slug}`} />
+            <ProjectBackButton fallback={`/${locale}/projekte/${project.slug}`} />
             <EyebrowBadge
               label={project.title}
               bg={scheme.light}

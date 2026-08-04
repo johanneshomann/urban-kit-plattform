@@ -139,7 +139,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           {active.length === 0 ? (
             <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
           ) : (
-            <CardSlider locale={locale}>
+            <CardSlider>
               {active.slice(0, 5).map((p, i) => {
                 const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
                 const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()

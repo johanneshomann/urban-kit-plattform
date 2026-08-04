@@ -9,7 +9,10 @@
     "create": "Create",
     "back": "Back",
     "next": "Next",
-    "search": "Search"
+    "search": "Search",
+    "previous": "Previous",
+    "scrollToNext": "To the next section",
+    "clearSearch": "Clear search"
   },
   "nav": {
     "home": "Home",
@@ -227,6 +230,21 @@
     "formMessage": "Message",
     "formMessagePlaceholder": "Your message …",
     "formSubmit": "Send"
+  },
+  "legal": {
+    "eyebrow": "Legal",
+    "impressumMeta": "Legal notice – Urban KIT",
+    "impressumTitle": "Legal notice<accent>.</accent>",
+    "impressumIntro": "Information pursuant to § 5 TMG — responsible for the content of this platform.",
+    "impressumEmpty": "The legal notice has not been configured yet. Please enter it in the admin panel under “Legal – Contact & Imprint”.",
+    "datenschutzMeta": "Privacy – Urban KIT",
+    "datenschutzTitle": "Privacy<accent>.</accent>",
+    "datenschutzIntro": "Privacy policy pursuant to Art. 13 GDPR — information on the processing of personal data on this platform.",
+    "datenschutzEmpty": "The privacy policy has not been configured yet. Please enter it in the admin panel under “Legal – Contact & Law” → “Privacy”.",
+    "cookiesMeta": "Cookie policy – Urban KIT",
+    "cookiesTitle": "Cookies<accent>.</accent>",
+    "cookiesIntro": "Cookie policy — information on the cookies used on this platform.",
+    "cookiesEmpty": "The cookie policy has not been configured yet. Please enter it in the admin panel under “Legal – Contact & Law” → “Cookie policy”."
   },
   "taxonomy": {
     "status": {
@@ -725,7 +743,8 @@
     "joinConfirmCancel": "Cancel",
     "joinConfirmSubmit": "Send request",
     "joinConfirmSending": "Sending …",
-    "rowMitglieder": "Members"
+    "rowMitglieder": "Members",
+    "navStart": "Start"
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",

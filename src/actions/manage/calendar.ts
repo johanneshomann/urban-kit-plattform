@@ -12,8 +12,8 @@ import { uniqueSlug } from '@/lib/slugify'
 
 export type CalendarActionState = { error?: string; ok?: boolean }
 
-const VISIBILITIES = new Set(['PUBLIC', 'INTERNAL', 'TEAM'])
-const vis = (v: unknown): 'PUBLIC' | 'INTERNAL' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'INTERNAL' | 'TEAM') : 'INTERNAL')
+const VISIBILITIES = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
+const vis = (v: unknown): 'PUBLIC' | 'PROJECT' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'PROJECT' | 'TEAM') : 'PROJECT')
 
 export interface EventInput {
   title: string
@@ -46,7 +46,7 @@ interface EventData {
   allDay: boolean
   location: string | null
   category: string | null
-  visibility: 'PUBLIC' | 'INTERNAL' | 'TEAM'
+  visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'
   content: CalendarEvent['content'] | null | undefined
 }
 

@@ -13,7 +13,7 @@ import { computeResults } from '@/lib/poll-results'
 export type PollsActionState = { error?: string; ok?: boolean }
 
 const QUESTION_TYPES = new Set(['single', 'multiple', 'text', 'scale'])
-const VISIBILITIES = new Set(['PUBLIC', 'INTERNAL', 'TEAM'])
+const VISIBILITIES = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
 
 export interface PollQuestionInput {
   text: string
@@ -126,7 +126,7 @@ export async function createProjectPoll(
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'INTERNAL') as 'PUBLIC' | 'INTERNAL' | 'TEAM',
+        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
         author: ctx.user.id,
         project: ctx.project.id,
       },
@@ -239,7 +239,7 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'INTERNAL') as 'PUBLIC' | 'INTERNAL' | 'TEAM',
+        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
       },
       overrideAccess: true,
     })
@@ -282,7 +282,7 @@ export async function getPollEditData(slug: string, pollId: string): Promise<{ e
       title: p.title ?? '',
       description: p.description ?? '',
       closesAt: p.closesAt ?? undefined,
-      visibility: p.visibility ?? 'INTERNAL',
+      visibility: p.visibility ?? 'PROJECT',
       allowAnonymous: !!p.allowAnonymous,
       showLiveResults: !!p.showLiveResults,
       questions,

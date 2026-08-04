@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 /**
@@ -14,7 +15,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
  * touch, nav buttons) hands control back to the user for good; the drift stops
  * at the end of the track.
  */
-export function CardSlider({ children, locale = 'de', autoplay = false }: { children: ReactNode; locale?: string; autoplay?: boolean }) {
+export function CardSlider({ children, autoplay = false }: { children: ReactNode; autoplay?: boolean }) {
+  const t = useTranslations('common')
   const trackRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
@@ -129,7 +131,7 @@ export function CardSlider({ children, locale = 'de', autoplay = false }: { chil
             type="button"
             onClick={() => scroll(-1)}
             disabled={!canPrev}
-            aria-label={locale === 'de' ? 'Zurück' : 'Previous'}
+            aria-label={t('previous')}
             className="absolute left-1 sm:left-0 top-1/2 -translate-y-1/2 sm:-translate-x-1/2 z-10 flex items-center justify-center w-11 h-11 rounded-full shadow-md transition-opacity disabled:opacity-0 disabled:pointer-events-none cursor-pointer hover:scale-105"
             style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
           >
@@ -139,7 +141,7 @@ export function CardSlider({ children, locale = 'de', autoplay = false }: { chil
             type="button"
             onClick={() => scroll(1)}
             disabled={!canNext}
-            aria-label={locale === 'de' ? 'Weiter' : 'Next'}
+            aria-label={t('next')}
             className="absolute right-1 sm:right-0 top-1/2 -translate-y-1/2 sm:translate-x-1/2 z-10 flex items-center justify-center w-11 h-11 rounded-full shadow-md transition-opacity disabled:opacity-0 disabled:pointer-events-none cursor-pointer hover:scale-105"
             style={{ background: 'var(--plattform-white)', color: 'var(--plattform-ink-accent)' }}
           >

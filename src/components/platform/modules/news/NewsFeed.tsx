@@ -2,15 +2,15 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
 import { ChevronRight, Newspaper } from 'lucide-react'
-import { visibilityWhere, type ViewerTier } from '@/lib/visibility'
+import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 
 /** Citizen-facing list of visible, published news posts for a project. */
-export async function NewsFeed({ slug, locale, projectId, tier }: { slug: string; locale: string; projectId: string; tier: ViewerTier }) {
+export async function NewsFeed({ slug, locale, projectId, viewer }: { slug: string; locale: string; projectId: string; viewer: ViewerContext }) {
   const payload = await getPayload({ config })
   const now = new Date().toISOString()
   const res = await payload.find({
     collection: 'news-posts',
-    where: { and: [{ project: { equals: projectId } }, { publishedAt: { less_than_equal: now } }, visibilityWhere(tier)] },
+    where: { and: [{ project: { equals: projectId } }, { publishedAt: { less_than_equal: now } }, visibilityWhere(viewer)] },
     sort: '-publishedAt',
     limit: 50,
     depth: 1,

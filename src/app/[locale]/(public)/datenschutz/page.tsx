@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
@@ -8,12 +10,21 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { ShieldCheck } from 'lucide-react'
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: 'Datenschutz – Urban KIT' }
+const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'legal' })
+  return { title: t('datenschutzMeta') }
 }
 
 export default async function DatenschutzPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'legal' })
 
   let datenschutzHtml: string | null = null
   try {
@@ -47,13 +58,12 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
         />
         <ScrollHint />
         <div className="relative z-10 max-w-2xl">
-          <EyebrowBadge label="Rechtliches" />
+          <EyebrowBadge label={t('eyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
-            Datenschutz<span style={{ color: 'var(--plattform)' }}>.</span>
+            {t.rich('datenschutzTitle', { accent })}
           </h1>
           <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            Datenschutzerklärung gemäß Art. 13 DSGVO — Informationen zur Verarbeitung
-            personenbezogener Daten auf dieser Plattform.
+            {t('datenschutzIntro')}
           </p>
         </div>
       </section>
@@ -72,8 +82,7 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
             />
           ) : (
             <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>
-              Die Datenschutzerklärung wurde noch nicht konfiguriert. Bitte im Admin-Panel unter
-              „Legal – Kontakt &amp; Recht" → „Datenschutz" eintragen.
+              {t('datenschutzEmpty')}
             </p>
           )}
         </div>

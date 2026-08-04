@@ -2,7 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getTranslations } from 'next-intl/server'
 import { FileText, Folder, Download, Eye, FolderOpen } from 'lucide-react'
-import { visibilityWhere, type ViewerTier } from '@/lib/visibility'
+import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 function fmtSize(b: number | null | undefined): string {
@@ -83,12 +83,12 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
 }
 
 /** Read-only file library for citizens/public, gated to the viewer's tier. */
-export async function FilesBrowse({ projectId, tier, hideTitle = false }: { projectId: string; tier: ViewerTier; hideTitle?: boolean }) {
+export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { projectId: string; viewer: ViewerContext; hideTitle?: boolean }) {
   const t = await getTranslations('filesBrowse')
   const payload = await getPayload({ config })
   const [foldersRes, filesRes] = await Promise.all([
-    payload.find({ collection: 'folders', where: { and: [{ project: { equals: projectId } }, visibilityWhere(tier)] }, sort: 'name', limit: 500, depth: 0, overrideAccess: true }),
-    payload.find({ collection: 'file-uploads', where: { and: [{ project: { equals: projectId } }, visibilityWhere(tier)] }, sort: '-createdAt', limit: 1000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'folders', where: { and: [{ project: { equals: projectId } }, visibilityWhere(viewer)] }, sort: 'name', limit: 500, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'file-uploads', where: { and: [{ project: { equals: projectId } }, visibilityWhere(viewer)] }, sort: '-createdAt', limit: 1000, depth: 0, overrideAccess: true }),
   ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

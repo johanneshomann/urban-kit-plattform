@@ -261,7 +261,7 @@ export default async function PublicHomePage({
             <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('projectsEmpty')}</p>
           ) : (
             <div className="mb-8">
-            <CardSlider locale={locale} autoplay>
+            <CardSlider autoplay>
               {projects.map((p, i) => {
                 const cover = p.coverImage && typeof p.coverImage === 'object' ? p.coverImage.url : null
                 const projYear = p.startYear ?? new Date(p.createdAt).getFullYear()

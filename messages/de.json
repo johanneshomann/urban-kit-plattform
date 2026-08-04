@@ -9,7 +9,10 @@
     "create": "Erstellen",
     "back": "Zurück",
     "next": "Weiter",
-    "search": "Suchen"
+    "search": "Suchen",
+    "previous": "Zurück",
+    "scrollToNext": "Zum nächsten Abschnitt",
+    "clearSearch": "Suche zurücksetzen"
   },
   "nav": {
     "home": "Startseite",
@@ -227,6 +230,21 @@
     "formMessage": "Nachricht",
     "formMessagePlaceholder": "Ihre Nachricht …",
     "formSubmit": "Absenden"
+  },
+  "legal": {
+    "eyebrow": "Rechtliches",
+    "impressumMeta": "Impressum – Urban KIT",
+    "impressumTitle": "Impressum<accent>.</accent>",
+    "impressumIntro": "Angaben gemäß § 5 TMG — Verantwortlich für den Inhalt dieser Plattform.",
+    "impressumEmpty": "Impressum wurde noch nicht konfiguriert. Bitte im Admin-Panel unter „Legal – Kontakt & Impressum“ eintragen.",
+    "datenschutzMeta": "Datenschutz – Urban KIT",
+    "datenschutzTitle": "Datenschutz<accent>.</accent>",
+    "datenschutzIntro": "Datenschutzerklärung gemäß Art. 13 DSGVO — Informationen zur Verarbeitung personenbezogener Daten auf dieser Plattform.",
+    "datenschutzEmpty": "Die Datenschutzerklärung wurde noch nicht konfiguriert. Bitte im Admin-Panel unter „Legal – Kontakt & Recht“ → „Datenschutz“ eintragen.",
+    "cookiesMeta": "Cookie-Richtlinie – Urban KIT",
+    "cookiesTitle": "Cookies<accent>.</accent>",
+    "cookiesIntro": "Cookie-Richtlinie — Informationen zu den auf dieser Plattform eingesetzten Cookies.",
+    "cookiesEmpty": "Die Cookie-Richtlinie wurde noch nicht konfiguriert. Bitte im Admin-Panel unter „Legal – Kontakt & Recht“ → „Cookie-Richtlinie“ eintragen."
   },
   "taxonomy": {
     "status": {
@@ -725,7 +743,8 @@
     "joinConfirmCancel": "Abbrechen",
     "joinConfirmSubmit": "Anfrage senden",
     "joinConfirmSending": "Wird gesendet …",
-    "rowMitglieder": "Mitglieder"
+    "rowMitglieder": "Mitglieder",
+    "navStart": "Start"
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",

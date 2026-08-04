@@ -112,7 +112,6 @@ export async function deleteProject(slug: string, locale: string, confirmTitle: 
     await tryDeleteMany(payload, 'folders', byProject)
     await tryDeleteMany(payload, 'media', byProject)
     await tryDeleteMany(payload, 'activity', byProject)
-    await tryDeleteMany(payload, 'teams', byProject)
     await tryDeleteMany(payload, 'project-memberships', byProject)
 
     // Finally the project itself — this one must succeed

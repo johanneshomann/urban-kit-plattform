@@ -13,8 +13,8 @@ import { uniqueSlug } from '@/lib/slugify'
 
 export type NewsActionState = { error?: string; ok?: boolean }
 
-const VISIBILITIES = new Set(['PUBLIC', 'INTERNAL', 'TEAM'])
-const vis = (v: unknown): 'PUBLIC' | 'INTERNAL' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'INTERNAL' | 'TEAM') : 'INTERNAL')
+const VISIBILITIES = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
+const vis = (v: unknown): 'PUBLIC' | 'PROJECT' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'PROJECT' | 'TEAM') : 'PROJECT')
 
 function revalidateNews(locale: string, slug: string) {
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/inhalte/news`)

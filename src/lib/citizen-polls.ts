@@ -1,7 +1,7 @@
 import 'server-only'
 import type { Payload } from 'payload'
 import { cookies } from 'next/headers'
-import { visibilityWhere, type ViewerTier } from '@/lib/visibility'
+import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { computeResults, type PollResults } from '@/lib/poll-results'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -22,10 +22,10 @@ export interface CitizenPoll {
 
 /** Load a project's polls for citizen/public consumption, resolving per-poll
  *  vote eligibility and results visibility (respecting showLiveResults). */
-export async function loadCitizenPolls(payload: Payload, projectId: string, tier: ViewerTier, userId: string | null): Promise<CitizenPoll[]> {
+export async function loadCitizenPolls(payload: Payload, projectId: string, viewer: ViewerContext, userId: string | null): Promise<CitizenPoll[]> {
   const pollsRes = await payload.find({
     collection: 'polls',
-    where: { and: [{ project: { equals: projectId } }, { status: { in: ['active', 'closed'] } }, visibilityWhere(tier)] },
+    where: { and: [{ project: { equals: projectId } }, { status: { in: ['active', 'closed'] } }, visibilityWhere(viewer)] },
     sort: '-createdAt',
     limit: 100,
     depth: 0,

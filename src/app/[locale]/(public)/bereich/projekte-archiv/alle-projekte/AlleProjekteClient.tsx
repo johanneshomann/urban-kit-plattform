@@ -177,6 +177,7 @@ function FilterPill({ icon, label, value, onClick }: { icon?: ReactNode; label: 
 function SearchPill({ value, onChange, onFocus, placeholder }: {
   value: string; onChange: (v: string) => void; onFocus?: () => void; placeholder: string
 }) {
+  const tc = useTranslations('common')
   return (
     <div
       className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-text shadow-sm hover:shadow-md transition-shadow"
@@ -193,7 +194,7 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
         style={{ color: 'var(--plattform-ink)' }}
       />
       {value && (
-        <button onClick={() => onChange('')} className="opacity-40 hover:opacity-80 transition-opacity cursor-pointer" aria-label="Suche zurücksetzen">
+        <button onClick={() => onChange('')} className="opacity-40 hover:opacity-80 transition-opacity cursor-pointer" aria-label={tc('clearSearch')}>
           <X className="w-[1em] h-[1em]" style={{ color: 'var(--plattform-ink)' }} />
         </button>
       )}

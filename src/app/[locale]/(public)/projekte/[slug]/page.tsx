@@ -214,7 +214,7 @@ export default async function PublicProjectPage({
 
   // Public polls — active/closed polls visible to the public tier (anonymous voting where allowed)
   const publicPolls = modules.includes('polls')
-    ? await loadCitizenPolls(payload, project.id, 'public', null)
+    ? await loadCitizenPolls(payload, project.id, { tier: 'public', teams: [], isPM: false, active: false }, null)
     : []
 
   // Active member count — aggregate only, no names
@@ -291,7 +291,7 @@ export default async function PublicProjectPage({
 
   // Section rail — matches the DOM order below (aktuelles before beteiligung).
   const navSections = [
-    { id: 'hero', label: locale === 'de' ? 'Start' : 'Start', icon: 'Home' },
+    { id: 'hero', label: t('navStart'), icon: 'Home' },
     { id: 'about', label: t('aboutEyebrow'), icon: 'Info' },
     hasAktuelles && { id: 'aktuelles', label: t('aktuellesEyebrow'), icon: 'Layers' },
     { id: 'beteiligung', label: t('participationEyebrow'), icon: 'Flag' },
@@ -472,7 +472,7 @@ export default async function PublicProjectPage({
                   <FolderOpen className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                   <h3 className="text-display font-black tracking-tight">{t('filesHeading')}</h3>
                 </div>
-                <FilesBrowse projectId={project.id} tier="public" hideTitle />
+                <FilesBrowse projectId={project.id} viewer={{ tier: 'public', teams: [], isPM: false, active: false }} hideTitle />
               </div>
             )}
           </div>

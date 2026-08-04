@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
-import { getViewerTier } from '@/lib/visibility'
+import { getViewerContext } from '@/lib/visibility'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
 import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
@@ -44,9 +44,10 @@ export default async function ModulePage({
 
   const user = await getUser()
   const userId = user ? String(user.id) : null
-  const tier = await getViewerTier(payload, userId, project.id)
+  const viewerCtx = await getViewerContext(payload, userId, project.id)
+  const tier = viewerCtx.tier
 
-  const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, tier, userId) : []
+  const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, viewerCtx, userId) : []
 
   // Board needs the project's canvases + a WS token (the user's Payload JWT)
   let boardData: { boards: BoardRef[]; token: string; wsUrl: string; userName: string } | null = null
@@ -69,9 +70,9 @@ export default async function ModulePage({
       />
       <main className="p-6 md:p-8 max-w-4xl mx-auto w-full">
         {moduleType === 'news'
-          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} tier={tier} />
+          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'calendar'
-          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} tier={tier} userId={userId} />
+          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} />
           : moduleType === 'polls'
           ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
           : moduleType === 'forum'
@@ -79,7 +80,7 @@ export default async function ModulePage({
               ? <ModuleConsumptionPlaceholder title={tm('forum')} />
               : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} />)
           : moduleType === 'files'
-          ? <FilesBrowse projectId={project.id} tier={tier} />
+          ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'tasks'
           ? (tier !== 'team' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('tasks')} />
