@@ -7,7 +7,7 @@ import { ScrollHint } from '@/components/public/ScrollHint'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { BereichThemeScope } from '@/components/public/BereichThemeScope'
-import { Circle, Layers, Users, Layout, Newspaper, BarChart2, CheckSquare, Calendar, MessageSquare, FolderOpen, Bot, MessageCircle, LayoutGrid } from 'lucide-react'
+import { Circle, Layers, Users, Layout, Newspaper, BarChart2, CheckSquare, Calendar, MessageSquare, FolderOpen, Bot, MessageCircle } from 'lucide-react'
 
 export async function generateMetadata({
   params,
