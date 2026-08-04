@@ -49,6 +49,10 @@ interface SectionDotsNavProps {
   switchPages?: SwitchPage[]
   /** Icon color on the switch ball; defaults to `--plattform-white` (projekte chips use ink). */
   switchIconColor?: string
+  /** Background of the switch ball; defaults to the rail's `activeColor`. */
+  switchColor?: string
+  /** Background of the label bubbles; defaults to the rail's `activeColor`. */
+  bubbleColor?: string
   /** Text color of the label bubbles; defaults to `--plattform-white` (projekte chips use ink). */
   labelColor?: string
   /** Rail-wide idle dot color; defaults to `--plattform`. */
@@ -66,7 +70,7 @@ interface SectionDotsNavProps {
  *   current Bereich; the current page renders filled.
  * Desktop-only by design (hidden below `md`).
  */
-export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], switchIconColor, labelColor, dotColor, activeColor }: SectionDotsNavProps) {
+export function SectionDotsNav({ items, label, appearAfterId, pages = [], switchPages = [], switchIconColor, switchColor, bubbleColor, labelColor, dotColor, activeColor }: SectionDotsNavProps) {
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [revealId, setRevealId] = useState<string | null>(null)
@@ -78,6 +82,8 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
 
   const railDot = dotColor ?? 'var(--plattform)'
   const railActive = activeColor ?? 'var(--plattform-accent)'
+  const railBubble = bubbleColor ?? railActive
+  const ballColor = switchColor ?? railActive
   // Section dots only make sense in twos; the pages zone can stand alone.
   const showSections = items.length >= 2
 
@@ -226,7 +232,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
               return (
                 <span
                   className="flex items-center justify-center h-12 w-12 rounded-full shadow-lg transition-transform duration-200 group-hover:scale-105"
-                  style={{ background: railActive }}
+                  style={{ background: ballColor }}
                 >
                   <SwitchIcon
                     className={`h-6 w-6 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
@@ -266,7 +272,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
             onMouseLeave={() => setHoveredId(null)}
             className="relative flex items-center justify-center p-2 group"
           >
-            {bubble(item.id, item.label, Icon, active, showLabel)}
+            {bubble(item.id, item.label, Icon, item.activeColor ?? railBubble, showLabel)}
             {/* Dot */}
             <span
               aria-hidden
@@ -319,14 +325,14 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
         if (page.external) {
           return (
             <a key={page.href} href={page.href} target="_blank" rel="noopener noreferrer" {...common}>
-              {bubble(page.href, page.label, Icon, railActive, showLabel)}
+              {bubble(page.href, page.label, Icon, railBubble, showLabel)}
               {dot}
             </a>
           )
         }
         return (
           <Link key={page.href} href={page.href} aria-current={isCurrent ? 'page' : undefined} {...common}>
-            {bubble(page.href, page.label, Icon, railActive, showLabel)}
+            {bubble(page.href, page.label, Icon, railBubble, showLabel)}
             {dot}
           </Link>
         )

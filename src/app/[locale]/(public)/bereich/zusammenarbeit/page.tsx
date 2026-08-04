@@ -55,6 +55,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         label={nav('areaCollab')}
         dotColor="var(--zusammenarbeit-dark)"
         activeColor="var(--zusammenarbeit-accent)"
+        switchColor="var(--zusammenarbeit-dark)"
+        bubbleColor="var(--zusammenarbeit-dark)"
         switchIconColor="var(--zusammenarbeit-on-brand)"
         labelColor="var(--zusammenarbeit-on-brand)"
         items={[
