@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Circle, Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie } from 'lucide-react'
+import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie, Users, BookOpen } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { getCitySettings } from '@/lib/instance'
 
@@ -48,15 +48,15 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             </p>
             <nav className="flex flex-col gap-2">
               <Link href={`${l}/bereich/projekte-archiv`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
-                <Circle className="w-[0.6em] h-[0.6em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-dark)' }} />
+                <FolderOpen className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--projekte-accent)' }} />
                 <span className="group-hover:underline">{t('areaProjects')}</span>
               </Link>
               <Link href={`${l}/bereich/zusammenarbeit`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
-                <Circle className="w-[0.6em] h-[0.6em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-dark)' }} />
+                <Users className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--zusammenarbeit-accent)' }} />
                 <span className="group-hover:underline">{t('areaCollab')}</span>
               </Link>
               <Link href={`${l}/bereich/grundlagen`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
-                <Circle className="w-[0.6em] h-[0.6em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-dark)' }} />
+                <BookOpen className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--grundlagen-accent)' }} />
                 <span className="group-hover:underline">{t('areaBasics')}</span>
               </Link>
               <Link href="https://methoden.urbankit.de" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
