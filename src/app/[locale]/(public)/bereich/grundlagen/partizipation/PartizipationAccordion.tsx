@@ -18,7 +18,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
         const isOpen = open === i
         const isHovered = hovered === i
         return (
-          <div key={i} className="rounded-xl border overflow-hidden" style={{ background: 'var(--plattform-white-transparent)' }}>
+          <div key={i} className="rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow" style={{ background: 'var(--plattform-white-transparent)' }}>
             <button
               onClick={() => setOpen(isOpen ? null : i)}
               onMouseEnter={() => setHovered(i)}
