@@ -304,7 +304,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
   return (
     <>
       {/* Content hero — chapter start: Bereich main color fading into the light library */}
-      <section id="alle-projekte" className="relative overflow-hidden flex flex-col" style={{ background: 'var(--projekte)' }}>
+      <section id="alle-projekte" className="relative overflow-hidden flex flex-col" style={{ background: 'var(--projekte-light)' }}>
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
@@ -322,9 +322,9 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
       </section>
 
       {/* Library */}
-      <div ref={libraryRef} style={{ background: 'var(--projekte)' }}>
+      <div ref={libraryRef} style={{ background: 'var(--projekte-light)' }}>
         {/* Sticky toolbar + collapsible filter panel */}
-        <div className="sticky top-14 z-20" style={{ background: 'var(--projekte)' }}>
+        <div className="sticky top-14 z-20" style={{ background: 'var(--projekte-light)' }}>
           <div className="px-6 md:px-16 lg:px-24 py-4 flex flex-col gap-2" ref={filterAreaRef}>
             <div className="flex flex-col sm:flex-row gap-2">
               <SearchPill value={search} onChange={setSearch} placeholder={t('searchPlaceholder')} />
@@ -334,7 +334,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                 <button
                   type="button"
                   onClick={() => setFilterOpen((v) => !v)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-display cursor-pointer flex-1 sm:flex-none ${filterOpen ? 'sm:min-w-[16rem] bg-[var(--projekte-dark)]' : 'sm:min-w-[12rem] bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-display cursor-pointer flex-1 sm:flex-none ${filterOpen ? 'sm:min-w-[16rem] bg-[var(--projekte-dark)]' : 'sm:min-w-[12rem] bg-[var(--projekte)] hover:bg-[var(--projekte-dark)]'}`}
                   style={{
                     color: 'var(--projekte-on-brand)',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
@@ -360,7 +360,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                   <button
                     type="button"
                     onClick={() => setSettingsOpen((v) => !v)}
-                    className={`h-full min-h-[2.75rem] flex items-center justify-center px-4 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md text-display ${settingsOpen ? 'bg-[var(--projekte-dark)]' : 'bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)]'}`}
+                    className={`h-full min-h-[2.75rem] flex items-center justify-center px-4 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md text-display ${settingsOpen ? 'bg-[var(--projekte-dark)]' : 'bg-[var(--projekte)] hover:bg-[var(--projekte-dark)]'}`}
                     style={{ color: 'var(--projekte-on-brand)' }}
                     aria-label={t('viewSettings')}
                   >
