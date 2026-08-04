@@ -87,6 +87,8 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         label={nav('areaBasics')}
         dotColor="var(--grundlagen-accent)"
         activeColor="var(--grundlagen-dark)"
+        switchIconColor="var(--grundlagen-on-brand)"
+        labelColor="var(--grundlagen-on-brand)"
         items={[
           { id: 'hero', label: nav('overview'), icon: 'Home' },
           { id: 'grundlagen', label: t('basicsEyebrow'), icon: 'BookOpen' },
