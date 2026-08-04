@@ -209,7 +209,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
                         {page.label}
                       </span>
                       <span
-                        className="flex items-center justify-center h-12 w-12 rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
+                        className="flex items-center justify-center h-12 w-12 rounded-2xl shadow-md transition-transform duration-200 group-hover:scale-105"
                         style={{ background: page.color }}
                       >
                         {Icon && <Icon className="h-6 w-6" style={{ color: page.iconColor ?? 'var(--plattform-white)' }} />}
@@ -232,7 +232,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
               const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
               return (
                 <span
-                  className="flex items-center justify-center h-12 w-12 rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
+                  className="flex items-center justify-center h-12 w-12 rounded-2xl shadow-md transition-transform duration-200 group-hover:scale-105"
                   style={{ background: ballColor }}
                 >
                   <SwitchIcon
