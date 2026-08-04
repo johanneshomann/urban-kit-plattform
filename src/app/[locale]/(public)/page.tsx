@@ -250,7 +250,7 @@ export default async function PublicHomePage({
       {/* Aktuelle Projekte */}
       <section id="aktuelle-projekte" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'linear-gradient(to bottom, var(--projekte-light) calc(100% - var(--section-fade-height)), var(--plattform-light))' }}>
         <div className="w-full">
-          <EyebrowBadge label={t('projectsEyebrow')} bg="var(--projekte)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('projectsEyebrow')} bg="var(--projekte)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-2">
             {t.rich('projectsTitle', { pcolon })}
           </h2>

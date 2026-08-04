@@ -135,10 +135,10 @@ function Chip({ label, icon, isActive, isAvailable, onClick }: {
       onClick={unavailable ? undefined : onClick}
       className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-text transition-all ${
         isActive
-          ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)] cursor-pointer'
+          ? 'bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)] cursor-pointer'
           : unavailable
-            ? 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] opacity-30 cursor-default'
-            : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)] cursor-pointer'
+            ? 'bg-[var(--projekte-light)] text-[var(--projekte-on-brand)] opacity-30 cursor-default'
+            : 'bg-[var(--projekte-light)] text-[var(--projekte-on-brand)] hover:bg-[var(--projekte-dark)] cursor-pointer'
       }`}
     >
       {icon}
@@ -312,7 +312,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
           style={{ color: 'var(--projekte-dark)' }}
         />
         <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentP })}
           </h2>
@@ -382,7 +382,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                                 key={n}
                                 type="button"
                                 onClick={() => setGridCols(n)}
-                                className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-all cursor-pointer text-text ${gridCols === n ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
+                                className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-all cursor-pointer text-text ${gridCols === n ? 'bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)]' : 'bg-[var(--projekte-light)] text-[var(--projekte-on-brand)] hover:bg-[var(--projekte-dark)]'}`}
                                 aria-label={`${n}`}
                               >
                                 <Icon className="w-[1em] h-[1em]" />
@@ -401,7 +401,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                               key={String(on)}
                               type="button"
                               onClick={() => setShowImage(on)}
-                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showImage === on ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
+                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showImage === on ? 'bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)]' : 'bg-[var(--projekte-light)] text-[var(--projekte-on-brand)] hover:bg-[var(--projekte-dark)]'}`}
                             >
                               {on ? t('excerptShow') : t('excerptHide')}
                             </button>
@@ -418,7 +418,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                               key={String(on)}
                               type="button"
                               onClick={() => setShowAuszug(on)}
-                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showAuszug === on ? 'bg-[var(--projekte-dark)] text-[var(--plattform-ink)]' : 'bg-[var(--projekte-light)] text-[var(--plattform-ink)] hover:bg-[var(--projekte-dark)]'}`}
+                              className={`flex-1 px-2 py-1.5 rounded-lg text-small transition-all cursor-pointer ${showAuszug === on ? 'bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)]' : 'bg-[var(--projekte-light)] text-[var(--projekte-on-brand)] hover:bg-[var(--projekte-dark)]'}`}
                             >
                               {on ? t('excerptShow') : t('excerptHide')}
                             </button>

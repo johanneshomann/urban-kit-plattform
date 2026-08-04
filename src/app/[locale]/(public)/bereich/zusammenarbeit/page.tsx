@@ -99,7 +99,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           />
 
           <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-            <EyebrowBadge label={t('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={t('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
 
             <h1 className="text-hero font-black leading-none tracking-tight mb-8">
               {t.rich('heroTitle', { accentZ })}
@@ -124,7 +124,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
             <h2 className="text-title font-black tracking-tight mb-5">
               {t.rich('roomTitle', { accentZ })}
             </h2>
@@ -150,7 +150,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
             <h2 className="text-hero font-black leading-none tracking-tight mb-5">
               {tm.rich('heroTitle', { accentZ })}
             </h2>
@@ -172,7 +172,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label={tm('overviewEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--plattform-white)" />
+            <EyebrowBadge label={tm('overviewEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
             <h2 className="text-title font-black tracking-tight mb-12">
               {tm.rich('overviewTitle', { accentZ })}
             </h2>

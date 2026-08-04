@@ -101,7 +101,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
         {/* Main content — left-aligned, upper area */}
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
-          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('heroEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
             {t.rich('heroTitle', { accentP, br })}
           </h1>
@@ -114,7 +114,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       {/* Aktuelle Projekte — horizontal showcase (max 5), light like all content sections */}
       <section id="laufend" className="min-h-svh flex flex-col justify-center pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-16 lg:px-24" style={{ background: 'var(--projekte-light)' }}>
         <div className="w-full">
-          <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte-dark)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('activeEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-12">
             {t.rich('activeTitle', { pcolon })}
           </h2>
@@ -187,7 +187,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           style={{ color: 'var(--projekte-dark)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte-dark)" color="var(--plattform-ink)" />
+          <EyebrowBadge label={t('introEyebrow')} bg="var(--projekte-dark)" color="var(--projekte-on-brand)" />
           <h2 className="text-title font-black tracking-tight mb-10">
             {t.rich('introTitle', { accentP })}
           </h2>
