@@ -150,7 +150,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           {/* Right */}
           <div className="flex flex-col gap-4">
             {/* Code form card */}
-            <div className="bg-white rounded-xl p-6 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all">
+            <div className="bg-[var(--plattform-white)] rounded-xl p-6 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all">
               <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('invCodeLabel')}</p>
               <InvitationForm />
               <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('invHint')}</p>

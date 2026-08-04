@@ -138,7 +138,7 @@ export default async function PublicHomePage({
       {/* Hero — no border into content: the slideshow overlay fades into the next section's background */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden bg-[var(--plattform-light)]">
         <ScrollHint />
-        <HeroSlideshow images={heroImages} overlayClass="bg-white/78 bg-gradient-to-b from-transparent from-[calc(100%-var(--section-fade-height))] to-[var(--plattform-light)]" />
+        <HeroSlideshow images={heroImages} overlayClass="bg-[color-mix(in_srgb,var(--plattform-white)_78%,transparent)] bg-gradient-to-b from-transparent from-[calc(100%-var(--section-fade-height))] to-[var(--plattform-light)]" />
 
         {/* Logo — top right */}
         {cityLogoUrl && (
@@ -210,7 +210,7 @@ export default async function PublicHomePage({
             {t('sectionsBody')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all">
+            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--projekte-accent)' }}>
@@ -221,7 +221,7 @@ export default async function PublicHomePage({
                 {t('areaProjectsBody')}
               </p>
             </Link>
-            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all">
+            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--zusammenarbeit-accent)' }}>
@@ -232,7 +232,7 @@ export default async function PublicHomePage({
                 {t('areaCollabBody')}
               </p>
             </Link>
-            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all">
+            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--grundlagen-accent)' }}>
@@ -269,7 +269,7 @@ export default async function PublicHomePage({
                   <div key={p.id} className="card-in snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)]" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
                     <Link
                       href={`/${locale}/projekte/${p.slug}`}
-                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-[var(--plattform-white)] shadow-sm hover:shadow-md transition-all"
                     >
                       {/* Cover image strip */}
                       <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0" style={{ background: 'var(--projekte-light)' }}>
@@ -283,11 +283,11 @@ export default async function PublicHomePage({
                         )}
                         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                           {p.status ? (
-                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
+                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
                               {tax(`status.${p.status}`)}
                             </span>
                           ) : <span />}
-                          <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
+                          <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
                         </div>
                       </div>
 

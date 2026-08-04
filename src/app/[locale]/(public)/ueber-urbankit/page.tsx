@@ -110,7 +110,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/projekte-archiv`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--projekte-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--projekte-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--projekte-accent)' }}>
@@ -122,7 +122,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
               </p>
             </Link>
 
-            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/zusammenarbeit`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--zusammenarbeit-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--zusammenarbeit-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--zusammenarbeit-accent)' }}>
@@ -134,7 +134,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
               </p>
             </Link>
 
-            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-white rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all min-h-48">
+            <Link href={`/${locale}/bereich/grundlagen`} className="group block bg-[var(--plattform-white)] rounded-xl p-8 shadow-xs hover:shadow-md hover:bg-[var(--grundlagen-light)] transition-all min-h-48">
               <div className="flex items-center gap-3 mb-5">
                 <Circle className="text-display w-[0.8em] h-[0.8em] shrink-0" fill="currentColor" strokeWidth={0} style={{ color: 'var(--grundlagen-accent)' }} />
                 <h3 className="text-display font-black tracking-tight transition-colors" style={{ color: 'var(--grundlagen-accent)' }}>

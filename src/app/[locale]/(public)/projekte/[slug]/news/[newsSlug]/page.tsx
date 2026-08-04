@@ -150,7 +150,7 @@ export default async function PublicProjectNewsPage({
       </section>
 
       {/* Article body */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white' }}>
+      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-white)' }}>
         <article className="max-w-3xl">
           {post.featuredImage?.url && (
             <img

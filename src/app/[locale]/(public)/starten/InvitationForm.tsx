@@ -14,7 +14,7 @@ export function InvitationForm() {
         value={code}
         onChange={(e) => setCode(e.target.value)}
         placeholder={t('codePlaceholder')}
-        className="flex-1 px-4 py-3 rounded-lg border text-text font-normal bg-white focus:outline-none focus:ring-2 focus:ring-[var(--plattform)]"
+        className="flex-1 px-4 py-3 rounded-lg border text-text font-normal bg-[var(--plattform-white)] focus:outline-none focus:ring-2 focus:ring-[var(--plattform)]"
         style={{ color: 'var(--plattform-ink)' }}
       />
       <button

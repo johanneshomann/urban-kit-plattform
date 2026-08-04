@@ -79,7 +79,7 @@ export function JoinRequestButton({
           aria-label={t('joinConfirmTitle')}
         >
           <div
-            className="popover-in bg-white rounded-xl shadow-lg p-8 w-full max-w-md"
+            className="popover-in bg-[var(--plattform-white)] rounded-xl shadow-lg p-8 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-display font-black tracking-tight mb-3" style={{ color: 'var(--plattform-ink-accent)' }}>

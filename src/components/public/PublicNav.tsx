@@ -122,7 +122,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
 
   return (
     <>
-      <header className={`h-14 border-b bg-white grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10 sticky top-0 z-50 transition-shadow ${mobile.isOpen ? '' : 'shadow-md'}`}>
+      <header className={`h-14 border-b bg-[var(--plattform-white)] grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10 sticky top-0 z-50 transition-shadow ${mobile.isOpen ? '' : 'shadow-md'}`}>
         {/* Desktop triggers — left */}
         <div>
         <div className="hidden md:flex items-center gap-8">
@@ -210,7 +210,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             onMouseEnter={desktopCancelClose}
             onMouseLeave={desktopClose}
           >
-            <div key={activeMenu} className={`${desktopClosing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-white border border-t-0 rounded-b-xl shadow-md`}>
+            <div key={activeMenu} className={`${desktopClosing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-[var(--plattform-white)] border border-t-0 rounded-b-xl shadow-md`}>
               <div className="px-6 py-6 flex flex-col gap-1">
                 {MENUS[activeMenu].map(({ href, label, icon: Icon, hoverColor, iconColor }) => {
                   const active = isActive(href)
@@ -248,7 +248,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
 
       {/* Mobile overlay */}
       {mobile.active && (
-        <div className={`md:hidden fixed top-14 inset-x-0 z-40 bg-white border-b shadow-md ${mobile.closing ? 'nav-panel-exit' : 'nav-panel-enter'}`}>
+        <div className={`md:hidden fixed top-14 inset-x-0 z-40 bg-[var(--plattform-white)] border-b shadow-md ${mobile.closing ? 'nav-panel-exit' : 'nav-panel-enter'}`}>
           <div className="px-6 py-4 flex flex-col gap-0">
             {/* Allgemein */}
             <div className="flex flex-col gap-0">

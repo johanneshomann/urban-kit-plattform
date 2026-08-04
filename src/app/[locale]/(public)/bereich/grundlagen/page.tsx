@@ -192,7 +192,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={m.title}
-                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-[var(--plattform-white)] shadow-sm hover:shadow-md transition-all"
                     >
                       {/* Image strip */}
                       <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0">

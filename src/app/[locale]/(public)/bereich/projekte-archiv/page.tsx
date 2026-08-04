@@ -139,7 +139,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                   <div key={p.id} className="card-in snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
                     <Link
                       href={`/${locale}/projekte/${p.slug}`}
-                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-[var(--plattform-white)] shadow-sm hover:shadow-md transition-all"
                     >
                       {/* Cover image strip */}
                       <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0" style={{ background: 'var(--projekte-light)' }}>
@@ -153,11 +153,11 @@ export default async function BereichProjektePage({ params }: { params: Promise<
                         )}
                         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                           {p.status ? (
-                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
+                            <span className="text-small font-semibold px-3 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
                               {tax(`status.${p.status}`)}
                             </span>
                           ) : <span />}
-                          <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
+                          <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
                         </div>
                       </div>
 

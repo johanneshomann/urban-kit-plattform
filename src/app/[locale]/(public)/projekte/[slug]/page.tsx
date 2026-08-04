@@ -307,7 +307,7 @@ export default async function PublicProjectPage({
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden border-b" style={{ background: 'var(--plattform-light)' }}>
         <div className="absolute inset-0" aria-hidden="true">
           <img src={coverSrc} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-white/85" />
+          <div className="absolute inset-0 bg-[color-mix(in_srgb,var(--plattform-white)_85%,transparent)]" />
         </div>
         <ScrollHint />
 
@@ -366,7 +366,7 @@ export default async function PublicProjectPage({
 
             {/* Steckbrief — sticks while the description scrolls */}
             {(phase || steckbrief.length > 0) && (
-              <aside className="bg-white rounded-xl shadow-sm p-8 lg:sticky lg:top-20">
+              <aside className="bg-[var(--plattform-white)] rounded-xl shadow-sm p-8 lg:sticky lg:top-20">
                 <h3 className="text-display font-black tracking-tight mb-4">{t('steckbrief')}</h3>
 
                 {phase && (
@@ -480,7 +480,7 @@ export default async function PublicProjectPage({
       )}
 
       {/* Beteiligung */}
-      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
+      <section id="beteiligung" className="scroll-mt-20 relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-white)', minHeight: 'min(100svh, 56rem)' }}>
         <Megaphone
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.06] pointer-events-none"
           strokeWidth={1}
@@ -620,7 +620,7 @@ export default async function PublicProjectPage({
 
       {/* Galerie — clickable lightbox grid */}
       {galleryImages.length > 0 && (
-        <section id="galerie" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'white', minHeight: 'min(100svh, 56rem)' }}>
+        <section id="galerie" className="scroll-mt-20 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-white)', minHeight: 'min(100svh, 56rem)' }}>
           <div className="w-full">
             <EyebrowBadge label={t('galerieEyebrow')} />
             <h2 className="text-title font-black tracking-tight mb-12">
@@ -650,7 +650,7 @@ export default async function PublicProjectPage({
 
           {/* One consolidated contact card instead of four separate ones */}
           {hasKontakt && (
-            <div className="bg-white rounded-xl shadow-sm p-8 mb-12 max-w-xl">
+            <div className="bg-[var(--plattform-white)] rounded-xl shadow-sm p-8 mb-12 max-w-xl">
               {ansprechperson && (
                 <div className="flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
                   <UserRound className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />

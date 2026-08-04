@@ -163,7 +163,7 @@ export function AktuellesSection({
                 <div key={n.id} className="card-in" style={{ animationDelay: `${i * 60}ms` }}>
                   <Link
                     href={`/${locale}/projekte/${slug}/news/${n.slug}`}
-                    className="group block bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
+                    className="group block bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
                   >
                     {n.publishedAt && (
                       <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
@@ -213,7 +213,7 @@ export function AktuellesSection({
                 return (
                   <div
                     key={ev.id}
-                    className="card-in flex items-center gap-5 bg-white rounded-xl p-6 shadow-sm"
+                    className="card-in flex items-center gap-5 bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm"
                     style={{ animationDelay: `${i * 60}ms` }}
                   >
                     <div

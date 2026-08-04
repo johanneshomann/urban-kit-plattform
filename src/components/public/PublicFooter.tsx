@@ -15,7 +15,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
   ])
 
   return (
-    <footer className="border-t bg-white">
+    <footer className="border-t bg-[var(--plattform-white)]">
       {/* Main grid */}
       <div className="px-6 md:px-16 lg:px-24 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

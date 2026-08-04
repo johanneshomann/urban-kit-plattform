@@ -110,7 +110,7 @@ function ClearDot({ onClear, tooltip }: { onClear: (e: React.MouseEvent) => void
       </span>
       {pos && createPortal(
         <span
-          className="tooltip-in pointer-events-none text-small whitespace-nowrap px-2.5 py-1 rounded-lg bg-white shadow-md"
+          className="tooltip-in pointer-events-none text-small whitespace-nowrap px-2.5 py-1 rounded-lg bg-[var(--plattform-white)] shadow-md"
           style={{
             position: 'fixed', left: pos.x, top: pos.y - 8, transform: 'translate(-50%, -100%)',
             color: 'var(--plattform-ink)', zIndex: 9999,
@@ -180,7 +180,7 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
   return (
     <div
       className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-text shadow-sm hover:shadow-md transition-shadow"
-      style={{ background: 'white' }}
+      style={{ background: 'var(--plattform-white)' }}
     >
       <Search className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--plattform-ink)' }} />
       <input
@@ -370,7 +370,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                   {settingsOpen && (
                     <div
                       className="popover-in absolute right-0 top-full mt-2 rounded-xl p-3 flex flex-col gap-3 z-50 max-w-[calc(100vw-2rem)]"
-                      style={{ background: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: '11rem' }}
+                      style={{ background: 'var(--plattform-white)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: '11rem' }}
                     >
                       <div className="flex flex-col gap-1.5">
                         <span className="text-small opacity-50" style={{ color: 'var(--plattform-ink)' }}>{t('columns')}</span>
@@ -436,7 +436,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
               className="rounded-xl overflow-hidden hover:shadow-md transition-shadow"
               style={{ display: 'grid', gridTemplateRows: filterOpen ? '1fr' : '0fr', transition: 'grid-template-rows 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s' }}
             >
-              <div style={{ overflow: 'hidden', background: 'white' }}>
+              <div style={{ overflow: 'hidden', background: 'var(--plattform-white)' }}>
                 <div className="flex flex-col">
                   {GROUPS.map(({ key, label, icon: Icon, options }) => {
                     if (options.length === 0) return null
@@ -536,7 +536,7 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                   <div key={p.id} className="card-in" style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}>
                     <Link
                       href={`/${locale}/projekte/${p.slug}`}
-                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+                      className="group relative flex flex-col h-full rounded-xl overflow-hidden bg-[var(--plattform-white)] shadow-sm hover:shadow-md transition-all"
                     >
                       {/* Cover image strip */}
                       {showImage && (
@@ -551,11 +551,11 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
                           )}
                           <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
                             {p.status ? (
-                              <span className="text-small font-semibold px-3 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
+                              <span className="text-small font-semibold px-3 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>
                                 {tax(`status.${p.status}`)}
                               </span>
                             ) : <span />}
-                            <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-white shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
+                            <span className="text-small font-semibold px-2.5 py-1 rounded-full bg-[var(--plattform-white)] shadow-sm" style={{ color: 'var(--plattform-ink)' }}>{projYear}</span>
                           </div>
                         </div>
                       )}

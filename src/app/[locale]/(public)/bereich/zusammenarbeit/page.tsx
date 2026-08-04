@@ -188,7 +188,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
                 return (
                   <div
                     key={m.nameKey}
-                    className="flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-white"
+                    className="flex flex-col gap-3 p-7 rounded-xl transition-all shadow-xs hover:shadow-md bg-[var(--plattform-white)]"
                   >
                     <div className="flex items-center gap-2">
                       <Icon className="w-[1.1em] h-[1.1em] shrink-0 text-text" style={{ color: 'var(--zusammenarbeit-accent)' }} />
