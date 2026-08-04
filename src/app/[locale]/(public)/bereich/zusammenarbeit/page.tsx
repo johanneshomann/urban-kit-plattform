@@ -70,11 +70,11 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
         ]}
       />
 
-      {/* Hero — Bereich scheme: main-tinted hero fading into the light content */}
+      {/* ── Starting area: hero + about this Bereich, one main-colored block ── */}
         <section
           id="hero"
           className="relative min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-          style={{ background: 'linear-gradient(to bottom, var(--zusammenarbeit) calc(100% - var(--section-fade-height)), var(--zusammenarbeit-light))' }}
+          style={{ background: 'var(--zusammenarbeit)' }}
         >
           <ScrollHint color="var(--zusammenarbeit-dark)" label={nav('scrollMore')} />
 
@@ -114,21 +114,42 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           </div>
         </section>
 
-        {/* Projektraum — light, fades into the Module chapter */}
+        {/* About this Bereich — still part of the starting area, fades into Projektraum */}
+        <section
+          className="relative overflow-hidden flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
+          style={{ background: 'linear-gradient(to bottom, var(--zusammenarbeit) calc(100% - var(--section-fade-height)), var(--zusammenarbeit-light))' }}
+        >
+          <div className="relative z-10 w-full">
+            <EyebrowBadge label={nav('aboutBereich')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
+            <h2 className="text-title font-black tracking-tight mb-6">
+              {t('aboutTitle')}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4 max-w-5xl">
+              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+                {t('aboutP1')}
+              </p>
+              <p className="text-text leading-relaxed" style={{ color: 'var(--plattform-ink)' }}>
+                {t('aboutP2')}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Projektraum: text block ── */}
         <section
           id="raum"
           className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
           style={{ background: 'linear-gradient(to bottom, var(--zusammenarbeit-light) calc(100% - var(--section-fade-height)), var(--zusammenarbeit))' }}
         >
           <Layers
-            className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+            className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
             strokeWidth={1}
             aria-hidden="true"
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
             <EyebrowBadge label={t('roomEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
-            <h2 className="text-title font-black tracking-tight mb-5">
+            <h2 className="text-hero font-black leading-none tracking-tight mb-6">
               {t.rich('roomTitle', { accentZ })}
             </h2>
             <p className="text-text leading-relaxed max-w-2xl mb-5" style={{ color: 'var(--plattform-ink)' }}>
@@ -140,45 +161,26 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           </div>
         </section>
 
-        {/* Module — merged chapter: one continuous main-colored block (hero + grid) */}
+        {/* ── Module: text + grid — last section stays flat: hard cut to the footer ── */}
         <section
           id="module"
-          className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
-          style={{ background: 'var(--zusammenarbeit)' }}
-        >
-          <Layout
-            className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
-            strokeWidth={1}
-            aria-hidden="true"
-            style={{ color: 'var(--zusammenarbeit-dark)' }}
-          />
-          <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
-            <h2 className="text-hero font-black leading-none tracking-tight mb-5">
-              {tm.rich('heroTitle', { accentZ })}
-            </h2>
-            <p className="text-text leading-relaxed max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-              {tm('heroBody')}
-            </p>
-          </div>
-        </section>
-
-        {/* Module grid — last section stays flat: hard cut to the footer */}
-        <section
           className="relative overflow-hidden min-h-svh flex flex-col justify-center px-6 md:px-16 lg:px-24 pt-16 pb-32 md:pt-24 md:pb-48"
           style={{ background: 'var(--zusammenarbeit)' }}
         >
-          <LayoutGrid
-            className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
+          <Layout
+            className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[40%] w-auto opacity-[0.07] pointer-events-none"
             strokeWidth={1}
             aria-hidden="true"
             style={{ color: 'var(--zusammenarbeit-dark)' }}
           />
           <div className="relative z-10 w-full">
-            <EyebrowBadge label={tm('overviewEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
-            <h2 className="text-title font-black tracking-tight mb-12">
-              {tm.rich('overviewTitle', { accentZ })}
+            <EyebrowBadge label={tm('heroEyebrow')} bg="var(--zusammenarbeit-dark)" color="var(--zusammenarbeit-on-brand)" />
+            <h2 className="text-hero font-black leading-none tracking-tight mb-6">
+              {tm.rich('heroTitle', { accentZ })}
             </h2>
+            <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
+              {tm('heroBody')}
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {MODULES.map((m) => {
