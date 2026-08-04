@@ -4,14 +4,14 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Trash2, UserCircle, Users } from 'lucide-react'
-import { updateMemberRole, removeMember, setMemberTeam } from '@/actions/manage/members'
+import { updateMemberRole, removeMember, setMemberTeams } from '@/actions/manage/members'
 
 export interface MemberItem {
   membershipId: string
   name: string
   email: string
   role: string
-  isTeam: boolean
+  teams: string[]
   isSelf: boolean
 }
 
@@ -66,25 +66,35 @@ export function MembersManager({ slug, locale, members }: { slug: string; locale
             </div>
 
             {(() => {
-              const teamActive = m.role === 'PM' || m.isTeam
-              const teamLocked = m.role === 'PM' // PMs are always team
+              const teamTags = m.teams ?? []
+              const isPM = m.role === 'PM'
               return (
-                <button
-                  type="button"
-                  disabled={pending || teamLocked}
-                  onClick={() => run(() => setMemberTeam(slug, locale, m.membershipId, !m.isTeam))}
-                  title={teamLocked ? t('members.teamLockedHint') : t('members.teamHint')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-medium shrink-0 border transition-colors disabled:cursor-default"
-                  style={{
-                    background: teamActive ? 'var(--project-dark)' : 'transparent',
-                    color: teamActive ? 'var(--project-white)' : 'var(--project-dark)',
-                    borderColor: teamActive ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
-                    opacity: teamLocked ? 0.6 : 1,
-                  }}
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  {t('members.teamLabel')}
-                </button>
+                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                  {teamTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium"
+                      style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+                    >
+                      <Users className="w-3 h-3" />
+                      {tag}
+                    </span>
+                  ))}
+                  {teamTags.length === 0 && !isPM && (
+                    <span
+                      className="px-2 py-0.5 rounded-full text-small opacity-50"
+                      style={{ color: 'var(--project-dark)', border: '1px solid color-mix(in srgb, var(--project-mid) 35%, transparent)' }}
+                    >
+                      {t('members.teamLabel')}
+                    </span>
+                  )}
+                  {isPM && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium" style={{ background: 'var(--project-dark)', color: 'var(--project-white)', opacity: 0.8 }}>
+                      <Users className="w-3 h-3" />
+                      PM
+                    </span>
+                  )}
+                </div>
               )
             })()}
 

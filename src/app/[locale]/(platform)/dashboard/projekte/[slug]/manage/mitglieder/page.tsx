@@ -37,7 +37,7 @@ export default async function ManageMitgliederPage({
       name,
       email: u.email ?? '',
       role: m.role ?? 'Citizen',
-      isTeam: m.isTeam === true,
+      teams: Array.isArray(m.teams) ? m.teams : [],
       isSelf: String(u.id) === String(ctx.user.id),
     })
   }

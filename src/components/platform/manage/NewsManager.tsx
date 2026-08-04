@@ -22,7 +22,7 @@ type Result = { error?: string; ok?: boolean }
 
 const VISIBILITY = [
   { value: 'PUBLIC', labelKey: 'news.visibilityPublic', icon: Globe },
-  { value: 'INTERNAL', labelKey: 'news.visibilityInternal', icon: Lock },
+  { value: 'PROJECT', labelKey: 'news.visibilityProject', icon: Lock },
   { value: 'TEAM', labelKey: 'news.visibilityTeam', icon: UsersIcon },
 ] as const
 
@@ -50,7 +50,7 @@ export function NewsManager({ slug, locale, posts }: { slug: string; locale: str
   const [editing, setEditing] = useState<NewsItem | null>(null) // null = none; sentinel id '' = new
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [visibility, setVisibility] = useState('INTERNAL')
+  const [visibility, setVisibility] = useState('PROJECT')
 
   const [scheduleFor, setScheduleFor] = useState<string | null>(null) // post id showing the schedule picker
   const [scheduleAt, setScheduleAt] = useState('')
@@ -67,7 +67,7 @@ export function NewsManager({ slug, locale, posts }: { slug: string; locale: str
     })
   }
 
-  const openNew = () => { setEditing({ id: '', title: '', body: '', visibility: 'INTERNAL' }); setTitle(''); setBody(''); setVisibility('INTERNAL') }
+  const openNew = () => { setEditing({ id: '', title: '', body: '', visibility: 'PROJECT' }); setTitle(''); setBody(''); setVisibility('PROJECT') }
   const openEdit = (p: NewsItem) => { setEditing(p); setTitle(p.title); setBody(p.body); setVisibility(p.visibility) }
   const closeEditor = () => setEditing(null)
 

@@ -22,7 +22,7 @@ type Result = { error?: string; ok?: boolean }
 
 const VISIBILITY = [
   { value: 'PUBLIC', labelKey: 'calendar.visibilityPublic', icon: Globe },
-  { value: 'INTERNAL', labelKey: 'calendar.visibilityInternal', icon: Lock },
+  { value: 'PROJECT', labelKey: 'calendar.visibilityProject', icon: Lock },
   { value: 'TEAM', labelKey: 'calendar.visibilityTeam', icon: UsersIcon },
 ] as const
 
@@ -31,7 +31,7 @@ const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(
 const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
 
-const blank: EventItem = { id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: 'INTERNAL', body: '' }
+const blank: EventItem = { id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: 'PROJECT', body: '' }
 
 function fmt(iso: string, allDay?: boolean | null): string {
   return new Date(iso).toLocaleString('de-DE', allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
@@ -82,7 +82,7 @@ export function CalendarManager({ slug, locale, events }: { slug: string; locale
     const input = {
       title: f.title, startDate: f.startDate, endDate: f.endDate || undefined,
       allDay: !!f.allDay, location: f.location || undefined, category: f.category || undefined,
-      visibility: f.visibility || 'INTERNAL', body: f.body || '',
+      visibility: f.visibility || 'PROJECT', body: f.body || '',
     }
     if (editing && editing.id) run(() => updateProjectEvent(slug, locale, editing.id, input), close)
     else run(() => createProjectEvent(slug, locale, input), close)
@@ -154,7 +154,7 @@ export function CalendarManager({ slug, locale, events }: { slug: string; locale
             <div className="grid sm:grid-cols-3 gap-2">
               <input type="text" value={f.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder={t('calendar.locationPlaceholder')} className={inputCls} style={inputStyle} />
               <input type="text" value={f.category ?? ''} onChange={(e) => set('category', e.target.value)} placeholder={t('calendar.categoryPlaceholder')} className={inputCls} style={inputStyle} />
-              <select value={f.visibility ?? 'INTERNAL'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
+              <select value={f.visibility ?? 'PROJECT'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
                 {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
               </select>
             </div>

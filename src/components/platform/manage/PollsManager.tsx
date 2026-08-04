@@ -59,7 +59,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [closesAt, setClosesAt] = useState('')
-  const [visibility, setVisibility] = useState('INTERNAL')
+  const [visibility, setVisibility] = useState('PROJECT')
   const [allowAnonymous, setAllowAnonymous] = useState(false)
   const [showLiveResults, setShowLiveResults] = useState(false)
   const [questions, setQuestions] = useState<DraftQuestion[]>([emptyQuestion()])
@@ -79,7 +79,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
   }
 
   const resetForm = () => {
-    setTitle(''); setDescription(''); setClosesAt(''); setVisibility('INTERNAL')
+    setTitle(''); setDescription(''); setClosesAt(''); setVisibility('PROJECT')
     setAllowAnonymous(false); setShowLiveResults(false); setQuestions([emptyQuestion()])
   }
   const openCreate = () => { setEditingId(null); resetForm(); setShowForm(true) }
@@ -90,7 +90,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
       if ('error' in res) { setError(res.error); return }
       const d = res.data
       setTitle(d.title); setDescription(d.description ?? ''); setClosesAt(isoToLocalInput(d.closesAt))
-      setVisibility(d.visibility ?? 'INTERNAL'); setAllowAnonymous(!!d.allowAnonymous); setShowLiveResults(!!d.showLiveResults)
+      setVisibility(d.visibility ?? 'PROJECT'); setAllowAnonymous(!!d.allowAnonymous); setShowLiveResults(!!d.showLiveResults)
       setQuestions(d.questions.length ? d.questions.map((q) => ({ text: q.text, type: q.type, optionsText: q.options.join('\n') })) : [emptyQuestion()])
       setEditingId(pollId); setShowForm(true)
     })
@@ -156,7 +156,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
               <div>
                 <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('polls.visibilityLabel')}</label>
                 <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
-                  <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="INTERNAL">{t('polls.visibilityInternal')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
+                  <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="PROJECT">{t('polls.visibilityProject')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
                 </select>
               </div>
             </div>
