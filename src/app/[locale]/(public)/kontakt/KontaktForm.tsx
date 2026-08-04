@@ -85,7 +85,7 @@ export function KontaktForm() {
         <button
           type="submit"
           className="inline-flex items-center gap-2 px-5 py-3 rounded-lg text-cta font-black transition-all"
-          style={{ background: 'var(--plattform)', color: 'white' }}
+          style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
           onMouseEnter={e => (e.currentTarget.style.background = 'var(--plattform-accent)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'var(--plattform)')}
         >

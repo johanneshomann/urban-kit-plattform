@@ -10,14 +10,14 @@ interface CtaButtonProps {
 }
 
 const variantClasses: Record<NonNullable<CtaButtonProps['variant']>, string> = {
-  plattform: 'text-white bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]',
+  plattform: 'text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]',
   projekte: 'bg-[var(--projekte)] hover:bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)]',
   projekteLight: 'bg-[var(--projekte-light)] hover:bg-[var(--projekte-dark)] text-[var(--projekte-on-brand)]',
   grundlagen: 'bg-[var(--grundlagen)] hover:bg-[var(--grundlagen-dark)] text-[var(--grundlagen-on-brand)]',
   grundlagenLight: 'bg-[var(--grundlagen-light)] hover:bg-[var(--grundlagen-dark)] text-[var(--grundlagen-on-brand)]',
   zusammenarbeit: 'bg-[var(--zusammenarbeit)] hover:bg-[var(--zusammenarbeit-dark)] text-[var(--zusammenarbeit-on-brand)]',
   zusammenarbeitLight: 'bg-[var(--zusammenarbeit-light)] hover:bg-[var(--zusammenarbeit-dark)] text-[var(--zusammenarbeit-on-brand)]',
-  white: 'bg-white hover:bg-gray-100 text-[var(--plattform-ink)]',
+  white: 'bg-[var(--plattform-white)] hover:bg-[var(--plattform-light)] text-[var(--plattform-ink)]',
 }
 
 export function CtaButton({ href, label, icon, variant = 'plattform', wide = false }: CtaButtonProps) {

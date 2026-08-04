@@ -41,7 +41,7 @@ export function JoinRequestButton({
 
   if (membershipStatus === 'requested' || sent) {
     return (
-      <span className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg text-white bg-[var(--plattform)]">
+      <span className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg text-[var(--plattform-white)] bg-[var(--plattform)]">
         {sent ? <Check className="w-[1em] h-[1em] shrink-0" /> : <Clock className="w-[1em] h-[1em] shrink-0" />}
         {t('joinPending')}
       </span>
@@ -64,7 +64,7 @@ export function JoinRequestButton({
       <button
         type="button"
         onClick={() => (isLoggedIn ? setOpen(true) : router.push(`/${locale}/register`))}
-        className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg transition-colors cursor-pointer text-white bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+        className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg transition-colors cursor-pointer text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
       >
         {t('ctaJoinRequest')}
         <UserPlus className="w-[1em] h-[1em] shrink-0" />
@@ -89,7 +89,7 @@ export function JoinRequestButton({
               {t('joinConfirmBody')}
             </p>
             {error && (
-              <p className="text-small mb-4" style={{ color: '#b91c1c' }}>{error}</p>
+              <p className="text-small mb-4" style={{ color: 'var(--color-destructive)' }}>{error}</p>
             )}
             <div className="flex flex-wrap justify-end gap-3">
               <button
@@ -105,7 +105,7 @@ export function JoinRequestButton({
                 type="button"
                 onClick={confirm}
                 disabled={pending}
-                className="px-5 py-2.5 text-cta font-normal rounded-lg transition-colors cursor-pointer text-white bg-[var(--plattform)] hover:bg-[var(--plattform-accent)] disabled:opacity-40"
+                className="px-5 py-2.5 text-cta font-normal rounded-lg transition-colors cursor-pointer text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)] disabled:opacity-40"
               >
                 {pending ? t('joinConfirmSending') : t('joinConfirmSubmit')}
               </button>

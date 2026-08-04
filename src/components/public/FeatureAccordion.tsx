@@ -50,7 +50,7 @@ export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', d
             <div className="w-full flex items-center gap-4 p-6">
               <div
                 className="shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors"
-                style={{ background: accent, color: 'white' }}
+                style={{ background: accent, color: 'var(--plattform-white)' }}
               >
                 <Icon className="w-4 h-4 shrink-0" />
               </div>

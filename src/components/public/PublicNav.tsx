@@ -314,7 +314,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 <Link
                   href={`${l}/dashboard`}
                   onClick={mobile.close}
-                  className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+                  className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
                 >
                   <span className="flex items-center gap-2">
                     <UserCircle className="w-[1em] h-[1em] shrink-0" />
@@ -326,7 +326,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                   <Link
                     href={`${l}/login`}
                     onClick={mobile.close}
-                    className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+                    className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
                   >
                     {t('login')} <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
                   </Link>

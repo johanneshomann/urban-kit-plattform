@@ -317,7 +317,7 @@ export default async function PublicProjectPage({
             {project.status && (
               <span
                 className="inline-flex items-center mb-4 px-3 py-1 rounded-full text-small font-semibold leading-none"
-                style={{ background: 'var(--plattform)', color: 'white' }}
+                style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
               >
                 {tax(`status.${project.status}`)}
               </span>

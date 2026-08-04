@@ -18,7 +18,7 @@ export function InvitationForm() {
         style={{ color: 'var(--plattform-ink)' }}
       />
       <button
-        className="px-5 py-3 rounded-lg text-cta font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)] shrink-0"
+        className="px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)] shrink-0"
       >
         {t('redeem')}
       </button>

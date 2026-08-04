@@ -102,7 +102,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             </p>
             <Link
               href={`${l}/starten`}
-              className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-small font-normal text-white transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+              className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-small font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
             >
               <Flag className="w-[1em] h-[1em] shrink-0" />
               {t('startCta')}
