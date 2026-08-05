@@ -20,6 +20,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
         const isHovered = hovered === i
         return (
           <div key={i} className="rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow" style={{ background: 'var(--plattform-white-transparent)' }}>
+            <h3>
             <button
               type="button"
               aria-expanded={isOpen}
@@ -52,6 +53,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
                 style={{ color: 'var(--grundlagen-accent)' }}
               />
             </button>
+            </h3>
 
             <div id={`${baseId}-panel-${i}`} inert={!isOpen} className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
               <div className="overflow-hidden">

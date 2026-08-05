@@ -47,7 +47,10 @@ export function HeroSlideshow({ images, interval = 5000, overlayClass }: HeroSli
       ))}
       <div className={`absolute inset-0 ${overlayClass}`} />
       {images[current]?.caption && (
-        <p className="absolute bottom-14 left-16 md:left-24 text-small font-normal z-10 opacity-70" style={{ color: 'var(--plattform-ink)' }}>
+        <p
+          className="absolute bottom-14 left-16 md:left-24 text-small font-normal z-10 px-2.5 py-1 rounded-lg"
+          style={{ color: 'var(--plattform-ink)', background: 'var(--plattform-white-transparent)' }}
+        >
           {images[current].caption}
         </p>
       )}

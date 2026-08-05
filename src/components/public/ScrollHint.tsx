@@ -28,10 +28,14 @@ export function ScrollHint({
       type="button"
       onClick={handleClick}
       aria-label={t('scrollToNext')}
-      className="absolute bottom-8 left-6 -translate-x-0 md:left-1/2 md:-translate-x-1/2 z-20 flex flex-col items-center gap-1 opacity-60 hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer"
+      className="group absolute bottom-8 left-6 -translate-x-0 md:left-1/2 md:-translate-x-1/2 z-20 flex flex-col items-center gap-1 cursor-pointer"
     >
       {label && <span className="text-text" style={{ color }}>{label}</span>}
-      <ChevronDown className={`${size} animate-bounce`} style={{ color }} aria-hidden />
+      <ChevronDown
+        className={`${size} animate-bounce opacity-60 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity`}
+        style={{ color }}
+        aria-hidden
+      />
     </button>
   )
 }

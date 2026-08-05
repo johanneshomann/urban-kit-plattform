@@ -181,14 +181,38 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
       {switchPages.length > 0 && (
         <div
           inert={!visible}
-          className="fixed top-[4.5rem] right-4 lg:right-6 z-40 hidden md:flex items-center justify-end"
+          className="fixed top-[4.5rem] right-4 lg:right-6 z-40 hidden md:flex flex-row-reverse items-center justify-start"
           style={{
             opacity: visible ? 1 : 0,
             pointerEvents: visible ? undefined : 'none',
             transition: 'opacity 0.4s ease',
           }}
         >
+          <button
+            type="button"
+            onClick={() => setSwitchOpen((v) => !v)}
+            aria-expanded={switchOpen}
+            aria-controls="bereich-switcher-reveal"
+            aria-label={label}
+            className="relative flex items-center justify-center cursor-pointer group"
+          >
+            {(() => {
+              const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
+              return (
+                <span
+                  className="flex items-center justify-center h-12 w-12 rounded-2xl shadow-md transition-transform duration-200 group-hover:scale-105"
+                  style={{ background: ballColor }}
+                >
+                  <SwitchIcon
+                    className={`h-6 w-6 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
+                    style={{ color: switchIconColor ?? 'var(--plattform-white)' }}
+                  />
+                </span>
+              )
+            })()}
+          </button>
           <div
+            id="bereich-switcher-reveal"
             inert={!switchOpen}
             className="grid transition-all duration-300 ease-in-out"
             style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
@@ -237,28 +261,6 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setSwitchOpen((v) => !v)}
-            aria-expanded={switchOpen}
-            aria-label={label}
-            className="relative flex items-center justify-center cursor-pointer group"
-          >
-            {(() => {
-              const SwitchIcon = (LucideIcons as unknown as Record<string, LucideIcon>)['ArrowLeftRight']
-              return (
-                <span
-                  className="flex items-center justify-center h-12 w-12 rounded-2xl shadow-md transition-transform duration-200 group-hover:scale-105"
-                  style={{ background: ballColor }}
-                >
-                  <SwitchIcon
-                    className={`h-6 w-6 transition-transform duration-300 ${switchOpen ? 'rotate-180' : ''}`}
-                    style={{ color: switchIconColor ?? 'var(--plattform-white)' }}
-                  />
-                </span>
-              )
-            })()}
-          </button>
         </div>
       )}
 

@@ -195,7 +195,7 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
       className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-text shadow-sm hover:shadow-md transition-shadow focus-within:ring-2"
       style={{ background: 'var(--plattform-white)', '--tw-ring-color': 'var(--plattform)' } as React.CSSProperties}
     >
-      <Search className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--plattform-ink)' }} />
+      <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--plattform-ink)' }} />
       <input
         type="search"
         value={value}
@@ -203,7 +203,7 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
         onFocus={onFocus}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="flex-1 outline-none bg-transparent placeholder:opacity-60"
+        className="flex-1 outline-none bg-transparent placeholder:opacity-85"
         style={{ color: 'var(--plattform-ink)' }}
       />
       {value && (

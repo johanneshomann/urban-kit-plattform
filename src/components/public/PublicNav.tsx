@@ -107,6 +107,8 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
   const mobile = useAnimatedOpen(CLOSE_DURATION)
   const dropdownId = useId()
   const mobilePanelId = useId()
+  const triggerRefs = useRef<Partial<Record<MenuKey, HTMLButtonElement | null>>>({})
+  const burgerRef = useRef<HTMLButtonElement>(null)
 
   // Escape closes whichever menu is open (WCAG 1.4.13 dismissable).
   const anyOpen = activeMenu !== null || mobile.active
@@ -116,9 +118,13 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Escape') return
       if (desktopTimer.current) clearTimeout(desktopTimer.current)
-      setActiveMenu(null)
+      setActiveMenu((menu) => {
+        if (menu) triggerRefs.current[menu]?.focus()
+        return null
+      })
       setDesktopClosing(false)
       mobileClose()
+      burgerRef.current?.focus()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
@@ -143,8 +149,11 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
       <header className={`h-14 border-b bg-[var(--plattform-white)] grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10 sticky top-0 z-50 transition-shadow ${mobile.isOpen ? '' : 'shadow-md'}`}>
         {/* Desktop triggers — left. The dropdown lives right here in the DOM
             so keyboard focus moves trigger → menu links without detouring
-            through logo and account controls (WCAG 2.4.3). */}
-        <nav aria-label={t('mainNav')}>
+            through logo and account controls (WCAG 2.4.3). The wrapper div
+            keeps the grid cell on mobile, where the landmark itself is hidden
+            so it doesn't duplicate the mobile panel's identically-named nav. */}
+        <div>
+        <nav aria-label={t('mainNav')} className="hidden md:block">
         <div className="hidden md:flex items-center gap-8">
           {(['allgemein', 'bereiche'] as MenuKey[]).map((key) => {
             const active = activeMenu === key && !desktopClosing
@@ -152,7 +161,8 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
               <button
                 key={key}
                 type="button"
-                aria-expanded={activeMenu === key}
+                ref={(el) => { triggerRefs.current[key] = el }}
+                aria-expanded={active}
                 aria-controls={activeMenu === key ? dropdownId : undefined}
                 onClick={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
                 onMouseEnter={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
@@ -170,6 +180,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
         {activeMenu && (
           <div
             id={dropdownId}
+            inert={desktopClosing}
             className="hidden md:block fixed top-14 overflow-hidden z-50 w-max rounded-b-xl"
             style={{ left: dropdownLeft }}
             onMouseEnter={desktopCancelClose}
@@ -205,6 +216,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
           </div>
         )}
         </nav>
+        </div>
 
         {/* Logo — centered */}
         <Link href={l} className="font-bold text-text">
@@ -256,6 +268,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             )}
             <button
               type="button"
+              ref={burgerRef}
               onClick={mobile.isOpen ? mobile.close : mobile.open}
               aria-label={mobile.isOpen ? t('menuClose') : t('menu')}
               aria-expanded={mobile.isOpen}
@@ -287,6 +300,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
         <nav
           id={mobilePanelId}
           aria-label={t('mainNav')}
+          inert={mobile.closing}
           className={`md:hidden fixed top-14 inset-x-0 z-40 bg-[var(--plattform-white)] border-b shadow-md ${mobile.closing ? 'nav-panel-exit' : 'nav-panel-enter'}`}
         >
           <div className="px-6 py-4 flex flex-col gap-0">

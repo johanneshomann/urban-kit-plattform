@@ -33,6 +33,7 @@ function round(n: number): number {
 
 export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<AccessibilitySettings>(A11Y_DEFAULTS)
+  const [osReduceMotion, setOsReduceMotion] = useState(false)
 
   // Hydrate from localStorage after mount. On first visit (no stored value),
   // seed reduceMotion from the OS-level prefers-reduced-motion setting.
@@ -45,11 +46,27 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     }
   }, [])
 
-  // Apply + persist on every change.
+  // Track the OS preference live: CSS motion is already covered by the media
+  // query in globals.css, but JS-driven motion (slideshow, slider drift) reads
+  // the context — it must freeze even when a stored profile predates the OS
+  // setting. The OS preference is never persisted, only ORed in.
   useEffect(() => {
-    applySettings(settings)
+    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (!mq) return
+    setOsReduceMotion(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setOsReduceMotion(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  const effectiveSettings: AccessibilitySettings =
+    osReduceMotion && !settings.reduceMotion ? { ...settings, reduceMotion: true } : settings
+
+  // Apply the effective values; persist only the user's explicit choices.
+  useEffect(() => {
+    applySettings(osReduceMotion && !settings.reduceMotion ? { ...settings, reduceMotion: true } : settings)
     saveSettings(settings)
-  }, [settings])
+  }, [settings, osReduceMotion])
 
   const setFontScale = useCallback((value: number) => {
     setSettings((s) => ({ ...s, fontScale: round(Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value))) }))
@@ -78,7 +95,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   const reset = useCallback(() => setSettings(A11Y_DEFAULTS), [])
 
   const value: AccessibilityContextValue = {
-    settings,
+    settings: effectiveSettings,
     setFontScale,
     increaseFontScale,
     decreaseFontScale,

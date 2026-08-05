@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Accessibility, ExternalLink, Minus, Plus, RotateCcw, X } from 'lucide-react'
+import { Accessibility, FileText, Minus, Plus, RotateCcw, X } from 'lucide-react'
 import { useAccessibility } from './AccessibilityProvider'
 
 export function AccessibilityButton() {
@@ -148,7 +148,7 @@ export function AccessibilityButton() {
               className="text-small inline-flex items-center gap-1.5 underline transition-opacity hover:opacity-70"
               style={{ color: 'var(--plattform-accent)' }}
             >
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              <FileText className="h-3.5 w-3.5" aria-hidden />
               {t('statement')}
             </Link>
           </div>

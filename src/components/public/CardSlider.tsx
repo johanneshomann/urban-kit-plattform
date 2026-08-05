@@ -12,9 +12,9 @@ import { useAccessibility } from '@/components/accessibility/AccessibilityProvid
  * wrap itself in `snap-start shrink-0 basis-*` sizing.
  *
  * `autoplay`: the track drifts slowly to the right, starting 500ms after the
- * slider enters the viewport. Hovering pauses; any manual interaction (wheel,
- * touch, nav buttons) hands control back to the user for good; the drift stops
- * at the end of the track.
+ * slider enters the viewport. Any engagement (pointer, focus, wheel, touch,
+ * nav buttons) hands control back to the user for good; the drift stops at
+ * the end of the track and is disabled under reduced motion.
  */
 export function CardSlider({ children, autoplay = false }: { children: ReactNode; autoplay?: boolean }) {
   const t = useTranslations('common')
@@ -73,13 +73,11 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
     }, { threshold: 0.3 })
     io.observe(root)
 
-    // Hover pauses (resumes on leave); manual input stops for good. Keyboard
-    // focus entering the slider also stops it — the drift must be stoppable
-    // without a pointer (WCAG 2.2.2).
-    const onEnter = () => pause()
-    const onLeave = () => start()
-    root.addEventListener('mouseenter', onEnter)
-    root.addEventListener('mouseleave', onLeave)
+    // Any engagement stops the drift for good — pointer entering the region,
+    // keyboard focus, wheel, touch or the arrow buttons. WCAG 2.2.2 wants a
+    // stop mechanism in every modality; a resume-on-leave hover pause alone
+    // isn't one.
+    root.addEventListener('mouseenter', stopAuto)
     root.addEventListener('focusin', stopAuto)
     el.addEventListener('wheel', stopAuto, { passive: true })
     el.addEventListener('touchstart', stopAuto, { passive: true })
@@ -88,8 +86,7 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
       io.disconnect()
       pause()
       if (a.delay) clearTimeout(a.delay)
-      root.removeEventListener('mouseenter', onEnter)
-      root.removeEventListener('mouseleave', onLeave)
+      root.removeEventListener('mouseenter', stopAuto)
       root.removeEventListener('focusin', stopAuto)
       el.removeEventListener('wheel', stopAuto)
       el.removeEventListener('touchstart', stopAuto)

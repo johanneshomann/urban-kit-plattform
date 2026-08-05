@@ -31,20 +31,28 @@ export default async function BarrierefreiheitPage({ params }: { params: Promise
 
   // Admin-authored statement from the Legal global; falls back to the bundled
   // BITV 2.0 template so the legally required statement is never absent.
-  let content: unknown = null
+  // fallbackLocale is off on purpose: an empty EN field should render the
+  // bundled EN template, not leak the German admin text onto /en.
+  // Admin content is converted inside the guard — a Lexical node the base
+  // converter can't handle must degrade to the template, not crash the page.
+  let contentHtml: string | null = null
   try {
     const payload = await getPayload({ config })
     const data = await payload.findGlobal({
       slug: 'legal-settings',
       locale: locale as 'de' | 'en',
-      fallbackLocale: 'de',
+      fallbackLocale: false,
       overrideAccess: true,
     })
-    content = (data as unknown as { barrierefreiheit?: unknown }).barrierefreiheit ?? null
+    const content = (data as unknown as { barrierefreiheit?: unknown }).barrierefreiheit ?? null
+    if (content) {
+      contentHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
+    }
   } catch {}
-  if (!content) content = barrierefreiheitDefault(locale, cityName)
-
-  const contentHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
+  if (!contentHtml) {
+    const fallback = barrierefreiheitDefault(locale, cityName)
+    contentHtml = convertLexicalToHTML({ data: fallback as Parameters<typeof convertLexicalToHTML>[0]['data'] })
+  }
 
   return (
     <div className="min-h-svh flex flex-col">

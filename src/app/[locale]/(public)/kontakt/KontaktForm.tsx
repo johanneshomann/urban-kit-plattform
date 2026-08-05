@@ -23,7 +23,7 @@ export function KontaktForm() {
 
   if (sent) {
     return (
-      <div ref={sentRef} tabIndex={-1} role="status" className="rounded-xl p-7 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all outline-none" style={{ background: 'var(--plattform-light)' }}>
+      <div ref={sentRef} tabIndex={-1} role="status" className="rounded-xl p-7 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
         <p className="text-display font-black tracking-tight" style={{ color: 'var(--plattform)' }}>
           {t.rich('sentTitle', { accent: (chunks) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span> })}
         </p>
