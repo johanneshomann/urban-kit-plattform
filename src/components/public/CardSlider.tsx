@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useAccessibility } from '@/components/accessibility/AccessibilityProvider'
 
 /**
  * Horizontal card slider: a snap-scrolling track (hidden scrollbar) with
@@ -17,6 +18,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
  */
 export function CardSlider({ children, autoplay = false }: { children: ReactNode; autoplay?: boolean }) {
   const t = useTranslations('common')
+  const { settings } = useAccessibility()
+  // The drift is a JS animation — the CSS reduce-motion overrides can't reach
+  // it (WCAG 2.2.2 / 2.3.3), so the preference disables autoplay entirely.
+  const autoplayAllowed = autoplay && !settings.reduceMotion
   const trackRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
@@ -33,7 +38,7 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
   }
 
   useEffect(() => {
-    if (!autoplay) return
+    if (!autoplayAllowed) return
     const root = rootRef.current
     const el = trackRef.current
     if (!root || !el) return
@@ -68,11 +73,14 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
     }, { threshold: 0.3 })
     io.observe(root)
 
-    // Hover pauses (resumes on leave); manual input stops for good.
+    // Hover pauses (resumes on leave); manual input stops for good. Keyboard
+    // focus entering the slider also stops it — the drift must be stoppable
+    // without a pointer (WCAG 2.2.2).
     const onEnter = () => pause()
     const onLeave = () => start()
     root.addEventListener('mouseenter', onEnter)
     root.addEventListener('mouseleave', onLeave)
+    root.addEventListener('focusin', stopAuto)
     el.addEventListener('wheel', stopAuto, { passive: true })
     el.addEventListener('touchstart', stopAuto, { passive: true })
 
@@ -82,11 +90,12 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
       if (a.delay) clearTimeout(a.delay)
       root.removeEventListener('mouseenter', onEnter)
       root.removeEventListener('mouseleave', onLeave)
+      root.removeEventListener('focusin', stopAuto)
       el.removeEventListener('wheel', stopAuto)
       el.removeEventListener('touchstart', stopAuto)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay])
+  }, [autoplayAllowed])
 
   function update() {
     const el = trackRef.current
@@ -111,7 +120,7 @@ export function CardSlider({ children, autoplay = false }: { children: ReactNode
     const el = trackRef.current
     if (!el) return
     stopAuto()
-    el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' })
+    el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: settings.reduceMotion ? 'auto' : 'smooth' })
   }
 
   const showNav = canPrev || canNext

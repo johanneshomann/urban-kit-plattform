@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useAccessibility } from '@/components/accessibility/AccessibilityProvider'
 
 export interface HeroImage {
   url: string
@@ -17,14 +18,18 @@ interface HeroSlideshowProps {
 
 export function HeroSlideshow({ images, interval = 5000, overlayClass }: HeroSlideshowProps) {
   const [current, setCurrent] = useState(0)
+  const { settings } = useAccessibility()
 
+  // Auto-advance is motion (WCAG 2.2.2 / 2.3.3): the reduce-motion preference
+  // freezes the slideshow entirely — CSS can only shorten the crossfade, which
+  // would turn the rotation into a hard cut instead of stopping it.
   useEffect(() => {
-    if (images.length <= 1) return
+    if (images.length <= 1 || settings.reduceMotion) return
     const id = setInterval(() => {
       setCurrent((i) => (i + 1) % images.length)
     }, interval)
     return () => clearInterval(id)
-  }, [images.length, interval])
+  }, [images.length, interval, settings.reduceMotion])
 
   if (images.length === 0) return null
 
@@ -42,7 +47,7 @@ export function HeroSlideshow({ images, interval = 5000, overlayClass }: HeroSli
       ))}
       <div className={`absolute inset-0 ${overlayClass}`} />
       {images[current]?.caption && (
-        <p className="absolute bottom-14 left-16 md:left-24 text-small font-normal z-10 opacity-40" style={{ color: 'var(--plattform-ink)' }}>
+        <p className="absolute bottom-14 left-16 md:left-24 text-small font-normal z-10 opacity-70" style={{ color: 'var(--plattform-ink)' }}>
           {images[current].caption}
         </p>
       )}
