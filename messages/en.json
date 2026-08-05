@@ -113,7 +113,9 @@
     "imprintShort": "Imprint",
     "privacyShort": "Privacy",
     "cookiesShort": "Cookies",
-    "admin": "Admin"
+    "admin": "Admin",
+    "accessibility": "Accessibility",
+    "accessibilityShort": "Accessibility"
   },
   "publicNav": {
     "triggerAllgemein": "General",
@@ -246,7 +248,10 @@
     "cookiesMeta": "Cookie policy – Urban KIT",
     "cookiesTitle": "Cookies<accent>.</accent>",
     "cookiesIntro": "Cookie policy — information on the cookies used on this platform.",
-    "cookiesEmpty": "The cookie policy has not been configured yet. Please enter it in the admin panel under “Legal – Contact & Law” → “Cookie policy”."
+    "cookiesEmpty": "The cookie policy has not been configured yet. Please enter it in the admin panel under “Legal – Contact & Law” → “Cookie policy”.",
+    "barrierefreiheitMeta": "Accessibility statement – Urban KIT",
+    "barrierefreiheitTitle": "Accessibility<accent>.</accent>",
+    "barrierefreiheitIntro": "Accessibility statement pursuant to BITV 2.0 — information on the accessibility status of this platform, how to give feedback, and the enforcement procedure."
   },
   "taxonomy": {
     "status": {

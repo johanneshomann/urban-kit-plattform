@@ -104,6 +104,24 @@ export const LegalSettings: GlobalConfig = {
             },
           ],
         },
+        {
+          label: { en: 'Accessibility', de: 'Barrierefreiheit' },
+          fields: [
+            {
+              name: 'barrierefreiheit',
+              type: 'richText',
+              localized: true,
+              editor: lexicalEditor(),
+              label: legalContentLabel,
+              admin: {
+                description: {
+                  de: 'Erklärung zur Barrierefreiheit nach BITV 2.0 / EU-Mustererklärung. Bleibt das Feld leer, zeigt die Seite eine mitgelieferte Vorlage — Platzhalter in eckigen Klammern (Datum der Selbstbewertung, Feedback-Adresse, zuständige Ombudsstelle) bitte ergänzen.',
+                  en: 'Accessibility statement per BITV 2.0 / the EU model declaration. If left empty, the page shows a bundled template — please fill in the bracketed placeholders (self-evaluation date, feedback address, responsible enforcement body).',
+                },
+              },
+            },
+          ],
+        },
       ],
     },
   ],

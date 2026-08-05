@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie, Users, BookOpen } from 'lucide-react'
+import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie, Users, BookOpen, Accessibility } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { getCitySettings } from '@/lib/instance'
 import { getMethodenBaseUrl } from '@/lib/methodensammlung'
@@ -86,6 +86,10 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
                 <ShieldCheck className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">{t('privacy')}</span>
               </Link>
+              <Link href={`${l}/barrierefreiheit`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
+                <Accessibility className="w-[1em] h-[1em] shrink-0 opacity-40" />
+                <span className="group-hover:underline">{t('accessibility')}</span>
+              </Link>
               <Link href={`${l}/cookies`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
                 <Cookie className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">{t('cookies')}</span>
@@ -129,6 +133,9 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             </Link>
             <Link href={`${l}/cookies`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('cookiesShort')}
+            </Link>
+            <Link href={`${l}/barrierefreiheit`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
+              {t('accessibilityShort')}
             </Link>
             <Link href="/admin" className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('admin')}

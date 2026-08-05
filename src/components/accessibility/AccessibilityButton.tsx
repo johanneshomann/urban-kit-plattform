@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { Accessibility, Minus, Plus, RotateCcw, X } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { Accessibility, ExternalLink, Minus, Plus, RotateCcw, X } from 'lucide-react'
 import { useAccessibility } from './AccessibilityProvider'
 
 export function AccessibilityButton() {
   const t = useTranslations('accessibility')
+  const locale = useLocale()
   const {
     settings,
     increaseFontScale,
@@ -64,6 +66,7 @@ export function AccessibilityButton() {
           aria-modal="false"
           aria-label={t('title')}
           tabIndex={-1}
+          data-a11y-panel
           className="dropdown-enter absolute bottom-full left-0 mb-3 w-72 rounded-xl border p-4 outline-none"
           style={{
             background: 'var(--plattform-white)',
@@ -135,6 +138,20 @@ export function AccessibilityButton() {
             <RotateCcw className="h-3.5 w-3.5" />
             {t('reset')}
           </button>
+
+          {/* The statement page — the audience opening this panel is exactly
+              who the Erklärung zur Barrierefreiheit is for. */}
+          <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--plattform-light)' }}>
+            <Link
+              href={`/${locale}/barrierefreiheit`}
+              onClick={() => setOpen(false)}
+              className="text-small inline-flex items-center gap-1.5 underline transition-opacity hover:opacity-70"
+              style={{ color: 'var(--plattform-accent)' }}
+            >
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              {t('statement')}
+            </Link>
+          </div>
         </div>
       )}
 
@@ -174,11 +191,13 @@ function Toggle({
       <span>{label}</span>
       <span
         aria-hidden="true"
+        data-a11y-switch-track
         className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
         style={{ background: checked ? 'var(--plattform)' : 'var(--plattform-light)' }}
       >
         <span
-          className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
+          data-a11y-switch-knob
+          className="inline-block h-4 w-4 rounded-full bg-[var(--plattform-white)] transition-transform"
           style={{ transform: checked ? 'translateX(1.125rem)' : 'translateX(0.125rem)' }}
         />
       </span>

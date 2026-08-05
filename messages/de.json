@@ -113,7 +113,9 @@
     "imprintShort": "Impressum",
     "privacyShort": "Datenschutz",
     "cookiesShort": "Cookies",
-    "admin": "Admin"
+    "admin": "Admin",
+    "accessibility": "Barrierefreiheit",
+    "accessibilityShort": "Barrierefreiheit"
   },
   "publicNav": {
     "triggerAllgemein": "Allgemein",
@@ -246,7 +248,10 @@
     "cookiesMeta": "Cookie-Richtlinie – Urban KIT",
     "cookiesTitle": "Cookies<accent>.</accent>",
     "cookiesIntro": "Cookie-Richtlinie — Informationen zu den auf dieser Plattform eingesetzten Cookies.",
-    "cookiesEmpty": "Die Cookie-Richtlinie wurde noch nicht konfiguriert. Bitte im Admin-Panel unter „Legal – Kontakt & Recht“ → „Cookie-Richtlinie“ eintragen."
+    "cookiesEmpty": "Die Cookie-Richtlinie wurde noch nicht konfiguriert. Bitte im Admin-Panel unter „Legal – Kontakt & Recht“ → „Cookie-Richtlinie“ eintragen.",
+    "barrierefreiheitMeta": "Erklärung zur Barrierefreiheit – Urban KIT",
+    "barrierefreiheitTitle": "Barrierefreiheit<accent>.</accent>",
+    "barrierefreiheitIntro": "Erklärung zur Barrierefreiheit gemäß BITV 2.0 — Informationen zum Stand der Barrierefreiheit dieser Plattform, Feedback-Möglichkeit und Durchsetzungsverfahren."
   },
   "taxonomy": {
     "status": {

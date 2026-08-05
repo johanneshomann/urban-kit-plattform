@@ -9,11 +9,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const locale of ['de', 'en']) {
     entries.push(
       { url: `${base}/${locale}`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-      { url: `${base}/${locale}/projekte`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-      { url: `${base}/${locale}/grundlagen`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-      { url: `${base}/${locale}/zusammenarbeit`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-      { url: `${base}/${locale}/mitmachen`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+      { url: `${base}/${locale}/ueber-urbankit`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+      { url: `${base}/${locale}/starten`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+      { url: `${base}/${locale}/kontakt`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+      { url: `${base}/${locale}/bereich/projekte-archiv`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+      { url: `${base}/${locale}/bereich/zusammenarbeit`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+      { url: `${base}/${locale}/bereich/grundlagen`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
       { url: `${base}/${locale}/impressum`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+      { url: `${base}/${locale}/datenschutz`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+      { url: `${base}/${locale}/cookies`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+      { url: `${base}/${locale}/barrierefreiheit`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     )
   }
 
