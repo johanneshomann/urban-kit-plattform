@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie, Users, BookOpen } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { getCitySettings } from '@/lib/instance'
+import { getMethodenBaseUrl } from '@/lib/methodensammlung'
 
 interface PublicFooterProps {
   locale: string
@@ -9,9 +10,10 @@ interface PublicFooterProps {
 
 export async function PublicFooter({ locale }: PublicFooterProps) {
   const l = `/${locale}`
-  const [{ cityName }, t] = await Promise.all([
+  const [{ cityName }, t, methodenUrl] = await Promise.all([
     getCitySettings(),
     getTranslations({ locale, namespace: 'footer' }),
+    getMethodenBaseUrl(),
   ])
 
   return (
@@ -59,7 +61,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
                 <BookOpen className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--grundlagen-accent)' }} />
                 <span className="group-hover:underline">{t('areaBasics')}</span>
               </Link>
-              <Link href="https://methoden.urbankit.de" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
+              <Link href={methodenUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
                 <ExternalLink className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">{t('methods')}</span>
               </Link>
