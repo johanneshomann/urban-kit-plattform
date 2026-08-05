@@ -750,6 +750,7 @@
     "rowStadtbereich": "Stadtbereich",
     "ctaJoinRequest": "Beitritt anfragen",
     "joinPending": "Anfrage ausstehend",
+    "joinInvited": "Eingeladen — Code einlösen",
     "joinConfirmTitle": "Beitritt anfragen",
     "joinConfirmBody": "Möchten Sie bei diesem Projekt mitmachen? Die Projektleitung prüft Ihre Anfrage und schaltet Sie anschließend frei.",
     "joinConfirmCancel": "Abbrechen",

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Trash2, UserCircle, Users, X } from 'lucide-react'
-import { updateMemberRole, removeMember, setMemberTeams } from '@/actions/manage/members'
+import { Trash2, UserCircle, Users, X, UserPlus, Copy, Check } from 'lucide-react'
+import { updateMemberRole, removeMember, setMemberTeams, generateInvite } from '@/actions/manage/members'
 
 export interface MemberItem {
   membershipId: string
@@ -147,6 +147,8 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const [inviteCode, setInviteCode] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const run = (fn: () => Promise<{ error?: string; ok?: boolean }>) => {
     setError(null)
@@ -168,6 +170,46 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
       {error && (
         <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>
       )}
+
+      {/* Invite — generate and copy a redeemable code */}
+      <div className="rounded-xl border px-4 py-3 mb-6" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
+        <p className="text-small font-semibold mb-1" style={{ color: 'var(--project-dark)' }}>Einladen</p>
+        <p className="text-small mb-3" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>
+          Erzeuge einen Einladungscode. Der Code kann auf der Startseite eingelöst werden und schaltet die Person frei.
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setError(null)
+              startTransition(async () => {
+                const res = await generateInvite(slug, locale)
+                if (res.error) { setError(res.error); return }
+                setInviteCode(res.code ?? null)
+                setCopied(false)
+              })
+            }}
+            disabled={pending}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40"
+            style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+          >
+            <UserPlus className="w-4 h-4" /> Code erzeugen
+          </button>
+          {inviteCode && (
+            <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-mono" style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}>
+              {inviteCode}
+              <button
+                type="button"
+                onClick={() => { navigator.clipboard?.writeText(inviteCode); setCopied(true) }}
+                title="Kopieren"
+                className="p-0.5 rounded hover:opacity-70"
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </span>
+          )}
+        </div>
+      </div>
 
       <div className="flex flex-col gap-2">
         {members.map((m) => {

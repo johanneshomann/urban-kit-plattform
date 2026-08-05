@@ -140,7 +140,7 @@ export default async function PublicProjectPage({
   // Visitor's login + membership state for the join CTA
   const viewer = await getUser()
   let isStarred = false
-  let membershipStatus: 'requested' | 'active' | 'rejected' | null = null
+  let membershipStatus: 'requested' | 'active' | 'invited' | 'rejected' | null = null
   if (viewer) {
     const membershipRes = await payload.find({
       collection: 'project-memberships',
@@ -151,7 +151,7 @@ export default async function PublicProjectPage({
     }).catch(() => ({ docs: [] }))
     const m = membershipRes.docs[0] as { status?: string; starred?: boolean } | undefined
     const status = m?.status
-    membershipStatus = status === 'requested' || status === 'active' || status === 'rejected' ? status : null
+    membershipStatus = status === 'requested' || status === 'active' || status === 'invited' || status === 'rejected' ? status : null
     isStarred = m?.starred === true
   }
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)

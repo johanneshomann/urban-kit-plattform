@@ -750,6 +750,7 @@
     "rowStadtbereich": "City area",
     "ctaJoinRequest": "Request to join",
     "joinPending": "Request pending",
+    "joinInvited": "Invited — redeem code",
     "joinConfirmTitle": "Request to join",
     "joinConfirmBody": "Would you like to take part in this project? The project management will review your request and grant you access.",
     "joinConfirmCancel": "Cancel",

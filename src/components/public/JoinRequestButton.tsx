@@ -20,7 +20,7 @@ export function JoinRequestButton({
   slug: string
   locale: string
   isLoggedIn: boolean
-  membershipStatus: 'requested' | 'active' | 'rejected' | null
+  membershipStatus: 'requested' | 'active' | 'invited' | 'rejected' | null
 }) {
   const router = useRouter()
   const t = useTranslations('projectDetail')
@@ -38,6 +38,16 @@ export function JoinRequestButton({
 
   // Already a member — nothing to request.
   if (membershipStatus === 'active') return null
+
+  // Invited — waiting for the invite to be redeemed (or already shown as invited).
+  if (membershipStatus === 'invited') {
+    return (
+      <span className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg text-[var(--plattform-white)] bg-[var(--plattform)]">
+        <Clock className="w-[1em] h-[1em] shrink-0" />
+        {t('joinInvited')}
+      </span>
+    )
+  }
 
   if (membershipStatus === 'requested' || sent) {
     return (

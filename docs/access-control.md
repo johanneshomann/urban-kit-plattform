@@ -18,8 +18,9 @@ One document per user × project:
 | Field | Values | Meaning |
 |---|---|---|
 | `role` | `PM` \| `Citizen` \| `Follower` | Projektmanager / Bürger:in / Follower |
-| `status` | `requested` → `active` \| `rejected` | join-request flow; only `active` grants anything |
+| `status` | `requested` → `active` \| `rejected` \| `invited` | join-request flow; `active` grants full access; `invited` marks a redeemable invitation (see invite code) |
 | `teams` | `string[]` | team tags (from the project's `teams` catalog); a membership tagged with a team can see `TEAM`-visibility content scoped to that team |
+| `inviteCode` | `string` | PM-generated code; redeeming it flips the membership from `invited` → `active` and reassigns it to the redeeming user |
 
 ## 3. Chat room role — `chat-room-members.role`
 
@@ -48,6 +49,17 @@ Key helpers:
 
 `Citizen` vs `Follower` makes no visibility difference today — the effective
 distinction is member / team / PM.
+
+### Invitation flow
+
+City staff / PMs can invite citizens directly: `generateInvite` creates an
+`invited` membership with a random `inviteCode`. The code is shared with the
+person (email/letter); on `/starten` they enter it, and `redeemInvite`
+(logged-in user) finds the membership by code, checks `joinRequestsEnabled !==
+false`, then activates it: `status → active`, `role → Citizen`, `user →`
+the redeemer, `inviteCode → null`. PMs are notified. An invited-but-not-redeemed
+membership grants **no project access** (it's not active) — the visitor sees only
+`PUBLIC` content until the code is redeemed.
 
 ### Team catalog & scoping
 
