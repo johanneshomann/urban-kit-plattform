@@ -25,7 +25,7 @@ Canonical list — matches `.env.example` and `docker-compose.yml`.
 
 | Variable | Default | Description |
 |---|---|---|
-| `METHODEN_URL` | `https://methoden.urbankit.de` | Base URL of the Methodensammlung. |
+| `METHODEN_URL` | `https://methoden.urbankit.de` | Base URL of the Methodensammlung. The admin field (Platform Settings → Allgemein → Methodensammlung-URL) takes precedence when set. |
 | `METHODEN_API_KEY` | — | API-client key (its `api-clients` collection) for the GraphQL read of published methods (`Authorization: api-clients API-Key <key>`). Unset ⇒ the Grundlagen page renders without teasers. |
 
 ## Urban Agent (optional — module works with any one provider)
