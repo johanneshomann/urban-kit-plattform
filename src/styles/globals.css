@@ -96,6 +96,51 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+  Keyboard focus indicator (WCAG 2.4.7). :focus-visible fires for keyboard
+  navigation only, so pointer users never see rings. Two layers because focus
+  can land on any of the four token families, dark chips, or photo heroes:
+  a near-black outline plus a white halo — at least one passes 3:1 everywhere,
+  and both map to #000/#fff under the high-contrast preset.
+*/
+:focus-visible {
+  outline: 2px solid var(--plattform-ink-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 4px var(--plattform-white);
+}
+
+/* The skip-link jump target is content, not a control — no page-wide ring. */
+#main-content:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/*
+  Skip link (WCAG 2.4.1): first tab stop on every page, visually hidden until
+  keyboard-focused (off-screen, NOT display:none — that would be unfocusable),
+  then a prominent pill above the sticky header (z-50) and the a11y FAB (z-40).
+  White border keeps it legible if it ever overlaps a photo hero.
+*/
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--plattform);
+  color: var(--plattform-white);
+  border: 2px solid var(--plattform-white);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 body {
   font-family: var(--font-sans);
   color: var(--plattform-ink);
@@ -173,8 +218,21 @@ h1, h2, h3, h4, h5, h6 {
   transform-origin: top right;
 }
 
+/*
+  OS-level reduced-motion preference (WCAG 2.3.3) — same rules as the manual
+  html.a11y-reduce-motion toggle below (the provider also seeds the toggle from
+  this media query, but only on first visit; keep both paths covered).
+*/
 @media (prefers-reduced-motion: reduce) {
-  .card-in { animation: none; }
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .no-scrollbar {
@@ -238,6 +296,57 @@ html.a11y-high-contrast {
   --color-background:       #fff !important;
   --color-secondary:        #fff !important;
   --color-muted:            #fff !important;
+
+  /* Project chameleon palette — ProjectThemeScope writes these as inline
+     styles on <html>; author !important beats normal inline declarations. */
+  --project-light:          #fff !important;
+  --project-mid:            #fff !important;
+  --project-white:          #fff !important;
+  --project-dark:           #000 !important;
+  --project-accent:         #000 !important;
+  --project-black:          #000 !important;
+}
+
+html.a11y-high-contrast :focus-visible {
+  outline-color: #000 !important;
+}
+
+/* Desaturate imagery so it doesn't reintroduce low-contrast color noise. */
+html.a11y-high-contrast img,
+html.a11y-high-contrast video,
+html.a11y-high-contrast picture {
+  filter: grayscale(100%);
+}
+
+/*
+  The accessibility toggle switch collapses in high contrast: in the OFF state
+  both the track (--plattform-light → #fff) and the knob (--plattform-white →
+  #fff) turn white. Force black outlines so knob and track read against each
+  other and against the panel — which itself keeps only an rgba shadow as its
+  edge, hence the forced border.
+*/
+html.a11y-high-contrast [data-a11y-switch-track],
+html.a11y-high-contrast [data-a11y-switch-knob] {
+  border: 1px solid #000;
+}
+
+html.a11y-high-contrast [data-a11y-panel] {
+  border-color: #000 !important;
+}
+
+/*
+  Wrappers that paint the chameleon palette as inline element styles
+  (schemeToCssVars spread on a div) escape the inherited overrides above —
+  the closer element's own declaration wins. !important author rules beat
+  normal inline declarations, so target those wrappers via attribute.
+*/
+html.a11y-high-contrast [data-project-theme] {
+  --project-light:  #fff !important;
+  --project-mid:    #fff !important;
+  --project-white:  #fff !important;
+  --project-dark:   #000 !important;
+  --project-accent: #000 !important;
+  --project-black:  #000 !important;
 }
 
 

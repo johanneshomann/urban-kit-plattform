@@ -172,7 +172,7 @@ export default async function PublicProjectNewsPage({
           )}
 
           {/* Comments — themed with the project's scheme so --project-* resolve */}
-          <div style={schemeToCssVars(scheme) as React.CSSProperties}>
+          <div data-project-theme style={schemeToCssVars(scheme) as React.CSSProperties}>
             <NewsComments
               slug={project.slug}
               locale={locale}

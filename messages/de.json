@@ -12,7 +12,8 @@
     "search": "Suchen",
     "previous": "Zurück",
     "scrollToNext": "Zum nächsten Abschnitt",
-    "clearSearch": "Suche zurücksetzen"
+    "clearSearch": "Suche zurücksetzen",
+    "skipLink": "Zum Inhalt springen"
   },
   "nav": {
     "home": "Startseite",
@@ -55,7 +56,8 @@
     "reduceMotion": "Animationen reduzieren",
     "highContrast": "Hoher Kontrast",
     "underlineLinks": "Links unterstreichen",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "statement": "Erklärung zur Barrierefreiheit"
   },
   "home": {
     "metaTitle": "UrbanKIT – Stadtbeteiligung für {city}",

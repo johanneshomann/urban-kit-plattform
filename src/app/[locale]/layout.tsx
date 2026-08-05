@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { getPlatformColors, colorsToCssVars } from '@/lib/theme'
@@ -24,13 +24,21 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const [messages, colors] = await Promise.all([getMessages(), getPlatformColors()])
+  const [messages, colors, t] = await Promise.all([
+    getMessages(),
+    getPlatformColors(),
+    getTranslations({ locale, namespace: 'common' }),
+  ])
   const cssVars = colorsToCssVars(colors)
 
   return (
     <html lang={locale} style={cssVars as React.CSSProperties} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: A11Y_PREPAINT_SCRIPT }} />
+        {/* WCAG 2.4.1 — first tab stop; the pre-paint script above is not focusable. */}
+        <a href="#main-content" className="skip-link">
+          {t('skipLink')}
+        </a>
         <NextIntlClientProvider messages={messages}>
           <AccessibilityProvider>
             {children}

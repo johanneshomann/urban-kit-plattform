@@ -12,7 +12,8 @@
     "search": "Search",
     "previous": "Previous",
     "scrollToNext": "To the next section",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "skipLink": "Skip to content"
   },
   "nav": {
     "home": "Home",
@@ -55,7 +56,8 @@
     "reduceMotion": "Reduce motion",
     "highContrast": "High contrast",
     "underlineLinks": "Underline links",
-    "reset": "Reset"
+    "reset": "Reset",
+    "statement": "Accessibility statement"
   },
   "home": {
     "metaTitle": "UrbanKIT – Citizen participation for {city}",
