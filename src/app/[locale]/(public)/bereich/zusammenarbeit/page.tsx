@@ -77,7 +77,6 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           className="relative min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden"
           style={{ background: 'var(--zusammenarbeit)' }}
         >
-          <ScrollHint color="var(--zusammenarbeit-dark)" label={nav('scrollMore')} />
 
           <Users
             className="absolute right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
@@ -113,6 +112,8 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
               {t('heroBody')}
             </p>
           </div>
+          {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+          <ScrollHint color="var(--zusammenarbeit-dark)" label={nav('scrollMore')} />
         </section>
 
         {/* About this Bereich — still part of the starting area, fades into Projektraum */}

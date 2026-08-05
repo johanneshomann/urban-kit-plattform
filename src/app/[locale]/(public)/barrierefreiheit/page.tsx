@@ -70,7 +70,6 @@ export default async function BarrierefreiheitPage({ params }: { params: Promise
           aria-hidden="true"
           style={{ color: 'var(--plattform)' }}
         />
-        <ScrollHint />
         <div className="relative z-10 max-w-2xl">
           <EyebrowBadge label={t('eyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
@@ -80,6 +79,8 @@ export default async function BarrierefreiheitPage({ params }: { params: Promise
             {t('barrierefreiheitIntro')}
           </p>
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Content */}

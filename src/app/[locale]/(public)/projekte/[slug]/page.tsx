@@ -313,7 +313,6 @@ export default async function PublicProjectPage({
           <img src={coverSrc} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[color-mix(in_srgb,var(--plattform-white)_85%,transparent)]" />
         </div>
-        <ScrollHint />
 
         <div className="relative z-10 flex-1 flex flex-col justify-start px-6 pt-20 md:pt-28 md:px-16 lg:px-24">
           <div className="flex flex-wrap items-center gap-2">
@@ -350,6 +349,8 @@ export default async function PublicProjectPage({
             </div>
           )}
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Über das Projekt */}

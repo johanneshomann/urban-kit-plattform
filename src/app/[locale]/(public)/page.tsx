@@ -138,7 +138,6 @@ export default async function PublicHomePage({
 
       {/* Hero — no border into content: the slideshow overlay fades into the next section's background */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden bg-[var(--plattform-light)]">
-        <ScrollHint />
         <HeroSlideshow images={heroImages} overlayClass="bg-[color-mix(in_srgb,var(--plattform-white)_78%,transparent)] bg-gradient-to-b from-transparent from-[calc(100%-var(--section-fade-height))] to-[var(--plattform-light)]" />
 
         {/* Logo — top right */}
@@ -169,6 +168,8 @@ export default async function PublicHomePage({
           <CtaButton href={`/${locale}/starten`} label={t('ctaStart')} icon={<Flag />} wide />
           <CtaButton href={`/${locale}#aktuelle-projekte`} label={t('ctaCurrentProjects')} icon={<FolderOpen />} wide />
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Was ist UrbanKIT */}

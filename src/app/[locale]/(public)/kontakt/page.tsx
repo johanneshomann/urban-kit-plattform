@@ -77,7 +77,6 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
           aria-hidden="true"
           style={{ color: 'var(--plattform)' }}
         />
-        <ScrollHint />
         <div className="relative z-10">
           <EyebrowBadge label={t('heroEyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
@@ -87,6 +86,8 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
             {t('heroBody')}
           </p>
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Contact details — white, seamless into the white footer; cards flip to light */}

@@ -58,7 +58,6 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
           aria-hidden="true"
           style={{ color: 'var(--plattform)' }}
         />
-        <ScrollHint />
         <div className="relative z-10 max-w-2xl">
           <EyebrowBadge label={t('heroEyebrow')} />
           <h1 className="text-hero font-black leading-none tracking-tight mb-5">
@@ -68,6 +67,8 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
             {t('heroBody', { city: cityName })}
           </p>
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Stadt & Entwicklung — white, fades into the light section below */}

@@ -86,6 +86,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     desktopTimer.current = setTimeout(() => {
       setDesktopClosing(true)
       desktopTimer.current = setTimeout(() => {
+        openSource.current = null
         setActiveMenu(null)
         setDesktopClosing(false)
       }, CLOSE_DURATION)
@@ -104,6 +105,27 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     setDesktopClosing(false)
   }, [])
 
+  // How the open menu was opened. 'hover' menus close when the pointer leaves;
+  // 'click' (incl. keyboard Enter) pins the menu until Escape, outside click,
+  // focus-out or a second activation — otherwise incidental mouse position
+  // closes the menu under a keyboard user mid-Tab.
+  const openSource = useRef<'hover' | 'click' | null>(null)
+  const desktopNavRef = useRef<HTMLElement | null>(null)
+
+  const desktopCloseNow = useCallback(() => {
+    if (desktopTimer.current) clearTimeout(desktopTimer.current)
+    openSource.current = null
+    setDesktopClosing(true)
+    desktopTimer.current = setTimeout(() => {
+      setActiveMenu(null)
+      setDesktopClosing(false)
+    }, CLOSE_DURATION)
+  }, [])
+
+  const desktopCloseIfHover = useCallback(() => {
+    if (openSource.current === 'hover') desktopClose()
+  }, [desktopClose])
+
   const mobile = useAnimatedOpen(CLOSE_DURATION)
   const dropdownId = useId()
   const mobilePanelId = useId()
@@ -118,6 +140,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Escape') return
       if (desktopTimer.current) clearTimeout(desktopTimer.current)
+      openSource.current = null
       setActiveMenu((menu) => {
         if (menu) triggerRefs.current[menu]?.focus()
         return null
@@ -129,6 +152,19 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [anyOpen, mobileClose])
+
+  // A pinned (click-opened) menu has no mouseleave close — dismiss it when
+  // the pointer goes down anywhere outside the nav.
+  useEffect(() => {
+    if (activeMenu === null) return
+    function onPointerDown(e: PointerEvent) {
+      if (desktopNavRef.current && !desktopNavRef.current.contains(e.target as Node)) {
+        desktopCloseNow()
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [activeMenu, desktopCloseNow])
 
   const pathname = usePathname()
   const isActive = (href: string) => {
@@ -153,7 +189,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             keeps the grid cell on mobile, where the landmark itself is hidden
             so it doesn't duplicate the mobile panel's identically-named nav. */}
         <div>
-        <nav aria-label={t('mainNav')} className="hidden md:block">
+        <nav ref={desktopNavRef} aria-label={t('mainNav')} className="hidden md:block">
         <div className="hidden md:flex items-center gap-8">
           {(['allgemein', 'bereiche'] as MenuKey[]).map((key) => {
             const active = activeMenu === key && !desktopClosing
@@ -164,9 +200,21 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 ref={(el) => { triggerRefs.current[key] = el }}
                 aria-expanded={active}
                 aria-controls={activeMenu === key ? dropdownId : undefined}
-                onClick={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
-                onMouseEnter={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
-                onMouseLeave={desktopClose}
+                onClick={(e) => {
+                  if (activeMenu === key) {
+                    if (openSource.current === 'click') desktopCloseNow()
+                    else openSource.current = 'click'
+                  } else {
+                    openSource.current = 'click'
+                    desktopOpen(key, e.currentTarget.getBoundingClientRect().left)
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  if (activeMenu === key && openSource.current === 'click') return
+                  openSource.current = 'hover'
+                  desktopOpen(key, e.currentTarget.getBoundingClientRect().left)
+                }}
+                onMouseLeave={desktopCloseIfHover}
                 className={`flex items-center gap-1 text-text cursor-pointer transition-colors hover:text-[var(--plattform-accent)] ${active ? 'text-[var(--plattform)]' : 'text-[var(--plattform-ink)]'}`}
               >
                 {t(`trigger${key.charAt(0).toUpperCase()}${key.slice(1)}`)}
@@ -184,7 +232,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             className="hidden md:block fixed top-14 overflow-hidden z-50 w-max rounded-b-xl"
             style={{ left: dropdownLeft }}
             onMouseEnter={desktopCancelClose}
-            onMouseLeave={desktopClose}
+            onMouseLeave={desktopCloseIfHover}
             onBlur={(e) => {
               if (!e.currentTarget.contains(e.relatedTarget as Node)) desktopClose()
             }}

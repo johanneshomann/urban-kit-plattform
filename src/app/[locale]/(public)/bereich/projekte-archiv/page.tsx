@@ -89,7 +89,6 @@ export default async function BereichProjektePage({ params }: { params: Promise<
 
       {/* Hero — Bereich scheme: main-tinted hero, light content sections */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte)' }}>
-        <ScrollHint color="var(--projekte-dark)" label={nav('scrollMore')} />
         <FolderOpen
           className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 h-[45%] w-auto opacity-10 pointer-events-none"
           strokeWidth={1}
@@ -107,6 +106,8 @@ export default async function BereichProjektePage({ params }: { params: Promise<
             {t('heroBody')}
           </p>
         </div>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint color="var(--projekte-dark)" label={nav('scrollMore')} />
       </section>
 
       {/* About this Bereich — hero's counterpart in the starting area: text only.
