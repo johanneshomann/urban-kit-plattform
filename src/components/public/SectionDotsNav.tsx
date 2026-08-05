@@ -180,7 +180,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
           reveals all Bereiche horizontally to the left */}
       {switchPages.length > 0 && (
         <div
-          aria-hidden={!visible}
+          inert={!visible}
           className="fixed top-[4.5rem] right-4 lg:right-6 z-40 hidden md:flex items-center justify-end"
           style={{
             opacity: visible ? 1 : 0,
@@ -189,6 +189,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
           }}
         >
           <div
+            inert={!switchOpen}
             className="grid transition-all duration-300 ease-in-out"
             style={{ gridTemplateColumns: switchOpen ? '1fr' : '0fr' }}
           >
@@ -205,6 +206,8 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
                       aria-label={page.label}
                       onMouseEnter={() => setHoveredId(page.href)}
                       onMouseLeave={() => setHoveredId(null)}
+                      onFocus={() => setHoveredId(page.href)}
+                      onBlur={() => setHoveredId(null)}
                       className="relative flex items-center justify-center group"
                     >
                       {/* Label bubble below the ball (the row sits under the header) */}
@@ -261,7 +264,7 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
 
     <nav
       aria-label={label}
-      aria-hidden={!visible}
+      inert={!visible}
       className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col gap-1 items-end"
       style={{
         opacity: visible ? 1 : 0,
@@ -284,6 +287,8 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
             aria-current={isActive ? 'true' : undefined}
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => setHoveredId(null)}
+            onFocus={() => setHoveredId(item.id)}
+            onBlur={() => setHoveredId(null)}
             className="relative flex items-center justify-center p-2 group"
           >
             {bubble(item.id, item.label, Icon, item.activeColor ?? railBubble, showLabel)}
@@ -333,6 +338,8 @@ export function SectionDotsNav({ items, label, appearAfterId, pages = [], switch
           'aria-label': page.label,
           onMouseEnter: () => setHoveredId(page.href),
           onMouseLeave: () => setHoveredId(null),
+          onFocus: () => setHoveredId(page.href),
+          onBlur: () => setHoveredId(null),
           className: 'relative flex items-center justify-center p-2 group',
         }
 
