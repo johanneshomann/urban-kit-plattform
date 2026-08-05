@@ -755,6 +755,10 @@
     "joinConfirmSubmit": "Anfrage senden",
     "joinConfirmSending": "Wird gesendet …",
     "rowMitglieder": "Mitglieder",
+    "ctaStar": "Favorit",
+    "starActive": "Favorisiert",
+    "starAdd": "Zu Favoriten hinzufügen",
+    "starRemove": "Von Favoriten entfernen",
     "navStart": "Start"
   },
   "newsDetail": {
@@ -853,6 +857,11 @@
     "sectionParticipate": "Mitmachen",
     "sectionCollaborate": "Zusammen arbeiten",
     "manage": "Verwalten",
+    "sidebarNavLabel": "Projektnavigation",
+    "sidebarDashboard": "Zum Dashboard",
+    "sidebarMore": "Mehr",
+    "sheetClose": "Schließen",
+    "tabBarLabel": "Projektbereiche",
     "phaseLabel": "Phase {step}/7 · {label}",
     "projectInfo": "Projektinformationen",
     "detailYear": "Startjahr",
@@ -870,7 +879,6 @@
     "joinWithdraw": "Zurückziehen",
     "joinSending": "Wird gesendet …",
     "join": "Mitmachen",
-    "moveCard": "Karte verschieben",
     "ctaAllNews": "Alle News anzeigen",
     "ctaAllEvents": "Alle Termine anzeigen",
     "ctaPoll": "Zur Umfrage",
@@ -898,8 +906,7 @@
     "activityTitle": "Aktivität zuletzt",
     "activityMore": "Alle Aktivitäten ansehen",
     "activityEmpty": "Noch keine Aktivität",
-    "heroTagline": "Gemeinsam gestalten wir den öffentlichen Raum.",
-    "breadcrumbDashboard": "Dashboard",
+    "breadcrumbDashboard": "Übersicht",
     "teaserMore": "Mehr erfahren",
     "galleryAll": "Alle Bilder anzeigen",
     "aboutProject": "Über das Projekt",
@@ -1099,7 +1106,9 @@
       "modules": "Module",
       "members": "Mitglieder",
       "requests": "Anfragen",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "backToProject": "Zum Projekt",
+      "requestsBadge": "{count} offene Anfragen"
     },
     "overview": {
       "eyebrow": "Verwalten",

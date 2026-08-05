@@ -339,9 +339,14 @@ export default async function PublicProjectPage({
             </p>
           )}
 
-          {joinEnabled && (
-            <div className="mt-10">
-              <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+          {(joinEnabled || viewer) && (
+            <div className="mt-10 flex items-center gap-3">
+              {viewer && (
+                <StarButton projectId={project.id} initialStarred={isStarred} />
+              )}
+              {joinEnabled && (
+                <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+              )}
             </div>
           )}
         </div>
@@ -616,14 +621,6 @@ export default async function PublicProjectPage({
             />
           )}
 
-          <div className="flex items-center gap-3">
-            {viewer && (
-              <StarButton projectId={project.id} initialStarred={isStarred} />
-            )}
-            {joinEnabled && (
-              <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
-            )}
-          </div>
         </div>
       </section>
 
