@@ -137,6 +137,22 @@ project, a theme scope sets `--project-*` vars so the header and workspace
 "chameleon" into the project's color scheme with a CSS transition (see
 `PlatformHeader.tsx`).
 
+## Accessibility (BITV 2.0 / WCAG 2.1 AA)
+
+User preferences (font scale, reduced motion, high contrast, underlined
+links) live in `src/lib/accessibility.ts` + `components/accessibility/`
+(provider, floating panel), persisted in localStorage `uk-a11y` and applied
+as `a11y-*` classes on `<html>` — a pre-paint script in `[locale]/layout.tsx`
+avoids a flash. `globals.css` holds the matching CSS: the high-contrast
+preset remaps all token families (incl. `--project-*` and
+`[data-project-theme]` wrappers) to black/white, a global `:focus-visible`
+two-layer ring, the `.skip-link`, and reduced-motion rules (both the manual
+class and the OS media query). Every public page provides
+`<main id="main-content" tabIndex={-1}>` as the skip-link target (Hard rule 7
+in AGENTS.md). The Erklärung zur Barrierefreiheit is served at
+`/barrierefreiheit` from `legal-settings.barrierefreiheit`, falling back to
+the bundled template in `src/lib/legalDefaults.ts` when the field is empty.
+
 ## Development runtime
 
 ```bash

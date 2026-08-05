@@ -123,6 +123,19 @@ and their collections: [docs/modules.md](docs/modules.md).
    model, modules, access control, i18n, env vars, or commands **must update
    the affected docs and this file in the same commit series**. Stale docs are
    a bug. (See "Keep this documentation alive" below.)
+7. **Barrierefreiheit (BITV 2.0 / WCAG 2.1 AA)** — every public page wraps its
+   content (between `PublicNavServer` and `PublicFooter`) in
+   `<main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">`;
+   the skip link in `[locale]/layout.tsx` targets that id. Interactive
+   elements are real `<button>`/`<a>` (never click-handled divs/SVGs), rely on
+   the global `:focus-visible` ring in `globals.css` (don't add bare
+   `outline-none` without a replacement), and JS-driven animation must respect
+   `useAccessibility().settings.reduceMotion`. Hidden-but-mounted containers
+   with focusable children use `inert`, not `aria-hidden`. The Erklärung zur
+   Barrierefreiheit lives at `/barrierefreiheit` (CMS field
+   `legal-settings.barrierefreiheit`, fallback template in
+   `src/lib/legalDefaults.ts`) — if you add or remove a11y features, update
+   both the template and the statement.
 
 ---
 
