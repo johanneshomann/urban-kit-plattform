@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ChevronDown, Circle, ExternalLink } from 'lucide-react'
 
@@ -94,6 +94,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
   const t = useTranslations('projektplanung')
   const [open, setOpen] = useState<number | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
+  const baseId = useId()
 
   return (
     <div className="flex flex-col gap-2">
@@ -103,6 +104,9 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
         return (
           <div key={i} className="rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow" style={{ background: 'var(--plattform-white-transparent)' }}>
             <button
+              type="button"
+              aria-expanded={isOpen}
+              aria-controls={`${baseId}-panel-${i}`}
               onClick={() => setOpen(isOpen ? null : i)}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
@@ -129,7 +133,7 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
               />
             </button>
 
-            <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div id={`${baseId}-panel-${i}`} inert={!isOpen} className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
               <div className="overflow-hidden">
                 <div className="pl-6 md:pl-14 pr-2 pt-4 pb-8">
                   <StepContent step={step} />

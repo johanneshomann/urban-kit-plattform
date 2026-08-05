@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 interface Section {
@@ -11,6 +11,7 @@ interface Section {
 export function PartizipationAccordion({ sections }: { sections: Section[] }) {
   const [open, setOpen] = useState<number | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
+  const baseId = useId()
 
   return (
     <div className="flex flex-col gap-2">
@@ -20,6 +21,9 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
         return (
           <div key={i} className="rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow" style={{ background: 'var(--plattform-white-transparent)' }}>
             <button
+              type="button"
+              aria-expanded={isOpen}
+              aria-controls={`${baseId}-panel-${i}`}
               onClick={() => setOpen(isOpen ? null : i)}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
@@ -49,7 +53,7 @@ export function PartizipationAccordion({ sections }: { sections: Section[] }) {
               />
             </button>
 
-            <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div id={`${baseId}-panel-${i}`} inert={!isOpen} className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
               <div className="overflow-hidden">
                 <div className="pl-6 md:pl-14 pr-2 pt-2 pb-7 text-text space-y-4" style={{ color: 'var(--plattform-ink)' }}>
                   {section.content}

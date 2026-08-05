@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
 
 export interface AccordionItem {
@@ -18,9 +18,10 @@ interface Props {
   bordered?: boolean
 }
 
-export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', defaultOpen = [0], bordered = true }: Props) {
+export function FeatureAccordion({ items, color, hoverColor, cardBg = 'var(--plattform-white)', defaultOpen = [0], bordered = true }: Props) {
   const [open, setOpen] = useState<Set<number>>(new Set(defaultOpen))
   const [hovered, setHovered] = useState<number | null>(null)
+  const baseId = useId()
 
   const toggle = (i: number) => {
     setOpen((prev) => {
@@ -41,26 +42,37 @@ export function FeatureAccordion({ items, color, hoverColor, cardBg = 'white', d
         return (
           <div
             key={f.title}
-            className={`rounded-xl transition-all shadow-xs hover:shadow-md cursor-pointer${bordered ? ' border' : ''}`}
+            className={`rounded-xl transition-all shadow-xs hover:shadow-md${bordered ? ' border' : ''}`}
             style={{ background: cardBg }}
-            onClick={() => toggle(i)}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
           >
-            <div className="w-full flex items-center gap-4 p-6">
-              <div
-                className="shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors"
-                style={{ background: accent, color: 'var(--plattform-white)' }}
+            <h3>
+              <button
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={`${baseId}-panel-${i}`}
+                onClick={() => toggle(i)}
+                className="w-full flex items-center gap-4 p-6 text-left cursor-pointer rounded-xl"
               >
-                <Icon className="w-4 h-4 shrink-0" />
-              </div>
-              <p className="flex-1 text-text font-semibold transition-colors" style={{ color: accent }}>{f.title}</p>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 transition-all duration-300 ${isOpen ? 'rotate-90' : ''}`}
-                style={{ color: accent }}
-              />
-            </div>
+                <span
+                  aria-hidden
+                  className="shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors"
+                  style={{ background: accent, color: 'var(--plattform-white)' }}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                </span>
+                <span className="flex-1 text-text font-semibold transition-colors" style={{ color: accent }}>{f.title}</span>
+                <ChevronRight
+                  aria-hidden
+                  className={`w-4 h-4 shrink-0 transition-all duration-300 ${isOpen ? 'rotate-90' : ''}`}
+                  style={{ color: accent }}
+                />
+              </button>
+            </h3>
             <div
+              id={`${baseId}-panel-${i}`}
+              inert={!isOpen}
               className="grid transition-all duration-300 ease-in-out"
               style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
             >
