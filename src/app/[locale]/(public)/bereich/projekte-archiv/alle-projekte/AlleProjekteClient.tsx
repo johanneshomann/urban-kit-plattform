@@ -192,8 +192,8 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
   const tc = useTranslations('common')
   return (
     <div
-      className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-text shadow-sm hover:shadow-md transition-shadow"
-      style={{ background: 'var(--plattform-white)' }}
+      className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-text shadow-sm hover:shadow-md transition-shadow focus-within:ring-2"
+      style={{ background: 'var(--plattform-white)', '--tw-ring-color': 'var(--plattform)' } as React.CSSProperties}
     >
       <Search className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--plattform-ink)' }} />
       <input
@@ -202,7 +202,8 @@ function SearchPill({ value, onChange, onFocus, placeholder }: {
         onChange={(e) => onChange(e.target.value)}
         onFocus={onFocus}
         placeholder={placeholder}
-        className="flex-1 outline-none bg-transparent placeholder:opacity-40"
+        aria-label={placeholder}
+        className="flex-1 outline-none bg-transparent placeholder:opacity-60"
         style={{ color: 'var(--plattform-ink)' }}
       />
       {value && (

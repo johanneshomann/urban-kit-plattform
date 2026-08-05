@@ -1,21 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Send } from 'lucide-react'
 
 export function KontaktForm() {
   const [sent, setSent] = useState(false)
   const t = useTranslations('kontakt')
+  const baseId = useId()
+  const sentRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setSent(true)
   }
 
+  // The form is replaced by the confirmation — move focus there so screen
+  // readers announce the outcome instead of losing focus silently.
+  useEffect(() => {
+    if (sent) sentRef.current?.focus()
+  }, [sent])
+
   if (sent) {
     return (
-      <div className="rounded-xl p-7 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
+      <div ref={sentRef} tabIndex={-1} role="status" className="rounded-xl p-7 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all outline-none" style={{ background: 'var(--plattform-light)' }}>
         <p className="text-display font-black tracking-tight" style={{ color: 'var(--plattform)' }}>
           {t.rich('sentTitle', { accent: (chunks) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span> })}
         </p>
@@ -30,10 +38,13 @@ export function KontaktForm() {
     <form onSubmit={handleSubmit} className="rounded-xl p-7 flex flex-col gap-4 shadow-xs hover:shadow-md transition-all" style={{ background: 'var(--plattform-light)' }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
+          <label htmlFor={`${baseId}-name`} className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
             {t('formName')}
           </label>
           <input
+            id={`${baseId}-name`}
+            name="name"
+            autoComplete="name"
             type="text"
             placeholder={t('formNamePlaceholder')}
             required
@@ -42,10 +53,13 @@ export function KontaktForm() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
+          <label htmlFor={`${baseId}-email`} className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
             {t('formEmail')}
           </label>
           <input
+            id={`${baseId}-email`}
+            name="email"
+            autoComplete="email"
             type="email"
             placeholder={t('formEmailPlaceholder')}
             required
@@ -56,10 +70,12 @@ export function KontaktForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
+        <label htmlFor={`${baseId}-subject`} className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
           {t('formSubject')}
         </label>
         <input
+          id={`${baseId}-subject`}
+          name="subject"
           type="text"
           placeholder={t('formSubjectPlaceholder')}
           required
@@ -69,10 +85,12 @@ export function KontaktForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
+        <label htmlFor={`${baseId}-message`} className="text-small uppercase tracking-widest font-black" style={{ color: 'var(--plattform-ink)' }}>
           {t('formMessage')}
         </label>
         <textarea
+          id={`${baseId}-message`}
+          name="message"
           rows={5}
           placeholder={t('formMessagePlaceholder')}
           required
