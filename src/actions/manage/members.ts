@@ -87,6 +87,47 @@ export async function updateMemberRole(
   return { ok: true }
 }
 
+/** Generate a unique, redeemable invitation code for a new membership (PM only). */
+function makeInviteCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 3; j++) code += chars[Math.floor(Math.random() * chars.length)]
+    if (i < 3) code += '-'
+  }
+  return code
+}
+
+export async function generateInvite(
+  slug: string,
+  locale: string,
+): Promise<{ error?: string; ok?: boolean; code?: string }> {
+  const ctx = await getProjectManagerContext(slug)
+  if (!ctx) return { error: 'Nicht berechtigt.' }
+
+  try {
+    const payload = await getPayload({ config })
+    // Create a placeholder membership (user resolved on redeem) with invited status.
+    const doc = await payload.create({
+      collection: 'project-memberships',
+      data: {
+        project: ctx.project.id,
+        role: 'Citizen',
+        status: 'invited',
+        inviteCode: makeInviteCode(),
+        // user is required — we bind it to the PM as a placeholder; redeem
+        // reassigns it to the redeeming user.
+        user: ctx.user.id,
+      },
+      overrideAccess: true,
+    })
+    const code = (doc as { inviteCode?: string }).inviteCode
+    return { ok: true, code }
+  } catch {
+    return { error: 'Einladung konnte nicht erstellt werden.' }
+  }
+}
+
 export async function setMemberTeams(
   slug: string,
   locale: string,

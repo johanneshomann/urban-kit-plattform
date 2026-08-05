@@ -83,7 +83,6 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           aria-hidden="true"
           style={{ color: 'var(--plattform)' }}
         />
-        <ScrollHint />
         <EyebrowBadge label={t('heroEyebrow')} />
         <h1 className="text-hero font-black leading-none tracking-tight mb-5">
           {t.rich('heroTitle', { accent, br })}
@@ -91,6 +90,8 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
         <p className="text-text leading-relaxed max-w-2xl">
           {t('heroBody', { city: cityName })}
         </p>
+        {/* Scroll hint last in the hero DOM: absolute-positioned, so visuals are unchanged, but Tab reaches it after the hero content instead of first. */}
+        <ScrollHint />
       </section>
 
       {/* Steps — alternate white/light, each fading into the next section's color */}
@@ -153,7 +154,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
             {/* Code form card */}
             <div className="bg-[var(--plattform-white)] rounded-xl p-6 flex flex-col gap-3 shadow-xs hover:shadow-md transition-all">
               <p className="text-small font-normal tracking-widest uppercase" style={{ color: 'var(--plattform-ink)' }}>{t('invCodeLabel')}</p>
-              <InvitationForm />
+              <InvitationForm locale={locale} />
               <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('invHint')}</p>
             </div>
           </div>
