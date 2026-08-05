@@ -138,7 +138,11 @@
     "legalFramework": "Rechtlicher Rahmen",
     "login": "Anmelden",
     "register": "Registrieren",
-    "loggedIn": "Sie sind angemeldet"
+    "loggedIn": "Sie sind angemeldet",
+    "mainNav": "Hauptnavigation",
+    "menu": "Menü öffnen",
+    "menuClose": "Menü schließen",
+    "toDashboard": "Zum Dashboard"
   },
   "starten": {
     "metaTitle": "So gelingt Mitgestaltung – UrbanKIT",

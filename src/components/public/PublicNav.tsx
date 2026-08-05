@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect, useId } from 'react'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, Menu, X, Home, Folders, Flag, Mail, Info, Users, BookOpen, FolderOpen } from 'lucide-react'
@@ -105,6 +105,24 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
   }, [])
 
   const mobile = useAnimatedOpen(CLOSE_DURATION)
+  const dropdownId = useId()
+  const mobilePanelId = useId()
+
+  // Escape closes whichever menu is open (WCAG 1.4.13 dismissable).
+  const anyOpen = activeMenu !== null || mobile.active
+  const mobileClose = mobile.close
+  useEffect(() => {
+    if (!anyOpen) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      if (desktopTimer.current) clearTimeout(desktopTimer.current)
+      setActiveMenu(null)
+      setDesktopClosing(false)
+      mobileClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [anyOpen, mobileClose])
 
   const pathname = usePathname()
   const isActive = (href: string) => {
@@ -123,26 +141,70 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
   return (
     <>
       <header className={`h-14 border-b bg-[var(--plattform-white)] grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10 sticky top-0 z-50 transition-shadow ${mobile.isOpen ? '' : 'shadow-md'}`}>
-        {/* Desktop triggers — left */}
-        <div>
+        {/* Desktop triggers — left. The dropdown lives right here in the DOM
+            so keyboard focus moves trigger → menu links without detouring
+            through logo and account controls (WCAG 2.4.3). */}
+        <nav aria-label={t('mainNav')}>
         <div className="hidden md:flex items-center gap-8">
           {(['allgemein', 'bereiche'] as MenuKey[]).map((key) => {
             const active = activeMenu === key && !desktopClosing
             return (
               <button
                 key={key}
+                type="button"
+                aria-expanded={activeMenu === key}
+                aria-controls={activeMenu === key ? dropdownId : undefined}
                 onClick={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
                 onMouseEnter={(e) => desktopOpen(key, e.currentTarget.getBoundingClientRect().left)}
                 onMouseLeave={desktopClose}
                 className={`flex items-center gap-1 text-text cursor-pointer transition-colors hover:text-[var(--plattform-accent)] ${active ? 'text-[var(--plattform)]' : 'text-[var(--plattform-ink)]'}`}
               >
                 {t(`trigger${key.charAt(0).toUpperCase()}${key.slice(1)}`)}
-                <ChevronRight className={`text-text w-[1em] h-[1em] shrink-0 transition-transform duration-300 ${active ? 'rotate-90' : ''}`} />
+                <ChevronRight aria-hidden className={`text-text w-[1em] h-[1em] shrink-0 transition-transform duration-300 ${active ? 'rotate-90' : ''}`} />
               </button>
             )
           })}
         </div>
-        </div>
+
+        {/* Desktop dropdown */}
+        {activeMenu && (
+          <div
+            id={dropdownId}
+            className="hidden md:block fixed top-14 overflow-hidden z-50 w-max rounded-b-xl"
+            style={{ left: dropdownLeft }}
+            onMouseEnter={desktopCancelClose}
+            onMouseLeave={desktopClose}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) desktopClose()
+            }}
+          >
+            <div key={activeMenu} className={`${desktopClosing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-[var(--plattform-white)] border border-t-0 rounded-b-xl shadow-md`}>
+              <div className="px-6 py-6 flex flex-col gap-1">
+                {MENUS[activeMenu].map(({ href, label, icon: Icon, hoverColor, iconColor }) => {
+                  const active = isActive(href)
+                  const activeColor = hoverColor ?? 'var(--plattform-ink-accent)'
+                  return (
+                  <div key={href} className="flex items-center justify-between gap-2 py-1.5">
+                    <Link
+                      href={`${l}${href}`}
+                      onClick={desktopClose}
+                      aria-current={active ? 'page' : undefined}
+                      className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
+                      style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
+                    >
+                      <Icon aria-hidden className="text-text w-[1em] h-[1em] shrink-0" style={iconColor ? { color: iconColor } : undefined} />
+                      {t(label)}
+                    </Link>
+                  </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+        </nav>
 
         {/* Logo — centered */}
         <Link href={l} className="font-bold text-text">
@@ -166,9 +228,10 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
               </Link>
               <Link
                 href={`${l}/dashboard`}
-                className="flex items-center text-text transition-colors text-[var(--plattform-ink)] opacity-40 hover:opacity-100 hover:text-[var(--plattform-accent)]"
+                aria-label={t('toDashboard')}
+                className="flex items-center text-text transition-colors text-[var(--plattform-ink)] opacity-70 hover:opacity-100 hover:text-[var(--plattform-accent)]"
               >
-                <LogOut className="w-[1em] h-[1em] shrink-0" />
+                <LogOut aria-hidden className="w-[1em] h-[1em] shrink-0" />
               </Link>
             </div>
           ) : (
@@ -185,16 +248,21 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             {isLoggedIn && (
               <Link
                 href={`${l}/dashboard`}
+                aria-label={t('toDashboard')}
                 className="flex items-center gap-1 transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
               >
-                <UserCircle className="w-5 h-5" />
+                <UserCircle aria-hidden className="w-5 h-5" />
               </Link>
             )}
             <button
+              type="button"
               onClick={mobile.isOpen ? mobile.close : mobile.open}
+              aria-label={mobile.isOpen ? t('menuClose') : t('menu')}
+              aria-expanded={mobile.isOpen}
+              aria-controls={mobile.active ? mobilePanelId : undefined}
               className="flex items-center cursor-pointer transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
             >
-              <span className="relative w-5 h-5 shrink-0">
+              <span aria-hidden className="relative w-5 h-5 shrink-0">
                 <Menu className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
                 <X className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${mobile.isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
               </span>
@@ -202,45 +270,13 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
           </div>
         </div>
 
-        {/* Desktop dropdown */}
-        {activeMenu && (
-          <div
-            className="hidden md:block fixed top-14 overflow-hidden z-50 w-max rounded-b-xl"
-            style={{ left: dropdownLeft }}
-            onMouseEnter={desktopCancelClose}
-            onMouseLeave={desktopClose}
-          >
-            <div key={activeMenu} className={`${desktopClosing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-[var(--plattform-white)] border border-t-0 rounded-b-xl shadow-md`}>
-              <div className="px-6 py-6 flex flex-col gap-1">
-                {MENUS[activeMenu].map(({ href, label, icon: Icon, hoverColor, iconColor }) => {
-                  const active = isActive(href)
-                  const activeColor = hoverColor ?? 'var(--plattform-ink-accent)'
-                  return (
-                  <div key={href} className="flex items-center justify-between gap-2 py-1.5">
-                    <Link
-                      href={`${l}${href}`}
-                      onClick={desktopClose}
-                      className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
-                      style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
-                      onMouseLeave={e => (e.currentTarget.style.color = active ? activeColor : 'var(--plattform-ink)')}
-                    >
-                      <Icon className="text-text w-[1em] h-[1em] shrink-0" style={iconColor ? { color: iconColor } : undefined} />
-                      {t(label)}
-                    </Link>
-                  </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
 
       {/* Mobile click-outside backdrop */}
       {mobile.active && (
         <div
+          aria-hidden="true"
           className="md:hidden fixed top-14 inset-x-0 bottom-0 z-30"
           onClick={mobile.close}
         />
@@ -248,7 +284,11 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
 
       {/* Mobile overlay */}
       {mobile.active && (
-        <div className={`md:hidden fixed top-14 inset-x-0 z-40 bg-[var(--plattform-white)] border-b shadow-md ${mobile.closing ? 'nav-panel-exit' : 'nav-panel-enter'}`}>
+        <nav
+          id={mobilePanelId}
+          aria-label={t('mainNav')}
+          className={`md:hidden fixed top-14 inset-x-0 z-40 bg-[var(--plattform-white)] border-b shadow-md ${mobile.closing ? 'nav-panel-exit' : 'nav-panel-enter'}`}
+        >
           <div className="px-6 py-4 flex flex-col gap-0">
             {/* Allgemein */}
             <div className="flex flex-col gap-0">
@@ -256,6 +296,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 const active = isActive(href)
                 return (
                   <Link key={href} href={`${l}${href}`} onClick={mobile.close}
+                    aria-current={active ? 'page' : undefined}
                     className={`flex items-center gap-2 py-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
                     style={{ color: active ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)' }}
                     onMouseEnter={e => (e.currentTarget.style.color = 'var(--plattform)')}
@@ -282,6 +323,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                     <Link
                       href={`${l}${href}`}
                       onClick={mobile.close}
+                      aria-current={active ? 'page' : undefined}
                       className={`flex items-center gap-2 text-text transition-colors ${active ? 'font-bold' : 'font-normal'}`}
                       style={{ color: active ? activeColor : 'var(--plattform-ink)' }}
                       onMouseEnter={e => (e.currentTarget.style.color = hoverColor ?? 'var(--plattform)')}
@@ -344,7 +386,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
               )}
             </div>
           </div>
-        </div>
+        </nav>
       )}
     </>
   )

@@ -138,7 +138,11 @@
     "legalFramework": "Legal framework",
     "login": "Login",
     "register": "Register",
-    "loggedIn": "You are signed in"
+    "loggedIn": "You are signed in",
+    "mainNav": "Main navigation",
+    "menu": "Open menu",
+    "menuClose": "Close menu",
+    "toDashboard": "Go to dashboard"
   },
   "starten": {
     "metaTitle": "How to get involved – UrbanKIT",
