@@ -16,6 +16,12 @@ export default async function ManageMitgliederPage({
 
   const t = await getTranslations({ locale, namespace: 'manage' })
   const payload = await getPayload({ config })
+
+  // Also load the project's team catalog for the member tag editor
+  const project = await payload.findByID({ collection: 'projects', id: ctx.project.id, depth: 0, overrideAccess: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const teamCatalog: string[] = Array.isArray((project as any).teams) ? (project as any).teams : []
+
   const res = await payload.find({
     collection: 'project-memberships',
     where: { and: [{ project: { equals: ctx.project.id } }, { status: { equals: 'active' } }] },
@@ -45,5 +51,5 @@ export default async function ManageMitgliederPage({
   // PMs first, then alphabetically
   members.sort((a, b) => (a.role === 'PM' ? 0 : 1) - (b.role === 'PM' ? 0 : 1) || a.name.localeCompare(b.name, 'de'))
 
-  return <MembersManager slug={slug} locale={locale} members={members} />
+  return <MembersManager slug={slug} locale={locale} members={members} teamCatalog={teamCatalog} />
 }
