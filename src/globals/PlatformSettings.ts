@@ -109,6 +109,18 @@ export const PlatformSettings: GlobalConfig = {
               defaultValue: true,
               label: { en: 'Allow join requests', de: 'Beitrittsanfragen erlauben' },
             },
+            {
+              name: 'methodenUrl',
+              type: 'text',
+              label: { en: 'Method collection URL', de: 'Methodensammlung-URL' },
+              admin: {
+                placeholder: 'https://methoden.urbankit.de',
+                description: {
+                  en: 'Base URL of the Methodensammlung — used for the method teasers (GraphQL API) and all links into the collection. Leave empty to use the METHODEN_URL environment variable or the default.',
+                  de: 'Basis-URL der Methodensammlung — genutzt für die Methoden-Teaser (GraphQL-API) und alle Links in die Sammlung. Leer lassen, um die Umgebungsvariable METHODEN_URL bzw. den Standard zu nutzen.',
+                },
+              },
+            },
           ],
         },
         {

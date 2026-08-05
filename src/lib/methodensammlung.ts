@@ -10,7 +10,28 @@ import 'server-only'
  * Grundlagen page renders fine with just the collection CTA.
  */
 
-export const METHODEN_URL = process.env.METHODEN_URL ?? 'https://methoden.urbankit.de'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+
+const DEFAULT_METHODEN_URL = 'https://methoden.urbankit.de'
+
+/**
+ * Base URL of the Methodensammlung. Resolution order: admin field
+ * (Platform Settings → Allgemein → Methodensammlung-URL) → METHODEN_URL env
+ * var → default. Blank values fall through; a trailing slash is stripped.
+ */
+export async function getMethodenBaseUrl(): Promise<string> {
+  try {
+    const payload = await getPayload({ config })
+    const settings = (await payload.findGlobal({ slug: 'platform-settings', overrideAccess: true })) as { methodenUrl?: string | null }
+    const stored = settings.methodenUrl?.trim()
+    if (stored) return stored.replace(/\/+$/, '')
+  } catch {
+    // fall through to env/default
+  }
+  const env = process.env.METHODEN_URL?.trim()
+  return (env || DEFAULT_METHODEN_URL).replace(/\/+$/, '')
+}
 
 export interface MethodTeaser {
   id: string
@@ -40,7 +61,8 @@ export async function getMethodTeasers(locale: 'de' | 'en', limit = 6): Promise<
   const key = process.env.METHODEN_API_KEY
   if (!key) return []
   try {
-    const res = await fetch(`${METHODEN_URL}/api/graphql`, {
+    const base = await getMethodenBaseUrl()
+    const res = await fetch(`${base}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +108,8 @@ export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Pro
     Authorization: `api-clients API-Key ${key}`,
   }
   try {
-    const phasesRes = await fetch(`${METHODEN_URL}/api/graphql`, {
+    const base = await getMethodenBaseUrl()
+    const phasesRes = await fetch(`${base}/api/graphql`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ query: 'query { ProjectPhases(limit: 50, locale: de) { docs { id name } } }' }),
@@ -104,7 +127,7 @@ export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Pro
     const query = `query PhaseMethods($locale: LocaleInputType) { ${matched
       .map((m) => `${m.alias}: Methods(limit: ${limit}, locale: $locale, fallbackLocale: de, sort: "-updatedAt", where: { projectPhases: { in: ["${m.id}"] } }) { docs { id title slug } }`)
       .join(' ')} }`
-    const res = await fetch(`${METHODEN_URL}/api/graphql`, {
+    const res = await fetch(`${base}/api/graphql`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ query, variables: { locale } }),
@@ -127,11 +150,11 @@ const DEFAULT_POOL_SIZE = 7
  * Cover image for a method teaser, mirroring the Methodensammlung's own logic:
  * prefer the generated card rendition, then the original upload, otherwise a
  * deterministic pick from its default-image pool. Relative upload paths are
- * absolutized against METHODEN_URL.
+ * absolutized against the resolved base URL.
  */
-export function methodImageUrl(m: MethodTeaser): string {
+export function methodImageUrl(m: MethodTeaser, base: string): string {
   const url = m.image?.sizes?.card?.url ?? m.image?.url
-  if (url) return url.startsWith('http') ? url : `${METHODEN_URL}${url}`
+  if (url) return url.startsWith('http') ? url : `${base}${url}`
   const index = (String(m.id).split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % DEFAULT_POOL_SIZE) + 1
-  return `${METHODEN_URL}/method-defaults/${index}.jpg`
+  return `${base}/method-defaults/${index}.jpg`
 }

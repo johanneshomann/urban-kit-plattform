@@ -12,7 +12,7 @@ import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
-import { getMethodTeasers, getPhaseMethodTeasers, methodImageUrl, METHODEN_URL } from '@/lib/methodensammlung'
+import { getMethodTeasers, getPhaseMethodTeasers, methodImageUrl, getMethodenBaseUrl } from '@/lib/methodensammlung'
 import { CardSlider } from '@/components/public/CardSlider'
 
 export async function generateMetadata({
@@ -69,9 +69,10 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     content: tr.rich(`${k}Body`, richTags),
   }))
   const apiLocale = locale === 'en' ? 'en' as const : 'de' as const
-  const [methodTeasers, phaseMethods] = await Promise.all([
+  const [methodTeasers, phaseMethods, methodenUrl] = await Promise.all([
     getMethodTeasers(apiLocale, 6),
     getPhaseMethodTeasers(apiLocale, 3),
+    getMethodenBaseUrl(),
   ])
   const projektSteps: ProjektStep[] = PROJEKTPHASEN.map((phase, i) => ({
     phase: tax(`phase.${phase.value}`),
@@ -83,7 +84,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     methoden: tpp.raw(`s${i}Methoden`) as MethodItem[],
     methodLinks: (phaseMethods[phase.value] ?? []).map((m) => ({
       title: m.title,
-      href: `${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`,
+      href: `${methodenUrl}/${locale}/methods/${m.slug ?? ''}`,
     })),
   }))
 
@@ -188,7 +189,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
                   <div key={m.id} className="snap-start shrink-0 basis-full md:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]">
                     {/* Card anatomy mirrors the Methodensammlung's MethodCard */}
                     <a
-                      href={`${METHODEN_URL}/${locale}/methods/${m.slug ?? ''}`}
+                      href={`${methodenUrl}/${locale}/methods/${m.slug ?? ''}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={m.title}
@@ -198,7 +199,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
                       <div className="relative h-44 sm:h-56 w-full overflow-hidden shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={methodImageUrl(m)}
+                          src={methodImageUrl(m, methodenUrl)}
                           alt=""
                           aria-hidden
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -232,7 +233,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
             </div>
           )}
           <CtaButton
-            href="https://methoden.urbankit.de"
+            href={methodenUrl}
             label={t('methodsCta')}
             icon={<ExternalLink />}
             variant="grundlagen"
