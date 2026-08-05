@@ -36,7 +36,6 @@ export default async function DashboardPage({
   const roleLabels: Record<string, string> = {
     PM: t('rolePM'),
     Citizen: t('roleCitizen'),
-    Follower: t('roleFollower'),
   }
   const relativeDate = (dateStr: string): string => {
     const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -48,12 +47,39 @@ export default async function DashboardPage({
 
   const payload = await getPayload({ config })
 
-  const memberships = await payload.find({
-    collection: 'project-memberships',
-    where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
-    depth: 2,
-    limit: 50,
-    overrideAccess: true,
+  const [memberships, starredOnly] = await Promise.all([
+    payload.find({
+      collection: 'project-memberships',
+      where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
+      depth: 2,
+      limit: 50,
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'project-memberships',
+      where: { and: [{ user: { equals: user.id } }, { starred: { equals: true } }, { status: { not_equals: 'active' } }] },
+      depth: 2,
+      limit: 50,
+      overrideAccess: true,
+    }),
+  ])
+  
+  /** Projects from starred-only memberships (non‑active) — shown in a separate section. */
+  const starredProjects = starredOnly.docs.map((m) => m.project).filter(Boolean) as Project[]
+
+  const starredCards: DashboardCardData[] = starredProjects.map((p) => {
+    const scheme = resolveColorScheme(p.colorScheme)
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      coverSrc: p.coverImage?.url ?? projectDefaults.coverImage,
+      galleryImages: (p.gallery ?? []).map((g) => g.image?.url).filter((url): url is string => Boolean(url)),
+      roleLabel: '',
+      pulse: [] as string[],
+      canManage: false,
+      scheme,
+    }
   })
 
   const projects = memberships.docs.map((m) => m.project).filter(Boolean) as Project[]
@@ -145,8 +171,8 @@ export default async function DashboardPage({
   const sections = [
     { title: t('sectionMine'), cards: cards.filter((c) => roleByProjectId[c.id] === 'PM') },
     { title: t('sectionMember'), cards: cards.filter((c) => roleByProjectId[c.id] === 'Citizen') },
-    { title: t('sectionFollow'), cards: cards.filter((c) => roleByProjectId[c.id] === 'Follower') },
-  ].filter((s) => s.cards.length > 0)
+    starredCards.length > 0 && { title: t('sectionStarred'), cards: starredCards },
+  ].filter((s): s is { title: string; cards: DashboardCardData[] } => s !== false && s.cards.length > 0)
 
   const firstName = ((user as unknown as { firstName?: string | null }).firstName) || null
 

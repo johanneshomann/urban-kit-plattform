@@ -24,8 +24,13 @@ export const ProjectMemberships: CollectionConfig = {
       options: [
         { label: { en: 'Project manager', de: 'Projektmanager' }, value: 'PM' },
         { label: { en: 'Citizen', de: 'Bürger:in' }, value: 'Citizen' },
-        { label: { en: 'Follower', de: 'Follower' }, value: 'Follower' },
       ],
+    },
+    {
+      name: 'starred',
+      type: 'checkbox',
+      label: { en: 'Starred', de: 'Favorit' },
+      defaultValue: false,
     },
     {
       name: 'status',

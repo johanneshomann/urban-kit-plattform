@@ -18,7 +18,6 @@ export interface MemberItem {
 const ROLE_OPTIONS = [
   { value: 'PM', labelKey: 'members.rolePm' },
   { value: 'Citizen', labelKey: 'members.roleCitizen' },
-  { value: 'Follower', labelKey: 'members.roleFollower' },
 ] as const
 
 function TeamPopover({

@@ -15,6 +15,7 @@ import { AktuellesSection, type AktuellesNewsPost, type AktuellesCalEvent } from
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
+import { StarButton } from '@/components/public/StarButton'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
@@ -138,6 +139,7 @@ export default async function PublicProjectPage({
 
   // Visitor's login + membership state for the join CTA
   const viewer = await getUser()
+  let isStarred = false
   let membershipStatus: 'requested' | 'active' | 'rejected' | null = null
   if (viewer) {
     const membershipRes = await payload.find({
@@ -147,8 +149,10 @@ export default async function PublicProjectPage({
       depth: 0,
       overrideAccess: true,
     }).catch(() => ({ docs: [] }))
-    const status = (membershipRes.docs[0] as { status?: string } | undefined)?.status
+    const m = membershipRes.docs[0] as { status?: string; starred?: boolean } | undefined
+    const status = m?.status
     membershipStatus = status === 'requested' || status === 'active' || status === 'rejected' ? status : null
+    isStarred = m?.starred === true
   }
   const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
   const coverSrc = project.coverImage?.url ?? projectDefaults.coverImage
@@ -612,9 +616,14 @@ export default async function PublicProjectPage({
             />
           )}
 
-          {joinEnabled && (
-            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
-          )}
+          <div className="flex items-center gap-3">
+            {viewer && (
+              <StarButton projectId={project.id} initialStarred={isStarred} />
+            )}
+            {joinEnabled && (
+              <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+            )}
+          </div>
         </div>
       </section>
 

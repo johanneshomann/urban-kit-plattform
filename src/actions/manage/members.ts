@@ -9,7 +9,7 @@ import { emitNotification } from '@/lib/events'
 
 export type MembersActionState = { error?: string; ok?: boolean }
 
-const ROLES = new Set(['PM', 'Citizen', 'Follower'])
+const ROLES = new Set(['PM', 'Citizen'])
 
 function revalidateMembers(locale: string, slug: string) {
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/mitglieder`)
