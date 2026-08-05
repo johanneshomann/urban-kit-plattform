@@ -104,7 +104,7 @@ export default async function DashboardLayout({
         notificationItems={notificationItems}
         canCreateGroups={canCreateGroups}
       />
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1">
         <DashboardShell>
           {children}
         </DashboardShell>

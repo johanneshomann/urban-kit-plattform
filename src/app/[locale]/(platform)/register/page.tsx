@@ -12,7 +12,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
   ])
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row">
+    <main id="main-content" tabIndex={-1} className="min-h-screen flex flex-col md:flex-row">
 
       {/* Left branding panel — desktop only */}
       <div

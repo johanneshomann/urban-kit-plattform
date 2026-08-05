@@ -48,6 +48,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
       <SectionDotsNav items={navSections} label={t('heroEyebrow')} appearAfterId="hero" />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero — fades into the white section below; sections alternate light/white */}
       <section id="hero" className="relative min-h-[calc(100svh-3.5rem)] flex flex-col justify-start px-6 md:px-16 lg:px-24 pt-20 pb-10 md:pt-28 md:pb-20 overflow-hidden" style={{ background: 'linear-gradient(to bottom, var(--plattform-light) calc(100% - var(--section-fade-height)), var(--plattform-white))' }}>
@@ -163,6 +164,7 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

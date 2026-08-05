@@ -15,7 +15,9 @@ export default async function ProjectLayout({
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
-      {children}
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
+        {children}
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

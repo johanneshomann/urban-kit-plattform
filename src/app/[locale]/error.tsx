@@ -15,7 +15,7 @@ export default function LocaleError({
   }, [error])
 
   return (
-    <main className="min-h-screen flex items-center justify-center">
+    <main id="main-content" tabIndex={-1} className="min-h-screen flex items-center justify-center">
       <div className="text-center p-8 max-w-md">
         <h1 className="text-6xl font-bold text-gray-200 mb-4">500</h1>
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">Etwas ist schiefgelaufen</h2>

@@ -134,6 +134,7 @@ export default async function PublicHomePage({
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
       <SectionDotsNav items={navSections} label={t('heroEyebrow', { city: cityName })} appearAfterId="hero" />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero — no border into content: the slideshow overlay fades into the next section's background */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden bg-[var(--plattform-light)]">
@@ -340,6 +341,7 @@ export default async function PublicHomePage({
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

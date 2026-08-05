@@ -27,7 +27,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             <p className="text-text" style={{ color: 'var(--plattform-ink-accent)' }}>
               {t('colGeneral')}
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav aria-label={t('colGeneral')} className="flex flex-col gap-2">
               <Link href={l} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
                 <Home className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">{t('home')}</span>
@@ -48,7 +48,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             <p className="text-text" style={{ color: 'var(--plattform-ink-accent)' }}>
               {t('colAreas')}
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav aria-label={t('colAreas')} className="flex flex-col gap-2">
               <Link href={`${l}/bereich/projekte-archiv`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
                 <FolderOpen className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--projekte-accent)' }} />
                 <span className="group-hover:underline">{t('areaProjects')}</span>
@@ -73,7 +73,7 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
             <p className="text-text" style={{ color: 'var(--plattform-ink-accent)' }}>
               {t('colLegal')}
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav aria-label={t('colLegal')} className="flex flex-col gap-2">
               <Link href={`${l}/kontakt`} className="flex items-center gap-2 text-small transition-colors group" style={{ color: 'var(--plattform-ink)' }}>
                 <Mail className="w-[1em] h-[1em] shrink-0 opacity-40" />
                 <span className="group-hover:underline">{t('contact')}</span>
@@ -117,20 +117,20 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
       {/* Bottom bar */}
       <div className="border-t px-6 md:px-16 lg:px-24 py-5">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-          <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+          <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
             {t('copyright', { year: new Date().getFullYear(), city: cityName })}
           </p>
           <div className="flex items-center gap-6">
-            <Link href={`${l}/impressum`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+            <Link href={`${l}/impressum`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('imprintShort')}
             </Link>
-            <Link href={`${l}/datenschutz`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+            <Link href={`${l}/datenschutz`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('privacyShort')}
             </Link>
-            <Link href={`${l}/cookies`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+            <Link href={`${l}/cookies`} className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('cookiesShort')}
             </Link>
-            <Link href="/admin" className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.25 }}>
+            <Link href="/admin" className="text-small transition-colors hover:underline" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
               {t('admin')}
             </Link>
           </div>

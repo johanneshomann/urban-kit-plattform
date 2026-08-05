@@ -149,8 +149,8 @@ export default async function PublicProjectNewsPage({
         </div>
       </section>
 
-      {/* Article body */}
-      <main className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-white)' }}>
+      {/* Article body — not <main>: the landmark lives in the project layout */}
+      <div className="flex-1 px-6 md:px-16 lg:px-24 py-12 md:py-24 border-b" style={{ background: 'var(--plattform-white)' }}>
         <article className="max-w-3xl">
           {post.featuredImage?.url && (
             <img
@@ -188,7 +188,7 @@ export default async function PublicProjectNewsPage({
             <CtaButton href={`/${locale}/bereich/projekte-archiv/alle-projekte`} label={t('allProjects')} icon={<FolderOpen />} variant="white" />
           </div>
         </article>
-      </main>
+      </div>
 
     </div>
   )

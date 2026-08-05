@@ -64,6 +64,7 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero — fades into the white contact section below */}
       <section
@@ -145,6 +146,7 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

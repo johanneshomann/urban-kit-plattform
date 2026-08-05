@@ -69,6 +69,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)', iconColor: 'var(--grundlagen-on-brand)' },
         ]}
       />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* ── Starting area: hero + about this Bereich, one main-colored block ── */}
         <section
@@ -206,6 +207,7 @@ export default async function BereichZusammenarbeitPage({ params }: { params: Pr
           </div>
         </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

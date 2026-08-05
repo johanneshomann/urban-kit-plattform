@@ -85,6 +85,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
           { href: `/${locale}/bereich/grundlagen`, label: nav('areaBasics'), icon: 'BookOpen', color: 'var(--grundlagen-dark)', iconColor: 'var(--grundlagen-on-brand)' },
         ]}
       />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero — Bereich scheme: main-tinted hero, light content sections */}
       <section id="hero" className="relative flex-1 min-h-[calc(100svh-3.5rem)] flex flex-col overflow-hidden" style={{ background: 'var(--projekte)' }}>
@@ -198,6 +199,7 @@ export default async function BereichProjektePage({ params }: { params: Promise<
       {/* Alle Projekte — merged chapter: content hero + filterable library */}
       <AlleProjekteClient projects={projects} locale={locale} />
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

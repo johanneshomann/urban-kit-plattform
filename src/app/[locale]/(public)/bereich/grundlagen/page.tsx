@@ -110,6 +110,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           { href: `/${locale}/bereich/zusammenarbeit`, label: nav('areaCollab'), icon: 'Users', color: 'var(--zusammenarbeit-dark)', iconColor: 'var(--zusammenarbeit-on-brand)' },
         ]}
       />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* ── Starting area: hero + about this Bereich, one main-colored block ── */}
       <section
@@ -313,6 +314,7 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

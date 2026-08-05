@@ -46,6 +46,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero */}
       <section
@@ -90,6 +91,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )

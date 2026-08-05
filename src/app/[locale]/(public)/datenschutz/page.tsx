@@ -44,6 +44,7 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
   return (
     <div className="min-h-svh flex flex-col">
       <PublicNavServer locale={locale} />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
 
       {/* Hero */}
       <section
@@ -88,6 +89,7 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
         </div>
       </section>
 
+      </main>
       <PublicFooter locale={locale} />
     </div>
   )
