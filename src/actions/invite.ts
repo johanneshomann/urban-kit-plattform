@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
+import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { emitNotification } from '@/lib/events'
 
 export type InviteActionState = { error?: string; ok?: boolean }
@@ -75,19 +76,24 @@ export async function redeemInvite(code: string, locale: string): Promise<Invite
 
 /** Withdraw a pending invitation (PM only). */
 export async function revokeInvite(slug: string, locale: string, inviteCode: string): Promise<InviteActionState> {
-  const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  const ctx = await getProjectManagerContext(slug)
+  if (!ctx) return { error: 'Keine Berechtigung.' }
 
   const payload = await getPayload({ config })
-  // PM-only check
   const membership = await payload.find({
     collection: 'project-memberships',
-    where: { inviteCode: { equals: inviteCode } },
+    where: {
+      and: [
+        { inviteCode: { equals: inviteCode } },
+        { project: { equals: ctx.project.id } },
+        { status: { equals: 'invited' } },
+      ],
+    },
     limit: 1,
     depth: 0,
     overrideAccess: true,
   }).catch(() => ({ docs: [] }))
-  const target = membership.docs[0] as { id: string; project?: string | { id: string } } | undefined
+  const target = membership.docs[0] as { id: string } | undefined
   if (!target) return { error: 'Einladung nicht gefunden.' }
 
   await payload.delete({ collection: 'project-memberships', id: target.id, overrideAccess: true })
