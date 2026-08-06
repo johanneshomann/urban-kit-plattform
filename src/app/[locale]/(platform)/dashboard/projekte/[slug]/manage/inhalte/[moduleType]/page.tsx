@@ -30,6 +30,11 @@ export default async function ManageInhaltePage({
 
   const payload = await getPayload({ config })
 
+  // Load project team catalog for TEAM-visibility multiselect
+  const project = await payload.findByID({ collection: 'projects', id: ctx.project.id, depth: 0, overrideAccess: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const teamCatalog: string[] = Array.isArray((project as any).teams) ? (project as any).teams : []
+
   if (moduleType === 'news') {
     const res = await payload.find({
       collection: 'news-posts',
@@ -47,13 +52,14 @@ export default async function ManageInhaltePage({
           id: String(p.id),
           title: p.title ?? '',
           body: await lexicalToMarkdown(p.content),
-          visibility: p.visibility ?? 'INTERNAL',
+          visibility: p.visibility ?? "INTERNAL",
+          visibilityTeams: Array.isArray(p.visibilityTeams) ? p.visibilityTeams : [],
           publishedAt: p.publishedAt ?? null,
           featuredImageUrl: p.featuredImage && typeof p.featuredImage === 'object' ? (p.featuredImage.url ?? null) : null,
         }
       }),
     )
-    return <NewsManager slug={slug} locale={locale} posts={posts} />
+    return <NewsManager slug={slug} locale={locale} posts={posts} teamCatalog={teamCatalog} />
   }
 
   if (moduleType === 'calendar') {
@@ -77,12 +83,13 @@ export default async function ManageInhaltePage({
           allDay: e.allDay ?? false,
           location: e.location ?? null,
           category: e.category ?? null,
-          visibility: e.visibility ?? 'INTERNAL',
+          visibility: e.visibility ?? "INTERNAL",
+          visibilityTeams: Array.isArray(e.visibilityTeams) ? e.visibilityTeams : [],
           body: await lexicalToMarkdown(e.content),
         }
       }),
     )
-    return <CalendarManager slug={slug} locale={locale} events={events} />
+    return <CalendarManager slug={slug} locale={locale} events={events} teamCatalog={teamCatalog} />
   }
 
   if (moduleType === 'polls') {
@@ -113,7 +120,7 @@ export default async function ManageInhaltePage({
         }
       }),
     )
-    return <PollsManager slug={slug} locale={locale} polls={polls} />
+    return <PollsManager slug={slug} locale={locale} polls={polls} teamCatalog={teamCatalog} />
   }
 
   if (moduleType === 'forum') {

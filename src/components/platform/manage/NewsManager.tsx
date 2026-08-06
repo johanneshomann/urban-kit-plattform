@@ -14,6 +14,7 @@ export interface NewsItem {
   title: string
   body: string
   visibility: string
+  visibilityTeams?: string[]
   publishedAt?: string | null
   featuredImageUrl?: string | null
 }
@@ -41,7 +42,7 @@ const STATUS_META = {
   published: { labelKey: 'news.statusPublished', bg: '#dcfce7', fg: '#166534' },
 }
 
-export function NewsManager({ slug, locale, posts }: { slug: string; locale: string; posts: NewsItem[] }) {
+export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string; locale: string; posts: NewsItem[]; teamCatalog: string[] }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -51,6 +52,7 @@ export function NewsManager({ slug, locale, posts }: { slug: string; locale: str
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [visibility, setVisibility] = useState('PROJECT')
+  const [visibilityTeams, setVisibilityTeams] = useState<string[]>([])
 
   const [scheduleFor, setScheduleFor] = useState<string | null>(null) // post id showing the schedule picker
   const [scheduleAt, setScheduleAt] = useState('')
@@ -67,16 +69,16 @@ export function NewsManager({ slug, locale, posts }: { slug: string; locale: str
     })
   }
 
-  const openNew = () => { setEditing({ id: '', title: '', body: '', visibility: 'PROJECT' }); setTitle(''); setBody(''); setVisibility('PROJECT') }
-  const openEdit = (p: NewsItem) => { setEditing(p); setTitle(p.title); setBody(p.body); setVisibility(p.visibility) }
+  const openNew = () => { setEditing({ id: '', title: '', body: '', visibility: 'PROJECT', visibilityTeams: [] }); setTitle(''); setBody(''); setVisibility('PROJECT'); setVisibilityTeams([]) }
+  const openEdit = (p: NewsItem) => { setEditing(p); setTitle(p.title); setBody(p.body); setVisibility(p.visibility); setVisibilityTeams(p.visibilityTeams ?? []) }
   const closeEditor = () => setEditing(null)
 
   const save = () => {
     if (!editing) return
     if (editing.id === '') {
-      run(() => createProjectNewsPost(slug, locale, { title, body, visibility }), closeEditor)
+      run(() => createProjectNewsPost(slug, locale, { title, body, visibility, visibilityTeams }), closeEditor)
     } else {
-      run(() => updateProjectNewsPost(slug, locale, editing.id, { title, body, visibility }), closeEditor)
+      run(() => updateProjectNewsPost(slug, locale, editing.id, { title, body, visibility, visibilityTeams }), closeEditor)
     }
   }
 
@@ -125,6 +127,34 @@ export function NewsManager({ slug, locale, posts }: { slug: string; locale: str
                 {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
               </select>
             </div>
+
+            {visibility === 'TEAM' && teamCatalog.length > 0 && (
+              <div>
+                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-dark)' }}>
+                  {t('members.teamLabel')}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {teamCatalog.map((tag) => {
+                    const active = visibilityTeams.includes(tag)
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setVisibilityTeams((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag])}
+                        className="text-small px-2.5 py-1 rounded-full border transition-colors"
+                        style={{
+                          background: active ? 'var(--project-dark)' : 'transparent',
+                          color: active ? 'var(--project-white)' : 'var(--project-dark)',
+                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Featured image — only for saved posts */}
             {editing.id !== '' && (

@@ -47,7 +47,7 @@ function isoToLocalInput(iso?: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function PollsManager({ slug, locale, polls }: { slug: string; locale: string; polls: PollItem[] }) {
+export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: string; locale: string; polls: PollItem[]; teamCatalog: string[] }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -60,6 +60,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
   const [description, setDescription] = useState('')
   const [closesAt, setClosesAt] = useState('')
   const [visibility, setVisibility] = useState('PROJECT')
+  const [visibilityTeams, setVisibilityTeams] = useState<string[]>([])
   const [allowAnonymous, setAllowAnonymous] = useState(false)
   const [showLiveResults, setShowLiveResults] = useState(false)
   const [questions, setQuestions] = useState<DraftQuestion[]>([emptyQuestion()])
@@ -79,7 +80,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
   }
 
   const resetForm = () => {
-    setTitle(''); setDescription(''); setClosesAt(''); setVisibility('PROJECT')
+    setTitle(''); setDescription(''); setClosesAt(''); setVisibility('PROJECT'); setVisibilityTeams([])
     setAllowAnonymous(false); setShowLiveResults(false); setQuestions([emptyQuestion()])
   }
   const openCreate = () => { setEditingId(null); resetForm(); setShowForm(true) }
@@ -90,7 +91,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
       if ('error' in res) { setError(res.error); return }
       const d = res.data
       setTitle(d.title); setDescription(d.description ?? ''); setClosesAt(isoToLocalInput(d.closesAt))
-      setVisibility(d.visibility ?? 'PROJECT'); setAllowAnonymous(!!d.allowAnonymous); setShowLiveResults(!!d.showLiveResults)
+      setVisibility(d.visibility ?? 'PROJECT'); setVisibilityTeams(Array.isArray(d.visibilityTeams) ? d.visibilityTeams : []); setAllowAnonymous(!!d.allowAnonymous); setShowLiveResults(!!d.showLiveResults)
       setQuestions(d.questions.length ? d.questions.map((q) => ({ text: q.text, type: q.type, optionsText: q.options.join('\n') })) : [emptyQuestion()])
       setEditingId(pollId); setShowForm(true)
     })
@@ -99,7 +100,7 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
 
   const submit = () => {
     const qInput: PollQuestionInput[] = questions.map((q) => ({ text: q.text, type: q.type, options: q.optionsText.split('\n').map((o) => o.trim()).filter(Boolean) }))
-    const input = { title, description, closesAt: closesAt || undefined, visibility, allowAnonymous, showLiveResults, questions: qInput }
+    const input = { title, description, closesAt: closesAt || undefined, visibility, visibilityTeams, allowAnonymous, showLiveResults, questions: qInput }
     const done = () => { setShowForm(false); setEditingId(null); resetForm() }
     if (editingId) run(() => editPollDraft(slug, locale, editingId, input), done)
     else run(() => createProjectPoll(slug, locale, input), done)
@@ -160,6 +161,33 @@ export function PollsManager({ slug, locale, polls }: { slug: string; locale: st
                 </select>
               </div>
             </div>
+            {visibility === 'TEAM' && teamCatalog.length > 0 && (
+              <div>
+                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-dark)' }}>
+                  {t('members.teamLabel')}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {teamCatalog.map((tag) => {
+                    const active = visibilityTeams.includes(tag)
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setVisibilityTeams((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag])}
+                        className="text-small px-2.5 py-1 rounded-full border transition-colors"
+                        style={{
+                          background: active ? 'var(--project-dark)' : 'transparent',
+                          color: active ? 'var(--project-white)' : 'var(--project-dark)',
+                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-dark)' }}>
                 <input type="checkbox" checked={allowAnonymous} onChange={(e) => setAllowAnonymous(e.target.checked)} /> {t('polls.allowAnonymous')}

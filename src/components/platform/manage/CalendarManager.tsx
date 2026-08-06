@@ -15,6 +15,7 @@ export interface EventItem {
   location?: string | null
   category?: string | null
   visibility?: string | null
+  visibilityTeams?: string[]
   body?: string
 }
 
@@ -31,7 +32,7 @@ const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(
 const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
 
-const blank: EventItem = { id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: 'PROJECT', body: '' }
+const blank: EventItem = { id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: 'PROJECT', visibilityTeams: [], body: '' }
 
 function fmt(iso: string, allDay?: boolean | null): string {
   return new Date(iso).toLocaleString('de-DE', allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
@@ -46,7 +47,7 @@ function toInput(iso: string | null | undefined, allDay: boolean): string {
   return allDay ? date : `${date}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function CalendarManager({ slug, locale, events }: { slug: string; locale: string; events: EventItem[] }) {
+export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: string; locale: string; events: EventItem[]; teamCatalog: string[] }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -82,7 +83,7 @@ export function CalendarManager({ slug, locale, events }: { slug: string; locale
     const input = {
       title: f.title, startDate: f.startDate, endDate: f.endDate || undefined,
       allDay: !!f.allDay, location: f.location || undefined, category: f.category || undefined,
-      visibility: f.visibility || 'PROJECT', body: f.body || '',
+      visibility: f.visibility || 'PROJECT', visibilityTeams: f.visibilityTeams || [], body: f.body || '',
     }
     if (editing && editing.id) run(() => updateProjectEvent(slug, locale, editing.id, input), close)
     else run(() => createProjectEvent(slug, locale, input), close)
@@ -158,6 +159,33 @@ export function CalendarManager({ slug, locale, events }: { slug: string; locale
                 {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
               </select>
             </div>
+            {f.visibility === 'TEAM' && teamCatalog.length > 0 && (
+              <div>
+                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-dark)' }}>
+                  {t('members.teamLabel')}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {teamCatalog.map((tag) => {
+                    const active = (f.visibilityTeams ?? []).includes(tag)
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => set('visibilityTeams', active ? (f.visibilityTeams ?? []).filter((t: string) => t !== tag) : [...(f.visibilityTeams ?? []), tag])}
+                        className="text-small px-2.5 py-1 rounded-full border transition-colors"
+                        style={{
+                          background: active ? 'var(--project-dark)' : 'transparent',
+                          color: active ? 'var(--project-white)' : 'var(--project-dark)',
+                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <div>
               <textarea value={f.body ?? ''} onChange={(e) => set('body', e.target.value)} rows={5} placeholder={t('calendar.bodyPlaceholder')} className={`${inputCls} w-full font-mono`} style={inputStyle} />
             </div>
