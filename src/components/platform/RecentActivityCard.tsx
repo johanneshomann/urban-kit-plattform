@@ -13,7 +13,7 @@ const ICONS: Record<ActivityType, LucideIcon> = {
   task: CheckSquare,
 }
 
-/** Floating "Aktivität zuletzt" card shown over the hero. */
+/** "Aktivität zuletzt" card on the project overview. */
 export async function RecentActivityCard({ items, locale, moreHref }: {
   items: ActivityItem[]
   locale: string
@@ -23,8 +23,8 @@ export async function RecentActivityCard({ items, locale, moreHref }: {
 
   return (
     <div
-      className="w-full max-w-xs rounded-xl p-4 backdrop-blur"
-      style={{ background: 'color-mix(in srgb, var(--project-white) 92%, transparent)', boxShadow: '0 8px 30px rgba(0,0,0,0.18)' }}
+      className="w-full rounded-xl p-4"
+      style={{ background: 'var(--project-white)', border: '1.5px solid var(--project-light)', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
     >
       <h3 className="text-small font-semibold mb-3" style={{ color: 'var(--project-dark)' }}>{t('activityTitle')}</h3>
 

@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
-import { getViewerContext } from '@/lib/visibility'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { ModuleConsumptionPlaceholder } from '@/components/platform/modules/ModuleConsumptionPlaceholder'
 import { NewsFeed } from '@/components/platform/modules/news/NewsFeed'
@@ -29,22 +29,16 @@ export default async function ModulePage({
   ])
   const payload = await getPayload({ config })
 
-  const projectResult = await payload.find({
-    collection: 'projects',
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  if (projectResult.totalDocs === 0) notFound()
-  const project = projectResult.docs[0] as unknown as { id: string; title: string; modules?: string[] }
-
-  const modules = project.modules ?? ['news', 'calendar']
+  // Shared with the shell layout via React.cache — one fetch per request.
+  // The module-enabled check stays here (hard rule: gate server-side).
+  const ctx = await getWorkspaceContext(slug)
+  if (!ctx) notFound()
+  const { project, modules } = ctx
   if (!modules.includes(moduleType)) notFound()
 
   const user = await getUser()
   const userId = user ? String(user.id) : null
-  const viewerCtx = await getViewerContext(payload, userId, project.id)
+  const viewerCtx = ctx.viewer
   const tier = viewerCtx.tier
 
   const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, viewerCtx, userId) : []
@@ -61,7 +55,7 @@ export default async function ModulePage({
   }
 
   return (
-    <div style={{ background: 'var(--project-light)', minHeight: 'calc(100svh - 14rem)' }}>
+    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
@@ -92,7 +86,7 @@ export default async function ModulePage({
           : moduleType === 'board'
           ? (!boardData
               ? <ModuleConsumptionPlaceholder title={tm('board')} />
-              : <div className="h-[calc(100svh-22rem)] min-h-[24rem]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
+              : <div className="h-[calc(100svh-14rem)] lg:h-[calc(100svh-11rem)] min-h-[24rem]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>
     </div>

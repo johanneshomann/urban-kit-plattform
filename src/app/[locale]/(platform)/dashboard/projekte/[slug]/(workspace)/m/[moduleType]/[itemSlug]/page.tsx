@@ -4,8 +4,8 @@ import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { lexicalToHtml } from '@/lib/richtext'
 import { getUser } from '@/lib/auth/getUser'
-import { isProjectManager } from '@/lib/access/project'
-import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
+import { canView, type Visibility } from '@/lib/visibility'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 import { loadPostComments } from '@/lib/news'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { NewsComments } from '@/components/platform/modules/news/NewsComments'
@@ -20,10 +20,12 @@ export default async function ModuleItemPage({
   if (moduleType !== 'news' && moduleType !== 'forum') notFound()
 
   const payload = await getPayload({ config })
-  const projectRes = await payload.find({ collection: 'projects', where: { slug: { equals: slug } }, limit: 1, depth: 0, overrideAccess: true })
-  const project = projectRes.docs[0] as unknown as { id: string; modules?: string[] } | undefined
-  const modules = project?.modules ?? ['news', 'calendar']
-  if (!project || !modules.includes(moduleType)) notFound()
+
+  // Shared with the shell layout via React.cache — one fetch per request.
+  // The module-enabled check stays here (hard rule: gate server-side).
+  const ctx = await getWorkspaceContext(slug)
+  if (!ctx || !ctx.modules.includes(moduleType)) notFound()
+  const { project } = ctx
 
   const [tm, tw] = await Promise.all([
     getTranslations({ locale, namespace: 'modules' }),
@@ -32,8 +34,8 @@ export default async function ModuleItemPage({
 
   const user = await getUser()
   const userId = user ? String(user.id) : null
-  const tier = await getViewerTier(payload, userId, project.id)
-  const isPM = userId ? await isProjectManager(payload, userId, project.id) : false
+  const tier = ctx.viewer.tier
+  const isPM = ctx.viewer.isPM && ctx.viewer.active
 
   // News: fetch the post up front (title feeds the breadcrumb, doc feeds the article)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,7 +65,7 @@ export default async function ModuleItemPage({
   const root = `/${locale}/dashboard/projekte/${slug}`
 
   return (
-    <div style={{ background: 'var(--project-light)', minHeight: 'calc(100svh - 14rem)' }}>
+    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: root },

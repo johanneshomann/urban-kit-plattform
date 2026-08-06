@@ -68,10 +68,19 @@ src/app/[locale]/
     ├── login, register
     └── dashboard/
         ├── profil, einstellungen, nachrichten
-        └── projekte/[slug]/
-            ├── (workspace)/         # member view: module cards, m/[moduleType]
+        └── projekte/[slug]/         # shell layout: theme scope + ProjectSidebar
+            ├── (workspace)/         # member view: overview cards, info, m/[moduleType]
             └── manage/              # PM-only: allgemein, module, mitglieder, …
 ```
+
+`projekte/[slug]/layout.tsx` is the shell for both subtrees: it resolves
+`getWorkspaceContext` (React.cache — shared with the pages), scopes the
+`--project-*` vars and renders the persistent project navigation —
+`ProjectSidebar` (≥ lg, dual-mode: citizen workspace / PM manage) and
+`ProjectTabBar` (< lg, bottom tabs + "Mehr" sheet). The nav's tier-filtered
+module lists are presentation only; `manage/layout.tsx` keeps the
+`getProjectManagerContext` guard and every module page keeps its own
+module-enabled + visibility checks.
 
 `src/app/api/` adds custom routes next to Payload's: `chat/*` (polling),
 `urban-agent`, `internal/*` (server-to-server for the Hocuspocus sidecar),

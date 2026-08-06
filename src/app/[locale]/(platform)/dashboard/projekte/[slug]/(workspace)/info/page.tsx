@@ -5,6 +5,7 @@ import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { ProjectInfoAccordion } from '@/components/platform/ProjectInfoAccordion'
 import { ProjectGallerySlider } from '@/components/platform/ProjectGallerySlider'
 import { getWorkspaceContext } from '@/lib/workspace-context'
+import { projectDefaults } from '@/lib/defaults/project'
 
 const P = {
   white: 'var(--project-white)',
@@ -66,7 +67,7 @@ export default async function ProjectInfoPage({
     : null
 
   return (
-    <div style={{ background: 'var(--project-light)', minHeight: 'calc(100svh - 14rem)' }}>
+    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
@@ -74,6 +75,20 @@ export default async function ProjectInfoPage({
         ]}
       />
       <main className="p-6 md:p-8 max-w-5xl mx-auto w-full">
+        {/* cover + short description — moved here from the old workspace hero */}
+        <div className="mb-6">
+          <img
+            src={project.coverImage?.url ?? projectDefaults.coverImage}
+            alt=""
+            className="w-full rounded-xl object-cover"
+            style={{ maxHeight: '18rem' }}
+          />
+          {project.shortDescription && (
+            <p className="text-text mt-4 max-w-2xl" style={{ color: 'var(--project-dark)', opacity: 0.75 }}>
+              {project.shortDescription}
+            </p>
+          )}
+        </div>
         <div className="grid gap-6 lg:grid-cols-2 items-start">
           <ProjectInfoAccordion
             beschreibungHtml={beschreibungHtml}

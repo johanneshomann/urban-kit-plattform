@@ -41,7 +41,6 @@ export interface WorkspaceContext {
   project: WorkspaceProject
   modules: string[]
   membershipId: string | null
-  savedOrder: string[] | null
   role: string | null
   membershipStatus: string | null
   isLoggedIn: boolean
@@ -77,7 +76,6 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   // Viewer membership via the Payload auth cookie
   const token = (await cookies()).get('payload-token')?.value
   let membershipId: string | null = null
-  let savedOrder: string[] | null = null
   let role: string | null = null
   let membershipStatus: string | null = null
   let teamTags: string[] = []
@@ -94,12 +92,11 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
         depth: 0,
         overrideAccess: true,
       })
-      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; moduleOrder?: unknown; teams?: string[] | null } | undefined
+      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; teams?: string[] | null } | undefined
       if (membership) {
         membershipId = membership.id
         role = membership.role ?? null
         membershipStatus = membership.status ?? null
-        if (Array.isArray(membership.moduleOrder)) savedOrder = membership.moduleOrder as string[]
         teamTags = Array.isArray(membership.teams) ? membership.teams : []
       }
     }
@@ -122,7 +119,6 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
     project,
     modules,
     membershipId,
-    savedOrder,
     role,
     membershipStatus,
     isLoggedIn,
