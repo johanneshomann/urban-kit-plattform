@@ -53,11 +53,3 @@ export function serializeMessage(doc: ChatMessage, viewerId: string): MessageDTO
     createdAt: doc.createdAt,
   }
 }
-
-/** Count unread messages in a room (newer than lastReadAt, not authored by the viewer). */
-export async function unreadCount(payload: Payload, roomId: string, viewerId: string, lastReadAt?: string | null): Promise<number> {
-  const and: Record<string, unknown>[] = [{ room: { equals: roomId } }, { author: { not_equals: viewerId } }]
-  if (lastReadAt) and.push({ createdAt: { greater_than: lastReadAt } })
-  const res = await payload.count({ collection: 'chat-messages', where: { and } as never, overrideAccess: true })
-  return res.totalDocs
-}

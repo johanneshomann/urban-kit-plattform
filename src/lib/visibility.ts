@@ -40,18 +40,11 @@ export interface ViewerContext {
 }
 
 /** Map any stored value (incl. legacy INTERNAL/unknown) to the canonical enum. */
-export function normalizeVisibility(visibility: string | null | undefined): Visibility {
+function normalizeVisibility(visibility: string | null | undefined): Visibility {
   if (visibility === 'PUBLIC') return 'PUBLIC'
   if (visibility === 'TEAM') return 'TEAM'
   // INTERNAL (legacy) and anything unknown → PROJECT (safe default)
   return 'PROJECT'
-}
-
-/** Scalar tier from a membership (team = PM or any team tag). */
-export function viewerTier(membership: ViewerMembership | null): ViewerTier {
-  if (!membership || membership.status !== 'active') return 'public'
-  if (membership.role === 'PM' || (membership.teams?.length ?? 0) > 0) return 'team'
-  return 'member'
 }
 
 /** Coarse compatibility check: can `tier` see `visibility`? Legacy INTERNAL → PROJECT. */

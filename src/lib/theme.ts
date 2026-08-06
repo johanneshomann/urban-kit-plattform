@@ -3,9 +3,8 @@ import config from '@payload-config'
 import { COLOR_DEFAULTS } from './color-tokens'
 import type { PlatformColors } from './color-tokens'
 
-// Re-exported for backward compatibility — the canonical token definitions live
-// in src/lib/color-tokens.ts (dependency-free, safe for client components).
-export { COLOR_DEFAULTS }
+// The canonical token definitions live in src/lib/color-tokens.ts
+// (dependency-free, safe for client components).
 export type { PlatformColors }
 
 // A stored value only wins when it is a non-empty string — clearing a color

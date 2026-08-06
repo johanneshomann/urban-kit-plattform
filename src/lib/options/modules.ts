@@ -1,4 +1,4 @@
-/** Canonical module ids, ordered, with their German labels. */
+/** Canonical module ids, ordered. */
 export const MODULE_ORDER = [
   'news',
   'calendar',
@@ -11,20 +11,6 @@ export const MODULE_ORDER = [
   'urban-agent',
 ] as const
 
-export type ModuleId = (typeof MODULE_ORDER)[number]
-
-export const MODULE_LABELS: Record<string, string> = {
-  news: 'News',
-  calendar: 'Kalender',
-  polls: 'Umfragen',
-  forum: 'Forum',
-  tasks: 'Aufgaben',
-  chat: 'Chat',
-  board: 'Board',
-  files: 'Dateien',
-  'urban-agent': 'Urban Agent',
-}
-
 /**
  * Project-workspace section grouping (logged-in project page).
  *   Mitmachen (participation) vs. Zusammen arbeiten (collaboration).
@@ -32,9 +18,6 @@ export const MODULE_LABELS: Record<string, string> = {
  */
 export const PARTICIPATE_MODULES = ['news', 'calendar', 'polls', 'forum'] as const
 export const COLLABORATE_MODULES = ['tasks', 'board', 'files', 'urban-agent'] as const
-
-/** Modules that currently have a content-authoring UI in the manage area. */
-export const AUTHORABLE_MODULES: ReadonlySet<string> = new Set(['news', 'calendar', 'polls', 'files'])
 
 /**
  * Modules that surface in the manage INHALTE group — either authored there
