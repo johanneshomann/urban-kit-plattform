@@ -10,7 +10,7 @@ import { projectDefaults } from '@/lib/defaults/project'
 const P = {
   white: 'var(--project-white)',
   light: 'var(--project-light)',
-  dark:  'var(--project-dark)',
+  accent: 'var(--project-accent)',
 } as const
 
 // „Über das Projekt" — description, details, contact and gallery on their own subpage.
@@ -84,7 +84,7 @@ export default async function ProjectInfoPage({
             style={{ maxHeight: '18rem' }}
           />
           {project.shortDescription && (
-            <p className="text-text mt-4 max-w-2xl" style={{ color: 'var(--project-dark)', opacity: 0.75 }}>
+            <p className="text-text mt-4 max-w-2xl" style={{ color: 'var(--project-ink)' }}>
               {project.shortDescription}
             </p>
           )}
@@ -101,7 +101,7 @@ export default async function ProjectInfoPage({
 
           {galleryImages.length > 0 && (
             <div className="rounded-xl p-5 flex flex-col gap-4" style={{ background: P.white, border: `1.5px solid ${P.light}`, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
-              <p className="text-display font-semibold" style={{ color: P.dark }}>{tw('secGallery')}</p>
+              <p className="text-display font-semibold" style={{ color: P.accent }}>{tw('secGallery')}</p>
               <ProjectGallerySlider images={galleryImages} />
             </div>
           )}

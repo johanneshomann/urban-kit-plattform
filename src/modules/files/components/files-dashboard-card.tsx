@@ -27,13 +27,13 @@ export function FilesDashboardCard({ files, newCount, projectSlug, locale }: {
       ctaLabel={t('ctaAllFiles')}
     >
       {files.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyFiles')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('emptyFiles')}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-2">
-              <FileText className="w-4 h-4 shrink-0" style={{ color: 'var(--project-mid)' }} />
-              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-dark)' }}>{f.name}</span>
+              <FileText className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
+              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-accent)' }}>{f.name}</span>
             </li>
           ))}
         </ul>

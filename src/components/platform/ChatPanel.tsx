@@ -8,7 +8,8 @@ import { ChatRoom } from './chat/ChatRoom'
 import { NewDMDialog, NewGroupDialog } from './chat/NewChatDialogs'
 import type { OverviewRoom } from './chat/types'
 
-const INK = 'var(--project-dark, var(--plattform-ink))'
+const INK = 'var(--project-accent, var(--plattform-ink))'
+const MUTED = 'var(--project-ink, var(--plattform-ink))'
 const ACCENT = 'var(--project-accent, var(--plattform-accent))'
 
 /**
@@ -75,7 +76,7 @@ export function ChatPanel({ rooms, reload, canCreateGroups }: {
         ) : (
           <div className="h-full overflow-y-auto py-1">
             {rooms.length === 0 && (
-              <p className="text-small px-4 py-8 text-center flex flex-col items-center gap-2" style={{ color: INK, opacity: 0.55 }}>
+              <p className="text-small px-4 py-8 text-center flex flex-col items-center gap-2" style={{ color: MUTED }}>
                 <Maximize2 aria-hidden="true" className="w-5 h-5 opacity-60" />
                 {t('empty')}
               </p>
@@ -90,14 +91,14 @@ export function ChatPanel({ rooms, reload, canCreateGroups }: {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-small font-medium truncate" style={{ color: INK }}>{r.name}</span>
-                    {r.project && <span className="text-small truncate shrink-0 max-w-[8rem]" style={{ color: INK, opacity: 0.55 }}>· {r.project.title}</span>}
+                    {r.project && <span className="text-small truncate shrink-0 max-w-[8rem]" style={{ color: MUTED }}>· {r.project.title}</span>}
                     {r.unread > 0 && (
                       <span className="ml-auto shrink-0 text-small text-white rounded-full px-1.5" style={{ background: ACCENT }}>{r.unread}</span>
                     )}
                   </div>
                   {r.status === 'invited'
                     ? <span className="text-small" style={{ color: ACCENT }}>{t('invitation')}</span>
-                    : <p className="text-small truncate" style={{ color: INK, opacity: 0.55 }}>{r.lastMessagePreview || ' '}</p>}
+                    : <p className="text-small truncate" style={{ color: MUTED }}>{r.lastMessagePreview || ' '}</p>}
                 </div>
                 {r.status === 'invited' && (
                   <span

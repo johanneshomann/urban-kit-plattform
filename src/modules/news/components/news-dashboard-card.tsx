@@ -32,7 +32,7 @@ export function NewsDashboardCard({ posts, newCount, projectSlug, locale }: {
       ctaLabel={t('ctaAllNews')}
     >
       {posts.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyNews')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('emptyNews')}</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {posts.map((post) => (
@@ -45,8 +45,8 @@ export function NewsDashboardCard({ posts, newCount, projectSlug, locale }: {
                   <span className="w-9 h-9 rounded-md shrink-0" style={{ background: 'var(--project-light)' }} />
                 )}
                 <span className="min-w-0 flex-1">
-                  <span className="block text-small font-medium leading-snug line-clamp-1" style={{ color: 'var(--project-dark)' }}>{post.title}</span>
-                  {post.publishedAt && <span className="block text-small" style={{ color: 'var(--project-mid)' }}>{relativeDay(post.publishedAt, locale)}</span>}
+                  <span className="block text-small font-medium leading-snug line-clamp-1" style={{ color: 'var(--project-accent)' }}>{post.title}</span>
+                  {post.publishedAt && <span className="block text-small" style={{ color: 'var(--project-ink)' }}>{relativeDay(post.publishedAt, locale)}</span>}
                 </span>
               </ScrollTopLink>
             </li>

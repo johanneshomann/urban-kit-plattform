@@ -62,7 +62,7 @@ export function ModuleSection({
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'color-mix(in srgb, var(--project-dark) 55%, transparent)' }}>
+      <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'var(--project-ink)' }}>
         {title}
       </h2>
       <div className={`grid gap-4 ${colClass}`}>

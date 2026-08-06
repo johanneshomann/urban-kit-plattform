@@ -41,7 +41,7 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
       <div className="flex-1 min-w-0">
         <p className="text-text font-bold truncate" style={{ color: 'var(--plattform-ink-accent)' }}>{f.label || f.filename}</p>
         {meta && (
-          <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{meta}</p>
+          <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{meta}</p>
         )}
       </div>
       {folderName && (
@@ -103,13 +103,13 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { pr
   return (
     <div>
       {!hideTitle && (
-        <h1 className="text-title font-bold leading-tight mb-6" style={{ color: 'var(--project-dark)' }}>{t('title')}</h1>
+        <h1 className="text-title font-bold leading-tight mb-6" style={{ color: 'var(--project-accent)' }}>{t('title')}</h1>
       )}
 
       {files.length === 0 ? (
         <div className="flex flex-col items-center gap-3 bg-white rounded-xl py-12 shadow-sm">
           <FolderOpen className="w-8 h-8" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }} />
-          <p className="text-text" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('empty')}</p>
+          <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

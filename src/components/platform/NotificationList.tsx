@@ -10,7 +10,7 @@ export type NotificationItem = {
   projectTitle: string
   projectSlug: string
   date?: string
-  schemeMid: string
+  schemeGeneral: string
   schemeAccent: string
   schemeLight: string
   schemeDark: string
@@ -22,7 +22,8 @@ const typeIcon = {
   news: Newspaper,
 }
 
-const INK = 'var(--project-dark, var(--plattform-ink))'
+const INK = 'var(--project-accent, var(--plattform-ink))'
+const MUTED = 'var(--project-ink, var(--plattform-ink))'
 
 /** Activity feed for the platform dock's "Aktivitäten" tab. */
 export function NotificationList({ locale, items, onNavigate }: {
@@ -55,7 +56,7 @@ export function NotificationList({ locale, items, onNavigate }: {
   if (items.length === 0) {
     return (
       <div className="flex-1 min-h-0 px-4 py-8 text-center">
-        <p className="text-small" style={{ color: INK, opacity: 0.55 }}>{t('notifEmpty')}</p>
+        <p className="text-small" style={{ color: MUTED }}>{t('notifEmpty')}</p>
       </div>
     )
   }
@@ -72,18 +73,18 @@ export function NotificationList({ locale, items, onNavigate }: {
             className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-black/5 border-b last:border-0"
             style={{ borderColor: 'var(--project-light, #e5e7eb)' }}
           >
-            <div className="w-1 self-stretch rounded-full shrink-0" style={{ background: item.schemeMid }} />
+            <div className="w-1 self-stretch rounded-full shrink-0" style={{ background: item.schemeGeneral }} />
             <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: item.schemeLight }}>
-              <Icon aria-hidden="true" className="w-3.5 h-3.5" style={{ color: item.schemeMid }} />
+              <Icon aria-hidden="true" className="w-3.5 h-3.5" style={{ color: item.schemeAccent }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-small font-medium truncate" style={{ color: INK }}>{item.title}</p>
-              <p className="text-small truncate" style={{ color: INK, opacity: 0.55 }}>
+              <p className="text-small truncate" style={{ color: MUTED }}>
                 {item.projectTitle} · {typeLabel[item.type]}
               </p>
             </div>
             {item.date && (
-              <span className="text-small shrink-0" style={{ color: INK, opacity: 0.55 }}>{formatDate(item.date)}</span>
+              <span className="text-small shrink-0" style={{ color: MUTED }}>{formatDate(item.date)}</span>
             )}
             <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 shrink-0 opacity-30" />
           </Link>

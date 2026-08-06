@@ -62,7 +62,7 @@ function TeamPopover({
             <span
               key={tag}
               className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium"
-              style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+              style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
             >
               <Users className="w-3 h-3" />
               {tag}
@@ -71,7 +71,7 @@ function TeamPopover({
         ) : (
           <span
             className="px-2 py-0.5 rounded-full text-small opacity-50"
-            style={{ color: 'var(--project-dark)', border: '1px solid color-mix(in srgb, var(--project-mid) 35%, transparent)' }}
+            style={{ color: 'var(--project-accent)', border: '1px solid color-mix(in srgb, var(--project-general) 35%, transparent)' }}
           >
             {t('members.teamLabel')}
           </span>
@@ -79,7 +79,7 @@ function TeamPopover({
         {isPM && (
           <span
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium"
-            style={{ background: 'var(--project-dark)', color: 'var(--project-white)', opacity: 0.8 }}
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)', opacity: 0.8 }}
           >
             <Users className="w-3 h-3" />
             PM
@@ -93,24 +93,24 @@ function TeamPopover({
           style={{
             background: 'var(--project-white)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-            border: '1px solid color-mix(in srgb, var(--project-mid) 20%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--project-general) 20%, transparent)',
           }}
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-small font-semibold" style={{ color: 'var(--project-dark)' }}>
+            <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>
               {t('members.teamLabel')}
             </p>
             <button
               type="button"
               onClick={() => setOpen(false)}
               className="p-0.5 rounded"
-              style={{ color: 'var(--project-dark)', opacity: 0.5 }}
+              style={{ color: 'var(--project-ink)' }}
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
           {teamCatalog.length === 0 ? (
-            <p className="text-small opacity-50" style={{ color: 'var(--project-dark)' }}>
+            <p className="text-small opacity-50" style={{ color: 'var(--project-accent)' }}>
               {t('sidebar.noModules')}
             </p>
           ) : (
@@ -124,8 +124,8 @@ function TeamPopover({
                     onClick={() => onChange(tag)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-small text-left transition-colors ${
                       isActive
-                        ? 'bg-[var(--project-dark)] text-[var(--project-white)]'
-                        : 'text-[var(--project-dark)] hover:bg-[var(--project-light)]'
+                        ? 'bg-[var(--project-accent)] text-[var(--project-white)]'
+                        : 'text-[var(--project-accent)] hover:bg-[var(--project-light)]'
                     }`}
                   >
                     <Users className="w-3 h-3 shrink-0" />
@@ -162,8 +162,8 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('members.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('members.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('members.count', { count: members.length })}
       </p>
 
@@ -172,9 +172,9 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
       )}
 
       {/* Invite — generate and copy a redeemable code */}
-      <div className="rounded-xl border px-4 py-3 mb-6" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
-        <p className="text-small font-semibold mb-1" style={{ color: 'var(--project-dark)' }}>Einladen</p>
-        <p className="text-small mb-3" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>
+      <div className="rounded-xl border px-4 py-3 mb-6" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
+        <p className="text-small font-semibold mb-1" style={{ color: 'var(--project-accent)' }}>Einladen</p>
+        <p className="text-small mb-3" style={{ color: 'var(--project-ink)' }}>
           Erzeuge einen Einladungscode. Der Code kann auf der Startseite eingelöst werden und schaltet die Person frei.
         </p>
         <div className="flex items-center gap-2">
@@ -191,12 +191,12 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
             }}
             disabled={pending}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40"
-            style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
             <UserPlus className="w-4 h-4" /> Code erzeugen
           </button>
           {inviteCode && (
-            <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-mono" style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}>
+            <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-mono" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
               {inviteCode}
               <button
                 type="button"
@@ -219,15 +219,15 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
             <div
               key={m.membershipId}
               className="flex items-center gap-3 rounded-xl border px-4 py-3"
-              style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}
+              style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
             >
-              <UserCircle className="w-8 h-8 shrink-0" style={{ color: 'var(--project-mid)' }} />
+              <UserCircle className="w-8 h-8 shrink-0" style={{ color: 'var(--project-ink)' }} />
               <div className="flex-1 min-w-0">
-                <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>
+                <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>
                   {m.name}
                   {m.isSelf && <span className="text-small font-normal ml-2" style={{ opacity: 0.5 }}>{t('members.you')}</span>}
                 </p>
-                <p className="text-small truncate" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>{m.email}</p>
+                <p className="text-small truncate" style={{ color: 'var(--project-ink)' }}>{m.email}</p>
               </div>
 
               <TeamPopover
@@ -247,7 +247,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
                 disabled={pending}
                 onChange={(e) => run(() => updateMemberRole(slug, locale, m.membershipId, e.target.value))}
                 className="px-3 py-1.5 rounded-lg border text-small outline-none shrink-0"
-                style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }}
+                style={{ borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }}
               >
                 {ROLE_OPTIONS.map((r) => <option key={r.value} value={r.value}>{t(r.labelKey)}</option>)}
               </select>
@@ -268,7 +268,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
                     onClick={() => setConfirmRemove(null)}
                     disabled={pending}
                     className="px-3 py-1.5 rounded-lg text-small"
-                    style={{ color: 'var(--project-dark)', opacity: 0.7 }}
+                    style={{ color: 'var(--project-ink)' }}
                   >
                     {t('members.cancel')}
                   </button>

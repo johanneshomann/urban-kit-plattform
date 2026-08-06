@@ -28,15 +28,15 @@ export function TasksDashboardCard({ tasks, openCount, projectSlug, locale }: {
       ctaLabel={t('ctaAllTasks')}
     >
       {tasks.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyTasks')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('emptyTasks')}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {tasks.map((task) => (
             <li key={task.id} className="flex items-center gap-2">
               {task.done
                 ? <CheckSquareFilled className="w-4 h-4 shrink-0" style={{ color: 'var(--project-accent)' }} />
-                : <Square className="w-4 h-4 shrink-0" style={{ color: 'var(--project-mid)' }} />}
-              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-dark)', opacity: task.done ? 0.55 : 1, textDecoration: task.done ? 'line-through' : 'none' }}>
+                : <Square className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />}
+              <span className="text-small leading-snug line-clamp-1" style={{ color: 'var(--project-accent)', opacity: task.done ? 0.55 : 1, textDecoration: task.done ? 'line-through' : 'none' }}>
                 {task.title}
               </span>
             </li>

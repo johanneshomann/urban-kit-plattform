@@ -91,10 +91,10 @@ export default async function ModuleItemPage({
     return (
       <>
         <article>
-          <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-dark)' }}>{post.title}</h1>
-          {post.publishedAt && <p className="text-small mb-5" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{new Date(post.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+          <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>{post.title}</h1>
+          {post.publishedAt && <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>{new Date(post.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
           {img && <img src={img} alt="" className="w-full rounded-xl mb-6 object-cover" style={{ maxHeight: '24rem' }} />}
-          {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-dark)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
+          {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
         </article>
         <NewsComments slug={slug} locale={locale} postId={String(post.id)} comments={comments} canComment={tier !== 'public'} />
       </>

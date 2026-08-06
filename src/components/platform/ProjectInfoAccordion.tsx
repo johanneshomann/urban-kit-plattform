@@ -35,8 +35,8 @@ interface Props {
 const P = {
   white:  'var(--project-white)',
   light:  'var(--project-light)',
-  mid:    'var(--project-mid)',
-  dark:   'var(--project-dark)',
+  ink:    'var(--project-ink)',
+  accent: 'var(--project-accent)',
 } as const
 
 export function ProjectInfoAccordion({
@@ -94,9 +94,9 @@ export function ProjectInfoAccordion({
               fontSize: 'var(--text-display, 1rem)',
             }}
           >
-            <Info style={{ width: '1em', height: '1em', color: P.mid }} />
+            <Info style={{ width: '1em', height: '1em', color: P.ink }} />
           </div>
-          <span style={{ fontSize: 'var(--text-display, 1rem)', fontWeight: 600, color: P.dark }}>
+          <span style={{ fontSize: 'var(--text-display, 1rem)', fontWeight: 600, color: P.accent }}>
             {t('aboutProject')}
           </span>
         </div>
@@ -104,7 +104,7 @@ export function ProjectInfoAccordion({
           style={{
             width: '1.1rem',
             height: '1.1rem',
-            color: P.mid,
+            color: P.ink,
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.25s ease',
             flexShrink: 0,
@@ -136,7 +136,7 @@ export function ProjectInfoAccordion({
               <Section label={t('secDescription')}>
                 <div
                   className="prose prose-sm max-w-none text-text"
-                  style={{ color: P.dark }}
+                  style={{ color: P.accent }}
                   dangerouslySetInnerHTML={{ __html: beschreibungHtml }}
                 />
               </Section>
@@ -147,7 +147,7 @@ export function ProjectInfoAccordion({
               <Section label={t('secParticipation')}>
                 <div
                   className="prose prose-sm max-w-none text-text"
-                  style={{ color: P.dark }}
+                  style={{ color: P.accent }}
                   dangerouslySetInnerHTML={{ __html: beteiligungsvorhabenHtml }}
                 />
               </Section>
@@ -159,10 +159,10 @@ export function ProjectInfoAccordion({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {details.map((d) => (
                     <div key={d.label} style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                      <span className="text-text" style={{ color: P.mid, flexShrink: 0, minWidth: '7rem' }}>
+                      <span className="text-text" style={{ color: P.ink, flexShrink: 0, minWidth: '7rem' }}>
                         {d.label}
                       </span>
-                      <span className="text-text" style={{ color: P.dark }}>{d.value}</span>
+                      <span className="text-text" style={{ color: P.accent }}>{d.value}</span>
                     </div>
                   ))}
                 </div>
@@ -206,7 +206,7 @@ export function ProjectInfoAccordion({
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <p className="text-text" style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--project-mid)', opacity: 0.7 }}>
+      <p className="text-text" style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--project-ink)' }}>
         {label}
       </p>
       {children}
@@ -224,8 +224,8 @@ function ContactRow({
 }) {
   const inner = (
     <div className="text-text" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-      <Icon style={{ width: '1em', height: '1em', flexShrink: 0, color: 'var(--project-mid)' }} />
-      <span style={{ color: 'var(--project-dark)' }}>{value}</span>
+      <Icon style={{ width: '1em', height: '1em', flexShrink: 0, color: 'var(--project-ink)' }} />
+      <span style={{ color: 'var(--project-accent)' }}>{value}</span>
     </div>
   )
   if (!href) return inner

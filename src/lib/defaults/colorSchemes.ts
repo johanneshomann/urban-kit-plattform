@@ -1,57 +1,89 @@
 export type ColorScheme = {
   name: string
   light: string
-  mid: string
+  general: string
   dark: string
   accent: string
+  ink: string
   white: string
   black: string
 }
 
+/**
+ * Project colour schemes. Same role structure as the Bereich palettes in
+ * `src/lib/color-tokens.ts`, so a project palette and a Bereich palette are
+ * interchangeable:
+ *
+ *   `light`   → page / section background (Bereich: `light`)
+ *   `general` → pastel brand surface      (Bereich: `main`)
+ *   `dark`    → chip / badge surface, one step deeper than `general`
+ *   `accent`  → darkest tone of the same hue: body text, links, solid buttons
+ *   `ink`     → desaturated body copy, the project-side `--plattform-ink`
+ *   `black`   → headings, and text on `general` / `dark` (Bereich: `on-brand`)
+ *   `white`   → near-white surface, and text on `accent`
+ *
+ * Which pairings are allowed follows from the contrast, not from taste:
+ *
+ *   text on a surface   → `accent`, `ink` or `black` on `white`/`light`/`general`
+ *   text on a chip      → `black` on `dark` (4.92:1 worst case)
+ *   text on a button    → `white` on `accent` (7.27:1 worst case)
+ *
+ * `white` on `dark` is NOT one of them — it tops out at 2.9:1. `dark` is a
+ * mid-tone; it carries dark text or no text at all. That pairing was the
+ * AA failure this palette structure replaced.
+ *
+ * Keep it that way: `.claude/plan/project-color-tokens.md` documents the gate,
+ * and the roles above only hold if the contrast does.
+ */
 export const defaultColorSchemes: ColorScheme[] = [
   {
     name: 'Sandstein',
-    light:  '#faf0e4',
-    mid:    '#c9955c',
-    dark:   '#7a4e28',
-    accent: '#6b9e4a',
-    white:  '#fffdf9',
-    black:  '#2e1a08',
+    light:   '#faf0e4',
+    general: '#e4c9a0',
+    dark:    '#ad804f',
+    accent:  '#6d5032',
+    ink:     '#5f554a',
+    white:   '#fffdf9',
+    black:   '#2e1a08',
   },
   {
     name: 'Terrakotta',
-    light:  '#faeae4',
-    mid:    '#c0522e',
-    dark:   '#7a2e12',
-    accent: '#4a8c7a',
-    white:  '#fffaf8',
-    black:  '#2e1208',
+    light:   '#faeae4',
+    general: '#d97a5a',
+    dark:    '#cb6f52',
+    accent:  '#4b2012',
+    ink:     '#392924',
+    white:   '#fffaf8',
+    black:   '#2e1208',
   },
   {
     name: 'Kupfer',
-    light:  '#faf0e6',
-    mid:    '#b5713a',
-    dark:   '#6b3c18',
-    accent: '#3a6b8a',
-    white:  '#fffcf8',
-    black:  '#241408',
+    light:   '#faf0e6',
+    general: '#d49a6a',
+    dark:    '#b97844',
+    accent:  '#55351b',
+    ink:     '#453930',
+    white:   '#fffcf8',
+    black:   '#241408',
   },
   {
     name: 'Feldgrau',
-    light:  '#eef3e8',
-    mid:    '#6b8a5c',
-    dark:   '#374830',
-    accent: '#8a5c3a',
-    white:  '#fafdf8',
-    black:  '#181e10',
+    light:   '#eef3e8',
+    general: '#8da87a',
+    dark:    '#759267',
+    accent:  '#2e3b28',
+    ink:     '#343931',
+    white:   '#fafdf8',
+    black:   '#181e10',
   },
   {
     name: 'Ozean',
-    light:  '#e4f5f5',
-    mid:    '#2a8a8a',
-    dark:   '#0d4040',
-    accent: '#f07840',
-    white:  '#f8fdfd',
-    black:  '#061818',
+    light:   '#e4f5f5',
+    general: '#4aadad',
+    dark:    '#399292',
+    accent:  '#123b3b',
+    ink:     '#293939',
+    white:   '#f8fdfd',
+    black:   '#061818',
   },
 ]

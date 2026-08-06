@@ -11,7 +11,7 @@ export interface EinstellungenInitial {
   joinRequestsEnabled: boolean
 }
 
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 
 function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
@@ -22,7 +22,7 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className="relative w-11 h-6 rounded-full shrink-0 transition-colors disabled:opacity-50"
-      style={{ background: checked ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)' }}
+      style={{ background: checked ? 'var(--project-accent)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}
     >
       <span
         className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform"
@@ -39,10 +39,10 @@ function SettingRow({
 }) {
   return (
     <div className="flex items-start gap-3 py-3">
-      <Icon className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--project-dark)' }} />
+      <Icon className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--project-accent)' }} />
       <div className="flex-1 min-w-0">
-        <p className="text-text font-medium" style={{ color: 'var(--project-dark)' }}>{title}</p>
-        <p className="text-small mt-0.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>{hint}</p>
+        <p className="text-text font-medium" style={{ color: 'var(--project-accent)' }}>{title}</p>
+        <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>{hint}</p>
       </div>
       <Toggle checked={checked} onChange={onChange} disabled={disabled} />
     </div>
@@ -93,13 +93,13 @@ export function EinstellungenForm({
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('einstellungen.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('einstellungen.subtitle')}</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('einstellungen.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('einstellungen.subtitle')}</p>
 
       {/* Visibility */}
       <div className="rounded-xl border p-5" style={cardStyle}>
-        <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('einstellungen.sectionVisibility')}</h2>
-        <div className="divide-y" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 15%, transparent)' }}>
+        <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-ink)' }}>{t('einstellungen.sectionVisibility')}</h2>
+        <div className="divide-y" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>
           <SettingRow
             icon={Globe}
             title={t('einstellungen.publicTitle')}
@@ -124,7 +124,7 @@ export function EinstellungenForm({
             onClick={save}
             disabled={pending || !dirty}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-            style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
             {saved && !dirty && !pending ? <Check className="w-4 h-4" /> : null}
             {pending ? t('einstellungen.saving') : dirty ? t('einstellungen.save') : t('einstellungen.saved')}

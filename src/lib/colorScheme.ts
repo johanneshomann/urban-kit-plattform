@@ -16,14 +16,18 @@ export function resolveColorScheme(name?: string | null): ColorScheme {
 /**
  * Map a palette onto the `--project-*` CSS custom properties consumed by the
  * project dashboard and its module subpages (via `var(--project-*)`).
+ *
+ * The single source of this mapping — `ProjectThemeScope` writes the same vars
+ * onto `<html>` and reads them from here rather than repeating the list.
  */
 export function schemeToCssVars(scheme: ColorScheme): Record<string, string> {
   return {
-    '--project-light':  scheme.light,
-    '--project-mid':    scheme.mid,
-    '--project-dark':   scheme.dark,
-    '--project-accent': scheme.accent,
-    '--project-white':  scheme.white,
-    '--project-black':  scheme.black,
+    '--project-light':   scheme.light,
+    '--project-general': scheme.general,
+    '--project-dark':    scheme.dark,
+    '--project-accent':  scheme.accent,
+    '--project-ink':     scheme.ink,
+    '--project-white':   scheme.white,
+    '--project-black':   scheme.black,
   }
 }

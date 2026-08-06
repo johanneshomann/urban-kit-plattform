@@ -27,6 +27,15 @@ export const ProjectMemberships: CollectionConfig = {
       ],
     },
     {
+      name: 'order',
+      type: 'number',
+      label: { en: 'Order (dashboard)', de: 'Reihenfolge (Dashboard)' },
+      defaultValue: 0,
+      admin: {
+        hidden: true,
+      },
+    },
+    {
       name: 'starred',
       type: 'checkbox',
       label: { en: 'Starred', de: 'Favorit' },

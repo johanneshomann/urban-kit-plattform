@@ -22,9 +22,9 @@ export function ForumDashboardCard({ count, newCount, projectSlug, locale }: {
       ctaLabel={t('ctaForum')}
     >
       <div className="flex flex-col gap-2">
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('forumTeaser')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('forumTeaser')}</p>
         {count > 0 && (
-          <p className="text-small font-medium" style={{ color: 'var(--project-dark)' }}>{t('forumNewPosts', { count })}</p>
+          <p className="text-small font-medium" style={{ color: 'var(--project-accent)' }}>{t('forumNewPosts', { count })}</p>
         )}
       </div>
     </ModuleCardShell>

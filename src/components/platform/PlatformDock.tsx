@@ -10,7 +10,8 @@ import type { OverviewRoom } from './chat/types'
 const POLL_OPEN_MS = 5000
 const POLL_CLOSED_MS = 20000
 
-const INK = 'var(--project-dark, var(--plattform-ink))'
+const INK = 'var(--project-accent, var(--plattform-ink))'
+const MUTED = 'var(--project-ink, var(--plattform-ink))'
 const ACCENT = 'var(--project-accent, var(--plattform-accent))'
 
 type Tab = 'chat' | 'activity'
@@ -182,7 +183,7 @@ export function PlatformDock({ locale, notificationItems, canCreateGroups }: {
           <span
             aria-hidden="true"
             className="absolute -top-1 -right-1 min-w-[1.25rem] rounded-full px-1 text-[0.65rem] font-bold leading-5 text-center"
-            style={{ background: 'var(--project-dark, var(--plattform-ink))', color: 'var(--project-white, #ffffff)' }}
+            style={{ background: 'var(--project-accent, var(--plattform-ink))', color: 'var(--project-white, #ffffff)' }}
           >
             {badgeCount > 99 ? '99+' : badgeCount}
           </span>

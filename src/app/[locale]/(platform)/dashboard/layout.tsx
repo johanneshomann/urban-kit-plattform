@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
 import { PlatformDock } from '@/components/platform/PlatformDock'
 import { DashboardShell } from '@/components/platform/DashboardShell'
+import { DashboardTransition } from '@/components/platform/DashboardTransition'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme } from '@/lib/colorScheme'
@@ -76,7 +77,7 @@ export default async function DashboardLayout({
         const p = projectById[(projectRaw as { id: string })?.id ?? String(projectRaw)]
         if (!p) return null
         const scheme = schemeFor(p)
-        return { type, title, projectTitle: p.title, projectSlug: p.slug, date, schemeMid: scheme.mid, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
+        return { type, title, projectTitle: p.title, projectSlug: p.slug, date, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
       }
 
       const items: (NotificationItem | null)[] = [
@@ -92,10 +93,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--plattform-light)' }}>
       <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
         <DashboardShell>
-          {children}
+          <DashboardTransition>
+            {children}
+          </DashboardTransition>
         </DashboardShell>
       </main>
       <PlatformDock

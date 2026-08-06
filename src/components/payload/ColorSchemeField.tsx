@@ -43,7 +43,7 @@ export function ColorSchemeField({ field }: { field: { label?: unknown } }) {
             >
               {/* Color dots */}
               <span style={{ display: 'flex', gap: '3px' }}>
-                {[scheme.light, scheme.mid, scheme.dark, scheme.accent].map((color, i) => (
+                {[scheme.light, scheme.general, scheme.dark, scheme.accent].map((color, i) => (
                   <span
                     key={i}
                     style={{

@@ -33,9 +33,9 @@ const QUESTION_TYPES = [
 ]
 
 const card = 'rounded-xl border'
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
-const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
+const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
 interface DraftQuestion { text: string; type: string; optionsText: string }
 const emptyQuestion = (): DraftQuestion => ({ text: '', type: 'single', optionsText: '' })
@@ -129,13 +129,13 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('polls.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('polls.subtitle')}</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('polls.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('polls.subtitle')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 
       <button type="button" onClick={() => (showForm ? (setShowForm(false), setEditingId(null)) : openCreate())}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta font-semibold mb-4" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta font-semibold mb-4" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
         {showForm ? <ChevronUp className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
         {showForm ? t('polls.closeForm') : t('polls.newPoll')}
       </button>
@@ -143,19 +143,19 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
       {showForm && (
         <div className={`${card} p-5 mb-6`} style={cardStyle}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{editingId ? t('polls.editDraft') : t('polls.newPoll')}</h2>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null) }} className="p-1 rounded" style={{ color: 'var(--project-dark)', opacity: 0.6 }}><X className="w-4 h-4" /></button>
+            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>{editingId ? t('polls.editDraft') : t('polls.newPoll')}</h2>
+            <button type="button" onClick={() => { setShowForm(false); setEditingId(null) }} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
           </div>
           <div className="flex flex-col gap-3">
             <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('polls.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder={t('polls.descriptionPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
             <div className="grid sm:grid-cols-2 gap-2">
               <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('polls.closesAtLabel')}</label>
+                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.closesAtLabel')}</label>
                 <input type="datetime-local" value={closesAt} onChange={(e) => setClosesAt(e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
               </div>
               <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('polls.visibilityLabel')}</label>
+                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.visibilityLabel')}</label>
                 <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
                   <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="PROJECT">{t('polls.visibilityProject')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
                 </select>
@@ -163,7 +163,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
             </div>
             {visibility === 'TEAM' && teamCatalog.length > 0 && (
               <div>
-                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-dark)' }}>
+                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-accent)' }}>
                   {t('members.teamLabel')}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -177,8 +177,8 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                         className="text-small px-2.5 py-1 rounded-full border transition-colors"
                         style={{
                           background: active ? 'var(--project-dark)' : 'transparent',
-                          color: active ? 'var(--project-white)' : 'var(--project-dark)',
-                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                          color: active ? 'var(--project-black)' : 'var(--project-accent)',
+                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
                         }}
                       >
                         {tag}
@@ -189,15 +189,15 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
               </div>
             )}
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-dark)' }}>
+              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
                 <input type="checkbox" checked={allowAnonymous} onChange={(e) => setAllowAnonymous(e.target.checked)} /> {t('polls.allowAnonymous')}
               </label>
-              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-dark)' }}>
+              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
                 <input type="checkbox" checked={showLiveResults} onChange={(e) => setShowLiveResults(e.target.checked)} /> {t('polls.showLiveResults')}
               </label>
             </div>
 
-            <p className="text-small font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>{t('polls.questionsHeading')}</p>
+            <p className="text-small font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--project-ink)' }}>{t('polls.questionsHeading')}</p>
             {questions.map((q, i) => (
               <div key={i} className="rounded-lg border p-3 flex flex-col gap-2" style={cardStyle}>
                 <div className="flex gap-2">
@@ -212,11 +212,11 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                 )}
               </div>
             ))}
-            <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="flex items-center gap-1.5 text-small font-semibold self-start" style={{ color: 'var(--project-dark)' }}><Plus className="w-4 h-4" /> {t('polls.addQuestion')}</button>
+            <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="flex items-center gap-1.5 text-small font-semibold self-start" style={{ color: 'var(--project-accent)' }}><Plus className="w-4 h-4" /> {t('polls.addQuestion')}</button>
 
             <div>
               <button type="button" onClick={submit} disabled={pending || !title.trim() || questions.every((q) => !q.text.trim())}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
                 {editingId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editingId ? t('polls.saveDraft') : t('polls.createPoll')}
               </button>
             </div>
@@ -227,7 +227,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
       {/* List */}
       <div className="flex flex-col gap-2">
         {polls.length === 0 ? (
-          <p className="text-text py-8 text-center" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('polls.emptyState')}</p>
+          <p className="text-text py-8 text-center" style={{ color: 'var(--project-ink)' }}>{t('polls.emptyState')}</p>
         ) : polls.map((p) => {
           const meta = STATUS_META[p.status] ?? STATUS_META.draft
           const open = resultsFor === p.id
@@ -235,8 +235,8 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
             <div key={p.id} className={`${card} px-4 py-3`} style={cardStyle}>
               <div className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>{p.title}</p>
-                  <p className="text-small mt-0.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+                  <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{p.title}</p>
+                  <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
                     {t('polls.questionCount', { count: p.questionCount })} · {t('polls.voteCount', { count: p.voteCount })}
                     {p.closesAt && ` · ${t('polls.closesOn', { date: new Date(p.closesAt).toLocaleDateString('de-DE') })}`}
                   </p>
@@ -247,25 +247,25 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
               <div className="flex flex-wrap items-center gap-1.5 mt-3">
                 {p.status === 'draft' && (
                   <>
-                    <button type="button" onClick={() => openEdit(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> {t('polls.edit')}</button>
-                    <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> {t('polls.activate')}</button>
+                    <button type="button" onClick={() => openEdit(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> {t('polls.edit')}</button>
+                    <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> {t('polls.activate')}</button>
                   </>
                 )}
                 {p.status === 'active' && (
-                  <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> {t('polls.close')}</button>
+                  <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> {t('polls.close')}</button>
                 )}
                 {p.status !== 'draft' && (
                   <>
-                    <button type="button" onClick={() => toggleResults(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+                    <button type="button" onClick={() => toggleResults(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                       <BarChart2 className="w-3.5 h-3.5" /> {open ? t('polls.hideResults') : t('polls.results')} {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
-                    <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> {t('polls.exportCsv')}</button>
+                    <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> {t('polls.exportCsv')}</button>
                   </>
                 )}
                 {confirmDelete === p.id ? (
                   <span className="flex items-center gap-1.5 ml-auto">
                     <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('polls.delete')}</button>
-                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>{t('polls.cancel')}</button>
+                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('polls.cancel')}</button>
                   </span>
                 ) : (
                   <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('polls.delete')} className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
@@ -273,20 +273,20 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
               </div>
 
               {open && results && (
-                <div className="mt-3 pt-3 border-t flex flex-col gap-4" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 15%, transparent)' }}>
-                  <p className="text-small font-semibold" style={{ color: 'var(--project-dark)' }}>{t('polls.participantCount', { count: results.participantCount })}</p>
+                <div className="mt-3 pt-3 border-t flex flex-col gap-4" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>
+                  <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{t('polls.participantCount', { count: results.participantCount })}</p>
                   {results.questions.map((q) => (
                     <div key={q.id}>
-                      <p className="text-text font-medium mb-1.5" style={{ color: 'var(--project-dark)' }}>{q.text}</p>
+                      <p className="text-text font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>{q.text}</p>
                       {(q.type === 'single' || q.type === 'multiple') && (
                         <div className="flex flex-col gap-1.5">
                           {q.options.map((o) => {
                             const pct = q.answerCount > 0 ? Math.round((o.count / q.answerCount) * 100) : 0
                             return (
                               <div key={o.id}>
-                                <div className="flex justify-between text-small" style={{ color: 'var(--project-dark)', opacity: 0.8 }}><span>{o.text}</span><span>{o.count} · {pct}%</span></div>
+                                <div className="flex justify-between text-small" style={{ color: 'var(--project-ink)' }}><span>{o.text}</span><span>{o.count} · {pct}%</span></div>
                                 <div className="h-2 rounded-full overflow-hidden mt-0.5" style={{ background: 'var(--project-light)' }}>
-                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'var(--project-dark)' }} />
+                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'var(--project-accent)' }} />
                                 </div>
                               </div>
                             )
@@ -295,15 +295,15 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                       )}
                       {q.type === 'scale' && q.scale && (
                         <div>
-                          <p className="text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>{t('polls.averageLabel')} <strong>{q.scale.average.toFixed(2)}</strong> {t('polls.scaleVoteCount', { count: q.scale.count })}</p>
+                          <p className="text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.averageLabel')} <strong>{q.scale.average.toFixed(2)}</strong> {t('polls.scaleVoteCount', { count: q.scale.count })}</p>
                           <div className="flex items-end gap-2 h-20">
                             {[1, 2, 3, 4, 5].map((n) => {
                               const c = q.scale!.distribution[n] ?? 0
                               const max = Math.max(1, ...Object.values(q.scale!.distribution))
                               return (
                                 <div key={n} className="flex-1 flex flex-col items-center gap-1">
-                                  <div className="w-full rounded-t" style={{ height: `${(c / max) * 100}%`, background: 'var(--project-dark)', minHeight: c ? 4 : 0 }} />
-                                  <span className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{n}</span>
+                                  <div className="w-full rounded-t" style={{ height: `${(c / max) * 100}%`, background: 'var(--project-accent)', minHeight: c ? 4 : 0 }} />
+                                  <span className="text-small" style={{ color: 'var(--project-ink)' }}>{n}</span>
                                 </div>
                               )
                             })}
@@ -312,8 +312,8 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                       )}
                       {q.type === 'text' && (
                         q.textAnswers.length === 0
-                          ? <p className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('polls.noAnswers')}</p>
-                          : <ul className="flex flex-col gap-1">{q.textAnswers.map((a, i) => <li key={i} className="text-small px-3 py-1.5 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}>{a}</li>)}</ul>
+                          ? <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('polls.noAnswers')}</p>
+                          : <ul className="flex flex-col gap-1">{q.textAnswers.map((a, i) => <li key={i} className="text-small px-3 py-1.5 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{a}</li>)}</ul>
                       )}
                     </div>
                   ))}

@@ -147,7 +147,7 @@ export function AktuellesSection({
               aria-pressed={newsSort === 'oldest'}
               title={newsSort === 'newest' ? t('sortOldest') : t('sortNewest')}
               className="ml-auto inline-flex items-center gap-1.5 text-small cursor-pointer hover:underline"
-              style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}
+              style={{ color: 'var(--plattform-ink)' }}
             >
               <ArrowUpDown className="w-[1em] h-[1em] shrink-0" aria-hidden />
               {newsSort === 'newest' ? t('sortNewest') : t('sortOldest')}
@@ -166,7 +166,7 @@ export function AktuellesSection({
                     className="group block bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
                   >
                     {n.publishedAt && (
-                      <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                      <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)' }}>
                         {formatDate(n.publishedAt)}
                       </p>
                     )}
@@ -195,7 +195,7 @@ export function AktuellesSection({
               aria-pressed={eventsSort === 'past'}
               title={eventsSort === 'upcoming' ? t('sortPast') : t('sortUpcoming')}
               className="ml-auto inline-flex items-center gap-1.5 text-small cursor-pointer hover:underline"
-              style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}
+              style={{ color: 'var(--plattform-ink)' }}
             >
               <ArrowUpDown className="w-[1em] h-[1em] shrink-0" aria-hidden />
               {eventsSort === 'upcoming' ? t('sortUpcoming') : t('sortPast')}
@@ -223,7 +223,7 @@ export function AktuellesSection({
                       <p className="text-display font-black leading-none" style={{ color: 'var(--plattform-ink-accent)' }}>
                         {d.toLocaleDateString(dateLocale, { day: '2-digit' })}
                       </p>
-                      <p className="text-small uppercase tracking-widest" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
+                      <p className="text-small uppercase tracking-widest" style={{ color: 'var(--plattform-ink)' }}>
                         {d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')}
                       </p>
                     </div>
@@ -231,11 +231,11 @@ export function AktuellesSection({
                       <p className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
                         {ev.title}
                       </p>
-                      <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
+                      <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>
                         {d.toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
                       {ev.location && (
-                        <p className="flex items-center gap-1.5 text-small mt-1" style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}>
+                        <p className="flex items-center gap-1.5 text-small mt-1" style={{ color: 'var(--plattform-ink)' }}>
                           <MapPin className="w-[1em] h-[1em] shrink-0" />
                           {ev.location}
                         </p>

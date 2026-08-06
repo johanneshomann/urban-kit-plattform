@@ -23,15 +23,15 @@ export function ModuleCardShell({
     <div className="h-full flex flex-col p-5" style={{ background: 'var(--project-white)' }}>
       <div className="flex items-center gap-2 mb-3">
         <div className="rounded-lg flex items-center justify-center shrink-0 p-2" style={{ background: 'var(--project-light)' }}>
-          <Icon className="w-5 h-5" style={{ color: 'var(--project-dark)' }} />
+          <Icon className="w-5 h-5" style={{ color: 'var(--project-accent)' }} />
         </div>
-        <span className="text-display font-semibold" style={{ color: 'var(--project-dark)' }}>{title}</span>
+        <span className="text-display font-semibold" style={{ color: 'var(--project-accent)' }}>{title}</span>
         {badge && (
           <span
             className="ml-auto text-small font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
             style={
               badge.tone === 'neutral'
-                ? { background: 'var(--project-light)', color: 'var(--project-dark)' }
+                ? { background: 'var(--project-light)', color: 'var(--project-accent)' }
                 : { background: 'color-mix(in srgb, var(--project-accent) 15%, transparent)', color: 'var(--project-accent)' }
             }
           >

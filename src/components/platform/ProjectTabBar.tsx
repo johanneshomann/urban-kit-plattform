@@ -109,8 +109,7 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
 
   const tabClass = 'flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 py-2 text-[0.65rem] font-medium'
   const tabStyle = (active: boolean): React.CSSProperties => ({
-    color: 'var(--project-dark)',
-    opacity: active ? 1 : 0.6,
+    color: active ? 'var(--project-accent)' : 'var(--project-ink)',
   })
 
   const tab = (href: string, label: string, Icon: LucideIcon, exact = false) => {
@@ -148,13 +147,13 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
           style={{ background: 'var(--project-white)' }}
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-small font-semibold" style={{ color: 'var(--project-dark)' }}>{tw('sidebarMore')}</p>
+            <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{tw('sidebarMore')}</p>
             <button
               type="button"
               onClick={() => { setOpen(false); triggerRef.current?.focus() }}
               aria-label={tw('sheetClose')}
               className="p-2 rounded-lg"
-              style={{ color: 'var(--project-dark)' }}
+              style={{ color: 'var(--project-accent)' }}
             >
               <X aria-hidden="true" className="w-5 h-5" />
             </button>
@@ -169,8 +168,8 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
                     aria-current={active ? 'page' : undefined}
                     className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-small"
                     style={active
-                      ? { background: 'var(--project-dark)', color: 'var(--project-white)' }
-                      : { color: 'var(--project-dark)' }}
+                      ? { background: 'var(--project-accent)', color: 'var(--project-white)' }
+                      : { color: 'var(--project-accent)' }}
                   >
                     <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />
                     <span className="truncate flex-1">{label}</span>
@@ -180,8 +179,8 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
                           aria-hidden="true"
                           className="min-w-5 h-5 px-1.5 rounded-full text-[0.7rem] font-bold flex items-center justify-center shrink-0"
                           style={active
-                            ? { background: 'var(--project-white)', color: 'var(--project-dark)' }
-                            : { background: 'var(--project-dark)', color: 'var(--project-white)' }}
+                            ? { background: 'var(--project-white)', color: 'var(--project-accent)' }
+                            : { background: 'var(--project-accent)', color: 'var(--project-white)' }}
                         >
                           {badge > 99 ? '99+' : badge}
                         </span>
@@ -194,14 +193,14 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
             })}
           </ul>
           {/* Account controls — the logged-in area has no header bar */}
-          <SidebarUserBar className="mt-3 pt-3 border-t justify-end" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 25%, transparent)' }} />
+          <SidebarUserBar className="mt-3 pt-3 border-t justify-end" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }} />
         </div>
       </div>
 
       <nav
         aria-label={tw('tabBarLabel')}
         className="lg:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch border-t pb-[env(safe-area-inset-bottom)]"
-        style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 25%, transparent)' }}
+        style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}
       >
         {tab(overviewHref, manageMode ? tm('sidebar.overview') : tw('overview'), LayoutGrid, true)}
         {directModules.map((m) => tab(moduleHref(m), tModules(m), MODULE_ICONS[m] ?? FolderOpen))}

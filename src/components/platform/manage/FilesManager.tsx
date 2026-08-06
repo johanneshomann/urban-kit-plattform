@@ -14,8 +14,8 @@ const VISIBILITY = [
   { value: 'INTERNAL', labelKey: 'files.visInternal', icon: Lock },
   { value: 'TEAM', labelKey: 'files.visTeam', icon: UsersIcon },
 ] as const
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
-const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
+const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
 function fmtSize(b: number | null): string {
   if (!b) return ''
@@ -70,17 +70,17 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
     const vm = VISIBILITY.find((v) => v.value === f.visibility)
     return (
       <div className="flex items-center gap-3 rounded-lg border px-3 py-2" style={cardStyle}>
-        <FileText className="w-5 h-5 shrink-0" style={{ color: 'var(--project-mid)' }} />
+        <FileText className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />
         <div className="flex-1 min-w-0">
-          <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>{f.label || f.filename}</p>
-          <p className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{fmtSize(f.filesize)}{f.mimeType ? ` · ${f.mimeType}` : ''}</p>
+          <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{f.label || f.filename}</p>
+          <p className="text-small" style={{ color: 'var(--project-ink)' }}>{fmtSize(f.filesize)}{f.mimeType ? ` · ${f.mimeType}` : ''}</p>
         </div>
         <VisSelect value={f.visibility} onChange={(v) => run(() => setFileVisibility(slug, locale, f.id, v))} disabled={pending} />
-        {f.url && <a href={f.url} download title={t('files.download')} className="p-2 rounded-lg shrink-0" style={{ color: 'var(--project-dark)' }}><Download className="w-4 h-4" /></a>}
+        {f.url && <a href={f.url} download title={t('files.download')} className="p-2 rounded-lg shrink-0" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>}
         {confirm === `f-${f.id}` ? (
           <span className="flex items-center gap-1">
             <button type="button" onClick={() => run(() => deleteFile(slug, locale, f.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: '#b91c1c', color: 'white' }}>{t('files.delete')}</button>
-            <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>×</button>
+            <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-ink)' }}>×</button>
           </span>
         ) : (
           <button type="button" onClick={() => setConfirm(`f-${f.id}`)} disabled={pending} title={t('files.delete')} className="p-2 rounded-lg shrink-0" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
@@ -93,28 +93,28 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('files.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('files.intro')}</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('files.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('files.intro')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 
       {/* Toolbar */}
       <div className="rounded-xl border p-4 mb-6 flex flex-wrap items-end gap-3" style={cardStyle}>
         <div>
-          <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('files.folder')}</label>
+          <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.folder')}</label>
           <select value={uploadFolder} onChange={(e) => setUploadFolder(e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
             <option value="">{t('files.noFolder')}</option>
             {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('files.visibility')}</label>
+          <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.visibility')}</label>
           <VisSelect value={uploadVis} onChange={setUploadVis} disabled={pending} />
         </div>
-        <button type="button" onClick={() => fileInput.current?.click()} disabled={pending} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+        <button type="button" onClick={() => fileInput.current?.click()} disabled={pending} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
           <Upload className="w-4 h-4" /> {t('files.uploadFile')}
         </button>
-        <button type="button" onClick={() => setShowFolderForm((s) => !s)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-medium border" style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+        <button type="button" onClick={() => setShowFolderForm((s) => !s)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-medium border" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
           {showFolderForm ? <X className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />} {t('files.folder')}
         </button>
         <input ref={fileInput} type="file" hidden onChange={onFile} />
@@ -123,16 +123,16 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
       {showFolderForm && (
         <div className="rounded-xl border p-4 mb-6 flex flex-wrap items-end gap-3" style={cardStyle}>
           <div className="flex-1 min-w-40">
-            <label className="block text-small mb-1" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>{t('files.folderName')}</label>
+            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.folderName')}</label>
             <input type="text" value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder={t('files.folderNamePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           </div>
           <VisSelect value={folderVis} onChange={setFolderVis} disabled={pending} />
-          <button type="button" onClick={() => run(() => createFolder(slug, locale, { name: folderName, visibility: folderVis }), () => { setFolderName(''); setShowFolderForm(false) })} disabled={pending || !folderName.trim()} className="px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>{t('files.create')}</button>
+          <button type="button" onClick={() => run(() => createFolder(slug, locale, { name: folderName, visibility: folderVis }), () => { setFolderName(''); setShowFolderForm(false) })} disabled={pending || !folderName.trim()} className="px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>{t('files.create')}</button>
         </div>
       )}
 
       {folders.length === 0 && files.length === 0 && (
-        <p className="text-text py-10 text-center" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('files.empty')}</p>
+        <p className="text-text py-10 text-center" style={{ color: 'var(--project-ink)' }}>{t('files.empty')}</p>
       )}
 
       {/* Folders */}
@@ -140,13 +140,13 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
         {folders.map((folder) => (
           <div key={folder.id}>
             <div className="flex items-center gap-2 mb-2">
-              <Folder className="w-5 h-5 shrink-0" style={{ color: 'var(--project-mid)' }} />
-              <h2 className="text-display font-semibold" style={{ color: 'var(--project-dark)' }}>{folder.name}</h2>
+              <Folder className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />
+              <h2 className="text-display font-semibold" style={{ color: 'var(--project-accent)' }}>{folder.name}</h2>
               <VisSelect value={folder.visibility} onChange={(v) => run(() => setFolderVisibility(slug, locale, folder.id, v))} disabled={pending} />
               {confirm === `fo-${folder.id}` ? (
                 <span className="flex items-center gap-1 ml-auto">
                   <button type="button" onClick={() => run(() => deleteFolder(slug, locale, folder.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: '#b91c1c', color: 'white' }}>{t('files.deleteFolderAndFiles')}</button>
-                  <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-dark)', opacity: 0.6 }}>×</button>
+                  <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-ink)' }}>×</button>
                 </span>
               ) : (
                 <button type="button" onClick={() => setConfirm(`fo-${folder.id}`)} disabled={pending} title={t('files.deleteFolder')} className="p-1.5 rounded ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
@@ -154,14 +154,14 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
             </div>
             <div className="flex flex-col gap-2 pl-7">
               {files.filter((f) => f.folderId === folder.id).map((f) => <FileRow key={f.id} f={f} />)}
-              {files.filter((f) => f.folderId === folder.id).length === 0 && <p className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('files.emptyFolder')}</p>}
+              {files.filter((f) => f.folderId === folder.id).length === 0 && <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('files.emptyFolder')}</p>}
             </div>
           </div>
         ))}
 
         {looseFiles.length > 0 && (
           <div>
-            <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>{t('files.withoutFolder')}</h2>
+            <h2 className="text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-ink)' }}>{t('files.withoutFolder')}</h2>
             <div className="flex flex-col gap-2">{looseFiles.map((f) => <FileRow key={f.id} f={f} />)}</div>
           </div>
         )}

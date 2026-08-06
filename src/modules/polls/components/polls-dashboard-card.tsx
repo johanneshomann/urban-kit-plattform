@@ -39,21 +39,21 @@ export function PollsDashboardCard({ poll, projectSlug, locale }: {
       ctaLabel={t('ctaPoll')}
     >
       {!poll ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyPolls')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('emptyPolls')}</p>
       ) : (
         <div className="flex flex-col gap-2">
-          <p className="text-small font-medium leading-snug line-clamp-2" style={{ color: 'var(--project-dark)' }}>{poll.title}</p>
-          <div className="flex items-center gap-1.5 text-small" style={{ color: 'var(--project-mid)' }}>
+          <p className="text-small font-medium leading-snug line-clamp-2" style={{ color: 'var(--project-accent)' }}>{poll.title}</p>
+          <div className="flex items-center gap-1.5 text-small" style={{ color: 'var(--project-ink)' }}>
             <Users className="w-3.5 h-3.5" /> {t('participants', { count: poll.participants })}
           </div>
           {poll.closesAt && (
-            <div className="flex items-center gap-1.5 text-small" style={{ color: 'var(--project-mid)' }}>
+            <div className="flex items-center gap-1.5 text-small" style={{ color: 'var(--project-ink)' }}>
               <Clock className="w-3.5 h-3.5" /> {t('daysLeft', { days: daysUntil(poll.closesAt) })}
             </div>
           )}
           {poll.closesAt && poll.createdAt && (
             <div className="h-1.5 rounded-full overflow-hidden mt-1" style={{ background: 'var(--project-light)' }}>
-              <div className="h-full rounded-full" style={{ width: `${Math.round(progress * 100)}%`, background: 'var(--project-mid)' }} />
+              <div className="h-full rounded-full" style={{ width: `${Math.round(progress * 100)}%`, background: 'var(--project-general)' }} />
             </div>
           )}
         </div>

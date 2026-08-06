@@ -39,8 +39,8 @@ function NavLink({ href, label, icon: Icon, active, badge, badgeSr }: {
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-small w-full transition-colors hover:bg-[color-mix(in_srgb,var(--project-mid)_18%,transparent)]"
-      style={active ? { background: 'var(--project-dark)', color: 'var(--project-white)' } : { color: 'var(--project-dark)' }}
+      className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-small w-full transition-colors hover:bg-[color-mix(in_srgb,var(--project-general)_18%,transparent)]"
+      style={active ? { background: 'var(--project-accent)', color: 'var(--project-white)' } : { color: 'var(--project-accent)' }}
     >
       {/* Active state is background + indicator bar, not color alone (WCAG 1.4.1) */}
       {active && (
@@ -54,8 +54,8 @@ function NavLink({ href, label, icon: Icon, active, badge, badgeSr }: {
             aria-hidden="true"
             className="min-w-5 h-5 px-1.5 rounded-full text-[0.7rem] font-bold flex items-center justify-center shrink-0"
             style={active
-              ? { background: 'var(--project-white)', color: 'var(--project-dark)' }
-              : { background: 'var(--project-dark)', color: 'var(--project-white)' }}
+              ? { background: 'var(--project-white)', color: 'var(--project-accent)' }
+              : { background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
             {badge > 99 ? '99+' : badge}
           </span>
@@ -68,7 +68,7 @@ function NavLink({ href, label, icon: Icon, active, badge, badgeSr }: {
 
 function GroupLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-3 pt-4 pb-1 text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+    <p className="px-3 pt-4 pb-1 text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>
       {children}
     </p>
   )
@@ -123,21 +123,21 @@ export function ProjectSidebar({
   return (
     <aside
       className="hidden lg:flex w-60 shrink-0 flex-col sticky top-0 h-svh border-r"
-      style={{ background: 'var(--project-light)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}
+      style={{ background: 'var(--project-light)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
     >
       {/* Project identity — cover image, then title */}
       <div className="shrink-0">
         <Link href={root} className="block" aria-label={projectTitle}>
           <img src={coverSrc} alt="" className="h-24 w-full object-cover" />
         </Link>
-        <div className="px-4 py-3 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
+        <div className="px-4 py-3 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           {manageMode ? (
-            <Link href={root} className="flex items-center gap-2 text-small font-semibold min-w-0" style={{ color: 'var(--project-dark)' }}>
+            <Link href={root} className="flex items-center gap-2 text-small font-semibold min-w-0" style={{ color: 'var(--project-accent)' }}>
               <ArrowLeft aria-hidden="true" className="w-4 h-4 shrink-0" />
               <span className="truncate">{tm('sidebar.backToProject')}</span>
             </Link>
           ) : (
-            <p className="font-semibold leading-snug line-clamp-2" style={{ color: 'var(--project-dark)' }}>{projectTitle}</p>
+            <p className="font-semibold leading-snug line-clamp-2" style={{ color: 'var(--project-accent)' }}>{projectTitle}</p>
           )}
         </div>
       </div>
@@ -149,7 +149,7 @@ export function ProjectSidebar({
 
             <GroupLabel>{tm('sidebar.contentGroup')}</GroupLabel>
             {manageModules.length === 0 && (
-              <p className="px-3 py-1 text-small" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{tm('sidebar.noModules')}</p>
+              <p className="px-3 py-1 text-small" style={{ color: 'var(--project-ink)' }}>{tm('sidebar.noModules')}</p>
             )}
             {manageModules.map((m) => (
               <NavLink key={m} href={`${manageBase}/inhalte/${m}`} label={tModules(m)} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(`${manageBase}/inhalte/${m}`)} />
@@ -190,7 +190,7 @@ export function ProjectSidebar({
         )}
       </nav>
 
-      <div className="shrink-0 border-t p-2 flex flex-col gap-1" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
+      <div className="shrink-0 border-t p-2 flex flex-col gap-1" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
         {canManage && !manageMode && (
           <NavLink href={manageBase} label={tw('manage')} icon={Settings2} active={false} />
         )}

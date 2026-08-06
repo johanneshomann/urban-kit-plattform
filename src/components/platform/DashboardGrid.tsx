@@ -92,7 +92,7 @@ function CardItem({ card, locale }: { card: DashboardCardData; locale: string })
             </h3>
             <span
               className="text-small shrink-0 px-2 py-0.5 rounded-full font-medium mt-0.5"
-              style={{ background: card.scheme.mid, color: card.scheme.white }}
+              style={{ background: card.scheme.dark, color: card.scheme.white }}
             >
               {card.roleLabel}
             </span>

@@ -38,18 +38,18 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
 
   return (
     <div>
-      <Link href={`/${locale}/dashboard/projekte/${slug}/m/forum`} className="inline-flex items-center gap-1 text-small mb-5 transition-opacity opacity-60 hover:opacity-100" style={{ color: 'var(--project-dark)' }}>
+      <Link href={`/${locale}/dashboard/projekte/${slug}/m/forum`} className="inline-flex items-center gap-1 text-small mb-5 transition-opacity opacity-60 hover:opacity-100" style={{ color: 'var(--project-accent)' }}>
         <ChevronLeft className="w-[1em] h-[1em]" /> Alle Themen
       </Link>
 
-      <h1 className="flex items-center gap-2 text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-dark)' }}>
+      <h1 className="flex items-center gap-2 text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>
         {thread.locked && <Lock className="w-5 h-5 shrink-0" style={{ opacity: 0.5 }} />}
         {thread.title}
       </h1>
-      <p className="text-small mb-5" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>
+      <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>
         {personName(thread.author)} · {new Date(thread.createdAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
       </p>
-      {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-dark)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
+      {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
 
       <ForumThreadView slug={slug} locale={locale} threadId={String(thread.id)} comments={comments} locked={thread.locked === true} canParticipate={!!userId} />
     </div>

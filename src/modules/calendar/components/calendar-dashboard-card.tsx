@@ -31,7 +31,7 @@ export function CalendarDashboardCard({ events, projectSlug, locale }: {
   return (
     <ModuleCardShell icon={CalendarDays} title="Kalender" href={base} ctaLabel={t('ctaAllEvents')}>
       {events.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('emptyEvents')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('emptyEvents')}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {events.map((ev) => {
@@ -40,12 +40,12 @@ export function CalendarDashboardCard({ events, projectSlug, locale }: {
             return (
               <li key={ev.id} className="flex items-start gap-3">
                 <span className="flex flex-col items-center leading-none shrink-0 rounded-md px-2 py-1" style={{ background: 'var(--project-light)' }}>
-                  <span className="text-display font-bold" style={{ color: 'var(--project-dark)' }}>{d.toLocaleDateString(locale, { day: 'numeric' })}</span>
-                  <span className="text-small uppercase" style={{ color: 'var(--project-mid)' }}>{d.toLocaleDateString(locale, { month: 'short' })}</span>
+                  <span className="text-display font-bold" style={{ color: 'var(--project-accent)' }}>{d.toLocaleDateString(locale, { day: 'numeric' })}</span>
+                  <span className="text-small uppercase" style={{ color: 'var(--project-ink)' }}>{d.toLocaleDateString(locale, { month: 'short' })}</span>
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-small font-medium leading-snug line-clamp-1" style={{ color: 'var(--project-dark)' }}>{ev.title}</span>
-                  {time && <span className="block text-small" style={{ color: 'var(--project-mid)' }}>{time} Uhr</span>}
+                  <span className="block text-small font-medium leading-snug line-clamp-1" style={{ color: 'var(--project-accent)' }}>{ev.title}</span>
+                  {time && <span className="block text-small" style={{ color: 'var(--project-ink)' }}>{time} Uhr</span>}
                 </span>
               </li>
             )

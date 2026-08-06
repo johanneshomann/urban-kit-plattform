@@ -28,9 +28,9 @@ const VISIBILITY = [
 ] as const
 
 const card = 'rounded-xl border'
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
-const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
+const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
 function statusOf(p: NewsItem): 'draft' | 'scheduled' | 'published' {
   if (!p.publishedAt) return 'draft'
@@ -92,16 +92,16 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
   return (
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-dark)' }}>{t('news.title')}</h1>
+        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-accent)' }}>{t('news.title')}</h1>
         {!editing && (
           <button type="button" onClick={openNew}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold"
-            style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> {t('news.newPost')}
           </button>
         )}
       </div>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('news.subtitle')}</p>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('news.subtitle')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 
@@ -109,20 +109,20 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
       {editing && (
         <div className={`${card} p-5 mb-6`} style={cardStyle}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>
+            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>
               {editing.id === '' ? t('news.newPost') : t('news.editPost')}
             </h2>
-            <button type="button" onClick={closeEditor} className="p-1 rounded" style={{ color: 'var(--project-dark)', opacity: 0.6 }}><X className="w-4 h-4" /></button>
+            <button type="button" onClick={closeEditor} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
           </div>
 
           <div className="flex flex-col gap-3">
             <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('news.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
             <div>
               <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} placeholder={t('news.bodyPlaceholder')} className={`${inputCls} w-full font-mono`} style={inputStyle} />
-              <p className="text-small mt-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('news.markdownHint')}</p>
+              <p className="text-small mt-1" style={{ color: 'var(--project-ink)' }}>{t('news.markdownHint')}</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-small font-medium" style={{ color: 'var(--project-dark)' }}>{t('news.visibilityLabel')}</span>
+              <span className="text-small font-medium" style={{ color: 'var(--project-accent)' }}>{t('news.visibilityLabel')}</span>
               <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={inputCls} style={inputStyle}>
                 {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
               </select>
@@ -130,7 +130,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
 
             {visibility === 'TEAM' && teamCatalog.length > 0 && (
               <div>
-                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-dark)' }}>
+                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-accent)' }}>
                   {t('members.teamLabel')}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -144,8 +144,8 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                         className="text-small px-2.5 py-1 rounded-full border transition-colors"
                         style={{
                           background: active ? 'var(--project-dark)' : 'transparent',
-                          color: active ? 'var(--project-white)' : 'var(--project-dark)',
-                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+                          color: active ? 'var(--project-black)' : 'var(--project-accent)',
+                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
                         }}
                       >
                         {tag}
@@ -162,11 +162,11 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                 <div className="w-28 h-16 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: 'var(--project-light)' }}>
                   {editing.featuredImageUrl
                     ? <img src={editing.featuredImageUrl} alt="" className="w-full h-full object-cover" />
-                    : <ImagePlus className="w-5 h-5" style={{ color: 'var(--project-dark)', opacity: 0.4 }} />}
+                    : <ImagePlus className="w-5 h-5" style={{ color: 'var(--project-ink)' }} />}
                 </div>
                 <button type="button" onClick={() => fileInput.current?.click()} disabled={pending}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40"
-                  style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+                  style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                   <Upload className="w-4 h-4" /> {editing.featuredImageUrl ? t('news.changeFeaturedImage') : t('news.featuredImage')}
                 </button>
                 {editing.featuredImageUrl && (
@@ -182,7 +182,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
             <div>
               <button type="button" onClick={save} disabled={pending || !title.trim()}
                 className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-                style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+                style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
                 {editing.id === '' ? <Plus className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
                 {editing.id === '' ? t('news.createDraft') : t('news.save')}
               </button>
@@ -194,7 +194,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
       {/* List */}
       <div className="flex flex-col gap-2">
         {posts.length === 0 ? (
-          <p className="text-text py-8 text-center" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>{t('news.emptyState')}</p>
+          <p className="text-text py-8 text-center" style={{ color: 'var(--project-ink)' }}>{t('news.emptyState')}</p>
         ) : posts.map((p) => {
           const status = statusOf(p)
           const meta = STATUS_META[status]
@@ -205,8 +205,8 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
               <div className="flex items-center gap-3">
                 {p.featuredImageUrl && <img src={p.featuredImageUrl} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>{p.title}</p>
-                  <p className="text-small flex items-center gap-1.5 mt-0.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+                  <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{p.title}</p>
+                  <p className="text-small flex items-center gap-1.5 mt-0.5" style={{ color: 'var(--project-ink)' }}>
                     <VisIcon className="w-3.5 h-3.5" />{visMeta ? t(visMeta.labelKey) : p.visibility}
                     {status === 'scheduled' && p.publishedAt && <> · {new Date(p.publishedAt).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}</>}
                   </p>
@@ -217,26 +217,26 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
               <div className="flex flex-wrap items-center gap-1.5 mt-3">
                 <button type="button" onClick={() => openEdit(p)} disabled={pending}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40"
-                  style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+                  style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                   <Pencil className="w-3.5 h-3.5" /> {t('news.edit')}
                 </button>
 
                 {status === 'published' ? (
                   <button type="button" onClick={() => run(() => setNewsPublish(slug, locale, p.id, 'draft'))} disabled={pending}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40"
-                    style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+                    style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                     <Undo2 className="w-3.5 h-3.5" /> {t('news.unpublish')}
                   </button>
                 ) : (
                   <>
                     <button type="button" onClick={() => run(() => setNewsPublish(slug, locale, p.id, 'now'))} disabled={pending}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40"
-                      style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+                      style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
                       <Send className="w-3.5 h-3.5" /> {t('news.publish')}
                     </button>
                     <button type="button" onClick={() => { setScheduleFor(scheduleFor === p.id ? null : p.id); setScheduleAt('') }} disabled={pending}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40"
-                      style={{ color: 'var(--project-dark)', borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)' }}>
+                      style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                       <CalendarClock className="w-3.5 h-3.5" /> {status === 'scheduled' ? t('news.reschedule') : t('news.schedule')}
                     </button>
                   </>
@@ -246,7 +246,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                   <span className="flex items-center gap-1.5">
                     <button type="button" onClick={() => run(() => deleteProjectNewsPost(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending}
                       className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('news.delete')}</button>
-                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-dark)', opacity: 0.7 }}>{t('news.cancel')}</button>
+                    <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('news.cancel')}</button>
                   </span>
                 ) : (
                   <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('news.delete')}
@@ -255,11 +255,11 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
               </div>
 
               {scheduleFor === p.id && (
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t" style={{ borderColor: 'color-mix(in srgb, var(--project-mid) 15%, transparent)' }}>
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>
                   <input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)} className={inputCls} style={inputStyle} />
                   <button type="button" onClick={() => run(() => setNewsPublish(slug, locale, p.id, 'schedule', scheduleAt), () => setScheduleFor(null))}
                     disabled={pending || !scheduleAt}
-                    className="px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+                    className="px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
                     {t('news.schedule')}
                   </button>
                 </div>

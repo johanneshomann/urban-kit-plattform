@@ -26,19 +26,19 @@ export async function RecentActivityCard({ items, locale, moreHref }: {
       className="w-full rounded-xl p-4"
       style={{ background: 'var(--project-white)', border: '1.5px solid var(--project-light)', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
     >
-      <h3 className="text-small font-semibold mb-3" style={{ color: 'var(--project-dark)' }}>{t('activityTitle')}</h3>
+      <h3 className="text-small font-semibold mb-3" style={{ color: 'var(--project-accent)' }}>{t('activityTitle')}</h3>
 
       {items.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('activityEmpty')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('activityEmpty')}</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {items.map((item, i) => {
             const Icon = ICONS[item.type]
             return (
               <li key={i} className="flex items-center gap-2.5">
-                <Icon className="w-4 h-4 shrink-0" style={{ color: 'var(--project-mid)' }} />
-                <span className="min-w-0 flex-1 text-small font-medium line-clamp-1" style={{ color: 'var(--project-dark)' }}>{item.title}</span>
-                <span className="text-small shrink-0" style={{ color: 'var(--project-mid)' }}>{relativeDay(item.date, locale)}</span>
+                <Icon className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
+                <span className="min-w-0 flex-1 text-small font-medium line-clamp-1" style={{ color: 'var(--project-accent)' }}>{item.title}</span>
+                <span className="text-small shrink-0" style={{ color: 'var(--project-ink)' }}>{relativeDay(item.date, locale)}</span>
               </li>
             )
           })}

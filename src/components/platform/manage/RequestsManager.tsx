@@ -30,8 +30,8 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('requests.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('requests.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('requests.subtitle')}
       </p>
 
@@ -42,10 +42,10 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
       {requests.length === 0 ? (
         <div
           className="flex flex-col items-center gap-3 rounded-xl border py-12"
-          style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}
+          style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
         >
-          <Inbox className="w-8 h-8" style={{ color: 'var(--project-mid)', opacity: 0.6 }} />
-          <p className="text-text" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('requests.empty')}</p>
+          <Inbox className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
+          <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('requests.empty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -53,12 +53,12 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
             <div
               key={r.membershipId}
               className="flex items-center gap-3 rounded-xl border px-4 py-3"
-              style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}
+              style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
             >
-              <UserCircle className="w-8 h-8 shrink-0" style={{ color: 'var(--project-mid)' }} />
+              <UserCircle className="w-8 h-8 shrink-0" style={{ color: 'var(--project-ink)' }} />
               <div className="flex-1 min-w-0">
-                <p className="text-text font-medium truncate" style={{ color: 'var(--project-dark)' }}>{r.name}</p>
-                <p className="text-small truncate" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+                <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{r.name}</p>
+                <p className="text-small truncate" style={{ color: 'var(--project-ink)' }}>
                   {r.email}
                   {r.requestedAt && ` · ${new Date(r.requestedAt).toLocaleDateString('de-DE')}`}
                 </p>
@@ -68,7 +68,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
                 onClick={() => respond(r.membershipId, 'approve')}
                 disabled={pending}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold transition-opacity disabled:opacity-40"
-                style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+                style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
               >
                 <Check className="w-4 h-4" /> {t('requests.approve')}
               </button>

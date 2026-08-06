@@ -23,17 +23,17 @@ export default async function ManageOverviewPage({
 
   return (
     <div className="max-w-3xl">
-      <p className="text-small font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>
+      <p className="text-small font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--project-ink)' }}>
         {t('overview.eyebrow')}
       </p>
-      <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-dark)' }}>
+      <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>
         {ctx.project.title}
       </h1>
-      <p className="text-text mb-8" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
+      <p className="text-text mb-8" style={{ color: 'var(--project-ink)' }}>
         {t('overview.subtitle')}
       </p>
 
-      <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-dark)', opacity: 0.45 }}>
+      <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>
         {t('overview.contentHeading')}
       </h2>
       <div className="grid sm:grid-cols-2 gap-3">
@@ -42,10 +42,10 @@ export default async function ManageOverviewPage({
             key={m}
             href={`${manageBase}/inhalte/${m}`}
             className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
-            style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}
+            style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}
           >
             <span className="font-medium">{tModules(m)}</span>
-            <span className="flex items-center gap-2 text-small" style={{ opacity: 0.6 }}>
+            <span className="flex items-center gap-2 text-small" style={{ color: 'var(--project-ink)' }}>
               {t('overview.manageAction')}
               <ChevronRight className="w-4 h-4" />
             </span>

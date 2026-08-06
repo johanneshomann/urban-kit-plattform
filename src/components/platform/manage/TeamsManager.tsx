@@ -42,10 +42,10 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>
         Teams
       </h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         Team-Katalog verwalten — diese Namen können Mitgliedern und Inhalten zugewiesen werden.
       </p>
 
@@ -59,8 +59,8 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           placeholder="Team-Name …"
           className="w-64 px-3 py-2 rounded-lg border text-text outline-none"
           style={{
-            borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)',
-            color: 'var(--project-dark)',
+            borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)',
+            color: 'var(--project-accent)',
             background: 'var(--project-white)',
           }}
         />
@@ -69,7 +69,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           onClick={add}
           disabled={!newName.trim()}
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40"
-          style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+          style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           <Plus className="w-4 h-4" />
           Hinzufügen
@@ -78,7 +78,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
 
       {/* Team list */}
       {teams.length === 0 ? (
-        <p className="text-text py-8 text-center rounded-xl border" style={{ color: 'var(--project-dark)', opacity: 0.4, borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
+        <p className="text-text py-8 text-center rounded-xl border" style={{ color: 'var(--project-ink)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           Noch keine Teams definiert.
         </p>
       ) : (
@@ -87,14 +87,14 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
             <span
               key={team}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full text-small font-medium"
-              style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+              style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
             >
               <Users className="w-3.5 h-3.5" />
               {team}
               <button
                 type="button"
                 onClick={() => remove(team)}
-                className="ml-1 p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-dark)] transition-colors"
+                className="ml-1 p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
                 title="Entfernen"
               >
                 <X className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           onClick={save}
           disabled={pending}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-          style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+          style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           {saved ? <Check className="w-4 h-4" /> : null}
           {pending ? 'Speichern …' : saved ? 'Gespeichert' : 'Speichern'}

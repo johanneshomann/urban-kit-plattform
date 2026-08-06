@@ -19,8 +19,8 @@ const COLUMNS = [
 ] as const
 
 const PRIORITY = { low: { label: 'Niedrig', bg: '#f3f4f6', fg: '#4b5563' }, medium: { label: 'Mittel', bg: '#fef9c3', fg: '#854d0e' }, high: { label: 'Hoch', bg: '#fee2e2', fg: '#b91c1c' } } as Record<string, { label: string; bg: string; fg: string }>
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }
-const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)', color: 'var(--project-dark)', background: 'var(--project-white)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
+const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
 const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], canMove: true })
 
@@ -31,15 +31,15 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
     <div ref={setNodeRef} style={{ ...cardStyle, transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined, opacity: isDragging ? 0.5 : 1 }}
       className="rounded-xl border p-3">
       <div className="flex items-start gap-2">
-        {task.canMove && <button type="button" {...listeners} {...attributes} className="mt-0.5 cursor-grab touch-none shrink-0" style={{ color: 'var(--project-mid)' }}><GripVertical className="w-4 h-4" /></button>}
+        {task.canMove && <button type="button" {...listeners} {...attributes} className="mt-0.5 cursor-grab touch-none shrink-0" style={{ color: 'var(--project-ink)' }}><GripVertical className="w-4 h-4" /></button>}
         <div className="flex-1 min-w-0">
-          <p className="text-text font-medium leading-snug" style={{ color: 'var(--project-dark)' }}>{task.title}</p>
+          <p className="text-text font-medium leading-snug" style={{ color: 'var(--project-accent)' }}>{task.title}</p>
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
             <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
-            {task.labels.map((l) => <span key={l} className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-dark)' }}>{l}</span>)}
+            {task.labels.map((l) => <span key={l} className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
           </div>
           {(task.assignees.length > 0 || task.deadline) && (
-            <p className="text-small flex flex-wrap items-center gap-x-2 mt-1.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+            <p className="text-small flex flex-wrap items-center gap-x-2 mt-1.5" style={{ color: 'var(--project-ink)' }}>
               {task.assignees.length > 0 && <span>{task.assignees.map((a) => a.name).join(', ')}</span>}
               {task.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(task.deadline).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span>}
             </p>
@@ -47,7 +47,7 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
         </div>
         {isPM && (
           <div className="flex flex-col gap-1 shrink-0">
-            <button type="button" onClick={onEdit} disabled={pending} title="Bearbeiten" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-dark)' }}><Pencil className="w-3.5 h-3.5" /></button>
+            <button type="button" onClick={onEdit} disabled={pending} title="Bearbeiten" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-3.5 h-3.5" /></button>
             <button type="button" onClick={onDelete} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-3.5 h-3.5" /></button>
           </div>
         )}
@@ -59,8 +59,8 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
 function Column({ id, label, count, children }: { id: string; label: string; count: number; children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
-    <div ref={setNodeRef} className="flex flex-col gap-2 rounded-xl p-2 min-h-32 transition-colors" style={{ background: isOver ? 'color-mix(in srgb, var(--project-mid) 12%, transparent)' : 'var(--project-light)' }}>
-      <p className="text-small font-bold uppercase tracking-widest px-2 pt-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{label} · {count}</p>
+    <div ref={setNodeRef} className="flex flex-col gap-2 rounded-xl p-2 min-h-32 transition-colors" style={{ background: isOver ? 'color-mix(in srgb, var(--project-general) 12%, transparent)' : 'var(--project-light)' }}>
+      <p className="text-small font-bold uppercase tracking-widest px-2 pt-1" style={{ color: 'var(--project-ink)' }}>{label} · {count}</p>
       {children}
     </div>
   )
@@ -111,22 +111,22 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-dark)' }}>Aufgaben</h1>
+        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-accent)' }}>Aufgaben</h1>
         {isPM && !editing && (
-          <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+          <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> Neue Aufgabe
           </button>
         )}
       </div>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>Internes Aufgabenboard des Projektteams. Zugewiesene ziehen ihre Aufgaben zwischen den Spalten.</p>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Internes Aufgabenboard des Projektteams. Zugewiesene ziehen ihre Aufgaben zwischen den Spalten.</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 
       {editing && (
         <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>
           <div className="flex items-center justify-between">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{editing.id ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'}</h2>
-            <button type="button" onClick={() => setEditing(null)} className="p-1 rounded" style={{ color: 'var(--project-dark)', opacity: 0.6 }}><X className="w-4 h-4" /></button>
+            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>{editing.id ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'}</h2>
+            <button type="button" onClick={() => setEditing(null)} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
           </div>
           <input type="text" value={editing.title} onChange={(e) => setF('title', e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           <textarea value={editing.description} onChange={(e) => setF('description', e.target.value)} rows={3} placeholder="Beschreibung (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
@@ -141,17 +141,17 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
           </div>
           <input type="text" value={editing.labels.join(', ')} onChange={(e) => setF('labels', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder="Labels (kommagetrennt)" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           <div>
-            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-dark)' }}>Zuständig</p>
+            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Zuständig</p>
             <div className="flex flex-wrap gap-2">
               {members.map((m) => {
                 const on = editing.assignees.some((a) => a.id === m.id)
-                return <button key={m.id} type="button" onClick={() => toggleAssignee(m)} className="text-small px-3 py-1.5 rounded-full border" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-white)' : 'var(--project-dark)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)' }}>{m.name}</button>
+                return <button key={m.id} type="button" onClick={() => toggleAssignee(m)} className="text-small px-3 py-1.5 rounded-full border" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>{m.name}</button>
               })}
-              {members.length === 0 && <span className="text-small" style={{ color: 'var(--project-dark)', opacity: 0.4 }}>Keine Mitglieder.</span>}
+              {members.length === 0 && <span className="text-small" style={{ color: 'var(--project-ink)' }}>Keine Mitglieder.</span>}
             </div>
           </div>
           <div>
-            <button type="button" onClick={save} disabled={pending || !editing.title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}>
+            <button type="button" onClick={save} disabled={pending || !editing.title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
               {editing.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editing.id ? 'Speichern' : 'Erstellen'}
             </button>
           </div>
@@ -164,7 +164,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
             const colTasks = local.filter((t) => t.status === col.id)
             return (
               <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
-                {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-dark)', opacity: 0.35 }}>—</p>
+                {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>
                   : colTasks.map((t) => <Card key={t.id} task={t} isPM={isPM} pending={pending} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
               </Column>
             )

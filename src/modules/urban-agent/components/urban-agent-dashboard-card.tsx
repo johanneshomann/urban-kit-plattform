@@ -13,7 +13,7 @@ export function UrbanAgentDashboardCard({ projectSlug, locale }: {
 
   return (
     <ModuleCardShell icon={Bot} title="Urban Agent" href={base} ctaLabel={t('ctaUrbanAgent')}>
-      <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('urbanAgentTeaser')}</p>
+      <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('urbanAgentTeaser')}</p>
     </ModuleCardShell>
   )
 }

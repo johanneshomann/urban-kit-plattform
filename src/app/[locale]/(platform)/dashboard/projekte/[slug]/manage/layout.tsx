@@ -19,7 +19,7 @@ export default async function ManageLayout({
   if (!ctx) notFound()
 
   return (
-    <div className="flex-1 p-6 md:p-10 min-w-0" style={{ background: 'var(--project-white)' }}>
+    <div className="card-in flex-1 p-6 md:p-10 min-w-0" style={{ background: 'var(--project-white)' }}>
       {children}
     </div>
   )

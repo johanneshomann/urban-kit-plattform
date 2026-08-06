@@ -298,11 +298,15 @@ html.a11y-high-contrast {
   --color-muted:            #fff !important;
 
   /* Project chameleon palette — ProjectThemeScope writes these as inline
-     styles on <html>; author !important beats normal inline declarations. */
+     styles on <html>; author !important beats normal inline declarations.
+     Surfaces (light, general, dark, white) go white; text (ink, accent,
+     black) goes black. `dark` is a chip surface now, not a text colour —
+     it flips sides compared to the pre-Bereich palette. */
   --project-light:          #fff !important;
-  --project-mid:            #fff !important;
+  --project-general:        #fff !important;
+  --project-dark:           #fff !important;
   --project-white:          #fff !important;
-  --project-dark:           #000 !important;
+  --project-ink:            #000 !important;
   --project-accent:         #000 !important;
   --project-black:          #000 !important;
 }
@@ -341,12 +345,13 @@ html.a11y-high-contrast [data-a11y-panel] {
   normal inline declarations, so target those wrappers via attribute.
 */
 html.a11y-high-contrast [data-project-theme] {
-  --project-light:  #fff !important;
-  --project-mid:    #fff !important;
-  --project-white:  #fff !important;
-  --project-dark:   #000 !important;
-  --project-accent: #000 !important;
-  --project-black:  #000 !important;
+  --project-light:   #fff !important;
+  --project-general: #fff !important;
+  --project-dark:    #fff !important;
+  --project-white:   #fff !important;
+  --project-ink:     #000 !important;
+  --project-accent:  #000 !important;
+  --project-black:   #000 !important;
 }
 
 

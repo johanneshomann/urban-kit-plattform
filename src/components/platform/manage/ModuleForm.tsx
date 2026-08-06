@@ -62,8 +62,8 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('moduleForm.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('moduleForm.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('moduleForm.subtitle')}
       </p>
 
@@ -81,17 +81,17 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
               className="flex items-start gap-3 rounded-xl border p-4 text-left transition-all disabled:cursor-default"
               style={{
                 background: active ? 'var(--project-light)' : 'var(--project-white)',
-                borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 20%, transparent)',
+                borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 20%, transparent)',
                 opacity: core ? 0.75 : 1,
               }}
             >
-              <Icon className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--project-dark)' }} />
+              <Icon className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--project-accent)' }} />
               <span className="flex-1 min-w-0">
-                <span className="flex items-center gap-2 font-semibold text-text" style={{ color: 'var(--project-dark)' }}>
+                <span className="flex items-center gap-2 font-semibold text-text" style={{ color: 'var(--project-accent)' }}>
                   {tModules(m)}
                   {core && <Lock className="w-3.5 h-3.5" style={{ opacity: 0.5 }} />}
                 </span>
-                <span className="block text-small mt-0.5" style={{ color: 'var(--project-dark)', opacity: 0.55 }}>
+                <span className="block text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
                   {MODULE_HINT_KEYS[m] ? t(`moduleForm.${MODULE_HINT_KEYS[m]}`) : ''}
                 </span>
               </span>
@@ -99,7 +99,7 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
                 className="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5"
                 style={{
                   background: active ? 'var(--project-dark)' : 'transparent',
-                  borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 40%, transparent)',
+                  borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 40%, transparent)',
                 }}
               >
                 {active && <Check className="w-3.5 h-3.5" style={{ color: 'var(--project-white)' }} />}
@@ -115,7 +115,7 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
           onClick={save}
           disabled={pending || !dirty}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-          style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+          style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           {!dirty && !pending ? <Check className="w-4 h-4" /> : null}
           {pending ? t('moduleForm.saving') : dirty ? t('moduleForm.save') : t('moduleForm.saved')}

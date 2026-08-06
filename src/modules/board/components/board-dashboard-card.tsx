@@ -21,9 +21,9 @@ export function BoardDashboardCard({ count, projectSlug, locale }: {
       ctaLabel={t('ctaBoard')}
     >
       <div className="flex flex-col gap-2">
-        <p className="text-small" style={{ color: 'var(--project-mid)' }}>{t('boardTeaser')}</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('boardTeaser')}</p>
         {count === 0 && (
-          <p className="text-small font-medium" style={{ color: 'var(--project-dark)' }}>{t('boardInactive')}</p>
+          <p className="text-small font-medium" style={{ color: 'var(--project-accent)' }}>{t('boardInactive')}</p>
         )}
       </div>
     </ModuleCardShell>

@@ -36,8 +36,8 @@ export default async function ManageDarstellungPage({
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('darstellung.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('darstellung.subtitle')}</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('darstellung.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('darstellung.subtitle')}</p>
 
       <DarstellungForm slug={slug} locale={locale} initialScheme={ctx.project.colorScheme ?? projectDefaults.colorScheme} />
       <DarstellungImages slug={slug} locale={locale} coverUrl={coverUrl} gallery={gallery} />

@@ -61,17 +61,21 @@ export default async function ProjectLayout({
       {/* Lift the scheme onto <html> so the platform header can adopt it */}
       <ProjectThemeScope scheme={scheme} />
       <div className="flex min-h-svh">
-        <ProjectSidebar
-          locale={locale}
-          slug={slug}
-          projectTitle={ctx.project.title}
-          coverSrc={ctx.project.coverImage?.url ?? projectDefaults.coverImage}
-          participate={participate}
-          collaborate={collaborate}
-          manageModules={manageModules}
-          canManage={ctx.canManage}
-          requestCount={requestCount}
-        />
+        {/* Sidebar fades in independently (card-in) while the content area
+            slides in from the right via DashboardTransition. */}
+        <div className="card-in">
+          <ProjectSidebar
+            locale={locale}
+            slug={slug}
+            projectTitle={ctx.project.title}
+            coverSrc={ctx.project.coverImage?.url ?? projectDefaults.coverImage}
+            participate={participate}
+            collaborate={collaborate}
+            manageModules={manageModules}
+            canManage={ctx.canManage}
+            requestCount={requestCount}
+          />
+        </div>
         {/* pb-16 keeps the fixed mobile tab bar from covering content */}
         <div className="flex-1 min-w-0 flex flex-col pb-16 lg:pb-0">{children}</div>
       </div>

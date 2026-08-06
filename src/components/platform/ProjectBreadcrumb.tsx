@@ -18,13 +18,13 @@ export function ProjectBreadcrumb({ items }: { items: Crumb[] }) {
         return (
           <span key={i} className="flex items-center gap-1.5 min-w-0">
             {item.href && !last ? (
-              <Link href={item.href} className="transition-opacity opacity-60 hover:opacity-100 font-medium" style={{ color: 'var(--project-dark)' }}>
+              <Link href={item.href} className="transition-colors font-medium hover:text-[var(--project-accent)]" style={{ color: 'var(--project-ink)' }}>
                 {item.label}
               </Link>
             ) : (
-              <span className="font-semibold truncate max-w-[16rem]" style={{ color: 'var(--project-dark)' }}>{item.label}</span>
+              <span className="font-semibold truncate max-w-[16rem]" style={{ color: 'var(--project-accent)' }}>{item.label}</span>
             )}
-            {!last && <ChevronRight className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--project-mid)', opacity: 0.7 }} />}
+            {!last && <ChevronRight className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--project-ink)' }} />}
           </span>
         )
       })}

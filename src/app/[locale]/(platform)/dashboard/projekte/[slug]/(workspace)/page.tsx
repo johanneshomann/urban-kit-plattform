@@ -15,9 +15,9 @@ import { getWorkspaceContext } from '@/lib/workspace-context'
 const P = {
   white: 'var(--project-white)',
   light: 'var(--project-light)',
-  mid:   'var(--project-mid)',
-  dark:  'var(--project-dark)',
+  general: 'var(--project-general)',
   accent: 'var(--project-accent)',
+  ink: 'var(--project-ink)',
 } as const
 
 // ─── page ─────────────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ export default async function ProjectDashboardPage({
               {phaseLabel}
             </span>
           )}
-          <h1 className="text-title font-bold leading-tight" style={{ color: P.dark }}>{project.title}</h1>
+          <h1 className="text-title font-bold leading-tight" style={{ color: P.accent }}>{project.title}</h1>
         </div>
         {ctx.canRequestJoin && (
           <JoinProjectButton
@@ -94,7 +94,7 @@ export default async function ProjectDashboardPage({
             <span
               key={th}
               className="text-small px-2.5 py-0.5 rounded-full"
-              style={{ background: P.white, border: `1px solid color-mix(in srgb, ${P.mid} 20%, transparent)`, color: P.dark, opacity: 0.8 }}
+              style={{ background: P.white, border: `1px solid color-mix(in srgb, ${P.general} 20%, transparent)`, color: P.ink }}
             >
               {tax(`thema.${th}`)}
             </span>

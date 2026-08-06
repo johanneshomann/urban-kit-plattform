@@ -274,7 +274,7 @@ export default async function PublicProjectPage({
   // they get neutral plattform colours — the scheme only appears as Steckbrief swatches.
   const moduleThemeVars = {
     '--project-light': 'var(--plattform-light)',
-    '--project-mid': 'var(--plattform)',
+    '--project-general': 'var(--plattform)',
     '--project-dark': 'var(--plattform-accent)',
   } as React.CSSProperties
 
@@ -382,7 +382,7 @@ export default async function PublicProjectPage({
                 {phase && (
                   <div className="py-3 border-b">
                     <div className="flex items-baseline justify-between gap-4 mb-2.5">
-                      <span className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                      <span className="text-small" style={{ color: 'var(--plattform-ink)' }}>
                         {t('rowPhase')}
                       </span>
                       <span className="text-small font-semibold text-right" style={{ color: 'var(--plattform-ink)' }}>
@@ -401,7 +401,7 @@ export default async function PublicProjectPage({
                 <dl>
                   {steckbrief.map((row) => (
                     <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b">
-                      <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                      <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)' }}>
                         {row.label}
                       </dt>
                       <dd className="text-small font-semibold text-right" style={{ color: 'var(--plattform-ink)' }}>
@@ -411,7 +411,7 @@ export default async function PublicProjectPage({
                   ))}
                   {steckbriefChips.map((row) => (
                     <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b">
-                      <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                      <dt className="text-small shrink-0" style={{ color: 'var(--plattform-ink)' }}>
                         {row.label}
                       </dt>
                       <dd className="flex flex-wrap justify-end gap-1.5">
@@ -431,11 +431,11 @@ export default async function PublicProjectPage({
 
                 {/* The project's colour scheme, shown as swatches instead of theming the page */}
                 <div className="flex items-center justify-between gap-4 pt-3">
-                  <span className="text-small shrink-0" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>
+                  <span className="text-small shrink-0" style={{ color: 'var(--plattform-ink)' }}>
                     {t('rowFarbschema')}
                   </span>
                   <span className="flex gap-1.5" aria-hidden>
-                    {[scheme.light, scheme.mid, scheme.dark].map((c) => (
+                    {[scheme.light, scheme.general, scheme.dark].map((c) => (
                       <span key={c} className="w-4 h-4 rounded-full border" style={{ background: c }} />
                     ))}
                   </span>
@@ -662,7 +662,7 @@ export default async function PublicProjectPage({
                 <div className="flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
                   <UserRound className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
                   <div className="min-w-0">
-                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelContact')}</p>
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('labelContact')}</p>
                     <p className="text-text font-bold break-words" style={{ color: 'var(--plattform-ink-accent)' }}>{ansprechperson}</p>
                   </div>
                 </div>
@@ -671,7 +671,7 @@ export default async function PublicProjectPage({
                 <a href={`mailto:${kontakt.email}`} className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
                   <Mail className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
                   <div className="min-w-0">
-                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelEmail')}</p>
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('labelEmail')}</p>
                     <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.email}</p>
                   </div>
                 </a>
@@ -680,7 +680,7 @@ export default async function PublicProjectPage({
                 <a href={`tel:${kontakt.telefon}`} className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
                   <Phone className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
                   <div className="min-w-0">
-                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelPhone')}</p>
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('labelPhone')}</p>
                     <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.telefon}</p>
                   </div>
                 </a>
@@ -689,7 +689,7 @@ export default async function PublicProjectPage({
                 <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 py-3 border-b last:border-0 first:pt-0 last:pb-0">
                   <Globe className="w-5 h-5 shrink-0" style={{ color: 'var(--plattform)' }} />
                   <div className="min-w-0">
-                    <p className="text-small" style={{ color: 'var(--plattform-ink)', opacity: 0.5 }}>{t('labelWebsite')}</p>
+                    <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{t('labelWebsite')}</p>
                     <p className="text-text font-bold break-words group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>{kontakt.website}</p>
                   </div>
                 </a>

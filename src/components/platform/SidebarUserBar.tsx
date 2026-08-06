@@ -6,7 +6,7 @@ import { usePathname, useRouter } from '@/i18n/navigation'
 import { User, ArrowLeft, LogOut, Languages, Globe } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 
-const item = 'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--project-mid)_20%,transparent)]'
+const item = 'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--project-general)_20%,transparent)]'
 
 /**
  * Icon row at the foot of the project navigation. Replaces the platform
@@ -23,7 +23,7 @@ export function SidebarUserBar({ className = '', style }: { className?: string; 
   const nextLocale = locale === 'de' ? 'en' : 'de'
 
   return (
-    <div className={`flex items-center gap-1 ${className}`} style={{ color: 'var(--project-dark)', ...style }}>
+    <div className={`flex items-center gap-1 ${className}`} style={{ color: 'var(--project-accent)', ...style }}>
       <Link href={`/${locale}/dashboard`} className={item} title={t('navDashboard')}>
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         <span className="sr-only">{t('navDashboard')}</span>
@@ -47,7 +47,7 @@ export function SidebarUserBar({ className = '', style }: { className?: string; 
       <span
         aria-hidden="true"
         className="mx-1 h-5 w-px shrink-0"
-        style={{ background: 'color-mix(in srgb, var(--project-mid) 40%, transparent)' }}
+        style={{ background: 'color-mix(in srgb, var(--project-general) 40%, transparent)' }}
       />
 
       <Link href={`/${locale}`} className={item} title={t('navBack')}>

@@ -813,6 +813,7 @@
     "sectionMemberProjects": "My projects",
     "sectionOtherProjects": "Other projects",
     "openProject": "Open",
+    "openWorkspace": "Open project workspace",
     "rolePM": "Project manager",
     "roleCitizen": "Citizen",
     "pulsePolls": "{count, plural, one {# open poll} other {# open polls}}",
@@ -824,7 +825,20 @@
     "moreProjectsQuestion": "Want to take part in more projects?",
     "discoverAll": "Discover all projects",
     "noActivity": "No new activity",
-    "manageProject": "Manage project"
+    "manageProject": "Manage project",
+    "activityHeading": "News from the projects",
+    "activityPoll": "Poll: {title}",
+    "activityEvent": "Event: {title}",
+    "activityNews": "New post: {title}",
+    "activityForum": "New forum thread: {title}",
+    "activityForumComment": "New forum comment: {title}",
+    "activityTask": "New task: {title}",
+    "activityTaskDone": "Task completed: {title}",
+    "activityChat": "New chat message: {title}",
+    "activityFile": "New file: {title}",
+    "activityBoard": "Board updated: {title}",
+    "activityNewsComment": "New comment: {title}",
+    "activityInProject": "in {project}"
   },
   "profile": {
     "title": "My profile",
@@ -1055,7 +1069,15 @@
       "saveGallery": "Save gallery",
       "save": "Save",
       "saving": "Saving …",
-      "saved": "Saved"
+      "saved": "Saved",
+      "paletteTitle": "Colour roles of the selected scheme",
+      "tokenLight": "Light – page background",
+      "tokenGeneral": "General – brand surface",
+      "tokenDark": "Dark – chips and badges",
+      "tokenAccent": "Accent – text, links, buttons",
+      "tokenInk": "Ink – body copy",
+      "tokenBlack": "Black – headings",
+      "tokenWhite": "White – cards and text on accent"
     },
     "einstellungen": {
       "title": "Settings",

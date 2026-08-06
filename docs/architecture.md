@@ -145,6 +145,38 @@ pulls all registered plugins in. Projects enable a subset via `projects.modules`
 project, a theme scope sets `--project-*` vars so the project navigation and
 workspace "chameleon" into the project's color scheme with a CSS transition.
 
+Project palettes use the **same role structure as the Bereiche**, so a project
+palette and a Bereich palette are interchangeable. Seven tokens, defined in
+`src/lib/defaults/colorSchemes.ts` and mapped to CSS vars by the single
+`schemeToCssVars` in `src/lib/colorScheme.ts`:
+
+| Token | Role | Bereich equivalent |
+|---|---|---|
+| `--project-light` | page / section background | `light` |
+| `--project-general` | pastel brand surface | `main` |
+| `--project-dark` | chip / badge surface, carries `black` | `dark` |
+| `--project-accent` | darkest tone: text, links, solid buttons | — |
+| `--project-ink` | muted body copy | `--plattform-ink` |
+| `--project-black` | headings, text on `general` / `dark` | `on-brand` |
+| `--project-white` | near-white surface, text on `accent` | — |
+
+Which pairings are allowed follows from measured contrast, not taste: text uses
+`accent` / `ink` / `black` on `white` / `light` / `general`; a chip is `black`
+on `dark`; a button is `white` on `accent`. **`white` on `dark` is not a valid
+pair** — it tops out at 2.9:1, and that combination was the AA failure this
+structure replaced. The gate and the derivation live in
+`.claude/plan/project-color-tokens.md`.
+
+Two consequences worth remembering:
+
+- **Never dim project text with `opacity`.** A token that passes at full
+  strength fails at 0.6. Use `--project-ink` for muted copy instead.
+- **Anything rendering a palette must go through the vars**, not raw hex from
+  `resolveColorScheme`. The high-contrast preset overrides `--project-*`, so
+  inline hex silently escapes it. Components that show several projects at once
+  (`ProjectPillList`) paint `schemeToCssVars` onto a `data-project-theme`
+  wrapper per card, which the preset targets explicitly.
+
 The logged-in area has **no header bar**: `dashboard/layout.tsx` renders only
 `<main id="main-content">` plus the floating `PlatformDock` (chat + activity,
 two tabs). Project navigation — and the account controls (`SidebarUserBar`:

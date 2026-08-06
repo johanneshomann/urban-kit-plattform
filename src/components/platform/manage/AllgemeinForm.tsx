@@ -28,20 +28,20 @@ export interface AllgemeinInitial {
 }
 
 const inputStyle = {
-  borderColor: 'color-mix(in srgb, var(--project-mid) 30%, transparent)',
-  color: 'var(--project-dark)',
+  borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)',
+  color: 'var(--project-accent)',
   background: 'var(--project-white)',
 }
 const inputCls = 'w-full px-3 py-2 rounded-lg border text-text outline-none'
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <label className="block text-small font-semibold mb-1.5" style={{ color: 'var(--project-dark)' }}>{children}</label>
+  return <label className="block text-small font-semibold mb-1.5" style={{ color: 'var(--project-accent)' }}>{children}</label>
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border p-5" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-mid) 20%, transparent)' }}>
-      <h2 className="text-small font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{title}</h2>
+    <div className="rounded-xl border p-5" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
+      <h2 className="text-small font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--project-ink)' }}>{title}</h2>
       <div className="flex flex-col gap-4">{children}</div>
     </div>
   )
@@ -61,8 +61,8 @@ function ChipMultiSelect({ options, value, onChange }: { options: FieldOption[];
             className="text-small px-3 py-1.5 rounded-full border transition-colors"
             style={{
               background: active ? 'var(--project-dark)' : 'transparent',
-              color: active ? 'var(--project-white)' : 'var(--project-dark)',
-              borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-mid) 35%, transparent)',
+              color: active ? 'var(--project-black)' : 'var(--project-accent)',
+              borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
             }}
           >
             {o.label}
@@ -113,8 +113,8 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-dark)' }}>{t('allgemein.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-dark)', opacity: 0.65 }}>{t('allgemein.subtitle')}</p>
+      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('allgemein.title')}</h1>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('allgemein.subtitle')}</p>
 
       <div className="flex flex-col gap-4">
         <Section title={t('allgemein.sectionBasics')}>
@@ -157,7 +157,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
               onChange={(e) => set('projektbeschreibung', e.target.value)}
               placeholder={t('allgemein.placeholderProjektbeschreibung')}
             />
-            <p className="text-small mt-1" style={{ color: 'var(--project-dark)', opacity: 0.5 }}>{t('allgemein.markdownHint')}</p>
+            <p className="text-small mt-1" style={{ color: 'var(--project-ink)' }}>{t('allgemein.markdownHint')}</p>
           </div>
           <div>
             <Label>{t('allgemein.labelBeteiligungsvorhaben')}</Label>
@@ -200,7 +200,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
             onClick={save}
             disabled={pending}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-            style={{ background: 'var(--project-dark)', color: 'var(--project-white)' }}
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
             {saved ? <Check className="w-4 h-4" /> : null}
             {pending ? t('allgemein.saving') : saved ? t('allgemein.saved') : t('allgemein.save')}
