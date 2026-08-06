@@ -26,6 +26,7 @@ export interface CreatePollInput {
   description?: string
   closesAt?: string
   visibility?: string
+  visibilityTeams?: string[]
   allowAnonymous?: boolean
   showLiveResults?: boolean
   questions: PollQuestionInput[]
