@@ -57,7 +57,7 @@ export function AccessibilityButton() {
   }, [open])
 
   return (
-    <div ref={containerRef} className="fixed bottom-6 left-6 z-40">
+    <div ref={containerRef} data-a11y-fab className="fixed bottom-6 left-6 z-40">
       {open && (
         <div
           ref={panelRef}
