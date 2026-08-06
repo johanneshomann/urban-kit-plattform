@@ -135,16 +135,21 @@ pulls all registered plugins in. Projects enable a subset via `projects.modules`
   Yjs state through `/api/internal/board-doc`. Room name format:
   `board:<projectSlug>:<canvasId>`.
 - **Chat**: no WebSocket — same-origin polling against `/api/chat/*`
-  (message poll + typing + read receipts), rendered as a popup from the
-  platform header.
+  (message poll + typing + read receipts), rendered in the floating
+  `PlatformDock`.
 
 ## Theming
 
 `PlatformSettings` colors become CSS custom properties (`--plattform-*`,
 `--projekte-*`, …) injected at the root via `src/lib/theme.ts`. Inside a
-project, a theme scope sets `--project-*` vars so the header and workspace
-"chameleon" into the project's color scheme with a CSS transition (see
-`PlatformHeader.tsx`).
+project, a theme scope sets `--project-*` vars so the project navigation and
+workspace "chameleon" into the project's color scheme with a CSS transition.
+
+The logged-in area has **no header bar**: `dashboard/layout.tsx` renders only
+`<main id="main-content">` plus the floating `PlatformDock` (chat + activity,
+two tabs). Project navigation — and the account controls (`SidebarUserBar`:
+profile, language, back to the public site, logout) — live in
+`ProjectSidebar` / `ProjectTabBar`.
 
 ## Accessibility (BITV 2.0 / WCAG 2.1 AA)
 

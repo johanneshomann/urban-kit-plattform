@@ -1,13 +1,12 @@
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
-import { getCitySettings } from '@/lib/instance'
-import { PlatformHeader } from '@/components/platform/PlatformHeader'
+import { PlatformDock } from '@/components/platform/PlatformDock'
 import { DashboardShell } from '@/components/platform/DashboardShell'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { isPMOfAnyProject } from '@/lib/chat/access'
-import type { NotificationItem } from '@/components/platform/NotificationBell'
+import type { NotificationItem } from '@/components/platform/NotificationList'
 
 type Project = { id: string; title: string; slug: string; colorScheme?: string | null }
 
@@ -19,14 +18,11 @@ export default async function DashboardLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const [user, { cityName }] = await Promise.all([getUser(), getCitySettings()])
+  const user = await getUser()
 
   if (!user) redirect(`/${locale}/login`)
 
-  const u = user as unknown as { firstName?: string; lastName?: string }
-  const userName = [u.firstName, u.lastName].filter(Boolean).join(' ') || null
-
-  // Fetch notification items for the bell + PM flag for the chat popup
+  // Fetch notification items + PM flag for the floating platform dock
   let notificationItems: NotificationItem[] = []
   let canCreateGroups = false
   try {
@@ -97,18 +93,16 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <PlatformHeader
-        locale={locale}
-        cityName={cityName}
-        userName={userName}
-        notificationItems={notificationItems}
-        canCreateGroups={canCreateGroups}
-      />
-      <main id="main-content" tabIndex={-1} className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
         <DashboardShell>
           {children}
         </DashboardShell>
       </main>
+      <PlatformDock
+        locale={locale}
+        notificationItems={notificationItems}
+        canCreateGroups={canCreateGroups}
+      />
     </div>
   )
 }
