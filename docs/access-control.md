@@ -45,7 +45,7 @@ Key helpers:
 - `getViewerTier(...)` — thin wrapper, returns scalar tier (kept for backcompat).
 - `canView(tier, visibility)`, `canViewContent(membership, doc)` — pure checks for UI/guard use.
 - `visibilityWhere(ctx)` — a Payload `where` clause filtering content the viewer may see (also tolerates legacy `INTERNAL` values).
-- `normalizeVisibility(v)` maps legacy `INTERNAL` → `PROJECT`.
+- Legacy `INTERNAL` values are normalized to `PROJECT` internally (module-private `normalizeVisibility`).
 
 `Citizen` vs `Follower` makes no visibility difference today — the effective
 distinction is member / team / PM.

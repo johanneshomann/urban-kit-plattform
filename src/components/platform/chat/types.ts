@@ -1,4 +1,4 @@
-export type RoomType = 'project' | 'group' | 'dm'
+type RoomType = 'project' | 'group' | 'dm'
 
 export interface UserRef {
   id: string

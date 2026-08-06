@@ -1,7 +1,7 @@
 import 'server-only'
 import type { Payload } from 'payload'
 
-export interface QuestionResult {
+interface QuestionResult {
   id: string
   text: string
   type: string

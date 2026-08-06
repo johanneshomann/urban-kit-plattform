@@ -13,4 +13,3 @@ const pollsPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(pollsManifest, pollsPlugin)
 
-export { pollsPlugin }

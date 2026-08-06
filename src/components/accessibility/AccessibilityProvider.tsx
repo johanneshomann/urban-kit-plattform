@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import {
   A11Y_DEFAULTS,
+  A11Y_STORAGE_KEY,
   FONT_SCALE_MAX,
   FONT_SCALE_MIN,
   FONT_SCALE_STEP,
@@ -38,7 +39,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   // Hydrate from localStorage after mount. On first visit (no stored value),
   // seed reduceMotion from the OS-level prefers-reduced-motion setting.
   useEffect(() => {
-    const stored = window.localStorage.getItem('uk-a11y')
+    const stored = window.localStorage.getItem(A11Y_STORAGE_KEY)
     if (stored) {
       setSettings(loadSettings())
     } else if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {

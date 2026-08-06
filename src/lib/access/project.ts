@@ -5,7 +5,7 @@ import type { AccessArgs } from 'payload'
 
 type ProjectAccessArgs = AccessArgs & { data?: { project?: string } }
 
-export async function isProjectMember(
+async function isProjectMember(
   payload: Awaited<ReturnType<typeof import('payload').getPayload>>,
   userId: string,
   projectId: string,

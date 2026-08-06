@@ -11,4 +11,3 @@ const calendarPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(calendarManifest, calendarPlugin)
 
-export { calendarPlugin }

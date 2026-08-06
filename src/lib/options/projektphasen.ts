@@ -10,7 +10,7 @@
 
 export type ProjektStatus = 'active' | 'planning' | 'completed' | 'archived'
 
-export type Lokalisiert = { en: string; de: string }
+type Lokalisiert = { en: string; de: string }
 
 export interface Projektphase {
   /** Stable value persisted on the project. */

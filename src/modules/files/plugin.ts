@@ -11,4 +11,3 @@ const filesPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(filesManifest, filesPlugin)
 
-export { filesPlugin }

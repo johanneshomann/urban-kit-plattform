@@ -24,7 +24,7 @@ function clampScale(value: number): number {
 }
 
 /** Merge unknown stored data onto the defaults, ignoring malformed values. */
-export function normalizeSettings(raw: unknown): AccessibilitySettings {
+function normalizeSettings(raw: unknown): AccessibilitySettings {
   const r = (raw ?? {}) as Partial<AccessibilitySettings>
   return {
     fontScale: typeof r.fontScale === 'number' ? clampScale(r.fontScale) : A11Y_DEFAULTS.fontScale,

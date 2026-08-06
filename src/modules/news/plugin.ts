@@ -13,4 +13,3 @@ const newsPlugin: Plugin = (incomingConfig) => {
 
 moduleRegistry.register(newsManifest, newsPlugin)
 
-export { newsPlugin }

@@ -3,7 +3,7 @@
 import { useId, useState } from 'react'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
 
-export interface AccordionItem {
+interface AccordionItem {
   icon: LucideIcon
   title: string
   body: string

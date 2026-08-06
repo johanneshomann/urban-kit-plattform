@@ -7,4 +7,3 @@ const urbanAgentPlugin: Plugin = (incomingConfig) => incomingConfig
 
 moduleRegistry.register(urbanAgentManifest, urbanAgentPlugin)
 
-export { urbanAgentPlugin }

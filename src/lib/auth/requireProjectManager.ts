@@ -5,7 +5,7 @@ import { getViewerContext } from '@/lib/visibility'
 import type { Payload } from 'payload'
 import type { User } from '@/payload-types'
 
-export interface ManagedProject {
+interface ManagedProject {
   id: string
   title: string
   slug: string

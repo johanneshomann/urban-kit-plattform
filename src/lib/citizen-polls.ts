@@ -6,7 +6,7 @@ import { computeResults, type PollResults } from '@/lib/poll-results'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 
-export interface VotingQuestion { id: string; text: string; type: string; options: { id: string; text: string }[] }
+interface VotingQuestion { id: string; text: string; type: string; options: { id: string; text: string }[] }
 export interface CitizenPoll {
   id: string
   title: string

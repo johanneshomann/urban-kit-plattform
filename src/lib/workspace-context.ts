@@ -6,7 +6,7 @@ import config from '@payload-config'
 import type { ViewerContext } from '@/lib/visibility'
 
 /** Project fields consumed by the workspace layout (hero) and page. */
-export type WorkspaceProject = {
+type WorkspaceProject = {
   id: string
   title: string
   slug: string

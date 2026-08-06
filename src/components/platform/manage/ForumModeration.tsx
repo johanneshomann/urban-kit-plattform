@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { Pin, Lock, Trash2, ChevronDown, ChevronUp, MessageSquare, ExternalLink, MessagesSquare, Plus, X } from 'lucide-react'
 import { createThread, toggleThreadPin, toggleThreadLock, deleteThread, deleteForumComment } from '@/actions/forum'
 
-export interface ModComment { id: string; authorName: string; createdAt: string; html: string | null }
+interface ModComment { id: string; authorName: string; createdAt: string; html: string | null }
 export interface ModThread {
   id: string; slug: string; title: string; authorName: string; createdAt: string
   pinned: boolean; locked: boolean; voteCount: number; comments: ModComment[]

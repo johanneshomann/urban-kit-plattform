@@ -1,5 +1,5 @@
 /** URL-safe slug from a German title (umlauts transliterated). */
-export function slugify(input: string): string {
+function slugify(input: string): string {
   return input
     .toLowerCase()
     .normalize('NFKD')

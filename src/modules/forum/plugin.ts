@@ -12,4 +12,3 @@ const forumPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(forumManifest, forumPlugin)
 
-export { forumPlugin }

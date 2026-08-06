@@ -10,4 +10,3 @@ const boardPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(boardManifest, boardPlugin)
 
-export { boardPlugin }

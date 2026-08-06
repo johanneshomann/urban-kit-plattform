@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type DotItem = {
+type DotItem = {
   id: string
   label: string
   icon?: string
@@ -17,7 +17,7 @@ export type DotItem = {
 }
 
 /** A route link rendered as a ring dot below the section dots (Bereich subpages etc.). */
-export type PageDot = {
+type PageDot = {
   href: string
   label: string
   icon?: string
@@ -25,7 +25,7 @@ export type PageDot = {
 }
 
 /** A Bereich link revealed by the switcher: its hero icon on a chip-colored ball. */
-export type SwitchPage = {
+type SwitchPage = {
   href: string
   label: string
   icon: string

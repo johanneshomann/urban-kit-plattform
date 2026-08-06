@@ -12,4 +12,3 @@ const chatPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(chatManifest, chatPlugin)
 
-export { chatPlugin }

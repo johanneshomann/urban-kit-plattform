@@ -12,4 +12,3 @@ const tasksPlugin: Plugin = (incomingConfig) => ({
 
 moduleRegistry.register(tasksManifest, tasksPlugin)
 
-export { tasksPlugin }
