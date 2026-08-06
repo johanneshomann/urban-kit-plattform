@@ -42,18 +42,27 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const payload = await getPayload({ config })
 
   let token: string | undefined
+  let isAdmin = false
   try {
     const result = await payload.login({
       collection: 'users',
       data: { email, password },
     })
     token = result.token
+    isAdmin = result.user?.role === 'admin'
   } catch {
     return { error: 'Ungültige Anmeldedaten' }
   }
 
   if (token) {
     await setTokenCookie(token)
+  }
+
+  // Admins belong in the CMS backend, not the citizen workspace. The admin UI
+  // has no locale prefix and is exempt from the domain split (middleware skips
+  // /admin), so the same relative redirect works on both hosts.
+  if (isAdmin) {
+    redirect('/admin')
   }
 
   const locale = await getLocale()
