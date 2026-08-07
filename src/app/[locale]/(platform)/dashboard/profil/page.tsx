@@ -8,7 +8,7 @@ import { resolveColorScheme } from '@/lib/colorScheme'
 import { ProfileForm } from './ProfileForm'
 import { MembershipList, type MembershipItem } from './MembershipList'
 import { IconTooltip } from '@/components/platform/IconTooltip'
-import { ArrowLeft, UserCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export default async function ProfilPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -106,7 +106,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
           <IconTooltip label={tp('navDashboard')}>
             <Link
               href={`/${locale}/dashboard`}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--app-white)] shadow-sm transition-all duration-200 hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
+              className="inline-flex items-center opacity-50 transition-opacity hover:opacity-100"
               style={{ color: 'var(--app-ink-accent)' }}
             >
               <ArrowLeft aria-hidden className="h-4 w-4" />
@@ -116,26 +116,6 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
           <h1 className="text-small font-semibold opacity-50">{t('title')}</h1>
         </div>
         <div aria-hidden className="h-px mt-2" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div
-          className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center shrink-0"
-          style={{ background: 'color-mix(in srgb, var(--app-accent) 12%, transparent)' }}
-        >
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" aria-hidden className="w-full h-full object-cover" />
-          ) : (
-            <UserCircle className="w-8 h-8" style={{ color: 'var(--app-accent)' }} />
-          )}
-        </div>
-        <div>
-          <h2 className="text-text font-bold" style={{ color: 'var(--app-ink-accent)' }}>
-            {firstName || lastName ? `${firstName} ${lastName}`.trim() : t('title')}
-          </h2>
-          <p className="text-small opacity-50">{user.email}</p>
-        </div>
       </div>
 
       {/* Wide layout: form left (2/3), memberships as a sticky aside right */}
