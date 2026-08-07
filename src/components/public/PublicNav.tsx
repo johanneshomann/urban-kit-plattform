@@ -331,6 +331,13 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
           {/* Desktop: language toggle */}
           <LanguageSwitcher className="hidden md:flex" />
 
+          {/* Divider between language switch and account controls */}
+          <span
+            aria-hidden="true"
+            className="hidden md:block h-5 w-px shrink-0"
+            style={{ background: 'color-mix(in srgb, var(--plattform-ink) 25%, transparent)' }}
+          />
+
           {/* Desktop: Anmelden / User */}
           {isLoggedIn ? (
             /* App chip: avatar + name, opening a small user menu in the same
