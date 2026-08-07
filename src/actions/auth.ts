@@ -158,15 +158,55 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
   if (!me.user) return { error: 'Nicht eingeloggt' }
 
+  // Profile picture: replace (upload new media doc) or remove. The previous
+  // avatar media doc is deleted on both paths — it is only ever referenced by
+  // this user.
+  const avatarFile = formData.get('avatar')
+  const removeAvatar = formData.get('removeAvatar') === '1'
+  const previousAvatarId =
+    typeof me.user.avatar === 'object' && me.user.avatar ? String(me.user.avatar.id) : me.user.avatar ? String(me.user.avatar) : null
+  let avatarUpdate: { avatar?: string | null } = {}
+  if (removeAvatar) {
+    avatarUpdate = { avatar: null }
+  } else if (avatarFile instanceof File && avatarFile.size > 0) {
+    if (!avatarFile.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
+    if (avatarFile.size > 5 * 1024 * 1024) return { error: 'Bild ist zu groß (max. 5 MB).' }
+    try {
+      const media = await payload.create({
+        collection: 'media',
+        data: {
+          alt: [firstName, lastName].filter(Boolean).join(' ') || me.user.email,
+          visibility: 'PUBLIC',
+          uploadedBy: me.user.id,
+        },
+        file: {
+          data: Buffer.from(await avatarFile.arrayBuffer()),
+          mimetype: avatarFile.type,
+          name: avatarFile.name,
+          size: avatarFile.size,
+        },
+        overrideAccess: true,
+      })
+      avatarUpdate = { avatar: String(media.id) }
+    } catch {
+      return { error: 'Bild konnte nicht hochgeladen werden.' }
+    }
+  }
+
   try {
     await payload.update({
       collection: 'users',
       id: me.user.id,
-      data: { firstName, lastName, affiliations, cityInfo, gender, birthYear, stadtbereich },
+      data: { firstName, lastName, affiliations, cityInfo, gender, birthYear, stadtbereich, ...avatarUpdate },
       overrideAccess: true,
     })
   } catch {
     return { error: 'Speichern fehlgeschlagen.' }
+  }
+
+  // Clean up the replaced/removed avatar file (best effort).
+  if (previousAvatarId && avatarUpdate.avatar !== undefined && avatarUpdate.avatar !== previousAvatarId) {
+    await payload.delete({ collection: 'media', id: previousAvatarId, overrideAccess: true }).catch(() => {})
   }
 
   if (newPassword) {

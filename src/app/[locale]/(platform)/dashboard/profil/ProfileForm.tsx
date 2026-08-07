@@ -1,9 +1,9 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { updateProfileAction } from '@/actions/auth'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, UserCircle } from 'lucide-react'
 
 const AFFILIATION_OPTIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
 const GENDER_OPTIONS = ['female', 'male', 'diverse', 'noAnswer'] as const
@@ -13,6 +13,7 @@ interface ProfileFormProps {
   firstName: string
   lastName: string
   email: string
+  avatarUrl: string | null
   gender: string
   birthYear: number | null
   stadtbereich: string
@@ -31,12 +32,30 @@ function SectionHeader({ label, hint }: { label: string; hint?: string }) {
   )
 }
 
-export function ProfileForm({ firstName, lastName, email, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
+export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
   const [state, action, pending] = useActionState(updateProfileAction, null)
   const t = useTranslations('profile')
   const tax = useTranslations('taxonomy')
   const [selected, setSelected] = useState<string[]>(affiliations)
   const isCityEmployee = selected.includes('cityEmployee')
+
+  // Avatar: local preview for a freshly picked file, removal flag for the action.
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarRemoved, setAvatarRemoved] = useState(false)
+  const shownAvatar = avatarRemoved ? null : (avatarPreview ?? avatarUrl)
+
+  const onAvatarPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarRemoved(false)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+  const onAvatarRemove = () => {
+    setAvatarRemoved(true)
+    setAvatarPreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const toggleAffiliation = (value: string, checked: boolean) => {
     setSelected(prev => (checked ? [...prev, value] : prev.filter(v => v !== value)))
@@ -64,6 +83,51 @@ export function ProfileForm({ firstName, lastName, email, gender, birthYear, sta
           {t('saved')}
         </p>
       )}
+
+      {/* Profile picture */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader label={t('avatar')} hint={t('avatarHint')} />
+        <div className="flex items-center gap-4">
+          <div
+            className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+            style={{ background: 'color-mix(in srgb, var(--app-accent) 12%, transparent)' }}
+          >
+            {shownAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={shownAvatar} alt="" aria-hidden className="w-full h-full object-cover" />
+            ) : (
+              <UserCircle className="w-10 h-10" style={{ color: 'var(--app-accent)' }} aria-hidden />
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              className="inline-flex items-center h-10 px-4 rounded-lg text-small font-medium cursor-pointer transition-all duration-200 bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm"
+              style={{ color: 'var(--app-ink)' }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="avatar"
+                accept="image/*"
+                onChange={onAvatarPick}
+                className="sr-only"
+              />
+              {t('avatarUpload')}
+            </label>
+            {shownAvatar && (
+              <button
+                type="button"
+                onClick={onAvatarRemove}
+                className="inline-flex items-center h-10 px-4 rounded-lg text-small cursor-pointer transition-opacity underline opacity-60 hover:opacity-100"
+                style={{ color: 'var(--app-ink)' }}
+              >
+                {t('avatarRemove')}
+              </button>
+            )}
+          </div>
+          <input type="hidden" name="removeAvatar" value={avatarRemoved ? '1' : ''} />
+        </div>
+      </section>
 
       {/* Name + email */}
       <section className="flex flex-col gap-4">

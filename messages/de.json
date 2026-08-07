@@ -910,7 +910,11 @@
     },
     "birthYear": "Geburtsjahr",
     "stadtbereich": "Stadtbereich",
-    "noSelection": "Bitte wählen …"
+    "noSelection": "Bitte wählen …",
+    "avatar": "Profilbild",
+    "avatarHint": "JPG oder PNG, maximal 5 MB.",
+    "avatarUpload": "Bild auswählen",
+    "avatarRemove": "Entfernen"
   },
   "modules": {
     "news": "News",

@@ -910,7 +910,11 @@
     },
     "birthYear": "Year of birth",
     "stadtbereich": "City area",
-    "noSelection": "Please select …"
+    "noSelection": "Please select …",
+    "avatar": "Profile picture",
+    "avatarHint": "JPG or PNG, up to 5 MB.",
+    "avatarUpload": "Choose image",
+    "avatarRemove": "Remove"
   },
   "modules": {
     "news": "News",
