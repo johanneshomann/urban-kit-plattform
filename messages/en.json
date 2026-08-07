@@ -790,7 +790,7 @@
     "logoutConfirmTitle": "Log out?",
     "logoutConfirmBody": "You can log back in at any time.",
     "logout": "Sign out",
-    "greeting": "Hello {name}",
+    "greeting": "Welcome {name}",
     "greetingFallback": "Good to see you",
     "notifActivities": "Activity",
     "dockTitle": "Messages and activity",
@@ -898,7 +898,19 @@
     "newPassword": "New password",
     "newPasswordHint": "Only fill this in to change your password.",
     "saving": "Saving …",
-    "save": "Save"
+    "save": "Save",
+    "demographics": "Additional details",
+    "demographicsHint": "Voluntary details – they help us evaluate how representative participation is.",
+    "gender": "Gender",
+    "genderOption": {
+      "female": "Female",
+      "male": "Male",
+      "diverse": "Diverse",
+      "noAnswer": "Prefer not to say"
+    },
+    "birthYear": "Year of birth",
+    "stadtbereich": "City area",
+    "noSelection": "Please select …"
   },
   "modules": {
     "news": "News",

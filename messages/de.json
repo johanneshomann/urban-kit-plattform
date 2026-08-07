@@ -790,7 +790,7 @@
     "logoutConfirmTitle": "Wirklich abmelden?",
     "logoutConfirmBody": "Sie können sich jederzeit wieder anmelden.",
     "logout": "Abmelden",
-    "greeting": "Hallo {name}",
+    "greeting": "Willkommen {name}",
     "greetingFallback": "Schön, dass Sie da sind",
     "notifActivities": "Aktivitäten",
     "dockTitle": "Nachrichten und Aktivitäten",
@@ -898,7 +898,19 @@
     "newPassword": "Neues Passwort",
     "newPasswordHint": "Nur ausfüllen, wenn das Passwort geändert werden soll.",
     "saving": "Wird gespeichert …",
-    "save": "Speichern"
+    "save": "Speichern",
+    "demographics": "Weitere Angaben",
+    "demographicsHint": "Freiwillige Angaben – sie helfen uns auszuwerten, wie repräsentativ die Beteiligung ist.",
+    "gender": "Geschlecht",
+    "genderOption": {
+      "female": "Weiblich",
+      "male": "Männlich",
+      "diverse": "Divers",
+      "noAnswer": "Keine Angabe"
+    },
+    "birthYear": "Geburtsjahr",
+    "stadtbereich": "Stadtbereich",
+    "noSelection": "Bitte wählen …"
   },
   "modules": {
     "news": "News",
