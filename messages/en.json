@@ -970,6 +970,8 @@
     "settingHideActivityFeedHint": "Hides the “News from your projects” list on the dashboard.",
     "settingHideAllProjects": "Hide “All projects”",
     "settingHideAllProjectsHint": "Hides the overview of all projects on the dashboard.",
+    "settingHidePeople": "Hide people search",
+    "settingHidePeopleHint": "Hides the “Discover people” section on the dashboard.",
     "settingProfileVisible": "Profile visible",
     "settingProfileVisibleHint": "Your bio and gallery are visible to members of your projects.",
     "resetOrderLabel": "Reset project order",

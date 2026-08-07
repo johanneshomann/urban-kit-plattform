@@ -60,6 +60,7 @@ export default async function DashboardPage({
   // just unrendered — their queries are skipped entirely.
   const hideActivityFeed = user.settings?.hideActivityFeed === true
   const hideAllProjects = user.settings?.hideAllProjects === true
+  const hidePeopleSearch = user.settings?.hidePeopleSearch === true
 
   const t = await getTranslations({ locale, namespace: 'dashboard' })
   const roleLabels: Record<string, string> = {
@@ -366,7 +367,7 @@ export default async function DashboardPage({
   }
 
   // People search — initial state shows the viewer's project peers.
-  const initialPeople = await findPeople(String(user.id)).catch(() => [])
+  const initialPeople = hidePeopleSearch ? [] : await findPeople(String(user.id)).catch(() => [])
 
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
   // but never below 200px so content always fits. The pill list paginates at
@@ -462,10 +463,12 @@ export default async function DashboardPage({
       )}
 
       {/* ── Personen entdecken (people search — peers by default) ──── */}
-      <PeopleSection
-        initialPeople={initialPeople}
-        projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
-      />
+      {!hidePeopleSearch && (
+        <PeopleSection
+          initialPeople={initialPeople}
+          projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
+        />
+      )}
 
     </div>
   )

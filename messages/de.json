@@ -970,6 +970,8 @@
     "settingHideActivityFeedHint": "Blendet die Liste „Neues aus den Projekten“ im Dashboard aus.",
     "settingHideAllProjects": "„Alle Projekte“ ausblenden",
     "settingHideAllProjectsHint": "Blendet die Übersicht aller Projekte im Dashboard aus.",
+    "settingHidePeople": "Personen-Suche ausblenden",
+    "settingHidePeopleHint": "Blendet den Bereich „Personen entdecken“ im Dashboard aus.",
     "settingProfileVisible": "Profil sichtbar",
     "settingProfileVisibleHint": "Steckbrief und Galerie sind für Mitglieder Ihrer Projekte sichtbar.",
     "resetOrderLabel": "Projekt-Reihenfolge zurücksetzen",

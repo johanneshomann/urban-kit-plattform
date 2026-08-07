@@ -9,7 +9,7 @@ import { resetProjectOrder, updateProfileSetting, type ProfileSettingKey } from 
 import { deleteAccountAction } from '@/actions/auth'
 import { IconTooltip } from '@/components/platform/IconTooltip'
 
-type Settings = { hideActivityFeed: boolean; hideAllProjects: boolean; profileVisible: boolean }
+type Settings = { hideActivityFeed: boolean; hideAllProjects: boolean; hidePeopleSearch: boolean; profileVisible: boolean }
 
 function SectionHeader({ label, hint }: { label: string; hint?: string }) {
   return (
@@ -130,6 +130,7 @@ export function ProfileSettingsSection({ settings, isPM }: { settings: Settings;
       <div className="flex flex-col gap-2">
         {switchRow('hideActivityFeed', t('settingHideActivityFeed'), t('settingHideActivityFeedHint'))}
         {switchRow('hideAllProjects', t('settingHideAllProjects'), t('settingHideAllProjectsHint'))}
+        {switchRow('hidePeopleSearch', t('settingHidePeople'), t('settingHidePeopleHint'))}
         {switchRow('profileVisible', t('settingProfileVisible'), t('settingProfileVisibleHint'))}
 
         {/* Reset project-card order */}

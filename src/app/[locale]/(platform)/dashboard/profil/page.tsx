@@ -22,7 +22,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     lastName?: string
     avatar?: string | { id: string; url?: string | null } | null
     profileBadge?: string | null
-    settings?: { hideActivityFeed?: boolean | null; hideAllProjects?: boolean | null; profileVisible?: boolean | null } | null
+    settings?: { hideActivityFeed?: boolean | null; hideAllProjects?: boolean | null; hidePeopleSearch?: boolean | null; profileVisible?: boolean | null } | null
     bio?: string | null
     gallery?: { image?: string | { id: string; url?: string | null } | null }[] | null
     gender?: string | null
@@ -152,6 +152,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
             settings={{
               hideActivityFeed: u.settings?.hideActivityFeed ?? false,
               hideAllProjects: u.settings?.hideAllProjects ?? false,
+              hidePeopleSearch: u.settings?.hidePeopleSearch ?? false,
               profileVisible: u.settings?.profileVisible ?? true,
             }}
             isPM={membershipItems.some((m) => m.role === 'PM')}

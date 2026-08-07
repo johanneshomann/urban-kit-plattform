@@ -5,7 +5,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 
-const SETTING_KEYS = ['hideActivityFeed', 'hideAllProjects', 'profileVisible'] as const
+const SETTING_KEYS = ['hideActivityFeed', 'hideAllProjects', 'hidePeopleSearch', 'profileVisible'] as const
 export type ProfileSettingKey = (typeof SETTING_KEYS)[number]
 
 /**
@@ -31,6 +31,7 @@ export async function updateProfileSetting(
         settings: {
           hideActivityFeed: current.hideActivityFeed ?? false,
           hideAllProjects: current.hideAllProjects ?? false,
+          hidePeopleSearch: current.hidePeopleSearch ?? false,
           profileVisible: current.profileVisible ?? true,
           [key]: value,
         },

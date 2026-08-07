@@ -145,6 +145,12 @@ export const Users: CollectionConfig = {
           label: { en: 'Hide "All projects" on the dashboard', de: '„Alle Projekte" im Dashboard ausblenden' },
         },
         {
+          name: 'hidePeopleSearch',
+          type: 'checkbox',
+          defaultValue: false,
+          label: { en: 'Hide people search on the dashboard', de: 'Personen-Suche im Dashboard ausblenden' },
+        },
+        {
           name: 'profileVisible',
           type: 'checkbox',
           defaultValue: true,
