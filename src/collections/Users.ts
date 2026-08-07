@@ -105,5 +105,52 @@ export const Users: CollectionConfig = {
         { name: 'position', type: 'text', label: { en: 'Position / Function', de: 'Position / Funktion' } },
       ],
     },
+    // Self-chosen badge icon, shown as a small overlay on the avatar. Values
+    // map to lucide icons via PROFILE_BADGE_ICONS in src/lib/profile-badges.ts.
+    {
+      name: 'profileBadge',
+      type: 'select',
+      label: { en: 'Profile badge', de: 'Profil-Badge' },
+      options: [
+        { label: { en: 'Star', de: 'Stern' }, value: 'star' },
+        { label: { en: 'Heart', de: 'Herz' }, value: 'heart' },
+        { label: { en: 'Sparkles', de: 'Funkeln' }, value: 'sparkles' },
+        { label: { en: 'Leaf', de: 'Blatt' }, value: 'leaf' },
+        { label: { en: 'Sun', de: 'Sonne' }, value: 'sun' },
+        { label: { en: 'Flower', de: 'Blume' }, value: 'flower' },
+        { label: { en: 'Rocket', de: 'Rakete' }, value: 'rocket' },
+        { label: { en: 'Music', de: 'Musik' }, value: 'music' },
+        { label: { en: 'Camera', de: 'Kamera' }, value: 'camera' },
+        { label: { en: 'Book', de: 'Buch' }, value: 'book' },
+        { label: { en: 'Bike', de: 'Fahrrad' }, value: 'bike' },
+        { label: { en: 'Paw', de: 'Pfote' }, value: 'paw' },
+      ],
+    },
+    // Self-service platform settings, edited from the profile page.
+    {
+      name: 'settings',
+      type: 'group',
+      label: { en: 'Settings', de: 'Einstellungen' },
+      fields: [
+        {
+          name: 'hideActivityFeed',
+          type: 'checkbox',
+          defaultValue: false,
+          label: { en: 'Hide dashboard activity feed', de: 'Neuigkeiten im Dashboard ausblenden' },
+        },
+        {
+          name: 'hideAllProjects',
+          type: 'checkbox',
+          defaultValue: false,
+          label: { en: 'Hide "All projects" on the dashboard', de: '„Alle Projekte" im Dashboard ausblenden' },
+        },
+        {
+          name: 'profileVisible',
+          type: 'checkbox',
+          defaultValue: true,
+          label: { en: 'Profile visible to project members', de: 'Profil für Projektmitglieder sichtbar' },
+        },
+      ],
+    },
   ],
 }
