@@ -143,6 +143,9 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   const stadtbereich = (STADTBEREICHE as readonly string[]).includes(stadtbereichRaw)
     ? (stadtbereichRaw as (typeof STADTBEREICHE)[number])
     : null
+  const BADGES = ['star', 'heart', 'sparkles', 'leaf', 'sun', 'flower', 'rocket', 'music', 'camera', 'book', 'bike', 'paw'] as const
+  const badgeRaw = (formData.get('profileBadge') as string) || ''
+  const profileBadge = (BADGES as readonly string[]).includes(badgeRaw) ? (badgeRaw as (typeof BADGES)[number]) : null
   const birthYearRaw = parseInt((formData.get('birthYear') as string) || '', 10)
   const birthYear =
     Number.isFinite(birthYearRaw) && birthYearRaw >= 1900 && birthYearRaw <= new Date().getFullYear()
@@ -235,7 +238,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
     await payload.update({
       collection: 'users',
       id: me.user.id,
-      data: { firstName, lastName, bio, affiliations, cityInfo, gender, birthYear, stadtbereich, gallery, ...avatarUpdate },
+      data: { firstName, lastName, bio, affiliations, cityInfo, gender, birthYear, stadtbereich, profileBadge, gallery, ...avatarUpdate },
       overrideAccess: true,
     })
   } catch {

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { updateProfileAction } from '@/actions/auth'
 import { CheckCircle, Plus, UserCircle, X } from 'lucide-react'
+import { PROFILE_BADGE_ICONS, PROFILE_BADGE_VALUES, type ProfileBadge } from '@/lib/profile-badges'
 
 const AFFILIATION_OPTIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
 const GENDER_OPTIONS = ['female', 'male', 'diverse', 'noAnswer'] as const
@@ -16,6 +17,7 @@ interface ProfileFormProps {
   lastName: string
   email: string
   avatarUrl: string | null
+  profileBadge: string
   bio: string
   galleryImages: { id: string; url: string }[]
   gender: string
@@ -36,7 +38,7 @@ function SectionHeader({ label, hint }: { label: string; hint?: string }) {
   )
 }
 
-export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galleryImages, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
+export function ProfileForm({ firstName, lastName, email, avatarUrl, profileBadge, bio, galleryImages, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
   const [state, action, pending] = useActionState(updateProfileAction, null)
   const t = useTranslations('profile')
   const tax = useTranslations('taxonomy')
@@ -60,6 +62,12 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
     setAvatarPreview(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
+  // Badge: one of the curated icons, overlaid bottom-right on the avatar.
+  const [badge, setBadge] = useState<string>(profileBadge)
+  const BadgeIcon = (PROFILE_BADGE_VALUES as readonly string[]).includes(badge)
+    ? PROFILE_BADGE_ICONS[badge as ProfileBadge]
+    : null
 
   // Gallery: kept existing images (hidden `galleryKeep` inputs) + newly picked
   // files, accumulated across picks and mirrored into the real file input via
@@ -160,15 +168,26 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
       <section className="flex flex-col gap-4">
         <SectionHeader label={t('avatar')} hint={t('avatarHint')} />
         <div className="flex items-center gap-4">
-          <div
-            className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center shrink-0"
-            style={{ background: 'color-mix(in srgb, var(--app-accent) 12%, transparent)' }}
-          >
-            {shownAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={shownAvatar} alt="" aria-hidden className="w-full h-full object-cover" />
-            ) : (
-              <UserCircle className="w-10 h-10" style={{ color: 'var(--app-accent)' }} aria-hidden />
+          <div className="relative shrink-0">
+            <div
+              className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center"
+              style={{ background: 'color-mix(in srgb, var(--app-accent) 12%, transparent)' }}
+            >
+              {shownAvatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={shownAvatar} alt="" aria-hidden className="w-full h-full object-cover" />
+              ) : (
+                <UserCircle className="w-10 h-10" style={{ color: 'var(--app-accent)' }} aria-hidden />
+              )}
+            </div>
+            {BadgeIcon && (
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 -right-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full shadow-sm"
+                style={{ background: 'var(--app-accent)', color: 'var(--app-white)' }}
+              >
+                <BadgeIcon className="h-4 w-4" />
+              </span>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -199,6 +218,50 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
           </div>
           <input type="hidden" name="removeAvatar" value={avatarRemoved ? '1' : ''} />
         </div>
+
+        {/* Badge picker — a small icon shown as an overlay on the avatar */}
+        <div>
+          <p className="text-small font-medium">{t('badgeTitle')}</p>
+          <p className="text-small opacity-50 mt-0.5 mb-2">{t('badgeHint')}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setBadge('')}
+              aria-pressed={badge === ''}
+              className={`flex items-center h-10 px-4 rounded-lg text-small cursor-pointer transition-all duration-200 select-none hover:shadow-sm ${
+                badge === ''
+                  ? 'bg-[var(--app-accent)] text-[var(--app-white)]'
+                  : 'bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))]'
+              }`}
+              style={badge === '' ? undefined : { color: 'var(--app-ink)' }}
+            >
+              {t('badgeNone')}
+            </button>
+            {PROFILE_BADGE_VALUES.map((value) => {
+              const Icon = PROFILE_BADGE_ICONS[value]
+              const active = badge === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setBadge(value)}
+                  aria-pressed={active}
+                  aria-label={t(`badgeIcon.${value}`)}
+                  title={t(`badgeIcon.${value}`)}
+                  className={`inline-flex items-center justify-center h-10 w-10 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-sm ${
+                    active
+                      ? 'bg-[var(--app-accent)] text-[var(--app-white)]'
+                      : 'bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))]'
+                  }`}
+                  style={active ? undefined : { color: 'var(--app-ink)' }}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <input type="hidden" name="profileBadge" value={badge} />
       </section>
 
       {/* About me */}

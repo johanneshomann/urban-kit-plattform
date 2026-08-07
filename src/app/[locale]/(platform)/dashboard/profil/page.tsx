@@ -20,6 +20,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     firstName?: string
     lastName?: string
     avatar?: string | { id: string; url?: string | null } | null
+    profileBadge?: string | null
     bio?: string | null
     gallery?: { image?: string | { id: string; url?: string | null } | null }[] | null
     gender?: string | null
@@ -128,6 +129,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
             lastName={lastName}
             email={user.email}
             avatarUrl={avatarUrl}
+            profileBadge={u.profileBadge ?? ''}
             bio={u.bio ?? ''}
             galleryImages={galleryImages}
             gender={u.gender ?? ''}

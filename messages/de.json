@@ -932,7 +932,24 @@
     "requestPending": "Anfrage ausstehend",
     "withdrawRequest": "Anfrage zurückziehen",
     "withdrawConfirmTitle": "Anfrage für „{title}“ zurückziehen?",
-    "withdrawConfirmBody": "Sie können jederzeit erneut eine Beitrittsanfrage stellen."
+    "withdrawConfirmBody": "Sie können jederzeit erneut eine Beitrittsanfrage stellen.",
+    "badgeTitle": "Profil-Badge",
+    "badgeHint": "Wählen Sie ein Symbol, das als kleines Abzeichen auf Ihrem Profilbild angezeigt wird.",
+    "badgeNone": "Kein Badge",
+    "badgeIcon": {
+      "star": "Stern",
+      "heart": "Herz",
+      "sparkles": "Funkeln",
+      "leaf": "Blatt",
+      "sun": "Sonne",
+      "flower": "Blume",
+      "rocket": "Rakete",
+      "music": "Musik",
+      "camera": "Kamera",
+      "book": "Buch",
+      "bike": "Fahrrad",
+      "paw": "Pfote"
+    }
   },
   "modules": {
     "news": "News",
