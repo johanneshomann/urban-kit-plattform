@@ -544,22 +544,16 @@ function ActivityRow({
       className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3 h-full"
       style={{ background: item.schemeLight }}
     >
-      <div className="flex items-start gap-3 min-w-0">
-        <span
-          className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-md mt-0.5"
-          style={{ background: item.schemeGeneral, color: item.schemeAccent }}
-          aria-hidden="true"
-        >
-          {icon}
-        </span>
-        <div className="min-w-0">
-          <p className="text-text font-medium leading-snug" style={{ color: 'var(--app-ink-accent)' }}>
-            {label}
-          </p>
-          <p className="text-small mt-0.5" style={{ color: 'var(--app-ink)', opacity: 0.6 }}>
-            {inProjectLabel}
-          </p>
-        </div>
+      <div className="min-w-0">
+        <p className="text-text font-medium leading-snug flex items-center gap-2" style={{ color: 'var(--app-ink-accent)' }}>
+          <span aria-hidden="true" className="inline-flex shrink-0" style={{ color: item.schemeAccent }}>
+            {icon}
+          </span>
+          <span className="min-w-0">{label}</span>
+        </p>
+        <p className="text-small mt-0.5" style={{ color: 'var(--app-ink)', opacity: 0.6 }}>
+          {inProjectLabel}
+        </p>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
