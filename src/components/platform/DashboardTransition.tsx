@@ -74,11 +74,11 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
 
     setExiting(false)
 
-    // Entering a project from the dashboard → slide in from right
-    const enteringProject = prev === '/dashboard' && curr.startsWith('/dashboard/projekte')
+    // Entering any dashboard subpage (project, profile, …) → slide in from right
+    const enteringProject = prev === '/dashboard' && curr.startsWith('/dashboard/')
 
-    // Returning to the dashboard from a project → slide in from left
-    const returningToDashboard = prev.startsWith('/dashboard/projekte') && curr === '/dashboard'
+    // Returning to the dashboard root → slide in from left
+    const returningToDashboard = prev.startsWith('/dashboard/') && curr === '/dashboard'
 
     if (enteringProject) {
       setAnimClass('animate-slide-left')
