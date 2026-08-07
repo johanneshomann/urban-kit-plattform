@@ -949,7 +949,27 @@
       "book": "Buch",
       "bike": "Fahrrad",
       "paw": "Pfote"
-    }
+    },
+    "settingsTitle": "Profil-Einstellungen",
+    "settingsHint": "Passen Sie Ihr Dashboard an und verwalten Sie Ihr Konto.",
+    "settingHideActivityFeed": "Neuigkeiten ausblenden",
+    "settingHideActivityFeedHint": "Blendet die Liste „Neues aus den Projekten“ im Dashboard aus.",
+    "settingHideAllProjects": "„Alle Projekte“ ausblenden",
+    "settingHideAllProjectsHint": "Blendet die Übersicht aller Projekte im Dashboard aus.",
+    "settingProfileVisible": "Profil sichtbar",
+    "settingProfileVisibleHint": "Steckbrief und Galerie sind für Mitglieder Ihrer Projekte sichtbar.",
+    "resetOrderLabel": "Projekt-Reihenfolge zurücksetzen",
+    "resetOrderHint": "Stellt die ursprüngliche Sortierung Ihrer Projektkarten wieder her.",
+    "exportLabel": "Meine Daten exportieren",
+    "exportHint": "Lädt Ihre Profildaten und Mitgliedschaften als JSON-Datei herunter.",
+    "deleteAccount": "Konto löschen",
+    "deleteAccountHint": "Entfernt Ihr Konto und alle Mitgliedschaften dauerhaft.",
+    "deleteBlockedPM": "Als Projektmanager:in können Sie Ihr Konto nicht löschen. Übergeben Sie zuerst die Projektleitung.",
+    "deleteConfirmTitle": "Konto wirklich löschen?",
+    "deleteConfirmBody": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Mitgliedschaften und Ihre Profildaten werden dauerhaft gelöscht.",
+    "deleteConfirmWord": "LÖSCHEN",
+    "deleteConfirmPrompt": "Geben Sie {word} ein, um zu bestätigen.",
+    "deleting": "Wird gelöscht …"
   },
   "modules": {
     "news": "News",

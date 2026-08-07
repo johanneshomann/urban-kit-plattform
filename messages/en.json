@@ -949,7 +949,27 @@
       "book": "Book",
       "bike": "Bike",
       "paw": "Paw"
-    }
+    },
+    "settingsTitle": "Profile settings",
+    "settingsHint": "Customise your dashboard and manage your account.",
+    "settingHideActivityFeed": "Hide activity feed",
+    "settingHideActivityFeedHint": "Hides the “News from your projects” list on the dashboard.",
+    "settingHideAllProjects": "Hide “All projects”",
+    "settingHideAllProjectsHint": "Hides the overview of all projects on the dashboard.",
+    "settingProfileVisible": "Profile visible",
+    "settingProfileVisibleHint": "Your bio and gallery are visible to members of your projects.",
+    "resetOrderLabel": "Reset project order",
+    "resetOrderHint": "Restores the original order of your project cards.",
+    "exportLabel": "Export my data",
+    "exportHint": "Downloads your profile data and memberships as a JSON file.",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "Permanently removes your account and all memberships.",
+    "deleteBlockedPM": "As a project manager you cannot delete your account. Hand over the project lead first.",
+    "deleteConfirmTitle": "Really delete your account?",
+    "deleteConfirmBody": "This action cannot be undone. All memberships and your profile data will be permanently deleted.",
+    "deleteConfirmWord": "DELETE",
+    "deleteConfirmPrompt": "Type {word} to confirm.",
+    "deleting": "Deleting …"
   },
   "modules": {
     "news": "News",

@@ -266,6 +266,63 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   return null
 }
 
+/**
+ * Permanently delete the own account: all project memberships (any status),
+ * avatar/gallery media, then the user doc itself. Refused while the user still
+ * manages a project — the project would be left without a PM. Ends the session
+ * and redirects to the login page on success.
+ */
+export async function deleteAccountAction(): Promise<{ error?: string }> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('payload-token')?.value
+  if (!token) return { error: 'Nicht eingeloggt' }
+
+  const payload = await getPayload({ config })
+  const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
+  if (!me.user) return { error: 'Nicht eingeloggt' }
+
+  const pmMemberships = await payload.find({
+    collection: 'project-memberships',
+    where: {
+      and: [{ user: { equals: me.user.id } }, { role: { equals: 'PM' } }, { status: { equals: 'active' } }],
+    },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  if (pmMemberships.totalDocs > 0) {
+    return { error: 'Als Projektmanager:in können Sie Ihr Konto nicht löschen. Übergeben Sie zuerst die Projektleitung.' }
+  }
+
+  // Collect the user's own media (avatar + gallery) for cleanup after deletion.
+  const avatarId =
+    typeof me.user.avatar === 'object' && me.user.avatar ? String(me.user.avatar.id) : me.user.avatar ? String(me.user.avatar) : null
+  const galleryIds = (Array.isArray(me.user.gallery) ? me.user.gallery : [])
+    .map((g) => (typeof g.image === 'object' && g.image ? String(g.image.id) : g.image ? String(g.image) : null))
+    .filter((id): id is string => id !== null)
+
+  try {
+    await payload.delete({
+      collection: 'project-memberships',
+      where: { user: { equals: me.user.id } },
+      overrideAccess: true,
+    })
+    await payload.delete({ collection: 'users', id: me.user.id, overrideAccess: true })
+  } catch {
+    return { error: 'Konto konnte nicht gelöscht werden.' }
+  }
+
+  // Media cleanup is best effort — the account itself is already gone.
+  for (const mediaId of [avatarId, ...galleryIds].filter((id): id is string => id !== null)) {
+    await payload.delete({ collection: 'media', id: mediaId, overrideAccess: true }).catch(() => {})
+  }
+
+  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
+  cookieStore.delete('payload-token')
+  const locale = await getLocale()
+  redirect(`/${locale}/login`)
+}
+
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
   // Clear both the parent-domain cookie and any legacy host-only cookie

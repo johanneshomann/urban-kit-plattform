@@ -54,6 +54,11 @@ export default async function DashboardPage({
   const user = await getUser()
   if (!user) return null
 
+  // Self-service dashboard settings (profile page): hidden sections are not
+  // just unrendered — their queries are skipped entirely.
+  const hideActivityFeed = user.settings?.hideActivityFeed === true
+  const hideAllProjects = user.settings?.hideAllProjects === true
+
   const t = await getTranslations({ locale, namespace: 'dashboard' })
   const roleLabels: Record<string, string> = {
     PM: t('rolePM'),
@@ -121,28 +126,31 @@ export default async function DashboardPage({
     // Non-fatal — eyebrow just won't show a count
   }
 
-  // All public projects (for the "Weitere Projekte" grid below).
-  const allProjectsRes = await payload.find({
-    collection: 'projects',
-    where: { isPublic: { equals: true } },
-    sort: '-createdAt',
-    limit: 200,
-    depth: 1,
-    overrideAccess: true,
-  })
-  const allProjects = allProjectsRes.docs as unknown as Project[]
-  const otherProjects = allProjects.filter((p) => !memberIds.has(p.id))
-  // Starred-only memberships (non-active) also count as "other"/suggested — merge & de-dupe.
-  const starredOther = starredOnly.docs.map((m) => m.project).filter(Boolean) as Project[]
-  for (const sp of starredOther) {
-    if (!memberIds.has(sp.id) && !otherProjects.some((o) => o.id === sp.id)) otherProjects.push(sp)
+  // All public projects (for the "Alle Projekte" grid below).
+  const otherProjects: Project[] = []
+  if (!hideAllProjects) {
+    const allProjectsRes = await payload.find({
+      collection: 'projects',
+      where: { isPublic: { equals: true } },
+      sort: '-createdAt',
+      limit: 200,
+      depth: 1,
+      overrideAccess: true,
+    })
+    const allProjects = allProjectsRes.docs as unknown as Project[]
+    otherProjects.push(...allProjects.filter((p) => !memberIds.has(p.id)))
+    // Starred-only memberships (non-active) also count as "other"/suggested — merge & de-dupe.
+    const starredOther = starredOnly.docs.map((m) => m.project).filter(Boolean) as Project[]
+    for (const sp of starredOther) {
+      if (!memberIds.has(sp.id) && !otherProjects.some((o) => o.id === sp.id)) otherProjects.push(sp)
+    }
   }
 
   // Activity feed — polls, upcoming events, recent news, forum threads, tasks, chat, files, boards, comments
   let activityItems: ActivityItem[] = []
   try {
     const projectIds = memberProjects.map((x) => x.project.id)
-    if (projectIds.length > 0) {
+    if (!hideActivityFeed && projectIds.length > 0) {
       const now = new Date().toISOString()
       const in14days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
       const in3days = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
@@ -407,11 +415,13 @@ export default async function DashboardPage({
       )}
 
       {/* ── Neues aus den Projekten (interactive activity feed with sort toggle) ── */}
-      <ActivityFeed
-        items={activityItems}
-        projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
-        locale={locale}
-      />
+      {!hideActivityFeed && (
+        <ActivityFeed
+          items={activityItems}
+          projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
+          locale={locale}
+        />
+      )}
 
       {/* ── Weitere Projekte entdecken (accessible cards, always visible) ──── */}
       {/* Fades from app-light (grey) above → white → back to grey below,

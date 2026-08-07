@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { ProfileForm } from './ProfileForm'
 import { MembershipList, type MembershipItem } from './MembershipList'
+import { ProfileSettingsSection } from './ProfileSettingsSection'
 import { IconTooltip } from '@/components/platform/IconTooltip'
 import { ArrowLeft } from 'lucide-react'
 
@@ -21,6 +22,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     lastName?: string
     avatar?: string | { id: string; url?: string | null } | null
     profileBadge?: string | null
+    settings?: { hideActivityFeed?: boolean | null; hideAllProjects?: boolean | null; profileVisible?: boolean | null } | null
     bio?: string | null
     gallery?: { image?: string | { id: string; url?: string | null } | null }[] | null
     gender?: string | null
@@ -144,8 +146,16 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
           />
         </div>
 
-        <div className="lg:sticky lg:top-16">
+        <div className="lg:sticky lg:top-16 flex flex-col gap-8">
           <MembershipList items={membershipItems} requests={requestItems} />
+          <ProfileSettingsSection
+            settings={{
+              hideActivityFeed: u.settings?.hideActivityFeed ?? false,
+              hideAllProjects: u.settings?.hideAllProjects ?? false,
+              profileVisible: u.settings?.profileVisible ?? true,
+            }}
+            isPM={membershipItems.some((m) => m.role === 'PM')}
+          />
         </div>
       </div>
 
