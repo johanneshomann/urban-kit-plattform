@@ -12,6 +12,9 @@ export default async function ProfilPage() {
   const u = user as unknown as {
     firstName?: string
     lastName?: string
+    gender?: string | null
+    birthYear?: number | null
+    stadtbereich?: string | null
     affiliations?: string[] | null
     cityInfo?: { organization?: string | null; fachbereich?: string | null; position?: string | null } | null
   }
@@ -40,6 +43,9 @@ export default async function ProfilPage() {
         firstName={firstName}
         lastName={lastName}
         email={user.email}
+        gender={u.gender ?? ''}
+        birthYear={u.birthYear ?? null}
+        stadtbereich={u.stadtbereich ?? ''}
         affiliations={u.affiliations ?? []}
         cityInfo={{
           organization: u.cityInfo?.organization ?? '',

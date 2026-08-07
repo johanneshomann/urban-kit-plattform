@@ -6,18 +6,35 @@ import { updateProfileAction } from '@/actions/auth'
 import { CheckCircle } from 'lucide-react'
 
 const AFFILIATION_OPTIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
+const GENDER_OPTIONS = ['female', 'male', 'diverse', 'noAnswer'] as const
+const STADTBEREICH_OPTIONS = ['innenstadt', 'norden', 'sueden', 'osten', 'westen'] as const
 
 interface ProfileFormProps {
   firstName: string
   lastName: string
   email: string
+  gender: string
+  birthYear: number | null
+  stadtbereich: string
   affiliations: string[]
   cityInfo: { organization: string; fachbereich: string; position: string }
 }
 
-export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo }: ProfileFormProps) {
+/** Dashboard section header: sentence-case label + hairline divider. */
+function SectionHeader({ label, hint }: { label: string; hint?: string }) {
+  return (
+    <div>
+      <h2 className="text-small font-semibold opacity-50">{label}</h2>
+      <div aria-hidden className="h-px mt-2" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
+      {hint && <p className="text-small opacity-50 mt-2">{hint}</p>}
+    </div>
+  )
+}
+
+export function ProfileForm({ firstName, lastName, email, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
   const [state, action, pending] = useActionState(updateProfileAction, null)
   const t = useTranslations('profile')
+  const tax = useTranslations('taxonomy')
   const [selected, setSelected] = useState<string[]>(affiliations)
   const isCityEmployee = selected.includes('cityEmployee')
 
@@ -25,87 +42,104 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
     setSelected(prev => (checked ? [...prev, value] : prev.filter(v => v !== value)))
   }
 
-  const inputClass = "w-full px-4 py-3 rounded-xl border text-text bg-white outline-none transition-colors focus:border-[var(--app-accent)]"
-  const labelClass = "block text-small font-medium mb-1.5"
+  // Borderless controls per dashboard rules: white surface on the grey page,
+  // definition via focus ring + shadow, all h-10 / rounded-lg.
+  const inputBase =
+    'w-full px-4 h-10 rounded-lg text-small outline-none transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-white)]'
+  const ringStyle = { '--tw-ring-color': 'var(--app-accent)', color: 'var(--app-ink)' } as React.CSSProperties
+  const labelClass = 'block text-small font-medium mb-1.5'
 
   return (
     <form action={action} className="flex flex-col gap-10">
 
-      {state === null && !pending ? null : null}
-
       {/* Feedback */}
       {state?.error && (
-        <p className="px-4 py-3 rounded-xl text-small text-red-600 bg-red-50 border border-red-200">
+        <p className="px-4 py-3 rounded-lg text-small text-red-700 bg-red-50">
           {state.error}
         </p>
       )}
       {state === null && (
-        <p className="px-4 py-3 rounded-xl text-small flex items-center gap-2 text-green-700 bg-green-50 border border-green-200">
+        <p className="px-4 py-3 rounded-lg text-small flex items-center gap-2 text-green-700 bg-green-50">
           <CheckCircle className="w-4 h-4 shrink-0" />
           {t('saved')}
         </p>
       )}
 
-      {/* Name */}
+      {/* Name + email */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('personalData')}</h2>
+        <SectionHeader label={t('personalData')} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass} htmlFor="firstName">{t('firstName')}</label>
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              defaultValue={firstName}
-              className={inputClass}
-              placeholder={t('firstNamePlaceholder')}
-              style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-            />
+            <input id="firstName" name="firstName" type="text" defaultValue={firstName} className={inputBase} placeholder={t('firstNamePlaceholder')} style={ringStyle} />
           </div>
           <div>
             <label className={labelClass} htmlFor="lastName">{t('lastName')}</label>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              defaultValue={lastName}
-              className={inputClass}
-              placeholder={t('lastNamePlaceholder')}
-              style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-            />
+            <input id="lastName" name="lastName" type="text" defaultValue={lastName} className={inputBase} placeholder={t('lastNamePlaceholder')} style={ringStyle} />
           </div>
         </div>
         <div>
           <label className={labelClass} htmlFor="email">{t('email')}</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            disabled
-            className={`${inputClass} opacity-50 cursor-not-allowed`}
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-          />
+          <input id="email" type="email" value={email} disabled className={`${inputBase} opacity-50 cursor-not-allowed`} style={ringStyle} />
           <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
+        </div>
+      </section>
+
+      {/* Voluntary demographics */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader label={t('demographics')} hint={t('demographicsHint')} />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className={labelClass} htmlFor="gender">{t('gender')}</label>
+            <select id="gender" name="gender" defaultValue={gender} className={`${inputBase} cursor-pointer`} style={ringStyle}>
+              <option value="">{t('noSelection')}</option>
+              {GENDER_OPTIONS.map(v => (
+                <option key={v} value={v}>{t(`genderOption.${v}`)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="birthYear">{t('birthYear')}</label>
+            <input
+              id="birthYear"
+              name="birthYear"
+              type="number"
+              inputMode="numeric"
+              min={1900}
+              max={new Date().getFullYear()}
+              defaultValue={birthYear ?? ''}
+              className={inputBase}
+              placeholder="1990"
+              style={ringStyle}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="stadtbereich">{t('stadtbereich')}</label>
+            <select id="stadtbereich" name="stadtbereich" defaultValue={stadtbereich} className={`${inputBase} cursor-pointer`} style={ringStyle}>
+              <option value="">{t('noSelection')}</option>
+              {STADTBEREICH_OPTIONS.map(v => (
+                <option key={v} value={v}>{tax(`stadtbereich.${v}`)}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </section>
 
       {/* Background / affiliations */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('background')}</h2>
-        <p className="text-small opacity-50 -mt-2">{t('backgroundHint')}</p>
+        <SectionHeader label={t('background')} hint={t('backgroundHint')} />
         <div className="flex flex-wrap gap-2">
           {AFFILIATION_OPTIONS.map(value => {
             const active = selected.includes(value)
             return (
               <label
                 key={value}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-small cursor-pointer transition-colors select-none"
-                style={{
-                  borderColor: active
-                    ? 'var(--app-accent)'
-                    : 'color-mix(in srgb, var(--app-ink) 20%, transparent)',
-                  background: active ? 'color-mix(in srgb, var(--app-accent) 10%, white)' : 'white',
-                }}
+                className={`flex items-center h-10 px-4 rounded-lg text-small cursor-pointer transition-all duration-200 select-none hover:shadow-sm ${
+                  active
+                    ? 'bg-[var(--app-accent)] text-[var(--app-white)]'
+                    : 'bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]'
+                }`}
+                style={active ? undefined : { color: 'var(--app-ink)' }}
               >
                 <input
                   type="checkbox"
@@ -113,7 +147,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                   value={value}
                   checked={active}
                   onChange={e => toggleAffiliation(value, e.target.checked)}
-                  className="accent-[var(--app-accent)]"
+                  className="sr-only"
                 />
                 {t(`affiliation.${value}`)}
               </label>
@@ -123,46 +157,22 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
 
         {isCityEmployee && (
           <div
-            className="flex flex-col gap-4 p-4 rounded-xl border"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', background: 'color-mix(in srgb, var(--app-accent) 4%, white)' }}
+            className="flex flex-col gap-4 p-4 rounded-xl"
+            style={{ background: 'var(--app-white)' }}
           >
             <p className="text-small font-medium">{t('cityInfoTitle')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass} htmlFor="cityOrganization">{t('cityOrganization')}</label>
-                <input
-                  id="cityOrganization"
-                  name="cityOrganization"
-                  type="text"
-                  defaultValue={cityInfo.organization}
-                  className={inputClass}
-                  placeholder={t('cityOrganizationPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-                />
+                <input id="cityOrganization" name="cityOrganization" type="text" defaultValue={cityInfo.organization} className={`${inputBase} bg-[var(--app-light)]`} placeholder={t('cityOrganizationPlaceholder')} style={ringStyle} />
               </div>
               <div>
                 <label className={labelClass} htmlFor="cityFachbereich">{t('cityFachbereich')}</label>
-                <input
-                  id="cityFachbereich"
-                  name="cityFachbereich"
-                  type="text"
-                  defaultValue={cityInfo.fachbereich}
-                  className={inputClass}
-                  placeholder={t('cityFachbereichPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-                />
+                <input id="cityFachbereich" name="cityFachbereich" type="text" defaultValue={cityInfo.fachbereich} className={`${inputBase} bg-[var(--app-light)]`} placeholder={t('cityFachbereichPlaceholder')} style={ringStyle} />
               </div>
               <div className="sm:col-span-2">
                 <label className={labelClass} htmlFor="cityPosition">{t('cityPosition')}</label>
-                <input
-                  id="cityPosition"
-                  name="cityPosition"
-                  type="text"
-                  defaultValue={cityInfo.position}
-                  className={inputClass}
-                  placeholder={t('cityPositionPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-                />
+                <input id="cityPosition" name="cityPosition" type="text" defaultValue={cityInfo.position} className={`${inputBase} bg-[var(--app-light)]`} placeholder={t('cityPositionPlaceholder')} style={ringStyle} />
               </div>
             </div>
           </div>
@@ -171,28 +181,14 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
 
       {/* Password */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('changePassword')}</h2>
+        <SectionHeader label={t('changePassword')} />
         <div>
           <label className={labelClass} htmlFor="currentPassword">{t('currentPassword')}</label>
-          <input
-            id="currentPassword"
-            name="currentPassword"
-            type="password"
-            className={inputClass}
-            placeholder="••••••••"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-          />
+          <input id="currentPassword" name="currentPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
         </div>
         <div>
           <label className={labelClass} htmlFor="newPassword">{t('newPassword')}</label>
-          <input
-            id="newPassword"
-            name="newPassword"
-            type="password"
-            className={inputClass}
-            placeholder="••••••••"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
-          />
+          <input id="newPassword" name="newPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
           <p className="text-small opacity-40 mt-1.5">{t('newPasswordHint')}</p>
         </div>
       </section>
@@ -200,10 +196,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
       <button
         type="submit"
         disabled={pending}
-        className="self-start px-6 py-3 rounded-xl text-text font-medium text-white transition-colors disabled:opacity-50 cursor-pointer"
-        style={{ background: 'var(--app-accent)' }}
-        onMouseEnter={e => !pending && ((e.currentTarget as HTMLButtonElement).style.background = 'var(--app-ink-accent)')}
-        onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = 'var(--app-accent)')}
+        className="self-start px-6 h-11 rounded-lg text-small font-semibold bg-[var(--app-accent)] text-[var(--app-white)] transition-colors hover:bg-[var(--app-ink-accent)] disabled:opacity-50 cursor-pointer"
       >
         {pending ? t('saving') : t('save')}
       </button>

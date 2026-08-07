@@ -133,6 +133,22 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
       }
     : { organization: null, fachbereich: null, position: null }
 
+  // Voluntary demographics — validate against the collection's option lists,
+  // anything else (incl. empty) stores null.
+  const GENDERS = ['female', 'male', 'diverse', 'noAnswer'] as const
+  const STADTBEREICHE = ['innenstadt', 'norden', 'sueden', 'osten', 'westen'] as const
+  const genderRaw = (formData.get('gender') as string) || ''
+  const gender = (GENDERS as readonly string[]).includes(genderRaw) ? (genderRaw as (typeof GENDERS)[number]) : null
+  const stadtbereichRaw = (formData.get('stadtbereich') as string) || ''
+  const stadtbereich = (STADTBEREICHE as readonly string[]).includes(stadtbereichRaw)
+    ? (stadtbereichRaw as (typeof STADTBEREICHE)[number])
+    : null
+  const birthYearRaw = parseInt((formData.get('birthYear') as string) || '', 10)
+  const birthYear =
+    Number.isFinite(birthYearRaw) && birthYearRaw >= 1900 && birthYearRaw <= new Date().getFullYear()
+      ? birthYearRaw
+      : null
+
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
   if (!token) return { error: 'Nicht eingeloggt' }
@@ -146,7 +162,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
     await payload.update({
       collection: 'users',
       id: me.user.id,
-      data: { firstName, lastName, affiliations, cityInfo },
+      data: { firstName, lastName, affiliations, cityInfo, gender, birthYear, stadtbereich },
       overrideAccess: true,
     })
   } catch {
