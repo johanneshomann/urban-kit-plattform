@@ -244,6 +244,12 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Platform area: the a11y settings live in the top bar's dropdown instead of
+   the floating FAB (class toggled by HideAccessibilityFab). */
+html.a11y-fab-hidden [data-a11y-fab] {
+  display: none;
+}
+
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;

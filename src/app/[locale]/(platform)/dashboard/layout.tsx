@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
 import { DashboardShell } from '@/components/platform/DashboardShell'
 import { DashboardTransition } from '@/components/platform/DashboardTransition'
+import { HideAccessibilityFab } from '@/components/accessibility/HideAccessibilityFab'
 import { getPlatformColors } from '@/lib/theme'
 
 export default async function DashboardLayout({
@@ -39,6 +40,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--app-light)', ...appVars }}>
+      <HideAccessibilityFab />
       <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
         <DashboardShell>
           <DashboardTransition>
