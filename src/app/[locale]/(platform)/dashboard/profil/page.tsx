@@ -1,15 +1,20 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import Link from 'next/link'
 import { getUser } from '@/lib/auth/getUser'
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import { resolveColorScheme } from '@/lib/colorScheme'
 import { ProfileForm } from './ProfileForm'
-import { UserCircle } from 'lucide-react'
+import { MembershipList, type MembershipItem } from './MembershipList'
+import { IconTooltip } from '@/components/platform/IconTooltip'
+import { ArrowLeft, UserCircle } from 'lucide-react'
 
-export default async function ProfilPage() {
+export default async function ProfilPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   const user = await getUser()
   if (!user) notFound()
-  const t = await getTranslations('profile')
+  const [t, tp] = await Promise.all([getTranslations('profile'), getTranslations('platform')])
 
   const u = user as unknown as {
     firstName?: string
@@ -35,8 +40,47 @@ export default async function ProfilPage() {
     avatarUrl = (media as { url?: string | null } | null)?.url ?? null
   }
 
+  // Active memberships — for the leave-project list at the bottom.
+  const payloadClient = await getPayload({ config })
+  const membershipsRes = await payloadClient.find({
+    collection: 'project-memberships',
+    where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
+    sort: 'order',
+    depth: 1,
+    limit: 50,
+    overrideAccess: true,
+  })
+  const membershipItems: MembershipItem[] = membershipsRes.docs
+    .map((m) => {
+      const project = m.project as { id: string; title?: string; colorScheme?: string | null } | undefined
+      if (!project?.title) return null
+      const scheme = resolveColorScheme(project.colorScheme)
+      return {
+        membershipId: String(m.id),
+        title: project.title,
+        role: (m.role as string) ?? 'Citizen',
+        schemeLight: scheme.light,
+        schemeGeneral: scheme.general,
+        schemeAccent: scheme.accent,
+        schemeDark: scheme.dark,
+      }
+    })
+    .filter((x): x is MembershipItem => x !== null)
+
   return (
     <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
+
+      {/* Back to the dashboard */}
+      <IconTooltip label={tp('navDashboard')}>
+        <Link
+          href={`/${locale}/dashboard`}
+          className="self-start inline-flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--app-white)] shadow-sm transition-all duration-200 hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
+          style={{ color: 'var(--app-ink-accent)' }}
+        >
+          <ArrowLeft aria-hidden className="h-4 w-4" />
+          <span className="sr-only">{tp('navDashboard')}</span>
+        </Link>
+      </IconTooltip>
 
       <div className="flex items-center gap-4">
         <div
@@ -73,6 +117,8 @@ export default async function ProfilPage() {
           position: u.cityInfo?.position ?? '',
         }}
       />
+
+      <MembershipList items={membershipItems} />
 
     </div>
   )

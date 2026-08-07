@@ -914,7 +914,13 @@
     "avatar": "Profile picture",
     "avatarHint": "JPG or PNG, up to 5 MB.",
     "avatarUpload": "Choose image",
-    "avatarRemove": "Remove"
+    "avatarRemove": "Remove",
+    "memberships": "Memberships",
+    "membershipsHint": "You can leave projects here. Project managers cannot leave their own project.",
+    "leaveProject": "Leave project",
+    "leaveConfirmTitle": "Leave “{title}”?",
+    "leaveConfirmBody": "You will lose access to the project space. You can request to join again.",
+    "leaving": "Leaving …"
   },
   "modules": {
     "news": "News",

@@ -64,7 +64,7 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, bir
   // Borderless controls per dashboard rules: white surface on the grey page,
   // definition via focus ring + shadow, all h-10 / rounded-lg.
   const inputBase =
-    'w-full px-4 h-10 rounded-lg text-small outline-none transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-white)]'
+    'w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-white)]'
   const ringStyle = { '--tw-ring-color': 'var(--app-accent)', color: 'var(--app-ink)' } as React.CSSProperties
   const labelClass = 'block text-small font-medium mb-1.5'
 

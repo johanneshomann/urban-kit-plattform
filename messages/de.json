@@ -914,7 +914,13 @@
     "avatar": "Profilbild",
     "avatarHint": "JPG oder PNG, maximal 5 MB.",
     "avatarUpload": "Bild auswählen",
-    "avatarRemove": "Entfernen"
+    "avatarRemove": "Entfernen",
+    "memberships": "Mitgliedschaften",
+    "membershipsHint": "Hier können Sie Projekte verlassen. Projektmanager:innen können ihr Projekt nicht selbst verlassen.",
+    "leaveProject": "Projekt verlassen",
+    "leaveConfirmTitle": "„{title}“ wirklich verlassen?",
+    "leaveConfirmBody": "Sie verlieren den Zugriff auf den Projektraum. Ein erneuter Beitritt ist per Anfrage möglich.",
+    "leaving": "Wird verlassen …"
   },
   "modules": {
     "news": "News",
