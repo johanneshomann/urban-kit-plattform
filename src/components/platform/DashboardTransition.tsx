@@ -77,13 +77,17 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
     setExiting(false)
     setCoverColor(null)
 
-    // Entering any dashboard subpage (project, profile, …) → slide in from right
-    const enteringProject = prev === '/dashboard' && curr.startsWith('/dashboard/')
+    // Entering a dashboard subpage → slide in from right. Project workspaces
+    // are the exception: the exit already slid the dashboard out under the
+    // project-colored cover panel, so the workspace appears without a second
+    // slide of its own.
+    const enteringSubpage = prev === '/dashboard' && curr.startsWith('/dashboard/')
+    const enteringWorkspace = curr.startsWith('/dashboard/projekte')
 
     // Returning to the dashboard root → slide in from left
     const returningToDashboard = prev.startsWith('/dashboard/') && curr === '/dashboard'
 
-    if (enteringProject) {
+    if (enteringSubpage && !enteringWorkspace) {
       setAnimClass('animate-slide-left')
       setAnimKey((k) => k + 1)
     } else if (returningToDashboard) {
