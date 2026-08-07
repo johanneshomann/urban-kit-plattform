@@ -117,7 +117,7 @@ function SortablePill({
           {project.startYear && (
             <div
               className="self-start inline-flex items-center gap-1 px-3 py-1 rounded-md text-small font-normal tracking-widest leading-none"
-              style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}
+              style={{ background: 'var(--project-general)', color: 'var(--project-black)' }}
             >
               <Asterisk className="w-[1em] h-[1em] shrink-0" />
               {project.startYear}
@@ -126,7 +126,7 @@ function SortablePill({
           {phaseLabel(project.projektphase) && (
             <div
               className="self-start inline-flex items-center gap-1 px-3 py-1 rounded-md text-small font-normal tracking-widest leading-none"
-              style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}
+              style={{ background: 'var(--project-general)', color: 'var(--project-black)' }}
             >
               <Asterisk className="w-[1em] h-[1em] shrink-0" />
               {phaseLabel(project.projektphase)}
@@ -135,7 +135,7 @@ function SortablePill({
           {project.memberCount != null && project.memberCount > 0 && (
             <div
               className="self-start inline-flex items-center gap-1 px-3 py-1 rounded-md text-small font-normal tracking-widest leading-none"
-              style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}
+              style={{ background: 'var(--project-general)', color: 'var(--project-black)' }}
             >
               <Users className="w-[1em] h-[1em] shrink-0" />
               {project.memberCount}
@@ -151,12 +151,15 @@ function SortablePill({
           <Link
             href={`/${locale}/dashboard/projekte/${project.slug}`}
             prefetch={true}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold transition-colors hover:opacity-80"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
             style={{
               background: 'var(--project-general)',
               color: 'var(--project-black)',
               minHeight: 44,
+              transition: 'background-color 0.2s',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--project-dark)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--project-general)' }}
           >
             {tOpenWorkspace}
             <ArrowRight className="w-4 h-4" aria-hidden />
@@ -165,12 +168,15 @@ function SortablePill({
             <Link
               href={`/${locale}/dashboard/projekte/${project.slug}/manage`}
               prefetch={true}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold transition-colors hover:opacity-80"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
               style={{
                 background: 'var(--project-general)',
                 color: 'var(--project-black)',
                 minHeight: 44,
+                transition: 'background-color 0.2s',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--project-dark)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--project-general)' }}
             >
               {tManageProject}
               <SquarePen className="w-4 h-4" aria-hidden />
@@ -187,10 +193,10 @@ function SortablePill({
         className="absolute top-1/2 -translate-y-1/2 right-3 md:right-4 flex items-center justify-center w-9 h-14 md:w-10 md:h-16 rounded-full z-20 transition-all duration-200 group-hover:scale-110 group-hover:shadow-lg"
         style={{
           cursor: 'grab',
-          background: 'var(--plattform-ink)',
-          color: 'var(--plattform-white)',
+          background: 'var(--app-ink)',
+          color: 'var(--app-white)',
           opacity: 0.85,
-          boxShadow: '0 2px 8px color-mix(in srgb, var(--plattform-ink) 35%, transparent)',
+          boxShadow: '0 2px 8px color-mix(in srgb, var(--app-ink) 35%, transparent)',
         }}
         aria-label="Reihenfolge ändern"
       >
