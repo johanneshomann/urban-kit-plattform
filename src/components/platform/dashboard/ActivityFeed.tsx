@@ -205,7 +205,7 @@ export function ActivityFeed({
   if (items.length === 0) return null
 
   const dropdownBase = (open: boolean) =>
-    `absolute top-full left-0 mt-1 w-full rounded-lg border shadow-lg z-10 overflow-hidden ${open ? 'dropdown-enter' : 'hidden'}`
+    `absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 overflow-hidden ${open ? 'dropdown-enter' : 'hidden'}`
 
   const renderRow = (item: ActivityItem, i: number) => (
     <li key={`${item.type}-${item.projectId}-${item.title}-${i}`} className="card-in" style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}>
@@ -228,11 +228,12 @@ export function ActivityFeed({
       </h2>
       <div aria-hidden className="h-px mt-2 mb-4" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
 
-      {/* Controls — full width under the heading: search, filters, sort */}
-      <div className="flex flex-col gap-2 mb-6">
+      {/* Controls — under the heading: search first, then filters, then sort.
+          Stacked on mobile, one row on desktop. */}
+      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-6">
         {/* Search */}
         <div
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
+          className="md:flex-1 flex items-center gap-2 px-4 py-2.5 rounded-lg text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
           style={{ background: 'var(--app-white)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
         >
           <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
@@ -257,7 +258,7 @@ export function ActivityFeed({
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center justify-between md:justify-start gap-2 flex-wrap">
           {/* Filters (only when there's more than one item) */}
           <div className="flex items-center gap-2 flex-wrap">
             {items.length > 1 && (
@@ -267,8 +268,8 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setProjectOpen((v) => !v); setTypeOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
-                    style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)', background: 'var(--app-white)' }}
                     aria-haspopup="listbox"
                     aria-expanded={projectOpen}
                   >
@@ -277,7 +278,7 @@ export function ActivityFeed({
                   </button>
                   <div
                     className={dropdownBase(projectOpen)}
-                    style={{ background: 'var(--app-white)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                    style={{ background: 'var(--app-white)', transformOrigin: 'top left' }}
                     role="listbox"
                     aria-label={t('activityFilterProject')}
                   >
@@ -286,7 +287,7 @@ export function ActivityFeed({
                       role="option"
                       aria-selected={projectFilter === 'ALL'}
                       onClick={() => { setProjectFilter('ALL'); setProjectOpen(false) }}
-                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                      className="w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer"
                       style={{ color: 'var(--app-ink)' }}
                     >
                       {t('activityFilterAll')}
@@ -298,7 +299,7 @@ export function ActivityFeed({
                         role="option"
                         aria-selected={projectFilter === title}
                         onClick={() => { setProjectFilter(title); setProjectOpen(false) }}
-                        className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                        className="w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer"
                         style={{ color: 'var(--app-ink)' }}
                       >
                         {title}
@@ -312,8 +313,8 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setTypeOpen((v) => !v); setProjectOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
-                    style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)', background: 'var(--app-white)' }}
                     aria-haspopup="listbox"
                     aria-expanded={typeOpen}
                   >
@@ -322,7 +323,7 @@ export function ActivityFeed({
                   </button>
                   <div
                     className={dropdownBase(typeOpen)}
-                    style={{ background: 'var(--app-white)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                    style={{ background: 'var(--app-white)', transformOrigin: 'top left' }}
                     role="listbox"
                     aria-label={t('activityFilterType')}
                   >
@@ -331,7 +332,7 @@ export function ActivityFeed({
                       role="option"
                       aria-selected={typeFilter === 'ALL'}
                       onClick={() => { setTypeFilter('ALL'); setTypeOpen(false) }}
-                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                      className="w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer"
                       style={{ color: 'var(--app-ink)' }}
                     >
                       {t('activityFilterAll')}
@@ -343,7 +344,7 @@ export function ActivityFeed({
                         role="option"
                         aria-selected={typeFilter === type}
                         onClick={() => { setTypeFilter(type); setTypeOpen(false) }}
-                        className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                        className="w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer"
                         style={{ color: 'var(--app-ink)' }}
                       >
                         {typeLabelMap[type] ?? type}
@@ -357,8 +358,8 @@ export function ActivityFeed({
 
           {/* Sort toggle */}
           <div
-            className="flex items-center gap-1 rounded-lg border p-0.5"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
+            className="flex items-center gap-1 rounded-lg p-0.5 shadow-sm"
+            style={{ background: 'var(--app-white)' }}
           >
             <button
               type="button"

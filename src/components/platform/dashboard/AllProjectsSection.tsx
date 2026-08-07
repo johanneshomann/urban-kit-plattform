@@ -156,11 +156,10 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               <button
                 type="button"
                 onClick={() => setOpenKey(open ? null : key)}
-                className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
+                className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
                 style={{
                   color: active !== null ? 'var(--app-white)' : 'var(--app-ink)',
                   background: active !== null ? 'var(--app-accent)' : 'var(--app-light)',
-                  borderColor: active !== null ? 'var(--app-accent)' : 'color-mix(in srgb, var(--app-ink) 15%, transparent)',
                 }}
                 aria-haspopup="listbox"
                 aria-expanded={open}
@@ -169,8 +168,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                 <ChevronDown aria-hidden="true" className={`w-3 h-3 shrink-0 opacity-50 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
               </button>
               <div
-                className={`absolute top-full left-0 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border shadow-lg z-10 ${open ? 'dropdown-enter' : 'hidden'}`}
-                style={{ background: 'var(--app-light)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                className={`absolute top-full left-0 mt-1 w-full max-h-64 overflow-y-auto rounded-lg shadow-lg z-10 ${open ? 'dropdown-enter' : 'hidden'}`}
+                style={{ background: 'var(--app-light)', transformOrigin: 'top left' }}
                 role="listbox"
                 aria-label={label}
               >
@@ -179,7 +178,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                   role="option"
                   aria-selected={active === null}
                   onClick={() => { setFilters((f) => ({ ...f, [key]: null })); setOpenKey(null) }}
-                  className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                  className="w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer"
                   style={{ color: 'var(--app-ink)' }}
                 >
                   {ta('filterAll')}
@@ -194,7 +193,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                       aria-selected={active === opt.value}
                       disabled={unavailable}
                       onClick={() => setValue(key, opt.value)}
-                      className="w-full text-left px-3 py-1.5 text-small transition-colors enabled:hover:bg-black/5 enabled:cursor-pointer disabled:opacity-30"
+                      className="w-full text-left px-3 py-1.5 text-small transition-colors enabled:hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] enabled:cursor-pointer disabled:opacity-30"
                       style={{
                         color: 'var(--app-ink)',
                         fontWeight: active === opt.value ? 600 : undefined,
@@ -223,8 +222,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               key={key}
               type="button"
               onClick={() => setFilters((f) => ({ ...f, [key]: null }))}
-              className="group inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-small border transition-all duration-200 hover:shadow-sm cursor-pointer"
-              style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)', background: 'var(--app-light)' }}
+              className="group inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-small transition-all duration-200 hover:shadow-sm cursor-pointer"
+              style={{ color: 'var(--app-ink)', background: 'var(--app-light)' }}
             >
               <span className="opacity-60">{label}:</span>
               <span className="font-semibold">{opt?.label ?? String(v)}</span>
@@ -265,10 +264,9 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
           {filtered.map((p, i) => (
             <div
               key={p.id}
-              className="card-in flex flex-col rounded-xl overflow-hidden border shadow-sm"
+              className="card-in flex flex-col rounded-xl overflow-hidden shadow-sm"
               style={{
                 animationDelay: `${Math.min(i * 40, 320)}ms`,
-                borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)',
                 background: 'var(--app-light)',
               }}
             >
@@ -300,10 +298,10 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Link
                     href={`/${locale}/projekte/${p.slug}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium border transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_5%,transparent)]"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_5%,transparent)]"
                     style={{
                       color: 'var(--app-ink)',
-                      borderColor: 'color-mix(in srgb, var(--app-accent) 35%, transparent)',
+                      background: 'var(--app-white)',
                       minHeight: 44,
                     }}
                   >
