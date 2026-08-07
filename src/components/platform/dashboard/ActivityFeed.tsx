@@ -222,6 +222,7 @@ export function ActivityFeed({
         openLabel={t('openWorkspace')}
         inProjectLabel={t('activityInProject', { project: item.projectTitle })}
         relativeDate={formatRelativeDate(item.date)}
+        grid={view === 'grid'}
       />
     </li>
   )
@@ -528,6 +529,7 @@ function ActivityRow({
   openLabel,
   inProjectLabel,
   relativeDate,
+  grid = false,
 }: {
   item: ActivityItem
   locale: string
@@ -536,54 +538,70 @@ function ActivityRow({
   openLabel: string
   inProjectLabel: string
   relativeDate?: string | null
+  /** Grid cards: arrow stretches over the card's inner height, date joins the project subline. */
+  grid?: boolean
 }) {
   const exitNavigate = useDashboardExit()
   const href = `/${locale}/dashboard/projekte/${item.projectSlug}${item.href ?? ''}`
+
+  const arrow = (
+    <Link
+      href={href}
+      onClick={(e) => {
+        if (!exitNavigate || !isPlainLeftClick(e)) return
+        e.preventDefault()
+        exitNavigate(href, item.schemeLight)
+      }}
+      className={
+        grid
+          ? 'self-stretch inline-flex items-center justify-center w-10 shrink-0 rounded-lg'
+          : 'inline-flex items-center justify-center h-10 w-10 shrink-0 rounded-lg'
+      }
+      style={{
+        background: item.schemeGeneral,
+        color: item.schemeAccent,
+        minWidth: 40,
+        minHeight: 40,
+        transition: 'background-color 0.2s',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = item.schemeDark }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = item.schemeGeneral }}
+      aria-label={`${label} – ${openLabel}`}
+    >
+      <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+    </Link>
+  )
+
   return (
     <div
-      className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3 h-full"
+      className={`flex justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3 h-full ${grid ? 'items-stretch' : 'items-center'}`}
       style={{ background: item.schemeLight }}
     >
-      <div className="min-w-0">
-        <p className="text-text font-medium leading-snug flex items-center gap-2" style={{ color: 'var(--app-ink-accent)' }}>
-          <span aria-hidden="true" className="inline-flex shrink-0" style={{ color: item.schemeAccent }}>
+      <div className="min-w-0 flex-1">
+        {/* items-start keeps the icon pinned to the first line when the title wraps */}
+        <p className="text-text font-medium leading-snug flex items-start gap-2" style={{ color: 'var(--app-ink-accent)' }}>
+          <span aria-hidden="true" className="inline-flex shrink-0 mt-0.5" style={{ color: item.schemeAccent }}>
             {icon}
           </span>
           <span className="min-w-0">{label}</span>
         </p>
         <p className="text-small mt-0.5" style={{ color: 'var(--app-ink)', opacity: 0.6 }}>
-          {inProjectLabel}
+          {grid ? [inProjectLabel, relativeDate].filter(Boolean).join(' · ') : inProjectLabel}
         </p>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        {relativeDate && (
-          <span className="text-small" style={{ color: 'var(--app-ink)', opacity: 0.5, whiteSpace: 'nowrap' }}>
-            {relativeDate}
-          </span>
-        )}
-        <Link
-          href={href}
-          onClick={(e) => {
-            if (!exitNavigate || !isPlainLeftClick(e)) return
-            e.preventDefault()
-            exitNavigate(href, item.schemeLight)
-          }}
-          className="inline-flex items-center justify-center h-10 w-10 shrink-0 rounded-lg"
-          style={{
-            background: item.schemeGeneral,
-            color: item.schemeAccent,
-            minWidth: 40,
-            minHeight: 40,
-            transition: 'background-color 0.2s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = item.schemeDark }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = item.schemeGeneral }}
-          aria-label={`${label} – ${openLabel}`}
-        >
-          <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
-        </Link>
-      </div>
+      {grid ? (
+        arrow
+      ) : (
+        <div className="flex items-center gap-2 shrink-0">
+          {relativeDate && (
+            <span className="text-small" style={{ color: 'var(--app-ink)', opacity: 0.5, whiteSpace: 'nowrap' }}>
+              {relativeDate}
+            </span>
+          )}
+          {arrow}
+        </div>
+      )}
     </div>
   )
 }
