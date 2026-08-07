@@ -12,6 +12,7 @@ import { ProjectPillList } from '@/components/platform/ProjectPillList'
 import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
 import { AllProjectsSection } from '@/components/platform/dashboard/AllProjectsSection'
 import { PeopleSection } from '@/components/platform/dashboard/PeopleSection'
+import { DashboardDotsNav } from '@/components/platform/dashboard/DashboardDotsNav'
 import { findPeople } from '@/lib/people-search'
 
 type Project = {
@@ -442,13 +443,27 @@ export default async function DashboardPage({
         />
       )}
 
+      {/* ── Section dot rail — only worth showing with more than two sections ── */}
+      {(() => {
+        const dotItems = [
+          { id: 'dash-meine-projekte', label: t('sectionMine') },
+          ...(!hideActivityFeed && activityItems.length > 0
+            ? [{ id: 'dash-neuigkeiten', label: t('activityHeading') }]
+            : []),
+          ...(otherProjects.length > 0 ? [{ id: 'dash-alle-projekte', label: t('sectionOtherProjects') }] : []),
+          ...(!hidePeopleSearch ? [{ id: 'dash-personen', label: t('peopleHeading') }] : []),
+        ]
+        return dotItems.length > 2 ? <DashboardDotsNav items={dotItems} label={t('sectionsNav')} /> : null
+      })()}
+
       {/* ── Weitere Projekte entdecken (accessible cards, always visible) ──── */}
       {/* Fades from app-light (grey) above → white → back to grey below,
           matching the landing-page section-fade pattern. */}
       {otherProjects.length > 0 && (
         <section
+          id="dash-alle-projekte"
           aria-labelledby="discover-heading"
-          className="pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-10"
+          className="pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-10 scroll-mt-14"
           style={{
             background: `linear-gradient(to bottom, var(--app-light) 0%, var(--app-white) var(--section-fade-height), var(--app-white) calc(100% - var(--section-fade-height)), var(--app-light) 100%)`,
           }}

@@ -128,7 +128,7 @@ export function PeopleSection({
     'w-full text-left px-3 py-1.5 text-small hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] transition-colors cursor-pointer'
 
   return (
-    <section ref={sectionRef} aria-labelledby="people-heading" className="px-6 md:px-10 py-10 pb-16 scroll-mt-16">
+    <section ref={sectionRef} id="dash-personen" aria-labelledby="people-heading" className="px-6 md:px-10 py-10 pb-16 scroll-mt-16">
       <h2 id="people-heading" className="text-small font-semibold opacity-50">
         {t('peopleHeading')}
       </h2>

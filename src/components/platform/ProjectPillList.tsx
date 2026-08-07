@@ -291,7 +291,7 @@ export function ProjectPillList({
   if (items.length === 0) return null
 
   return (
-    <section ref={sectionRef} aria-labelledby="my-projects" className="flex flex-col gap-4 px-6 md:px-10 py-10 scroll-mt-14" style={{ minHeight: '60vh' }}>
+    <section ref={sectionRef} id="dash-meine-projekte" aria-labelledby="my-projects" className="flex flex-col gap-4 px-6 md:px-10 py-10 scroll-mt-14" style={{ minHeight: '60vh' }}>
       <div>
         <h2 id="my-projects" className="text-small font-semibold opacity-50">
           {t('sectionMine')}

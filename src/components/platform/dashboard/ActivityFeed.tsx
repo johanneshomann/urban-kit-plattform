@@ -228,7 +228,7 @@ export function ActivityFeed({
   )
 
   return (
-    <section ref={sectionRef} aria-labelledby="activity-heading" className="px-6 md:px-10 py-10 scroll-mt-16">
+    <section ref={sectionRef} id="dash-neuigkeiten" aria-labelledby="activity-heading" className="px-6 md:px-10 py-10 scroll-mt-16">
       <h2 id="activity-heading" className="text-small font-semibold opacity-50">
         {t('activityHeading')}
       </h2>
