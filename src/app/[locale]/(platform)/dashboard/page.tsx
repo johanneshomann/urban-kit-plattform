@@ -7,7 +7,6 @@ import { canViewContent } from '@/lib/visibility'
 import type { ViewerMembership } from '@/lib/visibility'
 import { FolderKanban, Search } from 'lucide-react'
 
-import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { CtaButton } from '@/components/platform/CtaButton'
 import { ProjectPillList } from '@/components/platform/ProjectPillList'
 import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
@@ -363,14 +362,8 @@ export default async function DashboardPage({
     ? '50vh'
     : `max(200px, ${Math.round(70 / Math.min(memberProjects.length, 3))}vh)`
 
-  const firstName = ((user as unknown as { firstName?: string | null }).firstName) ?? null
-  const lastName = ((user as unknown as { lastName?: string | null }).lastName) ?? null
-  const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName ?? lastName ?? null
-
   return (
     <div className="flex flex-col" style={{ color: 'var(--app-ink)' }}>
-      <DashboardTopBar userName={userName} />
-
       {/* ── Meine Projekte (horizontal bands, image right, colour left) ──── */}
       {memberProjects.length === 0 ? (
         <section aria-labelledby="empty-section" className="p-10">
