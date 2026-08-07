@@ -177,17 +177,46 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
     return pathname === full || pathname.startsWith(full + '/')
   }
 
-  // User chip dropdown (logged-in) — same open/close animation as the menus.
+  // User chip dropdown (logged-in) — same open/close animation as the menus,
+  // and like them it opens on hover (with the 220ms grace close so the pointer
+  // can cross into the panel) while a click pins it open.
   const userMenu = useAnimatedOpen(CLOSE_DURATION)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const userOpenSource = useRef<'hover' | 'click' | null>(null)
+  const userHoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { active: userMenuActive, close: userMenuClose } = userMenu
+
+  const userMenuCancelClose = () => {
+    if (userHoverTimer.current) clearTimeout(userHoverTimer.current)
+  }
+  const userMenuCloseIfHover = () => {
+    if (userOpenSource.current !== 'hover') return
+    userMenuCancelClose()
+    userHoverTimer.current = setTimeout(() => {
+      userOpenSource.current = null
+      userMenuClose()
+    }, 220)
+  }
+  const userMenuHoverOpen = () => {
+    if (userMenu.isOpen && userOpenSource.current === 'click') return
+    userMenuCancelClose()
+    userOpenSource.current = 'hover'
+    userMenu.open()
+  }
+
   useEffect(() => {
     if (!userMenuActive) return
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') userMenuClose()
+      if (e.key === 'Escape') {
+        userOpenSource.current = null
+        userMenuClose()
+      }
     }
     function onPointerDown(e: PointerEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) userMenuClose()
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        userOpenSource.current = null
+        userMenuClose()
+      }
     }
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointerdown', onPointerDown)
@@ -196,6 +225,9 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
       document.removeEventListener('pointerdown', onPointerDown)
     }
   }, [userMenuActive, userMenuClose])
+
+  // Never leave a pending hover-close timer behind on unmount.
+  useEffect(() => () => userMenuCancelClose(), [])
 
   const UserBadgeIcon =
     profileBadge && (PROFILE_BADGE_VALUES as readonly string[]).includes(profileBadge)
@@ -346,7 +378,21 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
             <div ref={userMenuRef} className="hidden md:block">
               <button
                 type="button"
-                onClick={() => (userMenu.isOpen ? userMenu.close() : userMenu.open())}
+                onClick={() => {
+                  if (userMenu.isOpen) {
+                    if (userOpenSource.current === 'click') {
+                      userOpenSource.current = null
+                      userMenu.close()
+                    } else {
+                      userOpenSource.current = 'click'
+                    }
+                  } else {
+                    userOpenSource.current = 'click'
+                    userMenu.open()
+                  }
+                }}
+                onMouseEnter={userMenuHoverOpen}
+                onMouseLeave={userMenuCloseIfHover}
                 aria-expanded={userMenu.active}
                 aria-haspopup="menu"
                 className="flex items-center gap-2 cursor-pointer text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
@@ -360,7 +406,11 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
               </button>
 
               {userMenu.active && (
-                <div className="fixed top-14 right-6 md:right-10 overflow-hidden rounded-b-xl z-50 w-max">
+                <div
+                  className="fixed top-14 right-6 md:right-10 overflow-hidden rounded-b-xl z-50 w-max"
+                  onMouseEnter={userMenuCancelClose}
+                  onMouseLeave={userMenuCloseIfHover}
+                >
                   <div className={`${userMenu.closing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-[var(--plattform-white)] border border-t-0 rounded-b-xl shadow-md`}>
                     <div className="px-6 py-6 flex flex-col gap-1" role="menu" aria-label={t('userMenu')}>
                       <a
