@@ -30,7 +30,7 @@ export function ProjectJoinButton({ slug, locale }: { slug: string; locale: stri
         type="button"
         onClick={join}
         disabled={pending || sent}
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-cta font-normal rounded-lg transition-colors cursor-pointer disabled:opacity-60 text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-cta font-normal rounded-lg transition-colors cursor-pointer disabled:opacity-60 text-[var(--app-white)] bg-[var(--app-accent)] hover:bg-[var(--app-ink-accent)]"
       >
         {sent ? <Check className="w-[1em] h-[1em] shrink-0" /> : <UserPlus className="w-[1em] h-[1em] shrink-0" />}
         {sent ? t('joinPending') : t('ctaJoinRequest')}

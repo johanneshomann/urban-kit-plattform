@@ -6,9 +6,9 @@ import { usePathname, useRouter } from '@/i18n/navigation'
 import { User, Languages, Settings, LogOut } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 
-const barLink = 'inline-flex items-center justify-center h-10 w-10 rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--plattform-black)_8%,transparent)]'
-const BLACK = 'var(--plattform-black)'
-const ACCENT = 'var(--plattform-accent)'
+const barLink = 'inline-flex items-center justify-center h-10 w-10 rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)]'
+const BLACK = 'var(--app-black)'
+const ACCENT = 'var(--app-accent)'
 
 /**
  * Compact top bar for the dashboard — user greeting left, user tools right.
@@ -28,8 +28,8 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
     <div
       className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 py-2 border-b shadow-md"
       style={{
-        background: 'var(--plattform-white)',
-        borderColor: 'color-mix(in srgb, var(--plattform-ink) 10%, transparent)',
+        background: 'var(--app-white)',
+        borderColor: 'color-mix(in srgb, var(--app-ink) 10%, transparent)',
         color: BLACK,
       }}
     >
@@ -61,7 +61,7 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
         <span
           aria-hidden="true"
           className="mx-1 h-5 w-px shrink-0"
-          style={{ background: 'color-mix(in srgb, var(--plattform-black) 16%, transparent)' }}
+          style={{ background: 'color-mix(in srgb, var(--app-black) 16%, transparent)' }}
         />
 
         {/* Profile */}

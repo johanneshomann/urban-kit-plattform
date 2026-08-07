@@ -25,7 +25,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
     setSelected(prev => (checked ? [...prev, value] : prev.filter(v => v !== value)))
   }
 
-  const inputClass = "w-full px-4 py-3 rounded-xl border text-text bg-white outline-none transition-colors focus:border-[var(--plattform)]"
+  const inputClass = "w-full px-4 py-3 rounded-xl border text-text bg-white outline-none transition-colors focus:border-[var(--app-accent)]"
   const labelClass = "block text-small font-medium mb-1.5"
 
   return (
@@ -48,7 +48,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
 
       {/* Name */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('personalData')}</h2>
+        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('personalData')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass} htmlFor="firstName">{t('firstName')}</label>
@@ -59,7 +59,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
               defaultValue={firstName}
               className={inputClass}
               placeholder={t('firstNamePlaceholder')}
-              style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+              style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
             />
           </div>
           <div>
@@ -71,7 +71,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
               defaultValue={lastName}
               className={inputClass}
               placeholder={t('lastNamePlaceholder')}
-              style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+              style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
             />
           </div>
         </div>
@@ -83,7 +83,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
             value={email}
             disabled
             className={`${inputClass} opacity-50 cursor-not-allowed`}
-            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
           />
           <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
         </div>
@@ -91,7 +91,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
 
       {/* Background / affiliations */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('background')}</h2>
+        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('background')}</h2>
         <p className="text-small opacity-50 -mt-2">{t('backgroundHint')}</p>
         <div className="flex flex-wrap gap-2">
           {AFFILIATION_OPTIONS.map(value => {
@@ -102,9 +102,9 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-small cursor-pointer transition-colors select-none"
                 style={{
                   borderColor: active
-                    ? 'var(--plattform)'
-                    : 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)',
-                  background: active ? 'color-mix(in srgb, var(--plattform) 10%, white)' : 'white',
+                    ? 'var(--app-accent)'
+                    : 'color-mix(in srgb, var(--app-ink) 20%, transparent)',
+                  background: active ? 'color-mix(in srgb, var(--app-accent) 10%, white)' : 'white',
                 }}
               >
                 <input
@@ -113,7 +113,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                   value={value}
                   checked={active}
                   onChange={e => toggleAffiliation(value, e.target.checked)}
-                  className="accent-[var(--plattform)]"
+                  className="accent-[var(--app-accent)]"
                 />
                 {t(`affiliation.${value}`)}
               </label>
@@ -124,7 +124,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
         {isCityEmployee && (
           <div
             className="flex flex-col gap-4 p-4 rounded-xl border"
-            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 12%, transparent)', background: 'color-mix(in srgb, var(--plattform) 4%, white)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', background: 'color-mix(in srgb, var(--app-accent) 4%, white)' }}
           >
             <p className="text-small font-medium">{t('cityInfoTitle')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -137,7 +137,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                   defaultValue={cityInfo.organization}
                   className={inputClass}
                   placeholder={t('cityOrganizationPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
                 />
               </div>
               <div>
@@ -149,7 +149,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                   defaultValue={cityInfo.fachbereich}
                   className={inputClass}
                   placeholder={t('cityFachbereichPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -161,7 +161,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
                   defaultValue={cityInfo.position}
                   className={inputClass}
                   placeholder={t('cityPositionPlaceholder')}
-                  style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+                  style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
 
       {/* Password */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-text font-semibold" style={{ color: 'var(--plattform-ink-accent)' }}>{t('changePassword')}</h2>
+        <h2 className="text-text font-semibold" style={{ color: 'var(--app-ink-accent)' }}>{t('changePassword')}</h2>
         <div>
           <label className={labelClass} htmlFor="currentPassword">{t('currentPassword')}</label>
           <input
@@ -180,7 +180,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
             type="password"
             className={inputClass}
             placeholder="••••••••"
-            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
           />
         </div>
         <div>
@@ -191,7 +191,7 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
             type="password"
             className={inputClass}
             placeholder="••••••••"
-            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
           />
           <p className="text-small opacity-40 mt-1.5">{t('newPasswordHint')}</p>
         </div>
@@ -201,9 +201,9 @@ export function ProfileForm({ firstName, lastName, email, affiliations, cityInfo
         type="submit"
         disabled={pending}
         className="self-start px-6 py-3 rounded-xl text-text font-medium text-white transition-colors disabled:opacity-50 cursor-pointer"
-        style={{ background: pending ? 'var(--plattform)' : 'var(--plattform)' }}
-        onMouseEnter={e => !pending && ((e.currentTarget as HTMLButtonElement).style.background = 'var(--plattform-accent)')}
-        onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = 'var(--plattform)')}
+        style={{ background: 'var(--app-accent)' }}
+        onMouseEnter={e => !pending && ((e.currentTarget as HTMLButtonElement).style.background = 'var(--app-ink-accent)')}
+        onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = 'var(--app-accent)')}
       >
         {pending ? t('saving') : t('save')}
       </button>

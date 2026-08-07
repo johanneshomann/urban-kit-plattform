@@ -19,17 +19,17 @@ export default async function ProfilPage() {
   const lastName = u.lastName ?? ''
 
   return (
-    <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8" style={{ color: 'var(--plattform-ink)' }}>
+    <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
 
       <div className="flex items-center gap-4">
         <div
           className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: 'color-mix(in srgb, var(--plattform) 12%, transparent)' }}
+          style={{ background: 'color-mix(in srgb, var(--app-accent) 12%, transparent)' }}
         >
-          <UserCircle className="w-8 h-8" style={{ color: 'var(--plattform)' }} />
+          <UserCircle className="w-8 h-8" style={{ color: 'var(--app-accent)' }} />
         </div>
         <div>
-          <h1 className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
+          <h1 className="text-text font-bold" style={{ color: 'var(--app-ink-accent)' }}>
             {firstName || lastName ? `${firstName} ${lastName}`.trim() : t('title')}
           </h1>
           <p className="text-small opacity-50">{user.email}</p>
