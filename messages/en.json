@@ -870,7 +870,6 @@
   "profile": {
     "title": "My profile",
     "saved": "Changes saved.",
-    "personalData": "Personal details",
     "firstName": "First name",
     "lastName": "Last name",
     "firstNamePlaceholder": "Jane",

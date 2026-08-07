@@ -137,6 +137,25 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
         </div>
       )}
 
+      {/* Name + email — first section, headed by the page title itself */}
+      <section className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass} htmlFor="firstName">{t('firstName')}</label>
+            <input id="firstName" name="firstName" type="text" defaultValue={firstName} className={inputBase} placeholder={t('firstNamePlaceholder')} style={ringStyle} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="lastName">{t('lastName')}</label>
+            <input id="lastName" name="lastName" type="text" defaultValue={lastName} className={inputBase} placeholder={t('lastNamePlaceholder')} style={ringStyle} />
+          </div>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="email">{t('email')}</label>
+          <input id="email" type="email" value={email} disabled className={`${inputBase} opacity-50 cursor-not-allowed`} style={ringStyle} />
+          <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
+        </div>
+      </section>
+
       {/* Profile picture */}
       <section className="flex flex-col gap-4">
         <SectionHeader label={t('avatar')} hint={t('avatarHint')} />
@@ -179,26 +198,6 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
             )}
           </div>
           <input type="hidden" name="removeAvatar" value={avatarRemoved ? '1' : ''} />
-        </div>
-      </section>
-
-      {/* Name + email */}
-      <section className="flex flex-col gap-4">
-        <SectionHeader label={t('personalData')} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass} htmlFor="firstName">{t('firstName')}</label>
-            <input id="firstName" name="firstName" type="text" defaultValue={firstName} className={inputBase} placeholder={t('firstNamePlaceholder')} style={ringStyle} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="lastName">{t('lastName')}</label>
-            <input id="lastName" name="lastName" type="text" defaultValue={lastName} className={inputBase} placeholder={t('lastNamePlaceholder')} style={ringStyle} />
-          </div>
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="email">{t('email')}</label>
-          <input id="email" type="email" value={email} disabled className={`${inputBase} opacity-50 cursor-not-allowed`} style={ringStyle} />
-          <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
         </div>
       </section>
 
