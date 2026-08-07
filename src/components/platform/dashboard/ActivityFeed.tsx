@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, Search, X } from 'lucide-react'
+import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, RotateCcw, Search, X } from 'lucide-react'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 type ActivityItem = {
@@ -61,6 +61,7 @@ export function ActivityFeed({
   const t = useTranslations('dashboard')
   const tp = useTranslations('platform')
   const tc = useTranslations('common')
+  const ta = useTranslations('alleProjekte')
   const [sortMode, setSortMode] = useState<SortMode>('date')
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
@@ -233,8 +234,8 @@ export function ActivityFeed({
       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-6">
         {/* Search */}
         <div
-          className="md:flex-1 flex items-center gap-2 px-4 py-2.5 rounded-lg text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
-          style={{ background: 'var(--app-white)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+          className="md:flex-1 flex items-center gap-2 px-4 h-10 rounded-lg text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm focus-within:shadow-md focus-within:ring-2"
+          style={{ '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
         >
           <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
           <input
@@ -268,8 +269,8 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setProjectOpen((v) => !v); setTypeOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
-                    style={{ color: 'var(--app-ink)', background: 'var(--app-white)' }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)' }}
                     aria-haspopup="listbox"
                     aria-expanded={projectOpen}
                   >
@@ -313,8 +314,8 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setTypeOpen((v) => !v); setProjectOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
-                    style={{ color: 'var(--app-ink)', background: 'var(--app-white)' }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)' }}
                     aria-haspopup="listbox"
                     aria-expanded={typeOpen}
                   >
@@ -358,13 +359,12 @@ export function ActivityFeed({
 
           {/* Sort toggle */}
           <div
-            className="flex items-center gap-1 rounded-lg p-0.5 shadow-sm"
-            style={{ background: 'var(--app-white)' }}
+            className="flex items-center gap-1 rounded-lg p-0.5 h-10 bg-[var(--app-white)] shadow-sm"
           >
             <button
               type="button"
               onClick={() => setSortMode('date')}
-              className="px-3 py-1.5 rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
+              className="px-3 h-full rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
               style={{
                 background: sortMode === 'date' ? 'var(--app-accent)' : 'transparent',
                 color: sortMode === 'date' ? 'var(--app-white)' : 'var(--app-ink)',
@@ -376,7 +376,7 @@ export function ActivityFeed({
             <button
               type="button"
               onClick={() => setSortMode('project')}
-              className="px-3 py-1.5 rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
+              className="px-3 h-full rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
               style={{
                 background: sortMode === 'project' ? 'var(--app-accent)' : 'transparent',
                 color: sortMode === 'project' ? 'var(--app-white)' : 'var(--app-ink)',
@@ -388,6 +388,47 @@ export function ActivityFeed({
           </div>
         </div>
       </div>
+
+      {/* Active filter pills — mirrors the Alle Projekte pattern */}
+      {(projectFilter !== 'ALL' || typeFilter !== 'ALL') && (
+        <div className="flex items-center gap-2 flex-wrap -mt-4 mb-6">
+          {projectFilter !== 'ALL' && (
+            <button
+              type="button"
+              onClick={() => setProjectFilter('ALL')}
+              className="group inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-small bg-[var(--app-white)] transition-all duration-200 hover:shadow-sm cursor-pointer"
+              style={{ color: 'var(--app-ink)' }}
+            >
+              <span className="opacity-60">{t('activityFilterProject')}:</span>
+              <span className="font-semibold">{projectFilter}</span>
+              <X aria-hidden className="w-[1em] h-[1em] transition-transform duration-300 group-hover:rotate-90" />
+            </button>
+          )}
+          {typeFilter !== 'ALL' && (
+            <button
+              type="button"
+              onClick={() => setTypeFilter('ALL')}
+              className="group inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-small bg-[var(--app-white)] transition-all duration-200 hover:shadow-sm cursor-pointer"
+              style={{ color: 'var(--app-ink)' }}
+            >
+              <span className="opacity-60">{t('activityFilterType')}:</span>
+              <span className="font-semibold">{typeLabelMap[typeFilter] ?? typeFilter}</span>
+              <X aria-hidden className="w-[1em] h-[1em] transition-transform duration-300 group-hover:rotate-90" />
+            </button>
+          )}
+          {projectFilter !== 'ALL' && typeFilter !== 'ALL' && (
+            <button
+              type="button"
+              onClick={() => { setProjectFilter('ALL'); setTypeFilter('ALL') }}
+              className="inline-flex items-center gap-1 text-small underline opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+              style={{ color: 'var(--app-ink)' }}
+            >
+              <RotateCcw aria-hidden className="w-[1em] h-[1em]" />
+              {ta('resetFilters')}
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="relative">
         {flatItems.length === 0 ? (

@@ -117,10 +117,12 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Controls — search first, filters beside it on desktop */}
+      <div className="flex flex-col md:flex-row md:items-center gap-2">
       {/* Search */}
       <div
-        className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
-        style={{ background: 'var(--app-light)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+        className="md:flex-1 flex items-center gap-2 px-4 h-10 rounded-lg text-small bg-[var(--app-light)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))] hover:shadow-sm focus-within:shadow-md focus-within:ring-2"
+        style={{ '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
       >
         <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
         <input
@@ -156,11 +158,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               <button
                 type="button"
                 onClick={() => setOpenKey(open ? null : key)}
-                className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,transparent)] hover:shadow-sm cursor-pointer"
-                style={{
-                  color: active !== null ? 'var(--app-white)' : 'var(--app-ink)',
-                  background: active !== null ? 'var(--app-accent)' : 'var(--app-light)',
-                }}
+                className={`w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small transition-all duration-200 hover:shadow-sm cursor-pointer ${active !== null ? 'bg-[var(--app-accent)]' : 'bg-[var(--app-light)] hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))]'}`}
+                style={{ color: active !== null ? 'var(--app-white)' : 'var(--app-ink)' }}
                 aria-haspopup="listbox"
                 aria-expanded={open}
               >
@@ -207,6 +206,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
             </div>
           )
         })}
+      </div>
+
       </div>
 
       {/* Result count + active filter pills */}
