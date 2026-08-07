@@ -8,10 +8,10 @@
  * server page already fetched.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { ChevronDown, ExternalLink, RotateCcw, Search, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink, RotateCcw, Search, X } from 'lucide-react'
 import { ProjectJoinButton } from '@/components/platform/ProjectJoinButton'
 
 export type DiscoverProject = {
@@ -30,6 +30,8 @@ export type DiscoverProject = {
 const STATUS_VALUES = ['active', 'planning', 'completed', 'archived']
 const THEMA_VALUES = ['mobilitaet', 'wohnraum', 'gruenflaechen', 'infrastruktur', 'stadtentwicklung', 'kultur', 'bildung', 'umwelt']
 const STADTBEREICH_VALUES = ['innenstadt', 'norden', 'sueden', 'osten', 'westen', 'gesamtstadt']
+
+const PROJECTS_PER_PAGE = 30
 
 type FilterKey = 'status' | 'thema' | 'stadtbereich' | 'year'
 type FilterState = { status: string | null; thema: string | null; stadtbereich: string | null; year: number | null }
@@ -115,8 +117,25 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
   /** Replays the card-in stagger whenever the result set changes. */
   const gridKey = `${search.trim().toLowerCase()}|${filters.status}|${filters.thema}|${filters.stadtbereich}|${filters.year}`
 
+  // Pagination — max 30 cards per page; filter/search changes jump back to page 1.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [page, setPage] = useState(0)
+  useEffect(() => { setPage(0) }, [gridKey])
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PROJECTS_PER_PAGE))
+  const safePage = Math.min(page, pageCount - 1)
+  const pageItems = filtered.slice(safePage * PROJECTS_PER_PAGE, (safePage + 1) * PROJECTS_PER_PAGE)
+
+  /** Change page and smooth-scroll back to the section top. */
+  const goToPage = (p: number) => {
+    setPage(p)
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-reduce-motion')
+    rootRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+  }
+
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={rootRef} className="flex flex-col gap-2 scroll-mt-14">
       {/* Controls — search first, filters beside it on desktop */}
       <div className="flex flex-col md:flex-row md:items-center gap-2">
       {/* Search */}
@@ -261,8 +280,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
           )}
         </div>
       ) : (
-        <div key={gridKey} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-3">
-          {filtered.map((p, i) => (
+        <div key={`${gridKey}|${safePage}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-3">
+          {pageItems.map((p, i) => (
             <div
               key={p.id}
               className="card-in flex flex-col rounded-xl overflow-hidden shadow-sm"
@@ -272,7 +291,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               }}
             >
               {/* Cover thumbnail */}
-              <div className="relative w-full h-40 overflow-hidden" style={{ background: 'var(--app-white)' }}>
+              <div className="relative w-full h-40 overflow-hidden" style={{ background: 'var(--app-light)' }}>
                 {p.coverImageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -299,10 +318,11 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Link
                     href={`/${locale}/projekte/${p.slug}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_5%,transparent)]"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium bg-[var(--app-light)] transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))]"
                     style={{
                       color: 'var(--app-ink)',
-                      background: 'var(--app-white)',
                       minHeight: 44,
                     }}
                   >
@@ -315,6 +335,51 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
             </div>
           ))}
         </div>
+      )}
+
+      {/* Pagination — same pattern as the Meine-Projekte pills */}
+      {pageCount > 1 && (
+        <nav aria-label={t('sectionOtherProjects')} className="flex items-center justify-center gap-3 mt-4">
+          <button
+            type="button"
+            onClick={() => goToPage(Math.max(0, safePage - 1))}
+            disabled={safePage === 0}
+            aria-label={t('paginationPrev')}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--app-light)] transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
+            style={{ color: 'var(--app-ink-accent)' }}
+          >
+            <ChevronLeft className="w-5 h-5" aria-hidden />
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: pageCount }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => goToPage(i)}
+                aria-label={t('paginationPage', { page: i + 1, total: pageCount })}
+                aria-current={i === safePage ? 'page' : undefined}
+                className="h-2.5 rounded-full cursor-pointer"
+                style={{
+                  width: i === safePage ? '1.75rem' : '0.625rem',
+                  background: i === safePage ? 'var(--app-accent)' : 'color-mix(in srgb, var(--app-ink) 25%, transparent)',
+                  transition: 'width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s',
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => goToPage(Math.min(pageCount - 1, safePage + 1))}
+            disabled={safePage === pageCount - 1}
+            aria-label={t('paginationNext')}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--app-light)] transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
+            style={{ color: 'var(--app-ink-accent)' }}
+          >
+            <ChevronRight className="w-5 h-5" aria-hidden />
+          </button>
+        </nav>
       )}
     </div>
   )
