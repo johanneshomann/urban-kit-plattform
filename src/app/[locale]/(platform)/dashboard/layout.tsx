@@ -6,7 +6,7 @@ import { DashboardChrome } from '@/components/platform/DashboardChrome'
 import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { DashboardFooter } from '@/components/platform/DashboardFooter'
 import { HideAccessibilityFab } from '@/components/accessibility/HideAccessibilityFab'
-import { getPlatformColors } from '@/lib/theme'
+import { getAppVars } from '@/lib/app-theme'
 
 export default async function DashboardLayout({
   children,
@@ -20,26 +20,7 @@ export default async function DashboardLayout({
 
   if (!user) redirect(`/${locale}/login`)
 
-  const platformColors = await getPlatformColors()
-  const appVars: Record<string, string> = {
-    '--app-black': platformColors.appBlack,
-    '--app-ink': platformColors.appInk,
-    '--app-ink-accent': platformColors.appInkAccent,
-    '--app-white': platformColors.appWhite,
-    '--app-light': platformColors.appLight,
-    '--app-accent': platformColors.appAccent,
-    // Override plattform tokens with app (neutral) values so every component
-    // inside the workspace uses the neutral black/white scheme instead of the
-    // green public-brand palette.
-    '--plattform': platformColors.appAccent,
-    '--plattform-light': platformColors.appLight,
-    '--plattform-ink': platformColors.appInk,
-    '--plattform-ink-accent': platformColors.appInkAccent,
-    '--plattform-accent': platformColors.appAccent,
-    '--plattform-white': platformColors.appWhite,
-    '--plattform-white-transparent': 'rgba(255, 255, 255, 0.7)',
-    '--plattform-black': platformColors.appBlack,
-  }
+  const appVars = await getAppVars()
 
   const firstName = ((user as unknown as { firstName?: string | null }).firstName) ?? null
   const lastName = ((user as unknown as { lastName?: string | null }).lastName) ?? null
