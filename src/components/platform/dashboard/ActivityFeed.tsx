@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, Search, X } from 'lucide-react'
+import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 type ActivityItem = {
   type: 'poll' | 'pollActivated' | 'event' | 'eventSoon' | 'news' | 'forum' | 'forumComment' | 'threadPinned' | 'threadLocked' | 'task' | 'taskDone' | 'taskAssigned' | 'taskDueSoon' | 'file' | 'board' | 'newsComment' | 'memberJoined'
@@ -19,6 +20,10 @@ type ActivityItem = {
 }
 
 type SortMode = 'project' | 'date'
+
+/** Collapsed row count and the hard cap after expanding. */
+const MAX_VISIBLE = 8
+const MAX_TOTAL = 20
 
 function activityIcon(type: ActivityItem['type']) {
   const className = 'h-4 w-4'
@@ -55,13 +60,15 @@ export function ActivityFeed({
 }) {
   const t = useTranslations('dashboard')
   const tp = useTranslations('platform')
-  const [sortMode, setSortMode] = useState<SortMode>('project')
+  const tc = useTranslations('common')
+  const [sortMode, setSortMode] = useState<SortMode>('date')
+  const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [projectFilter, setProjectFilter] = useState<string>('ALL')
   const [typeFilter, setTypeFilter] = useState<string>('ALL')
   const [projectOpen, setProjectOpen] = useState(false)
   const [typeOpen, setTypeOpen] = useState(false)
-  const MAX_VISIBLE = 8
+  const sectionRef = useRef<HTMLElement>(null)
 
   const formatRelativeDate = (dateStr?: string): string | null => {
     if (!dateStr) return null
@@ -126,14 +133,16 @@ export function ActivityFeed({
     memberJoined: t('activityMemberJoined', { name: '' }).trim(),
   }), [t])
 
-  // Filter items by project + type
+  // Filter items by search text, project and type
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
     return items.filter((item) => {
+      if (q && !item.title.toLowerCase().includes(q) && !item.projectTitle.toLowerCase().includes(q)) return false
       if (projectFilter !== 'ALL' && item.projectTitle !== projectFilter) return false
       if (typeFilter !== 'ALL' && item.type !== typeFilter) return false
       return true
     })
-  }, [items, projectFilter, typeFilter])
+  }, [items, search, projectFilter, typeFilter])
 
   const groupedByProject: Record<string, { title: string; items: ActivityItem[] }> = {}
   for (const item of filtered) {
@@ -151,12 +160,25 @@ export function ActivityFeed({
     return db - da
   })
 
-  const flatItems =
+  const flatItems = (
     sortMode === 'project'
       ? Object.entries(groupedByProject).flatMap(([, g]) => g.items)
       : sortedByDate
-  const visibleItems = expanded ? flatItems : flatItems.slice(0, MAX_VISIBLE)
-  const hasMore = flatItems.length > MAX_VISIBLE
+  ).slice(0, MAX_TOTAL)
+  const headItems = flatItems.slice(0, MAX_VISIBLE)
+  const tailItems = flatItems.slice(MAX_VISIBLE)
+  const hasMore = tailItems.length > 0
+
+  /** Replays the list's card-in stagger whenever the result set changes. */
+  const listKey = `${sortMode}|${projectFilter}|${typeFilter}|${search.trim().toLowerCase()}`
+
+  const collapse = () => {
+    setExpanded(false)
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-reduce-motion')
+    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+  }
 
   const activityLabel = (item: ActivityItem) => {
     switch (item.type) {
@@ -183,121 +205,164 @@ export function ActivityFeed({
   if (items.length === 0) return null
 
   const dropdownBase = (open: boolean) =>
-    `absolute top-full left-0 mt-1 w-full rounded-lg border bg-white shadow-lg z-10 overflow-hidden ${open ? 'dropdown-enter' : 'hidden'}`
+    `absolute top-full left-0 mt-1 w-full rounded-lg border shadow-lg z-10 overflow-hidden ${open ? 'dropdown-enter' : 'hidden'}`
+
+  const renderRow = (item: ActivityItem, i: number) => (
+    <li key={`${item.type}-${item.projectId}-${item.title}-${i}`} className="card-in" style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}>
+      <ActivityRow
+        item={item}
+        locale={locale}
+        label={activityLabel(item)}
+        icon={activityIcon(item.type)}
+        openLabel={t('openWorkspace')}
+        inProjectLabel={t('activityInProject', { project: item.projectTitle })}
+        relativeDate={formatRelativeDate(item.date)}
+      />
+    </li>
+  )
 
   return (
-    <section aria-labelledby="activity-heading" className="px-6 md:px-10 py-10">
-      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
-        <h2 id="activity-heading" className="text-small font-semibold uppercase tracking-wide opacity-50">
-          {t('activityHeading')}
-        </h2>
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Filters (only when there's more than one item) */}
-          {items.length > 1 && (
-            <>
-              {/* Project filter */}
-              <div className="relative w-44">
-                <button
-                  type="button"
-                  onClick={() => { setProjectOpen((v) => !v); setTypeOpen(false) }}
-                  className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-colors hover:bg-black/5"
-                  style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)' }}
-                  aria-haspopup="listbox"
-                  aria-expanded={projectOpen}
-                >
-                  <span className="truncate">{projectFilter === 'ALL' ? t('activityFilterAll') : projectFilter}</span>
-                  <ChevronDown aria-hidden="true" className="w-3 h-3 shrink-0 opacity-50" />
-                </button>
-                <div className={dropdownBase(projectOpen)} role="listbox" aria-label={t('activityFilterProject')}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={projectFilter === 'ALL'}
-                    onClick={() => { setProjectFilter('ALL'); setProjectOpen(false) }}
-                    className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors"
-                    style={{ color: 'var(--app-ink)' }}
-                  >
-                    {t('activityFilterAll')}
-                  </button>
-                  {projectOptions.map((title) => (
-                    <button
-                      key={title}
-                      type="button"
-                      role="option"
-                      aria-selected={projectFilter === title}
-                      onClick={() => { setProjectFilter(title); setProjectOpen(false) }}
-                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors"
-                      style={{ color: 'var(--app-ink)' }}
-                    >
-                      {title}
-                    </button>
-                  ))}
-                </div>
-              </div>
+    <section ref={sectionRef} aria-labelledby="activity-heading" className="px-6 md:px-10 py-10 scroll-mt-16">
+      <h2 id="activity-heading" className="text-small font-semibold uppercase tracking-wide opacity-50 mb-4">
+        {t('activityHeading')}
+      </h2>
 
-              {/* Type filter */}
-              <div className="relative w-44">
-                <button
-                  type="button"
-                  onClick={() => { setTypeOpen((v) => !v); setProjectOpen(false) }}
-                  className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-colors hover:bg-black/5"
-                  style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)' }}
-                  aria-haspopup="listbox"
-                  aria-expanded={typeOpen}
-                >
-                  <span className="truncate">{typeFilter === 'ALL' ? t('activityFilterType') : typeLabelMap[typeFilter] ?? typeFilter}</span>
-                  <ChevronDown aria-hidden="true" className="w-3 h-3 shrink-0 opacity-50" />
-                </button>
-                <div className={dropdownBase(typeOpen)} role="listbox" aria-label={t('activityFilterType')}>
+      {/* Controls — full width under the heading: search, filters, sort */}
+      <div className="flex flex-col gap-2 mb-6">
+        {/* Search */}
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
+          style={{ background: 'var(--app-white)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+        >
+          <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('activitySearchPlaceholder')}
+            aria-label={t('activitySearchPlaceholder')}
+            className="flex-1 outline-none bg-transparent placeholder:opacity-60"
+            style={{ color: 'var(--app-ink)' }}
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="opacity-40 hover:opacity-80 transition-all duration-200 hover:rotate-90 cursor-pointer"
+              aria-label={tc('clearSearch')}
+            >
+              <X className="w-[1em] h-[1em]" style={{ color: 'var(--app-ink)' }} />
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          {/* Filters (only when there's more than one item) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {items.length > 1 && (
+              <>
+                {/* Project filter */}
+                <div className="relative w-44">
                   <button
                     type="button"
-                    role="option"
-                    aria-selected={typeFilter === 'ALL'}
-                    onClick={() => { setTypeFilter('ALL'); setTypeOpen(false) }}
-                    className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors"
-                    style={{ color: 'var(--app-ink)' }}
+                    onClick={() => { setProjectOpen((v) => !v); setTypeOpen(false) }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
+                    aria-haspopup="listbox"
+                    aria-expanded={projectOpen}
                   >
-                    {t('activityFilterAll')}
+                    <span className="truncate">{projectFilter === 'ALL' ? t('activityFilterAll') : projectFilter}</span>
+                    <ChevronDown aria-hidden="true" className={`w-3 h-3 shrink-0 opacity-50 transition-transform duration-200 ${projectOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  {presentTypes.map((type) => (
+                  <div
+                    className={dropdownBase(projectOpen)}
+                    style={{ background: 'var(--app-white)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                    role="listbox"
+                    aria-label={t('activityFilterProject')}
+                  >
                     <button
-                      key={type}
                       type="button"
                       role="option"
-                      aria-selected={typeFilter === type}
-                      onClick={() => { setTypeFilter(type); setTypeOpen(false) }}
-                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors"
+                      aria-selected={projectFilter === 'ALL'}
+                      onClick={() => { setProjectFilter('ALL'); setProjectOpen(false) }}
+                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
                       style={{ color: 'var(--app-ink)' }}
                     >
-                      {typeLabelMap[type] ?? type}
+                      {t('activityFilterAll')}
                     </button>
-                  ))}
+                    {projectOptions.map((title) => (
+                      <button
+                        key={title}
+                        type="button"
+                        role="option"
+                        aria-selected={projectFilter === title}
+                        onClick={() => { setProjectFilter(title); setProjectOpen(false) }}
+                        className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                        style={{ color: 'var(--app-ink)' }}
+                      >
+                        {title}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
+
+                {/* Type filter */}
+                <div className="relative w-44">
+                  <button
+                    type="button"
+                    onClick={() => { setTypeOpen((v) => !v); setProjectOpen(false) }}
+                    className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
+                    style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
+                    aria-haspopup="listbox"
+                    aria-expanded={typeOpen}
+                  >
+                    <span className="truncate">{typeFilter === 'ALL' ? t('activityFilterType') : typeLabelMap[typeFilter] ?? typeFilter}</span>
+                    <ChevronDown aria-hidden="true" className={`w-3 h-3 shrink-0 opacity-50 transition-transform duration-200 ${typeOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <div
+                    className={dropdownBase(typeOpen)}
+                    style={{ background: 'var(--app-white)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                    role="listbox"
+                    aria-label={t('activityFilterType')}
+                  >
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={typeFilter === 'ALL'}
+                      onClick={() => { setTypeFilter('ALL'); setTypeOpen(false) }}
+                      className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                      style={{ color: 'var(--app-ink)' }}
+                    >
+                      {t('activityFilterAll')}
+                    </button>
+                    {presentTypes.map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        role="option"
+                        aria-selected={typeFilter === type}
+                        onClick={() => { setTypeFilter(type); setTypeOpen(false) }}
+                        className="w-full text-left px-3 py-1.5 text-small hover:bg-black/5 transition-colors cursor-pointer"
+                        style={{ color: 'var(--app-ink)' }}
+                      >
+                        {typeLabelMap[type] ?? type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Sort toggle */}
           <div
             className="flex items-center gap-1 rounded-lg border p-0.5"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 15%, transparent)', background: 'var(--app-white)' }}
           >
             <button
               type="button"
-              onClick={() => setSortMode('project')}
-              className="px-3 py-1.5 rounded-md text-small font-medium transition-colors"
-              style={{
-                background: sortMode === 'project' ? 'var(--app-accent)' : 'transparent',
-                color: sortMode === 'project' ? 'var(--app-white)' : 'var(--app-ink)',
-              }}
-              aria-pressed={sortMode === 'project'}
-            >
-              {t('activitySortByProject')}
-            </button>
-            <button
-              type="button"
               onClick={() => setSortMode('date')}
-              className="px-3 py-1.5 rounded-md text-small font-medium transition-colors"
+              className="px-3 py-1.5 rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
               style={{
                 background: sortMode === 'date' ? 'var(--app-accent)' : 'transparent',
                 color: sortMode === 'date' ? 'var(--app-white)' : 'var(--app-ink)',
@@ -306,38 +371,59 @@ export function ActivityFeed({
             >
               {t('activitySortByDate')}
             </button>
+            <button
+              type="button"
+              onClick={() => setSortMode('project')}
+              className="px-3 py-1.5 rounded-md text-small font-medium transition-all duration-200 cursor-pointer"
+              style={{
+                background: sortMode === 'project' ? 'var(--app-accent)' : 'transparent',
+                color: sortMode === 'project' ? 'var(--app-white)' : 'var(--app-ink)',
+              }}
+              aria-pressed={sortMode === 'project'}
+            >
+              {t('activitySortByProject')}
+            </button>
           </div>
         </div>
       </div>
 
       <div className="relative">
-        {filtered.length === 0 ? (
+        {flatItems.length === 0 ? (
           <p className="text-small" style={{ color: 'var(--app-ink)', opacity: 0.5 }}>
             {t('noActivity')}
           </p>
         ) : (
-          <ul className="flex flex-col gap-2" role="list">
-            {visibleItems.map((item, i) => (
-              <li key={`${item.type}-${item.title}-${i}`}>
-                <ActivityRow
-                  item={item}
-                  locale={locale}
-                  label={activityLabel(item)}
-                  icon={activityIcon(item.type)}
-                  openLabel={t('openWorkspace')}
-                  inProjectLabel={t('activityInProject', { project: item.projectTitle })}
-                  relativeDate={formatRelativeDate(item.date)}
-                />
-              </li>
-            ))}
-          </ul>
+          <div key={listKey}>
+            <ul className="flex flex-col gap-2" role="list">
+              {headItems.map(renderRow)}
+            </ul>
+
+            {/* Collapsible tail — grid-rows trick animates between auto heights */}
+            {hasMore && (
+              <div
+                aria-hidden={!expanded}
+                inert={!expanded}
+                style={{
+                  display: 'grid',
+                  gridTemplateRows: expanded ? '1fr' : '0fr',
+                  transition: 'grid-template-rows 0.45s cubic-bezier(0.22,1,0.36,1)',
+                }}
+              >
+                <div className="overflow-hidden">
+                  <ul className="flex flex-col gap-2 pt-2" role="list">
+                    {tailItems.map((item, i) => renderRow(item, i + headItems.length))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {hasMore && (
           <>
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-24 z-10 transition-opacity duration-300"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-24 z-10"
               style={{
                 background: 'linear-gradient(to bottom, transparent, var(--app-light))',
                 opacity: expanded ? 0 : 1,
@@ -346,14 +432,14 @@ export function ActivityFeed({
             />
             <button
               type="button"
-              onClick={() => setExpanded((e) => !e)}
+              onClick={() => (expanded ? collapse() : setExpanded(true))}
               aria-expanded={expanded}
               aria-label={expanded ? t('activityShowLess') : t('activityShowMore')}
-              className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-20 flex items-center justify-center w-9 h-9 rounded-full shadow-md transition-transform hover:scale-110"
+              className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-20 flex items-center justify-center w-9 h-9 rounded-full shadow-md transition-transform duration-200 hover:scale-110 cursor-pointer"
               style={{ background: 'var(--app-accent)', color: 'var(--app-white)' }}
             >
               <ChevronDown
-                className={`w-5 h-5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
                 aria-hidden
               />
             </button>
@@ -381,6 +467,8 @@ function ActivityRow({
   inProjectLabel: string
   relativeDate?: string | null
 }) {
+  const exitNavigate = useDashboardExit()
+  const href = `/${locale}/dashboard/projekte/${item.projectSlug}`
   return (
     <div
       className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3"
@@ -411,7 +499,12 @@ function ActivityRow({
           </span>
         )}
         <Link
-          href={`/${locale}/dashboard/projekte/${item.projectSlug}`}
+          href={href}
+          onClick={(e) => {
+            if (!exitNavigate || !isPlainLeftClick(e)) return
+            e.preventDefault()
+            exitNavigate(href)
+          }}
           className="inline-flex items-center justify-center h-10 w-10 shrink-0 rounded-lg"
           style={{
             background: item.schemeGeneral,
@@ -422,7 +515,7 @@ function ActivityRow({
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = item.schemeDark }}
           onMouseLeave={(e) => { e.currentTarget.style.background = item.schemeGeneral }}
-          aria-label={openLabel}
+          aria-label={`${label} – ${openLabel}`}
         >
           <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
         </Link>
