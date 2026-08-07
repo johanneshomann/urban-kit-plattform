@@ -22,6 +22,7 @@ import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
 import { reorderProjects } from '@/actions/reorder-projects'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
+import { scrollToSection } from '@/lib/smooth-scroll'
 
 type PillProject = {
   membershipId: string
@@ -238,13 +239,14 @@ export function ProjectPillList({
   const [items, setItems] = useState(projects)
   const [page, setPage] = useState(0)
 
-  /** Change page and smooth-scroll back to the section top. */
+  /** Scroll calmly back to the section top FIRST, then switch the page. */
   const goToPage = useCallback((p: number) => {
-    setPage(p)
-    const reduceMotion =
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
-      document.documentElement.classList.contains('a11y-reduce-motion')
-    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+    const el = sectionRef.current
+    if (!el) {
+      setPage(p)
+      return
+    }
+    void scrollToSection(el, 650).then(() => setPage(p))
   }, [])
 
   const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
