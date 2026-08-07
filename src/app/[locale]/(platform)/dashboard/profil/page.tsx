@@ -70,17 +70,24 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
   return (
     <div className="px-6 md:px-10 py-10 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
 
-      {/* Back to the dashboard */}
-      <IconTooltip label={tp('navDashboard')}>
-        <Link
-          href={`/${locale}/dashboard`}
-          className="self-start inline-flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--app-white)] shadow-sm transition-all duration-200 hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
-          style={{ color: 'var(--app-ink-accent)' }}
-        >
-          <ArrowLeft aria-hidden className="h-4 w-4" />
-          <span className="sr-only">{tp('navDashboard')}</span>
-        </Link>
-      </IconTooltip>
+      {/* Section title with inline back arrow + hairline divider, matching the
+          dashboard's section-header pattern */}
+      <div>
+        <div className="flex items-center gap-2">
+          <IconTooltip label={tp('navDashboard')}>
+            <Link
+              href={`/${locale}/dashboard`}
+              className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--app-white)] shadow-sm transition-all duration-200 hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
+              style={{ color: 'var(--app-ink-accent)' }}
+            >
+              <ArrowLeft aria-hidden className="h-4 w-4" />
+              <span className="sr-only">{tp('navDashboard')}</span>
+            </Link>
+          </IconTooltip>
+          <h1 className="text-small font-semibold opacity-50">{t('title')}</h1>
+        </div>
+        <div aria-hidden className="h-px mt-2" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
+      </div>
 
       <div className="flex items-center gap-4">
         <div
@@ -95,9 +102,9 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
           )}
         </div>
         <div>
-          <h1 className="text-text font-bold" style={{ color: 'var(--app-ink-accent)' }}>
+          <h2 className="text-text font-bold" style={{ color: 'var(--app-ink-accent)' }}>
             {firstName || lastName ? `${firstName} ${lastName}`.trim() : t('title')}
-          </h1>
+          </h2>
           <p className="text-small opacity-50">{user.email}</p>
         </div>
       </div>
