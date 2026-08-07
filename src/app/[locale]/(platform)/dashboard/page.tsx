@@ -6,13 +6,13 @@ import { resolveColorScheme } from '@/lib/colorScheme'
 import { canViewContent } from '@/lib/visibility'
 import type { ViewerMembership } from '@/lib/visibility'
 import Link from 'next/link'
-import { FolderKanban, Search, ChevronRight, ExternalLink } from 'lucide-react'
+import { FolderKanban, Search, ChevronRight } from 'lucide-react'
 
 import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { CtaButton } from '@/components/platform/CtaButton'
-import { ProjectJoinButton } from '@/components/platform/ProjectJoinButton'
 import { ProjectPillList } from '@/components/platform/ProjectPillList'
 import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
+import { AllProjectsSection } from '@/components/platform/dashboard/AllProjectsSection'
 
 type Project = {
   id: string
@@ -25,6 +25,10 @@ type Project = {
   colorScheme?: string | null
   startYear?: number | null
   projektphase?: string | null
+  status?: string | null
+  thema?: string[] | null
+  stadtbereich?: string[] | null
+  createdAt?: string | null
   members?: { docs?: { id: string }[]; totalDocs?: number } | null
 }
 
@@ -352,10 +356,11 @@ export default async function DashboardPage({
   }
 
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
-  // but never below 200px so content always fits.
+  // but never below 200px so content always fits. The pill list paginates at
+  // 4 per page, so the divisor caps there.
   const memberRowHeight = memberProjects.length <= 2
     ? '50vh'
-    : `max(200px, ${Math.round(70 / memberProjects.length)}vh)`
+    : `max(200px, ${Math.round(70 / Math.min(memberProjects.length, 4))}vh)`
 
   const firstName = ((user as unknown as { firstName?: string | null }).firstName) ?? null
   const lastName = ((user as unknown as { lastName?: string | null }).lastName) ?? null
@@ -428,69 +433,21 @@ export default async function DashboardPage({
           <h2 id="discover-heading" className="text-small font-semibold uppercase tracking-wide opacity-50 mb-5">
             {t('sectionOtherProjects')}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {otherProjects.map((p) => (
-              <div
-                key={p.id}
-                className="flex flex-col rounded-xl overflow-hidden border shadow-sm"
-                style={{
-                  borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)',
-                  background: 'var(--app-white)',
-                }}
-              >
-                {/* Cover thumbnail */}
-                <div
-                  className="relative w-full h-40 overflow-hidden"
-                  style={{ background: 'var(--app-light)' }}
-                >
-                  {p.coverImage?.url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.coverImage.url}
-                      alt=""
-                      aria-hidden
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 flex flex-col p-4 gap-2">
-                  <h3
-                    className="text-text font-bold leading-snug"
-                    style={{ color: 'var(--app-ink-accent)' }}
-                  >
-                    {p.title}
-                  </h3>
-                  {p.shortDescription && (
-                    <p
-                      className="text-small line-clamp-2 flex-1"
-                      style={{ color: 'var(--app-ink)', opacity: 0.65 }}
-                    >
-                      {p.shortDescription}
-                    </p>
-                  )}
-
-                  {/* Always-visible actions */}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <Link
-                      href={`/${locale}/projekte/${p.slug}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium border transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_5%,transparent)]"
-                      style={{
-                        color: 'var(--app-ink)',
-                        borderColor: 'color-mix(in srgb, var(--app-accent) 35%, transparent)',
-                        minHeight: 44,
-                      }}
-                    >
-                      <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-                      {t('openProject')}
-                    </Link>
-                    <ProjectJoinButton slug={p.slug} locale={locale} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <AllProjectsSection
+            projects={otherProjects.map((p) => ({
+              id: p.id,
+              title: p.title,
+              slug: p.slug,
+              shortDescription: p.shortDescription ?? null,
+              status: p.status ?? null,
+              thema: p.thema ?? null,
+              stadtbereich: p.stadtbereich ?? null,
+              startYear: p.startYear ?? null,
+              createdAt: p.createdAt ?? null,
+              coverImageUrl: p.coverImage?.url ?? null,
+            }))}
+            locale={locale}
+          />
         </section>
       )}
 
