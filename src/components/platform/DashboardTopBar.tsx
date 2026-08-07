@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import { User, Globe, LayoutDashboard, LogOut } from 'lucide-react'
+import { User, Globe, HandHeart, LayoutDashboard, LogOut } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu'
 import { IconTooltip } from '@/components/platform/IconTooltip'
@@ -53,16 +53,17 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
       className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 md:px-10 border-b shadow-md"
       style={{
         background: 'var(--app-white)',
-        borderColor: 'color-mix(in srgb, var(--app-ink) 10%, transparent)',
+        borderColor: 'var(--app-accent)',
         color: BLACK,
       }}
     >
       {/* Greeting — left side, showing the user's name; links to the dashboard */}
       <Link
         href={`/${locale}/dashboard`}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 text-text"
         style={{ minHeight: 44, color: BLACK }}
       >
+        <HandHeart aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
         <span className="text-text leading-tight">
           {userName ? t('greeting', { name: userName }) : t('greetingFallback')}
         </span>
