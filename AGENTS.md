@@ -52,6 +52,7 @@ npm run start            # start production build
 npm run generate:types   # REQUIRED after any Payload collection/field/global change
 npm run generate:importmap  # after adding/moving a custom admin component
 npm run payload          # Payload CLI (migrations etc.)
+npm run seed [-- --force]  # seed demo data; --force wipes & re-seeds (needs dev server / MongoDB)
 npm run lint             # next lint
 npx tsc --noEmit         # typecheck (run before committing)
 ```
