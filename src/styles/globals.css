@@ -15,11 +15,20 @@
   from { transform: translateX(-100%); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-60%); opacity: 0; }
+}
 .animate-slide-left {
   animation: slide-left-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .animate-slide-right {
   animation: slide-right-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Exit leg of the dashboard → workspace transition: the current page slides
+   away to the left before navigation (driven by DashboardTransition). */
+.animate-slide-out-left {
+  animation: slide-out-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @plugin "@tailwindcss/typography";
 @source inline("p-{8,10,12,14} px-{12,14} py-{8,10,12,14} h-{16,18,20,48,52,56,60,64,72} gap-{8,10,14} mt-{8,10,12,14} mb-{8,10,12,14} space-y-{8,10,12,14}");
