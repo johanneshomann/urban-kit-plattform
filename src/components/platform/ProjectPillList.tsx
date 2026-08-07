@@ -60,7 +60,7 @@ function SortablePill({
   tOpenWorkspace: string
   tManageProject: string
   rowHeight: string
-  onNavigate: (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void
+  onNavigate: (href: string, coverColor?: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
   const t = useTranslations('dashboard')
   const {
@@ -161,7 +161,7 @@ function SortablePill({
           <Link
             href={workspaceHref}
             prefetch={true}
-            onClick={onNavigate(workspaceHref)}
+            onClick={onNavigate(workspaceHref, scheme.light)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
             style={{
               background: 'var(--project-general)',
@@ -179,7 +179,7 @@ function SortablePill({
             <Link
               href={manageHref}
               prefetch={true}
-              onClick={onNavigate(manageHref)}
+              onClick={onNavigate(manageHref, scheme.white)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
               style={{
                 background: 'var(--project-general)',
@@ -260,10 +260,10 @@ export function ProjectPillList({
   )
 
   const onNavigate = useCallback(
-    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (href: string, coverColor?: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       if (!exitNavigate || !isPlainLeftClick(e)) return
       e.preventDefault()
-      exitNavigate(href)
+      exitNavigate(href, coverColor)
     },
     [exitNavigate],
   )

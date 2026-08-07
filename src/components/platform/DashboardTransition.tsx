@@ -5,11 +5,11 @@ import { usePathname, useRouter } from 'next/navigation'
 
 /**
  * Navigate with the dashboard's exit animation: the current page slides out to
- * the left, then the route changes (which plays the matching enter animation).
- * Falls back to an instant navigation under reduced motion. No-op context
- * default so links outside DashboardTransition still work.
+ * the left while (optionally) a cover panel in the target's background color
+ * slides in from the right, then the route changes and plays the matching
+ * enter animation. Falls back to an instant navigation under reduced motion.
  */
-const ExitContext = createContext<((href: string) => void) | null>(null)
+const ExitContext = createContext<((href: string, coverColor?: string) => void) | null>(null)
 
 export function useDashboardExit() {
   return useContext(ExitContext)
@@ -46,6 +46,7 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
   const [animClass, setAnimClass] = useState<string | null>(null)
   const [animKey, setAnimKey] = useState(0)
   const [exiting, setExiting] = useState(false)
+  const [coverColor, setCoverColor] = useState<string | null>(null)
 
   /** Strip the locale prefix (e.g. `/de/dashboard` → `/dashboard`). */
   function stripLocale(p: string): string {
@@ -53,7 +54,7 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
   }
 
   const navigateWithExit = useCallback(
-    (href: string) => {
+    (href: string, cover?: string) => {
       const reduceMotion =
         window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
         document.documentElement.classList.contains('a11y-reduce-motion')
@@ -62,6 +63,7 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
         return
       }
       setExiting(true)
+      setCoverColor(cover ?? null)
       window.setTimeout(() => router.push(href), EXIT_MS)
     },
     [router],
@@ -73,6 +75,7 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
     if (prev === curr) return
 
     setExiting(false)
+    setCoverColor(null)
 
     // Entering any dashboard subpage (project, profile, …) → slide in from right
     const enteringProject = prev === '/dashboard' && curr.startsWith('/dashboard/')
@@ -101,6 +104,11 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
           {children}
         </div>
       </div>
+      {/* Cover panel in the target project's background — slides in over
+          everything (incl. the top bar) while the page slides out. */}
+      {exiting && coverColor && (
+        <div aria-hidden className="animate-cover-in fixed inset-0 z-40" style={{ background: coverColor }} />
+      )}
     </ExitContext.Provider>
   )
 }
