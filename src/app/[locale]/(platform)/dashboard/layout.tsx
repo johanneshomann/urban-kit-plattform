@@ -1,15 +1,8 @@
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth/getUser'
-import { PlatformDock } from '@/components/platform/PlatformDock'
 import { DashboardShell } from '@/components/platform/DashboardShell'
 import { DashboardTransition } from '@/components/platform/DashboardTransition'
-import { getPayload } from 'payload'
-import config from '@payload-config'
-import { resolveColorScheme } from '@/lib/colorScheme'
-import { isPMOfAnyProject } from '@/lib/chat/access'
-import type { NotificationItem } from '@/components/platform/NotificationList'
-
-type Project = { id: string; title: string; slug: string; colorScheme?: string | null }
+import { getPlatformColors } from '@/lib/theme'
 
 export default async function DashboardLayout({
   children,
@@ -23,77 +16,29 @@ export default async function DashboardLayout({
 
   if (!user) redirect(`/${locale}/login`)
 
-  // Fetch notification items + PM flag for the floating platform dock
-  let notificationItems: NotificationItem[] = []
-  let canCreateGroups = false
-  try {
-    const payload = await getPayload({ config })
-    canCreateGroups = await isPMOfAnyProject(payload, String(user.id))
-
-    const memberships = await payload.find({
-      collection: 'project-memberships',
-      where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
-      depth: 2,
-      limit: 50,
-      overrideAccess: true,
-    })
-
-    const projects = memberships.docs.map((m) => m.project).filter(Boolean) as Project[]
-    const projectIds = projects.map((p) => p.id)
-
-    if (projectIds.length > 0) {
-      const now = new Date().toISOString()
-      const in14days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-      const last7days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
-      const [pollsResult, eventsResult, newsResult] = await Promise.all([
-        payload.find({
-          collection: 'polls',
-          where: { and: [{ project: { in: projectIds } }, { status: { equals: 'active' } }] },
-          limit: 20, depth: 1, overrideAccess: true,
-        }),
-        payload.find({
-          collection: 'calendar-events',
-          where: { and: [{ project: { in: projectIds } }, { startDate: { greater_than_equal: now } }, { startDate: { less_than_equal: in14days } }] },
-          sort: 'startDate', limit: 20, depth: 1, overrideAccess: true,
-        }),
-        payload.find({
-          collection: 'news-posts',
-          where: { and: [{ project: { in: projectIds } }, { publishedAt: { greater_than_equal: last7days } }] },
-          sort: '-publishedAt', limit: 20, depth: 1, overrideAccess: true,
-        }),
-      ])
-
-      const schemeFor = (p: Project) => resolveColorScheme(p.colorScheme)
-
-      const projectById = Object.fromEntries(projects.map((p) => [p.id, p]))
-
-      const toItem = (
-        type: NotificationItem['type'],
-        title: string,
-        projectRaw: unknown,
-        date?: string,
-      ): NotificationItem | null => {
-        const p = projectById[(projectRaw as { id: string })?.id ?? String(projectRaw)]
-        if (!p) return null
-        const scheme = schemeFor(p)
-        return { type, title, projectTitle: p.title, projectSlug: p.slug, date, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
-      }
-
-      const items: (NotificationItem | null)[] = [
-        ...pollsResult.docs.map((d) => toItem('poll', d.title as string, d.project)),
-        ...eventsResult.docs.map((d) => toItem('event', d.title as string, d.project, d.startDate as string)),
-        ...newsResult.docs.map((d) => toItem('news', d.title as string, d.project, d.publishedAt as string | undefined)),
-      ]
-
-      notificationItems = items.filter((i): i is NotificationItem => i !== null).slice(0, 30)
-    }
-  } catch {
-    // Non-fatal — bell just shows empty
+  const platformColors = await getPlatformColors()
+  const appVars: Record<string, string> = {
+    '--app-black': platformColors.appBlack,
+    '--app-ink': platformColors.appInk,
+    '--app-ink-accent': platformColors.appInkAccent,
+    '--app-white': platformColors.appWhite,
+    '--app-light': platformColors.appLight,
+    '--app-accent': platformColors.appAccent,
+    // Override plattform tokens with app (neutral) values so every component
+    // inside the workspace uses the neutral black/white scheme instead of the
+    // green public-brand palette.
+    '--plattform': platformColors.appAccent,
+    '--plattform-light': platformColors.appLight,
+    '--plattform-ink': platformColors.appInk,
+    '--plattform-ink-accent': platformColors.appInkAccent,
+    '--plattform-accent': platformColors.appAccent,
+    '--plattform-white': platformColors.appWhite,
+    '--plattform-white-transparent': 'rgba(255, 255, 255, 0.7)',
+    '--plattform-black': platformColors.appBlack,
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--plattform-light)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--app-light)', ...appVars }}>
       <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
         <DashboardShell>
           <DashboardTransition>
@@ -101,11 +46,6 @@ export default async function DashboardLayout({
           </DashboardTransition>
         </DashboardShell>
       </main>
-      <PlatformDock
-        locale={locale}
-        notificationItems={notificationItems}
-        canCreateGroups={canCreateGroups}
-      />
     </div>
   )
 }
