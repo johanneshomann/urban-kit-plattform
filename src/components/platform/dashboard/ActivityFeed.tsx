@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, RotateCcw, Search, X } from 'lucide-react'
+import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, LayoutGrid, List, RotateCcw, Search, X } from 'lucide-react'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 type ActivityItem = {
@@ -65,6 +65,7 @@ export function ActivityFeed({
   const tc = useTranslations('common')
   const ta = useTranslations('alleProjekte')
   const [sortMode, setSortMode] = useState<SortMode>('date')
+  const [view, setView] = useState<'list' | 'grid'>('list')
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [projectFilter, setProjectFilter] = useState<string>('ALL')
@@ -173,7 +174,8 @@ export function ActivityFeed({
   const hasMore = tailItems.length > 0
 
   /** Replays the list's card-in stagger whenever the result set changes. */
-  const listKey = `${sortMode}|${projectFilter}|${typeFilter}|${search.trim().toLowerCase()}`
+  const listKey = `${sortMode}|${view}|${projectFilter}|${typeFilter}|${search.trim().toLowerCase()}`
+  const listClass = view === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2' : 'flex flex-col gap-2'
 
   const collapse = () => {
     setExpanded(false)
@@ -388,6 +390,29 @@ export function ActivityFeed({
               {t('activitySortByProject')}
             </button>
           </div>
+
+          {/* View toggle — list vs 3-column grid, same row content */}
+          <div
+            className="flex items-center gap-1 rounded-lg p-0.5 h-10 bg-[var(--app-white)] shadow-sm"
+          >
+            {(['list', 'grid'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                className="px-3 h-full rounded-md transition-all duration-200 cursor-pointer inline-flex items-center"
+                style={{
+                  background: view === v ? 'var(--app-accent)' : 'transparent',
+                  color: view === v ? 'var(--app-white)' : 'var(--app-ink)',
+                }}
+                aria-pressed={view === v}
+                title={v === 'list' ? t('viewList') : t('viewGrid')}
+              >
+                {v === 'list' ? <List aria-hidden className="w-4 h-4" /> : <LayoutGrid aria-hidden className="w-4 h-4" />}
+                <span className="sr-only">{v === 'list' ? t('viewList') : t('viewGrid')}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -439,7 +464,7 @@ export function ActivityFeed({
           </p>
         ) : (
           <div key={listKey}>
-            <ul className="flex flex-col gap-2" role="list">
+            <ul className={listClass} role="list">
               {headItems.map(renderRow)}
             </ul>
 
@@ -455,7 +480,7 @@ export function ActivityFeed({
                 }}
               >
                 <div className="overflow-hidden">
-                  <ul className="flex flex-col gap-2 pt-2" role="list">
+                  <ul className={`${listClass} pt-2`} role="list">
                     {tailItems.map((item, i) => renderRow(item, i + headItems.length))}
                   </ul>
                 </div>
@@ -516,7 +541,7 @@ function ActivityRow({
   const href = `/${locale}/dashboard/projekte/${item.projectSlug}${item.href ?? ''}`
   return (
     <div
-      className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3"
+      className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3 h-full"
       style={{ background: item.schemeLight }}
     >
       <div className="flex items-start gap-3 min-w-0">
@@ -548,7 +573,7 @@ function ActivityRow({
           onClick={(e) => {
             if (!exitNavigate || !isPlainLeftClick(e)) return
             e.preventDefault()
-            exitNavigate(href)
+            exitNavigate(href, item.schemeLight)
           }}
           className="inline-flex items-center justify-center h-10 w-10 shrink-0 rounded-lg"
           style={{

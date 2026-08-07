@@ -863,7 +863,9 @@
     "paginationPrev": "Vorherige Seite",
     "paginationNext": "Nächste Seite",
     "paginationPage": "Seite {page} von {total}",
-    "reorderProjects": "Reihenfolge ändern"
+    "reorderProjects": "Reihenfolge ändern",
+    "viewList": "Listenansicht",
+    "viewGrid": "Rasteransicht"
   },
   "profile": {
     "title": "Mein Profil",
