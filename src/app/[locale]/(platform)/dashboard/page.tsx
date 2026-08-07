@@ -29,6 +29,7 @@ type Project = {
   thema?: string[] | null
   stadtbereich?: string[] | null
   createdAt?: string | null
+  joinRequestsEnabled?: boolean | null
   members?: { docs?: { id: string }[]; totalDocs?: number } | null
 }
 
@@ -131,7 +132,19 @@ export default async function DashboardPage({
 
   // All public projects (for the "Alle Projekte" grid below).
   const otherProjects: Project[] = []
+  const requestedProjectIds = new Set<string>()
   if (!hideAllProjects) {
+    // Open join requests — their cards show a persistent pending state.
+    const requestedRes = await payload.find({
+      collection: 'project-memberships',
+      where: { and: [{ user: { equals: user.id } }, { status: { equals: 'requested' } }] },
+      depth: 0,
+      limit: 50,
+      overrideAccess: true,
+    })
+    for (const m of requestedRes.docs) {
+      if (m.project) requestedProjectIds.add(String(m.project))
+    }
     const allProjectsRes = await payload.find({
       collection: 'projects',
       where: { isPublic: { equals: true } },
@@ -456,6 +469,8 @@ export default async function DashboardPage({
               startYear: p.startYear ?? null,
               createdAt: p.createdAt ?? null,
               coverImageUrl: p.coverImage?.url ?? null,
+              requestPending: requestedProjectIds.has(p.id),
+              joinRequestsEnabled: p.joinRequestsEnabled ?? null,
             }))}
             locale={locale}
           />

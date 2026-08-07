@@ -25,6 +25,10 @@ export type DiscoverProject = {
   startYear?: number | null
   createdAt?: string | null
   coverImageUrl?: string | null
+  /** Server truth: the viewer has an open join request for this project. */
+  requestPending?: boolean
+  /** Mirrors the project's joinRequestsEnabled flag (null/undefined → enabled). */
+  joinRequestsEnabled?: boolean | null
 }
 
 const STATUS_VALUES = ['active', 'planning', 'completed', 'archived']
@@ -329,7 +333,12 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                     <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                     {t('openProject')}
                   </Link>
-                  <ProjectJoinButton slug={p.slug} locale={locale} />
+                  <ProjectJoinButton
+                    slug={p.slug}
+                    locale={locale}
+                    requestPending={p.requestPending === true}
+                    joinEnabled={p.joinRequestsEnabled !== false}
+                  />
                 </div>
               </div>
             </div>

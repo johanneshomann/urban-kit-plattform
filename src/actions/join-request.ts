@@ -17,6 +17,9 @@ interface MembershipRow {
 function revalidateJoin(locale: string, slug: string) {
   revalidatePath(`/${locale}/dashboard/projekte/${slug}`)
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/anfragen`)
+  // Request state also surfaces on the dashboard (Alle Projekte) and the profile.
+  revalidatePath('/[locale]/dashboard', 'page')
+  revalidatePath('/[locale]/dashboard/profil', 'page')
 }
 
 /** Notify all active PMs of the project that a join request arrived. */
