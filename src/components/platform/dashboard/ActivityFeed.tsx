@@ -13,6 +13,8 @@ type ActivityItem = {
   projectSlug: string
   projectId: string
   date?: string
+  /** Workspace-relative deep link (e.g. `/m/news/<slug>`); empty → project root. */
+  href?: string
   schemeGeneral: string
   schemeAccent: string
   schemeLight: string
@@ -511,7 +513,7 @@ function ActivityRow({
   relativeDate?: string | null
 }) {
   const exitNavigate = useDashboardExit()
-  const href = `/${locale}/dashboard/projekte/${item.projectSlug}`
+  const href = `/${locale}/dashboard/projekte/${item.projectSlug}${item.href ?? ''}`
   return (
     <div
       className="flex items-center justify-between rounded-lg shadow-sm transition-colors px-3 py-2 gap-3"

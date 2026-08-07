@@ -5,8 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { resolveColorScheme } from '@/lib/colorScheme'
 import { canViewContent } from '@/lib/visibility'
 import type { ViewerMembership } from '@/lib/visibility'
-import Link from 'next/link'
-import { FolderKanban, Search, ChevronRight } from 'lucide-react'
+import { FolderKanban, Search } from 'lucide-react'
 
 import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { CtaButton } from '@/components/platform/CtaButton'
@@ -39,6 +38,8 @@ type ActivityItem = {
   projectSlug: string
   projectId: string
   date?: string
+  /** Workspace-relative deep link (e.g. `/m/news/<slug>`); empty → project root. */
+  href?: string
   schemeGeneral: string
   schemeAccent: string
   schemeLight: string
@@ -243,7 +244,7 @@ export default async function DashboardPage({
       const projectById = Object.fromEntries(memberProjects.map((x) => [x.project.id, x.project]))
       const schemeFor = (p: Project) => resolveColorScheme(p.colorScheme)
 
-      const toItem = (type: ActivityItem['type'], title: string, projectRaw: unknown, date?: string, doc?: { visibility?: string | null; visibilityTeams?: string[] | null }): ActivityItem | null => {
+      const toItem = (type: ActivityItem['type'], title: string, projectRaw: unknown, date?: string, doc?: { visibility?: string | null; visibilityTeams?: string[] | null }, href?: string): ActivityItem | null => {
         const p = projectById[(projectRaw as { id: string })?.id ?? String(projectRaw)]
         if (!p) return null
         // Team-scoped visibility: only include if the user's membership for this
@@ -251,7 +252,7 @@ export default async function DashboardPage({
         const membership = membershipByProjectId[p.id]
         if (doc && !canViewContent(membership, doc)) return null
         const scheme = schemeFor(p)
-        return { type, title, projectTitle: p.title, projectSlug: p.slug, projectId: p.id, date, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
+        return { type, title, projectTitle: p.title, projectSlug: p.slug, projectId: p.id, date, href, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
       }
 
       type VisibilityDoc = { visibility?: string | null; visibilityTeams?: string[] | null }
@@ -265,23 +266,23 @@ export default async function DashboardPage({
       // Resolve project for forum comments (thread → project); visibility is the
       // parent thread's. Keyed per thread so a comment burst fills one slot.
       const forumCommentItems: Candidate[] = forumCommentsResult.docs.map((d) => {
-        const thread = d.thread as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
+        const thread = d.thread as ({ id: string; title?: string; slug?: string; project?: { id: string } } & VisibilityDoc) | undefined
         if (!thread?.project) return { key: '', item: null }
-        return { key: `forumComment:${thread.id}`, item: toItem('forumComment', thread.title ?? '', thread.project, d.createdAt as string, thread) }
+        return { key: `forumComment:${thread.id}`, item: toItem('forumComment', thread.title ?? '', thread.project, d.createdAt as string, thread, thread.slug ? `/m/forum/${thread.slug}` : '/m/forum') }
       })
 
       // Resolve project for news comments (post → project); visibility is the post's.
       const newsCommentItems: Candidate[] = newsCommentsResult.docs.map((d) => {
-        const post = d.post as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
+        const post = d.post as ({ id: string; title?: string; slug?: string; project?: { id: string } } & VisibilityDoc) | undefined
         if (!post?.project) return { key: '', item: null }
-        return { key: `newsComment:${post.id}`, item: toItem('newsComment', post.title ?? '', post.project, d.createdAt as string, post) }
+        return { key: `newsComment:${post.id}`, item: toItem('newsComment', post.title ?? '', post.project, d.createdAt as string, post, post.slug ? `/m/news/${post.slug}` : '/m/news') }
       })
 
       // Resolve task title for task-assignee items; visibility is the task's.
       const taskAssigneeItems: Candidate[] = taskAssigneesResult.docs.map((d) => {
         const task = d.task as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
         if (!task?.project) return { key: '', item: null }
-        return { key: `task:${task.id}`, item: toItem('taskAssigned', task.title ?? '', task.project, d.createdAt as string, task) }
+        return { key: `task:${task.id}`, item: toItem('taskAssigned', task.title ?? '', task.project, d.createdAt as string, task, '/m/tasks') }
       })
 
       // Resolve user name for member-joined items (membership events carry no
@@ -297,20 +298,20 @@ export default async function DashboardPage({
       // Events happening soon (within 3 days) — separate from the 14-day view
       const eventSoonItems: Candidate[] = eventsResult.docs
         .filter((d) => new Date(d.startDate as string) <= new Date(in3days))
-        .map((d) => ({ key: `event:${String(d.id)}`, item: toItem('eventSoon', d.title as string, d.project, d.startDate as string, d as VisibilityDoc) }))
+        .map((d) => ({ key: `event:${String(d.id)}`, item: toItem('eventSoon', d.title as string, d.project, d.startDate as string, d as VisibilityDoc, '/m/calendar') }))
 
       // Polls just activated — use 'pollActivated' type
       const pollActivatedItems: Candidate[] = pollsActivatedResult.docs
-        .map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('pollActivated', d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }))
+        .map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('pollActivated', d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc, '/m/polls') }))
 
       // Tasks due soon
       const taskDueSoonItems: Candidate[] = tasksDueSoonResult.docs
-        .map((d) => ({ key: `task:${String(d.id)}`, item: toItem('taskDueSoon', d.title as string, d.project, d.deadline as string, d as VisibilityDoc) }))
+        .map((d) => ({ key: `task:${String(d.id)}`, item: toItem('taskDueSoon', d.title as string, d.project, d.deadline as string, d as VisibilityDoc, '/m/tasks') }))
 
       // Pin/lock announcements; visibility is the thread's own.
       const forumUpdatedItems: Candidate[] = forumThreadsUpdatedResult.docs.map((d) => {
         const type: ActivityItem['type'] = d.pinned ? 'threadPinned' : 'threadLocked'
-        return { key: `thread:${String(d.id)}`, item: toItem(type, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }
+        return { key: `thread:${String(d.id)}`, item: toItem(type, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc, d.slug ? `/m/forum/${d.slug}` : '/m/forum') }
       })
 
       // Specific/urgent types first — they win the dedupe over their generic twin.
@@ -319,18 +320,18 @@ export default async function DashboardPage({
         ...taskDueSoonItems,
         ...eventSoonItems,
         ...pollActivatedItems,
-        ...forumResult.docs.map((d) => ({ key: `thread:${String(d.id)}`, item: toItem('forum', d.title as string, d.project, d.createdAt as string, d as VisibilityDoc) })),
+        ...forumResult.docs.map((d) => ({ key: `thread:${String(d.id)}`, item: toItem('forum', d.title as string, d.project, d.createdAt as string, d as VisibilityDoc, d.slug ? `/m/forum/${d.slug}` : '/m/forum') })),
         ...forumUpdatedItems,
-        ...pollsResult.docs.map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('poll', d.title as string, d.project, d.createdAt as string | undefined, d as VisibilityDoc) })),
-        ...eventsResult.docs.map((d) => ({ key: `event:${String(d.id)}`, item: toItem('event', d.title as string, d.project, d.startDate as string, d as VisibilityDoc) })),
-        ...newsResult.docs.map((d) => ({ key: `news:${String(d.id)}`, item: toItem('news', d.title as string, d.project, d.publishedAt as string | undefined, d as VisibilityDoc) })),
+        ...pollsResult.docs.map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('poll', d.title as string, d.project, d.createdAt as string | undefined, d as VisibilityDoc, '/m/polls') })),
+        ...eventsResult.docs.map((d) => ({ key: `event:${String(d.id)}`, item: toItem('event', d.title as string, d.project, d.startDate as string, d as VisibilityDoc, '/m/calendar') })),
+        ...newsResult.docs.map((d) => ({ key: `news:${String(d.id)}`, item: toItem('news', d.title as string, d.project, d.publishedAt as string | undefined, d as VisibilityDoc, d.slug ? `/m/news/${d.slug}` : '/m/news') })),
         ...forumCommentItems,
         ...tasksResult.docs.map((d) => {
           const itemType: ActivityItem['type'] = (d.status as string) === 'done' ? 'taskDone' : 'task'
-          return { key: `task:${String(d.id)}`, item: toItem(itemType, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }
+          return { key: `task:${String(d.id)}`, item: toItem(itemType, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc, '/m/tasks') }
         }),
-        ...filesResult.docs.map((d) => ({ key: `file:${String(d.id)}`, item: toItem('file', (d.label as string) ?? (d.filename as string), d.project, d.createdAt as string, d as VisibilityDoc) })),
-        ...boardsResult.docs.map((d) => ({ key: `board:${String(d.id)}`, item: toItem('board', d.name as string, d.project, d.updatedAt as string, d as VisibilityDoc) })),
+        ...filesResult.docs.map((d) => ({ key: `file:${String(d.id)}`, item: toItem('file', (d.label as string) ?? (d.filename as string), d.project, d.createdAt as string, d as VisibilityDoc, '/m/files') })),
+        ...boardsResult.docs.map((d) => ({ key: `board:${String(d.id)}`, item: toItem('board', d.name as string, d.project, d.updatedAt as string, d as VisibilityDoc, '/m/board') })),
         ...newsCommentItems,
         ...memberJoinedItems,
       ]
@@ -452,16 +453,6 @@ export default async function DashboardPage({
         </section>
       )}
 
-      {/* ── Footer CTA ───────────────────────────────────────────────────── */}
-      <section className="px-6 md:px-10 py-10 text-center">
-        <Link
-          href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
-          className="inline-flex items-center gap-1 text-small font-medium transition-colors text-[var(--app-accent)] hover:text-[var(--app-ink-accent)]"
-          style={{ minHeight: 44 }}
-        >
-          {t('discoverAll')} <ChevronRight className="w-[0.9em] h-[0.9em] shrink-0" aria-hidden="true" />
-        </Link>
-      </section>
     </div>
   )
 }
