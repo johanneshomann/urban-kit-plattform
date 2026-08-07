@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Accessibility, FileText, Minus, Plus, RotateCcw } from 'lucide-react'
+import { IconTooltip } from '@/components/platform/IconTooltip'
 import { useAccessibility } from './AccessibilityProvider'
 
 /**
@@ -63,19 +64,20 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
 
   return (
     <div ref={containerRef} className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label={t('open')}
-        aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
-        title={t('title')}
-        className={triggerClassName}
-      >
-        <Accessibility aria-hidden="true" className="h-4 w-4" />
-        <span className="sr-only">{t('open')}</span>
-      </button>
+      <IconTooltip label={t('title')}>
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={t('open')}
+          aria-expanded={open}
+          aria-controls={open ? panelId : undefined}
+          className={triggerClassName}
+        >
+          <Accessibility aria-hidden="true" className="h-4 w-4" />
+          <span className="sr-only">{t('open')}</span>
+        </button>
+      </IconTooltip>
 
       {open && (
         <div
@@ -86,11 +88,10 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
           aria-label={t('title')}
           tabIndex={-1}
           data-a11y-panel
-          className="dropdown-enter absolute right-0 top-full mt-2 w-72 rounded-xl p-4 outline-none z-50"
+          className="nav-panel-enter absolute right-0 top-full mt-[9px] w-72 rounded-b-xl p-4 outline-none z-50 shadow-md"
           style={{
             background: 'var(--app-white)',
             color: 'var(--app-ink)',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.08)',
           }}
         >
           <h2 className="text-text font-bold mb-3" style={{ color: 'var(--app-ink-accent)' }}>

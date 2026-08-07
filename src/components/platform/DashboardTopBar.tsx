@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import { User, Globe, LogOut } from 'lucide-react'
+import { User, Globe, LayoutDashboard, LogOut } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu'
+import { IconTooltip } from '@/components/platform/IconTooltip'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 const barLink = 'inline-flex items-center justify-center h-10 w-10 rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)] cursor-pointer'
@@ -68,27 +69,24 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
       {/* User tools — all real links/buttons, always visible */}
       <nav aria-label={t('personalTools')} className="flex items-center gap-1">
         {/* Public portal — new tab */}
-        <a
-          href={`/${locale}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={barLink}
-          title={t('navBack')}
-        >
-          <Globe aria-hidden="true" className="h-4 w-4" />
-          <span className="sr-only">{t('navBack')}</span>
-        </a>
+        <IconTooltip label={t('navBack')}>
+          <a href={`/${locale}`} target="_blank" rel="noopener noreferrer" className={barLink}>
+            <Globe aria-hidden="true" className="h-4 w-4" />
+            <span className="sr-only">{t('navBack')}</span>
+          </a>
+        </IconTooltip>
 
-        {/* Language switch — shows the target locale, like the public pages */}
-        <button
-          type="button"
-          onClick={() => router.replace(pathname, { locale: nextLocale })}
-          className="inline-flex items-center justify-center h-10 px-2.5 rounded-lg text-small font-semibold transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)] cursor-pointer"
-          title={langLabel}
-        >
-          {nextLocale.toUpperCase()}
-          <span className="sr-only">{langLabel}</span>
-        </button>
+        {/* Language switch — shows the target locale, like the public header */}
+        <IconTooltip label={langLabel}>
+          <button
+            type="button"
+            onClick={() => router.replace(pathname, { locale: nextLocale })}
+            className="inline-flex items-center justify-center h-10 px-2.5 rounded-lg text-text font-normal transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)] cursor-pointer"
+          >
+            {nextLocale.toUpperCase()}
+            <span className="sr-only">{langLabel}</span>
+          </button>
+        </IconTooltip>
 
         {/* Accessibility settings dropdown */}
         <AccessibilityMenu triggerClassName={barLink} />
@@ -100,26 +98,37 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
           style={{ background: 'color-mix(in srgb, var(--app-black) 16%, transparent)' }}
         />
 
+        {/* Dashboard */}
+        <IconTooltip label={t('navDashboard')}>
+          <Link href={`/${locale}/dashboard`} className={barLink}>
+            <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
+            <span className="sr-only">{t('navDashboard')}</span>
+          </Link>
+        </IconTooltip>
+
         {/* Profile — slides the dashboard out like entering a project */}
-        <Link
-          href={profileHref}
-          onClick={(e) => {
-            if (!exitNavigate || !isPlainLeftClick(e)) return
-            e.preventDefault()
-            exitNavigate(profileHref)
-          }}
-          className={barLink}
-          title={t('navMyProfile')}
-        >
-          <User aria-hidden="true" className="h-4 w-4" />
-          <span className="sr-only">{t('navMyProfile')}</span>
-        </Link>
+        <IconTooltip label={t('navMyProfile')}>
+          <Link
+            href={profileHref}
+            onClick={(e) => {
+              if (!exitNavigate || !isPlainLeftClick(e)) return
+              e.preventDefault()
+              exitNavigate(profileHref)
+            }}
+            className={barLink}
+          >
+            <User aria-hidden="true" className="h-4 w-4" />
+            <span className="sr-only">{t('navMyProfile')}</span>
+          </Link>
+        </IconTooltip>
 
         {/* Logout — asks for confirmation first */}
-        <button type="button" onClick={() => setConfirmOpen(true)} className={barLink} title={t('logout')}>
-          <LogOut aria-hidden="true" className="h-4 w-4" />
-          <span className="sr-only">{t('logout')}</span>
-        </button>
+        <IconTooltip label={t('logout')}>
+          <button type="button" onClick={() => setConfirmOpen(true)} className={barLink}>
+            <LogOut aria-hidden="true" className="h-4 w-4" />
+            <span className="sr-only">{t('logout')}</span>
+          </button>
+        </IconTooltip>
       </nav>
 
       {/* Logout confirmation — centered dialog over a blurred, darkened page */}

@@ -41,7 +41,7 @@ export async function DashboardFooter({ locale }: { locale: string }) {
             <span className="font-normal" style={{ color: 'var(--app-ink)' }}> – {cityName}</span>
           </span>
           <span className="text-small" style={{ opacity: 0.6 }}>
-            {t('copyright', { year: new Date().getFullYear(), city: cityName })}
+            © {new Date().getFullYear()}
           </span>
         </div>
 
