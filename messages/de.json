@@ -927,7 +927,13 @@
     "galleryTitle": "Meine Galerie",
     "galleryHint": "Bis zu 12 Bilder, je maximal 5 MB.",
     "galleryAdd": "Hinzufügen",
-    "galleryRemove": "Bild entfernen"
+    "galleryRemove": "Bild entfernen",
+    "requestsTitle": "Meine Anfragen",
+    "requestsHint": "Ausstehende Beitrittsanfragen. Sie können eine Anfrage jederzeit zurückziehen.",
+    "requestPending": "Anfrage ausstehend",
+    "withdrawRequest": "Anfrage zurückziehen",
+    "withdrawConfirmTitle": "Anfrage für „{title}“ zurückziehen?",
+    "withdrawConfirmBody": "Sie können jederzeit erneut eine Beitrittsanfrage stellen."
   },
   "modules": {
     "news": "News",

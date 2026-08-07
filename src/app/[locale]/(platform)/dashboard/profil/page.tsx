@@ -70,31 +70,33 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     }
   }
 
-  // Active memberships — for the leave-project list.
+  // Active memberships + pending join requests — one query, split below.
   const membershipsRes = await payloadClient.find({
     collection: 'project-memberships',
-    where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
+    where: { and: [{ user: { equals: user.id } }, { status: { in: ['active', 'requested'] } }] },
     sort: 'order',
     depth: 1,
     limit: 50,
     overrideAccess: true,
   })
-  const membershipItems: MembershipItem[] = membershipsRes.docs
-    .map((m) => {
-      const project = m.project as { id: string; title?: string; colorScheme?: string | null } | undefined
-      if (!project?.title) return null
-      const scheme = resolveColorScheme(project.colorScheme)
-      return {
-        membershipId: String(m.id),
-        title: project.title,
-        role: (m.role as string) ?? 'Citizen',
-        schemeLight: scheme.light,
-        schemeGeneral: scheme.general,
-        schemeAccent: scheme.accent,
-        schemeDark: scheme.dark,
-      }
-    })
-    .filter((x): x is MembershipItem => x !== null)
+  const toMembershipItem = (m: (typeof membershipsRes.docs)[number]): (MembershipItem & { status: string }) | null => {
+    const project = m.project as { id: string; title?: string; colorScheme?: string | null } | undefined
+    if (!project?.title) return null
+    const scheme = resolveColorScheme(project.colorScheme)
+    return {
+      membershipId: String(m.id),
+      title: project.title,
+      role: (m.role as string) ?? 'Citizen',
+      status: (m.status as string) ?? 'active',
+      schemeLight: scheme.light,
+      schemeGeneral: scheme.general,
+      schemeAccent: scheme.accent,
+      schemeDark: scheme.dark,
+    }
+  }
+  const allMembershipItems = membershipsRes.docs.map(toMembershipItem).filter((x): x is MembershipItem & { status: string } => x !== null)
+  const membershipItems = allMembershipItems.filter((x) => x.status === 'active')
+  const requestItems = allMembershipItems.filter((x) => x.status === 'requested')
 
   return (
     <div className="px-6 md:px-10 py-10 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
@@ -141,7 +143,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
         </div>
 
         <div className="lg:sticky lg:top-16">
-          <MembershipList items={membershipItems} />
+          <MembershipList items={membershipItems} requests={requestItems} />
         </div>
       </div>
 

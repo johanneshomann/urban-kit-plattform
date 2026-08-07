@@ -927,7 +927,13 @@
     "galleryTitle": "My gallery",
     "galleryHint": "Up to 12 images, 5 MB each.",
     "galleryAdd": "Add",
-    "galleryRemove": "Remove image"
+    "galleryRemove": "Remove image",
+    "requestsTitle": "My requests",
+    "requestsHint": "Pending join requests. You can withdraw a request at any time.",
+    "requestPending": "Request pending",
+    "withdrawRequest": "Withdraw request",
+    "withdrawConfirmTitle": "Withdraw the request for “{title}”?",
+    "withdrawConfirmBody": "You can request to join again at any time."
   },
   "modules": {
     "news": "News",

@@ -100,7 +100,17 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
   return (
     <ExitContext.Provider value={navigateWithExit}>
       <div className="overflow-hidden flex-1 min-w-0">
-        <div key={animKey} className={exiting ? 'animate-slide-out-left' : (animClass ?? undefined)}>
+        {/* The enter class is cleared once the animation finishes: its
+            fill-mode keeps a transform on the wrapper, which would otherwise
+            turn it into the containing block for position:fixed descendants
+            (dialogs would center in the page, not the viewport). */}
+        <div
+          key={animKey}
+          className={exiting ? 'animate-slide-out-left' : (animClass ?? undefined)}
+          onAnimationEnd={() => {
+            if (!exiting) setAnimClass(null)
+          }}
+        >
           {children}
         </div>
       </div>
