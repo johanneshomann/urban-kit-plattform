@@ -374,8 +374,8 @@ export default async function DashboardPage({
       {memberProjects.length === 0 ? (
         <section aria-labelledby="empty-section" className="p-10">
           <div
-            className="rounded-xl border border-dashed p-10 text-center"
-            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
+            className="rounded-xl p-10 text-center shadow-sm"
+            style={{ background: 'var(--app-white)' }}
           >
             <FolderKanban className="w-8 h-8 mx-auto mb-3 opacity-20" aria-hidden />
             <p className="text-small font-medium opacity-50">{t('emptyTitle')}</p>
@@ -420,7 +420,7 @@ export default async function DashboardPage({
       />
 
       {/* ── Weitere Projekte entdecken (accessible cards, always visible) ──── */}
-      {/* Fades from plattform-light (grey) above → white → back to grey below,
+      {/* Fades from app-light (grey) above → white → back to grey below,
           matching the landing-page section-fade pattern. */}
       {otherProjects.length > 0 && (
         <section
