@@ -16,7 +16,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
       {/* Left branding panel — desktop only */}
       <div
-        className="hidden md:flex md:w-2/5 shrink-0 flex-col justify-between px-6 py-2 md:px-10"
+        className="login-intro-panel hidden md:flex md:w-2/5 shrink-0 flex-col justify-between px-6 py-2 md:px-10"
         style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
       >
         <Link href={`/${locale}`} className="font-bold text-text opacity-80 hover:opacity-100 transition-opacity">
@@ -63,7 +63,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
         {/* Centered form content */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-8">
-          <div className="w-full max-w-sm flex flex-col gap-10">
+          <div className="login-intro-form w-full max-w-sm flex flex-col gap-10">
             {cityLogoUrl && (
               <img src={cityLogoUrl} alt={cityName} className="h-16 w-auto object-contain" />
             )}

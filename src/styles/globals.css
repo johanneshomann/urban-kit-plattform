@@ -36,6 +36,29 @@
 html.dashboard-exiting [data-dashboard-topbar] {
   animation: slide-out-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Login intro — the page opens in a new tab, so a short entrance (branding
+   panel slides in, form fades up after it) marks the switch into the app. */
+@keyframes login-panel-in {
+  from { transform: translateX(-40%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes login-form-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.login-intro-panel {
+  animation: login-panel-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.login-intro-form {
+  animation: login-form-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-intro-panel,
+  .login-intro-form {
+    animation: none;
+  }
+}
 /* Companion cover panel: slides in from the right in the target project's
    background color, so arriving in the workspace reads as one motion. */
 @keyframes cover-in {

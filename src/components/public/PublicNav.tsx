@@ -297,6 +297,8 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
           ) : (
             <Link
               href={`${l}/login`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden md:flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
             >
               {t('login')} <LogIn className="w-[1em] h-[1em] shrink-0" />
@@ -429,6 +431,8 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
                 <>
                   <Link
                     href={`${l}/login`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={mobile.close}
                     className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
                   >
