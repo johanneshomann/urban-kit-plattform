@@ -42,8 +42,8 @@ export function ProjectJoinButton({
   if (!joinEnabled && !requestPending) {
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small"
-        style={{ color: 'var(--app-ink)', opacity: 0.5, minHeight: 44 }}
+        className="inline-flex items-center gap-1.5 px-3 h-11 rounded-lg text-small"
+        style={{ color: 'var(--app-ink)', opacity: 0.5 }}
       >
         <Ban aria-hidden className="w-[1em] h-[1em] shrink-0" />
         {t('joinDisabled')}
@@ -54,8 +54,8 @@ export function ProjectJoinButton({
   if (requestPending || sent) {
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium bg-[color-mix(in_srgb,var(--app-accent)_12%,transparent)]"
-        style={{ color: 'var(--app-ink-accent)', minHeight: 44 }}
+        className="inline-flex items-center gap-1.5 px-3 h-11 rounded-lg text-small font-medium bg-[color-mix(in_srgb,var(--app-accent)_12%,transparent)]"
+        style={{ color: 'var(--app-ink-accent)' }}
       >
         <Check aria-hidden className="w-[1em] h-[1em] shrink-0" style={{ color: 'var(--app-accent)' }} />
         {t('joinPending')}
@@ -69,7 +69,7 @@ export function ProjectJoinButton({
         type="button"
         onClick={join}
         disabled={pending}
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-cta font-normal rounded-lg transition-colors cursor-pointer disabled:opacity-60 text-[var(--app-white)] bg-[var(--app-accent)] hover:bg-[var(--app-ink-accent)]"
+        className="inline-flex items-center gap-2 px-4 h-11 text-small font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-60 text-[var(--app-white)] bg-[var(--app-accent)] hover:bg-[var(--app-ink-accent)]"
       >
         <UserPlus className="w-[1em] h-[1em] shrink-0" />
         {t('ctaJoinRequest')}

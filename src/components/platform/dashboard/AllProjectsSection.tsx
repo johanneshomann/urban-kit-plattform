@@ -324,11 +324,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                     href={`/${locale}/projekte/${p.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium bg-[var(--app-light)] transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))]"
-                    style={{
-                      color: 'var(--app-ink)',
-                      minHeight: 44,
-                    }}
+                    className="inline-flex items-center gap-1.5 px-4 h-11 rounded-lg text-small font-medium bg-[var(--app-ink)] transition-colors hover:bg-[var(--app-black)] text-[var(--app-white)]"
                   >
                     <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                     {t('openProject')}
