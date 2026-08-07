@@ -357,10 +357,10 @@ export default async function DashboardPage({
 
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
   // but never below 200px so content always fits. The pill list paginates at
-  // 4 per page, so the divisor caps there.
+  // 3 per page, so the divisor caps there.
   const memberRowHeight = memberProjects.length <= 2
     ? '50vh'
-    : `max(200px, ${Math.round(70 / Math.min(memberProjects.length, 4))}vh)`
+    : `max(200px, ${Math.round(70 / Math.min(memberProjects.length, 3))}vh)`
 
   const firstName = ((user as unknown as { firstName?: string | null }).firstName) ?? null
   const lastName = ((user as unknown as { lastName?: string | null }).lastName) ?? null
@@ -430,9 +430,10 @@ export default async function DashboardPage({
             background: `linear-gradient(to bottom, var(--app-light) 0%, var(--app-white) var(--section-fade-height), var(--app-white) calc(100% - var(--section-fade-height)), var(--app-light) 100%)`,
           }}
         >
-          <h2 id="discover-heading" className="text-small font-semibold uppercase tracking-wide opacity-50 mb-5">
+          <h2 id="discover-heading" className="text-small font-semibold opacity-50">
             {t('sectionOtherProjects')}
           </h2>
+          <div aria-hidden className="h-px mt-2 mb-5" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
           <AllProjectsSection
             projects={otherProjects.map((p) => ({
               id: p.id,

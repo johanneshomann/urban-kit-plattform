@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import {
   DndContext,
   type DragEndEvent,
@@ -36,7 +36,7 @@ type PillProject = {
   memberCount?: number
 }
 
-const PAGE_SIZE = 4
+const PAGE_SIZE = 3
 
 /** Resolve the German phase label from a phase value. */
 function phaseLabel(value: string | undefined): string | null {
@@ -234,8 +234,18 @@ export function ProjectPillList({
 }) {
   const t = useTranslations('dashboard')
   const exitNavigate = useDashboardExit()
+  const sectionRef = useRef<HTMLElement>(null)
   const [items, setItems] = useState(projects)
   const [page, setPage] = useState(0)
+
+  /** Change page and smooth-scroll back to the section top. */
+  const goToPage = useCallback((p: number) => {
+    setPage(p)
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-reduce-motion')
+    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+  }, [])
 
   const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
   const safePage = Math.min(page, pageCount - 1)
@@ -281,10 +291,13 @@ export function ProjectPillList({
   if (items.length === 0) return null
 
   return (
-    <section aria-labelledby="my-projects" className="flex flex-col gap-4 px-6 md:px-10 py-10" style={{ minHeight: '60vh' }}>
-      <h2 id="my-projects" className="text-small font-semibold uppercase tracking-wide opacity-50">
-        {t('sectionMine')}
-      </h2>
+    <section ref={sectionRef} aria-labelledby="my-projects" className="flex flex-col gap-4 px-6 md:px-10 py-10 scroll-mt-14" style={{ minHeight: '60vh' }}>
+      <div>
+        <h2 id="my-projects" className="text-small font-semibold opacity-50">
+          {t('sectionMine')}
+        </h2>
+        <div aria-hidden className="h-px mt-2" style={{ background: 'color-mix(in srgb, var(--app-ink) 12%, transparent)' }} />
+      </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={pageItems.map((p) => p.membershipId)} strategy={verticalListSortingStrategy}>
           {/* Keyed on the page index so the card-in stagger replays per page */}
@@ -311,7 +324,7 @@ export function ProjectPillList({
         <nav aria-label={t('sectionMine')} className="flex items-center justify-center gap-3 mt-2">
           <button
             type="button"
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            onClick={() => goToPage(Math.max(0, safePage - 1))}
             disabled={safePage === 0}
             aria-label={t('paginationPrev')}
             className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
@@ -325,7 +338,7 @@ export function ProjectPillList({
               <button
                 key={i}
                 type="button"
-                onClick={() => setPage(i)}
+                onClick={() => goToPage(i)}
                 aria-label={t('paginationPage', { page: i + 1, total: pageCount })}
                 aria-current={i === safePage ? 'page' : undefined}
                 className="h-2.5 rounded-full cursor-pointer"
@@ -340,7 +353,7 @@ export function ProjectPillList({
 
           <button
             type="button"
-            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            onClick={() => goToPage(Math.min(pageCount - 1, safePage + 1))}
             disabled={safePage === pageCount - 1}
             aria-label={t('paginationNext')}
             className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
