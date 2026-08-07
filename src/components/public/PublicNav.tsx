@@ -4,9 +4,11 @@ import Link from 'next/link'
 import { useState, useRef, useCallback, useEffect, useId } from 'react'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LogIn, LogOut, UserCircle, UserPlus, ChevronRight, Menu, X, Home, Folders, Flag, Mail, Info, Users, BookOpen, FolderOpen } from 'lucide-react'
+import { LayoutDashboard, LogIn, LogOut, UserCircle, UserPlus, ChevronRight, Menu, X, Home, Folders, Flag, Mail, Info, Users, BookOpen, FolderOpen } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/public/LanguageSwitcher'
+import { logoutPortalAction } from '@/actions/auth'
+import { PROFILE_BADGE_ICONS, PROFILE_BADGE_VALUES, type ProfileBadge } from '@/lib/profile-badges'
 
 interface PublicNavProps {
   locale: string
@@ -14,6 +16,8 @@ interface PublicNavProps {
   cityLogoUrl?: string | null
   isLoggedIn?: boolean
   userName?: string | null
+  avatarUrl?: string | null
+  profileBadge?: string | null
 }
 
 const CLOSE_DURATION = 280
@@ -72,7 +76,7 @@ function useAnimatedOpen(duration: number) {
   return { active, closing, isOpen: active && !closing, open, close }
 }
 
-export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: PublicNavProps) {
+export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avatarUrl, profileBadge }: PublicNavProps) {
   const l = `/${locale}`
   const t = useTranslations('publicNav')
 
@@ -172,6 +176,57 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
     const full = `${l}${href}`
     return pathname === full || pathname.startsWith(full + '/')
   }
+
+  // User chip dropdown (logged-in) — same open/close animation as the menus.
+  const userMenu = useAnimatedOpen(CLOSE_DURATION)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+  const { active: userMenuActive, close: userMenuClose } = userMenu
+  useEffect(() => {
+    if (!userMenuActive) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') userMenuClose()
+    }
+    function onPointerDown(e: PointerEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) userMenuClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [userMenuActive, userMenuClose])
+
+  const UserBadgeIcon =
+    profileBadge && (PROFILE_BADGE_VALUES as readonly string[]).includes(profileBadge)
+      ? PROFILE_BADGE_ICONS[profileBadge as ProfileBadge]
+      : null
+
+  /** Avatar circle (image or fallback icon) with the profile badge overlay. */
+  const avatarChip = (size: 'sm' | 'md') => (
+    <span className="relative shrink-0">
+      <span
+        className={`flex items-center justify-center rounded-full overflow-hidden ${size === 'sm' ? 'h-7 w-7' : 'h-8 w-8'}`}
+        style={{ background: 'var(--plattform-light)' }}
+      >
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="" aria-hidden className="h-full w-full object-cover" />
+        ) : (
+          <UserCircle aria-hidden className={size === 'sm' ? 'w-4.5 h-4.5' : 'w-5 h-5'} style={{ color: 'var(--plattform)' }} />
+        )}
+      </span>
+      {UserBadgeIcon && (
+        <span
+          aria-hidden
+          className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full shadow-sm"
+          style={{ background: 'var(--plattform-accent)', color: 'var(--plattform-white)' }}
+        >
+          <UserBadgeIcon className="h-2 w-2" />
+        </span>
+      )}
+    </span>
+  )
 
   const Logo = (
     <span className="inline-flex items-center gap-1.5">
@@ -278,21 +333,66 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
 
           {/* Desktop: Anmelden / User */}
           {isLoggedIn ? (
-            <div className="hidden md:flex items-center gap-3">
-              <Link
-                href={`${l}/dashboard`}
-                className="flex items-center gap-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+            /* App chip: avatar + name, opening a small user menu in the same
+               style as the main-menu dropdowns. The app itself always opens in
+               a new tab — it is its own area. */
+            <div ref={userMenuRef} className="hidden md:block">
+              <button
+                type="button"
+                onClick={() => (userMenu.isOpen ? userMenu.close() : userMenu.open())}
+                aria-expanded={userMenu.active}
+                aria-haspopup="menu"
+                className="flex items-center gap-2 cursor-pointer text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
               >
-                <UserCircle className="w-[1.1em] h-[1.1em] shrink-0" />
+                {avatarChip('sm')}
                 {userName ?? t('loggedIn')}
-              </Link>
-              <Link
-                href={`${l}/dashboard`}
-                aria-label={t('toDashboard')}
-                className="flex items-center text-text transition-colors text-[var(--plattform-ink)] opacity-70 hover:opacity-100 hover:text-[var(--plattform-accent)]"
-              >
-                <LogOut aria-hidden className="w-[1em] h-[1em] shrink-0" />
-              </Link>
+                <ChevronRight
+                  aria-hidden
+                  className={`text-text w-[1em] h-[1em] shrink-0 transition-transform duration-300 ${userMenu.active ? 'rotate-90' : ''}`}
+                />
+              </button>
+
+              {userMenu.active && (
+                <div className="fixed top-14 right-6 md:right-10 overflow-hidden rounded-b-xl z-50 w-max">
+                  <div className={`${userMenu.closing ? 'nav-panel-exit' : 'nav-panel-enter'} bg-[var(--plattform-white)] border border-t-0 rounded-b-xl shadow-md`}>
+                    <div className="px-6 py-6 flex flex-col gap-1" role="menu" aria-label={t('userMenu')}>
+                      <a
+                        href={`${l}/dashboard`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        role="menuitem"
+                        onClick={userMenu.close}
+                        className="flex items-center gap-2 py-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform)]"
+                      >
+                        <LayoutDashboard aria-hidden className="text-text w-[1em] h-[1em] shrink-0" />
+                        {t('userMenuDashboard')}
+                      </a>
+                      <a
+                        href={`${l}/dashboard/profil`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        role="menuitem"
+                        onClick={userMenu.close}
+                        className="flex items-center gap-2 py-1.5 text-text transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform)]"
+                      >
+                        <UserCircle aria-hidden className="text-text w-[1em] h-[1em] shrink-0" />
+                        {t('userMenuProfile')}
+                      </a>
+                      <span aria-hidden className="h-px my-2" style={{ background: 'color-mix(in srgb, var(--plattform-ink) 15%, transparent)' }} />
+                      <form action={logoutPortalAction} className="contents">
+                        <button
+                          type="submit"
+                          role="menuitem"
+                          className="flex items-center gap-2 py-1.5 text-text cursor-pointer transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
+                        >
+                          <LogOut aria-hidden className="text-text w-[1em] h-[1em] shrink-0" />
+                          {t('logout')}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <Link
@@ -308,13 +408,15 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
           {/* Mobile: user icon (when logged in) + burger */}
           <div className="md:hidden flex items-center gap-2">
             {isLoggedIn && (
-              <Link
+              <a
                 href={`${l}/dashboard`}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={t('toDashboard')}
                 className="flex items-center gap-1 transition-colors text-[var(--plattform-ink)] hover:text-[var(--plattform-accent)]"
               >
-                <UserCircle aria-hidden className="w-5 h-5" />
-              </Link>
+                {avatarChip('sm')}
+              </a>
             )}
             <button
               type="button"
@@ -417,16 +519,28 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName }: Pu
             {/* Konto */}
             <div className="flex flex-row gap-3 pt-2 pb-2">
               {isLoggedIn ? (
-                <Link
-                  href={`${l}/dashboard`}
-                  onClick={mobile.close}
-                  className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
-                >
-                  <span className="flex items-center gap-2">
-                    <UserCircle className="w-[1em] h-[1em] shrink-0" />
-                    {userName ?? t('loggedIn')}
-                  </span>
-                </Link>
+                <>
+                  <a
+                    href={`${l}/dashboard`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={mobile.close}
+                    className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal text-[var(--plattform-white)] transition-colors bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <UserCircle className="w-[1em] h-[1em] shrink-0" />
+                      {userName ?? t('loggedIn')}
+                    </span>
+                  </a>
+                  <form action={logoutPortalAction} className="flex-1 flex">
+                    <button
+                      type="submit"
+                      className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal cursor-pointer transition-colors text-[var(--plattform-ink-accent)] bg-[var(--plattform-light)] hover:bg-[var(--plattform-accent)] hover:text-[var(--plattform-white)]"
+                    >
+                      {t('logout')} <LogOut className="text-text w-[1em] h-[1em] shrink-0" aria-hidden />
+                    </button>
+                  </form>
+                </>
               ) : (
                 <>
                   <Link

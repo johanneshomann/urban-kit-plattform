@@ -142,7 +142,11 @@
     "mainNav": "Main navigation",
     "menu": "Open menu",
     "menuClose": "Close menu",
-    "toDashboard": "Go to dashboard"
+    "toDashboard": "Go to dashboard",
+    "userMenu": "User menu",
+    "userMenuDashboard": "Open dashboard",
+    "userMenuProfile": "My profile",
+    "logout": "Log out"
   },
   "starten": {
     "metaTitle": "How to get involved – UrbanKIT",

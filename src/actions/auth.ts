@@ -323,6 +323,18 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
   redirect(`/${locale}/login`)
 }
 
+/**
+ * Log out from the public portal: clears the session but stays on the portal
+ * (home page) instead of bouncing into the app's login screen.
+ */
+export async function logoutPortalAction(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
+  cookieStore.delete('payload-token')
+  const locale = await getLocale()
+  redirect(`/${locale}`)
+}
+
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
   // Clear both the parent-domain cookie and any legacy host-only cookie

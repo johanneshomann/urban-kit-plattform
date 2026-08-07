@@ -142,7 +142,11 @@
     "mainNav": "Hauptnavigation",
     "menu": "Menü öffnen",
     "menuClose": "Menü schließen",
-    "toDashboard": "Zum Dashboard"
+    "toDashboard": "Zum Dashboard",
+    "userMenu": "Benutzermenü",
+    "userMenuDashboard": "Dashboard öffnen",
+    "userMenuProfile": "Mein Profil",
+    "logout": "Abmelden"
   },
   "starten": {
     "metaTitle": "So gelingt Mitgestaltung – UrbanKIT",
