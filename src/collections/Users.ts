@@ -34,6 +34,38 @@ export const Users: CollectionConfig = {
         { label: { en: 'User', de: 'User' }, value: 'user' },
       ],
     },
+    // Voluntary demographic details — self-service via the profile page, used
+    // to evaluate how representative participation is. All optional.
+    {
+      name: 'gender',
+      type: 'select',
+      label: { en: 'Gender', de: 'Geschlecht' },
+      options: [
+        { label: { en: 'Female', de: 'Weiblich' }, value: 'female' },
+        { label: { en: 'Male', de: 'Männlich' }, value: 'male' },
+        { label: { en: 'Diverse', de: 'Divers' }, value: 'diverse' },
+        { label: { en: 'Prefer not to say', de: 'Keine Angabe' }, value: 'noAnswer' },
+      ],
+    },
+    {
+      name: 'birthYear',
+      type: 'number',
+      label: { en: 'Year of birth', de: 'Geburtsjahr' },
+      min: 1900,
+      max: new Date().getFullYear(),
+    },
+    {
+      name: 'stadtbereich',
+      type: 'select',
+      label: { en: 'City area', de: 'Stadtbereich' },
+      options: [
+        { label: { en: 'City centre', de: 'Innenstadt' }, value: 'innenstadt' },
+        { label: { en: 'North', de: 'Norden' }, value: 'norden' },
+        { label: { en: 'South', de: 'Süden' }, value: 'sueden' },
+        { label: { en: 'East', de: 'Osten' }, value: 'osten' },
+        { label: { en: 'West', de: 'Westen' }, value: 'westen' },
+      ],
+    },
     {
       name: 'affiliations',
       type: 'select',
