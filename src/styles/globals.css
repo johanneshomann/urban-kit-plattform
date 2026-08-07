@@ -30,6 +30,12 @@
 .animate-slide-out-left {
   animation: slide-out-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+/* Covered exits (entering a project): the persistent dashboard top bar lives
+   outside the transition wrapper, so it slides out via this root class that
+   DashboardTransition toggles on <html>. */
+html.dashboard-exiting [data-dashboard-topbar] {
+  animation: slide-out-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 /* Companion cover panel: slides in from the right in the target project's
    background color, so arriving in the workspace reads as one motion. */
 @keyframes cover-in {

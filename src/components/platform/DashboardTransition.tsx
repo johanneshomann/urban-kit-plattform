@@ -64,6 +64,9 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
       }
       setExiting(true)
       setCoverColor(cover ?? null)
+      // Covered exits (entering a project): the persistent top bar slides out
+      // with the page via a root class (it lives outside this wrapper).
+      if (cover) document.documentElement.classList.add('dashboard-exiting')
       window.setTimeout(() => router.push(href), EXIT_MS)
     },
     [router],
@@ -76,6 +79,7 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
 
     setExiting(false)
     setCoverColor(null)
+    document.documentElement.classList.remove('dashboard-exiting')
 
     // Entering a dashboard subpage → slide in from right. Project workspaces
     // are the exception: the exit already slid the dashboard out under the
@@ -100,6 +104,9 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
 
     prevPath.current = pathname
   }, [pathname])
+
+  // Never leave the top bar stuck off-screen if the component unmounts mid-exit.
+  useEffect(() => () => document.documentElement.classList.remove('dashboard-exiting'), [])
 
   return (
     <ExitContext.Provider value={navigateWithExit}>

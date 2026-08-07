@@ -50,6 +50,7 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
 
   return (
     <div
+      data-dashboard-topbar
       className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 md:px-10 border-b shadow-md"
       style={{
         background: 'var(--app-white)',
