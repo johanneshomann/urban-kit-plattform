@@ -3,14 +3,16 @@ import config from '@payload-config'
 import { getUser } from '@/lib/auth/getUser'
 import { getTranslations } from 'next-intl/server'
 import { resolveColorScheme } from '@/lib/colorScheme'
-import { canViewContent, type ViewerMembership } from '@/lib/visibility'
+import { canViewContent } from '@/lib/visibility'
+import type { ViewerMembership } from '@/lib/visibility'
 import Link from 'next/link'
-import { FolderKanban, Search, ChevronRight, ExternalLink, BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, MessageCircle, FolderOpen, Kanban, FileText } from 'lucide-react'
+import { FolderKanban, Search, ChevronRight, ExternalLink } from 'lucide-react'
 
 import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { CtaButton } from '@/components/platform/CtaButton'
 import { ProjectJoinButton } from '@/components/platform/ProjectJoinButton'
 import { ProjectPillList } from '@/components/platform/ProjectPillList'
+import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
 
 type Project = {
   id: string
@@ -27,7 +29,7 @@ type Project = {
 }
 
 type ActivityItem = {
-  type: 'poll' | 'event' | 'news' | 'forum' | 'forumComment' | 'task' | 'taskDone' | 'chat' | 'file' | 'board' | 'newsComment'
+  type: 'poll' | 'pollActivated' | 'event' | 'eventSoon' | 'news' | 'forum' | 'forumComment' | 'threadPinned' | 'threadLocked' | 'task' | 'taskDone' | 'taskAssigned' | 'taskDueSoon' | 'file' | 'board' | 'newsComment' | 'memberJoined'
   title: string
   projectTitle: string
   projectSlug: string
@@ -36,6 +38,7 @@ type ActivityItem = {
   schemeGeneral: string
   schemeAccent: string
   schemeLight: string
+  schemeDark: string
 }
 
 export default async function DashboardPage({
@@ -138,9 +141,10 @@ export default async function DashboardPage({
     if (projectIds.length > 0) {
       const now = new Date().toISOString()
       const in14days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+      const in3days = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
       const last7days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-      const [pollsResult, eventsResult, newsResult, forumResult, forumCommentsResult, tasksResult, chatResult, filesResult, boardsResult, newsCommentsResult] = await Promise.all([
+      const [pollsResult, eventsResult, newsResult, forumResult, forumCommentsResult, tasksResult, filesResult, boardsResult, newsCommentsResult, pollsActivatedResult, taskAssigneesResult, tasksDueSoonResult, membersJoinedResult, forumThreadsUpdatedResult] = await Promise.all([
         // Active polls
         payload.find({
           collection: 'polls',
@@ -165,10 +169,10 @@ export default async function DashboardPage({
           where: { and: [{ project: { in: projectIds } }, { createdAt: { greater_than_equal: last7days } }] },
           sort: '-createdAt', limit: 20, depth: 1, overrideAccess: true,
         }),
-        // Recent forum comments (resolve project via thread)
+        // Recent forum comments (scoped via the parent thread's project)
         payload.find({
           collection: 'forum-comments',
-          where: { createdAt: { greater_than_equal: last7days } },
+          where: { and: [{ 'thread.project': { in: projectIds } }, { createdAt: { greater_than_equal: last7days } }] },
           sort: '-createdAt', limit: 20, depth: 1, overrideAccess: true,
         }),
         // Recent/updated tasks
@@ -176,12 +180,6 @@ export default async function DashboardPage({
           collection: 'tasks',
           where: { and: [{ project: { in: projectIds } }, { updatedAt: { greater_than_equal: last7days } }] },
           sort: '-updatedAt', limit: 20, depth: 1, overrideAccess: true,
-        }),
-        // Recent chat messages (resolve project via room)
-        payload.find({
-          collection: 'chat-messages',
-          where: { createdAt: { greater_than_equal: last7days } },
-          sort: '-createdAt', limit: 20, depth: 1, overrideAccess: true,
         }),
         // Recent file uploads
         payload.find({
@@ -198,8 +196,43 @@ export default async function DashboardPage({
         // Recent news comments
         payload.find({
           collection: 'news-comments',
-          where: { createdAt: { greater_than_equal: last7days } },
+          where: { and: [{ project: { in: projectIds } }, { createdAt: { greater_than_equal: last7days } }] },
           sort: '-createdAt', limit: 20, depth: 1, overrideAccess: true,
+        }),
+
+        // ── NEW: Polls just activated (status → active in last 7 days) ──
+        payload.find({
+          collection: 'polls',
+          where: { and: [{ project: { in: projectIds } }, { status: { equals: 'active' } }, { updatedAt: { greater_than_equal: last7days } }] },
+          sort: '-updatedAt', limit: 20, depth: 1, overrideAccess: true,
+        }),
+
+        // ── NEW: Tasks assigned to me ──
+        payload.find({
+          collection: 'task-assignees',
+          where: { and: [{ user: { equals: user.id } }, { createdAt: { greater_than_equal: last7days } }] },
+          sort: '-createdAt', limit: 20, depth: 1, overrideAccess: true,
+        }),
+
+        // ── NEW: Tasks due soon (deadline within 3 days, not done) ──
+        payload.find({
+          collection: 'tasks',
+          where: { and: [{ project: { in: projectIds } }, { deadline: { greater_than_equal: now } }, { deadline: { less_than_equal: in3days } }, { status: { not_equals: 'done' } }] },
+          sort: 'deadline', limit: 20, depth: 1, overrideAccess: true,
+        }),
+
+        // ── NEW: Members joined (active memberships in last 7 days, excluding self) ──
+        payload.find({
+          collection: 'project-memberships',
+          where: { and: [{ project: { in: projectIds } }, { status: { equals: 'active' } }, { updatedAt: { greater_than_equal: last7days } }, { user: { not_equals: user.id } }] },
+          sort: '-updatedAt', limit: 20, depth: 2, overrideAccess: true,
+        }),
+
+        // ── NEW: Forum threads updated (pinned/locked toggled) ──
+        payload.find({
+          collection: 'forum-threads',
+          where: { and: [{ project: { in: projectIds } }, { updatedAt: { greater_than_equal: last7days } }, { or: [{ pinned: { equals: true } }, { locked: { equals: true } }] }] },
+          sort: '-updatedAt', limit: 20, depth: 1, overrideAccess: true,
         }),
       ])
 
@@ -214,59 +247,102 @@ export default async function DashboardPage({
         const membership = membershipByProjectId[p.id]
         if (doc && !canViewContent(membership, doc)) return null
         const scheme = schemeFor(p)
-        return { type, title, projectTitle: p.title, projectSlug: p.slug, projectId: p.id, date, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light }
+        return { type, title, projectTitle: p.title, projectSlug: p.slug, projectId: p.id, date, schemeGeneral: scheme.general, schemeAccent: scheme.accent, schemeLight: scheme.light, schemeDark: scheme.dark }
       }
 
-      // Resolve project for forum comments (thread → project)
-      const forumCommentItems = await Promise.all(
-        forumCommentsResult.docs.map(async (d) => {
-          const thread = d.thread as { id: string; project?: { id: string } } | undefined
-          if (!thread?.project) return null
-          return toItem('forumComment', d.thread as unknown as string, thread.project, d.createdAt as string)
-        })
-      )
+      type VisibilityDoc = { visibility?: string | null; visibilityTeams?: string[] | null }
+      // Each candidate carries a dedupe key for its underlying document, so a
+      // doc matched by several queries (active poll + just activated, task
+      // updated + due soon, …) fills only one of the 30 feed slots. First
+      // occurrence wins — specific/urgent types must be listed before their
+      // generic twin in `candidates` below.
+      type Candidate = { key: string; item: ActivityItem | null }
 
-      // Resolve project for chat messages (room → project)
-      const chatItems = await Promise.all(
-        chatResult.docs.map(async (d) => {
-          const room = d.room as { id: string; project?: { id: string } } | undefined
-          if (!room?.project) return null
-          return toItem('chat', `"${(d.content as string)?.slice(0, 60)}"`, room.project, d.createdAt as string)
-        })
-      )
+      // Resolve project for forum comments (thread → project); visibility is the
+      // parent thread's. Keyed per thread so a comment burst fills one slot.
+      const forumCommentItems: Candidate[] = forumCommentsResult.docs.map((d) => {
+        const thread = d.thread as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
+        if (!thread?.project) return { key: '', item: null }
+        return { key: `forumComment:${thread.id}`, item: toItem('forumComment', thread.title ?? '', thread.project, d.createdAt as string, thread) }
+      })
 
-      // Resolve project for news comments (post → project)
-      const newsCommentItems = await Promise.all(
-        newsCommentsResult.docs.map(async (d) => {
-          const post = d.post as { id: string; project?: { id: string } } | undefined
-          if (!post?.project) return null
-          return toItem('newsComment', d.post as unknown as string, post.project, d.createdAt as string)
-        })
-      )
+      // Resolve project for news comments (post → project); visibility is the post's.
+      const newsCommentItems: Candidate[] = newsCommentsResult.docs.map((d) => {
+        const post = d.post as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
+        if (!post?.project) return { key: '', item: null }
+        return { key: `newsComment:${post.id}`, item: toItem('newsComment', post.title ?? '', post.project, d.createdAt as string, post) }
+      })
 
-      const items: (ActivityItem | null)[] = [
-        ...pollsResult.docs.map((d) => toItem('poll', d.title as string, d.project, undefined, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
-        ...eventsResult.docs.map((d) => toItem('event', d.title as string, d.project, d.startDate as string, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
-        ...newsResult.docs.map((d) => toItem('news', d.title as string, d.project, d.publishedAt as string | undefined, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
-        ...forumResult.docs.map((d) => toItem('forum', d.title as string, d.project, d.createdAt as string, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
+      // Resolve task title for task-assignee items; visibility is the task's.
+      const taskAssigneeItems: Candidate[] = taskAssigneesResult.docs.map((d) => {
+        const task = d.task as ({ id: string; title?: string; project?: { id: string } } & VisibilityDoc) | undefined
+        if (!task?.project) return { key: '', item: null }
+        return { key: `task:${task.id}`, item: toItem('taskAssigned', task.title ?? '', task.project, d.createdAt as string, task) }
+      })
+
+      // Resolve user name for member-joined items (membership events carry no
+      // content visibility — every member may see who joined).
+      const memberJoinedItems: Candidate[] = membersJoinedResult.docs.map((d) => {
+        const memberUser = d.user as { id: string; firstName?: string; lastName?: string } | undefined
+        const project = d.project as { id: string } | undefined
+        if (!project) return { key: '', item: null }
+        const name = memberUser ? [memberUser.firstName, memberUser.lastName].filter(Boolean).join(' ') : 'Unbekannt'
+        return { key: `membership:${String(d.id)}`, item: toItem('memberJoined', name, project, d.updatedAt as string) }
+      })
+
+      // Events happening soon (within 3 days) — separate from the 14-day view
+      const eventSoonItems: Candidate[] = eventsResult.docs
+        .filter((d) => new Date(d.startDate as string) <= new Date(in3days))
+        .map((d) => ({ key: `event:${String(d.id)}`, item: toItem('eventSoon', d.title as string, d.project, d.startDate as string, d as VisibilityDoc) }))
+
+      // Polls just activated — use 'pollActivated' type
+      const pollActivatedItems: Candidate[] = pollsActivatedResult.docs
+        .map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('pollActivated', d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }))
+
+      // Tasks due soon
+      const taskDueSoonItems: Candidate[] = tasksDueSoonResult.docs
+        .map((d) => ({ key: `task:${String(d.id)}`, item: toItem('taskDueSoon', d.title as string, d.project, d.deadline as string, d as VisibilityDoc) }))
+
+      // Pin/lock announcements; visibility is the thread's own.
+      const forumUpdatedItems: Candidate[] = forumThreadsUpdatedResult.docs.map((d) => {
+        const type: ActivityItem['type'] = d.pinned ? 'threadPinned' : 'threadLocked'
+        return { key: `thread:${String(d.id)}`, item: toItem(type, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }
+      })
+
+      // Specific/urgent types first — they win the dedupe over their generic twin.
+      const candidates: Candidate[] = [
+        ...taskAssigneeItems,
+        ...taskDueSoonItems,
+        ...eventSoonItems,
+        ...pollActivatedItems,
+        ...forumResult.docs.map((d) => ({ key: `thread:${String(d.id)}`, item: toItem('forum', d.title as string, d.project, d.createdAt as string, d as VisibilityDoc) })),
+        ...forumUpdatedItems,
+        ...pollsResult.docs.map((d) => ({ key: `poll:${String(d.id)}`, item: toItem('poll', d.title as string, d.project, d.createdAt as string | undefined, d as VisibilityDoc) })),
+        ...eventsResult.docs.map((d) => ({ key: `event:${String(d.id)}`, item: toItem('event', d.title as string, d.project, d.startDate as string, d as VisibilityDoc) })),
+        ...newsResult.docs.map((d) => ({ key: `news:${String(d.id)}`, item: toItem('news', d.title as string, d.project, d.publishedAt as string | undefined, d as VisibilityDoc) })),
         ...forumCommentItems,
         ...tasksResult.docs.map((d) => {
-          const status = d.status as string
-          const itemType = status === 'done' ? 'taskDone' : 'task'
-          return toItem(itemType, d.title as string, d.project, d.updatedAt as string, d as { visibility?: string | null; visibilityTeams?: string[] | null })
+          const itemType: ActivityItem['type'] = (d.status as string) === 'done' ? 'taskDone' : 'task'
+          return { key: `task:${String(d.id)}`, item: toItem(itemType, d.title as string, d.project, d.updatedAt as string, d as VisibilityDoc) }
         }),
-        ...chatItems,
-        ...filesResult.docs.map((d) => toItem('file', (d.label as string) ?? (d.filename as string), d.project, d.createdAt as string, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
-        ...boardsResult.docs.map((d) => toItem('board', d.name as string, d.project, d.updatedAt as string, d as { visibility?: string | null; visibilityTeams?: string[] | null })),
+        ...filesResult.docs.map((d) => ({ key: `file:${String(d.id)}`, item: toItem('file', (d.label as string) ?? (d.filename as string), d.project, d.createdAt as string, d as VisibilityDoc) })),
+        ...boardsResult.docs.map((d) => ({ key: `board:${String(d.id)}`, item: toItem('board', d.name as string, d.project, d.updatedAt as string, d as VisibilityDoc) })),
         ...newsCommentItems,
+        ...memberJoinedItems,
       ]
 
-      // Filter nulls, sort by date descending, cap at 30
-      activityItems = items
-        .filter((i): i is ActivityItem => i !== null)
+      // One slot per document; undated items sort as oldest, not newest.
+      const seenDocs = new Set<string>()
+      activityItems = candidates
+        .filter((c): c is { key: string; item: ActivityItem } => {
+          if (!c.item || seenDocs.has(c.key)) return false
+          seenDocs.add(c.key)
+          return true
+        })
+        .map((c) => c.item)
         .sort((a, b) => {
-          const da = a.date ? new Date(a.date).getTime() : Date.now()
-          const db = b.date ? new Date(b.date).getTime() : Date.now()
+          const da = a.date ? new Date(a.date).getTime() : 0
+          const db = b.date ? new Date(b.date).getTime() : 0
           return db - da
         })
         .slice(0, 30)
@@ -274,17 +350,6 @@ export default async function DashboardPage({
   } catch {
     // Non-fatal — feed just shows empty
   }
-
-  // Group activity items by project for the coloured section display
-  const groupedByProject = activityItems.reduce<Record<string, { project: Project; items: ActivityItem[] }>>((acc, item) => {
-    if (!acc[item.projectId]) {
-      const p = memberProjects.find((x) => x.project.id === item.projectId)?.project
-      if (!p) return acc
-      acc[item.projectId] = { project: p, items: [] }
-    }
-    acc[item.projectId].items.push(item)
-    return acc
-  }, {})
 
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
   // but never below 200px so content always fits.
@@ -296,40 +361,8 @@ export default async function DashboardPage({
   const lastName = ((user as unknown as { lastName?: string | null }).lastName) ?? null
   const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName ?? lastName ?? null
 
-  // Icon map for activity types
-  const activityIcon = (type: ActivityItem['type']) => {
-    switch (type) {
-      case 'poll': return <BarChart3 className="h-4 w-4" />
-      case 'event': return <Calendar className="h-4 w-4" />
-      case 'news': return <Newspaper className="h-4 w-4" />
-      case 'forum': case 'forumComment': return <MessageSquare className="h-4 w-4" />
-      case 'task': case 'taskDone': return <CheckSquare className="h-4 w-4" />
-      case 'chat': return <MessageCircle className="h-4 w-4" />
-      case 'file': return <FolderOpen className="h-4 w-4" />
-      case 'board': return <Kanban className="h-4 w-4" />
-      case 'newsComment': return <FileText className="h-4 w-4" />
-    }
-  }
-
-  // Activity label via i18n
-  const activityLabel = (item: ActivityItem, t: Awaited<ReturnType<typeof getTranslations>>) => {
-    switch (item.type) {
-      case 'poll': return t('activityPoll', { title: item.title })
-      case 'event': return t('activityEvent', { title: item.title })
-      case 'news': return t('activityNews', { title: item.title })
-      case 'forum': return t('activityForum', { title: item.title })
-      case 'forumComment': return t('activityForumComment', { title: item.title })
-      case 'task': return t('activityTask', { title: item.title })
-      case 'taskDone': return t('activityTaskDone', { title: item.title })
-      case 'chat': return t('activityChat', { title: item.title })
-      case 'file': return t('activityFile', { title: item.title })
-      case 'board': return t('activityBoard', { title: item.title })
-      case 'newsComment': return t('activityNewsComment', { title: item.title })
-    }
-  }
-
   return (
-    <div className="flex flex-col" style={{ color: 'var(--plattform-ink)' }}>
+    <div className="flex flex-col" style={{ color: 'var(--app-ink)' }}>
       <DashboardTopBar userName={userName} />
 
       {/* ── Meine Projekte (horizontal bands, image right, colour left) ──── */}
@@ -337,7 +370,7 @@ export default async function DashboardPage({
         <section aria-labelledby="empty-section" className="p-10">
           <div
             className="rounded-xl border border-dashed p-10 text-center"
-            style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink) 20%, transparent)' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
           >
             <FolderKanban className="w-8 h-8 mx-auto mb-3 opacity-20" aria-hidden />
             <p className="text-small font-medium opacity-50">{t('emptyTitle')}</p>
@@ -374,81 +407,12 @@ export default async function DashboardPage({
         />
       )}
 
-      {/* ── Neues aus den Projekten (activity feed, grouped by project with project colours) ── */}
-      {activityItems.length > 0 && (
-        <section
-          aria-labelledby="activity-heading"
-          className="px-6 md:px-10 py-10"
-        >
-          <h2 id="activity-heading" className="text-small font-semibold uppercase tracking-wide opacity-50 mb-8">
-            {t('activityHeading')}
-          </h2>
-
-          {/* Render each project group */}
-          {Object.entries(groupedByProject).map(([projectId, { project, items }]) => {
-            const scheme = resolveColorScheme(project.colorScheme)
-            return (
-              <div key={projectId} className="mb-8 last:mb-0">
-                {/* Project section header with accent bar + project name */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className="h-6 w-1 rounded-full shrink-0"
-                    style={{ background: scheme.accent }}
-                  />
-                  <h3
-                    className="font-semibold leading-tight"
-                    style={{ color: scheme.accent }}
-                  >
-                    {project.title}
-                  </h3>
-                </div>
-
-                {/* Activity items for this project */}
-                <ul className="flex flex-col gap-2" role="list">
-                  {items.map((item, i) => (
-                    <li key={`${item.type}-${item.title}-${i}`}>
-                      <Link
-                        href={`/${locale}/dashboard/projekte/${item.projectSlug}`}
-                        className="flex items-start gap-3 py-2 px-3 rounded-lg transition-colors hover:bg-[var(--hover-bg)]"
-                        style={{
-                          color: 'var(--plattform-ink)',
-                          // Hover tint uses the project's light colour. CSS, not
-                          // handlers — this page is a server component, and event
-                          // handlers cannot cross the RSC boundary.
-                          ['--hover-bg' as string]: `color-mix(in srgb, ${item.schemeLight} 60%, transparent)`,
-                        }}
-                      >
-                        {/* Icon chip with project colours */}
-                        <span
-                          className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-md mt-0.5"
-                          style={{ background: item.schemeGeneral, color: item.schemeAccent }}
-                          aria-hidden="true"
-                        >
-                          {activityIcon(item.type)}
-                        </span>
-                        <div className="min-w-0">
-                          <p
-                            className="text-text font-medium leading-snug"
-                            style={{ color: 'var(--plattform-ink-accent)' }}
-                          >
-                            {activityLabel(item, t)}
-                          </p>
-                          <p
-                            className="text-small mt-0.5"
-                            style={{ color: 'var(--plattform-ink)', opacity: 0.6 }}
-                          >
-                            {t('activityInProject', { project: item.projectTitle })}
-                          </p>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          })}
-        </section>
-      )}
+      {/* ── Neues aus den Projekten (interactive activity feed with sort toggle) ── */}
+      <ActivityFeed
+        items={activityItems}
+        projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
+        locale={locale}
+      />
 
       {/* ── Weitere Projekte entdecken (accessible cards, always visible) ──── */}
       {/* Fades from plattform-light (grey) above → white → back to grey below,
@@ -458,7 +422,7 @@ export default async function DashboardPage({
           aria-labelledby="discover-heading"
           className="pt-16 pb-32 md:pt-24 md:pb-48 px-6 md:px-10"
           style={{
-            background: `linear-gradient(to bottom, var(--plattform-light) 0%, var(--plattform-white) var(--section-fade-height), var(--plattform-white) calc(100% - var(--section-fade-height)), var(--plattform-light) 100%)`,
+            background: `linear-gradient(to bottom, var(--app-light) 0%, var(--app-white) var(--section-fade-height), var(--app-white) calc(100% - var(--section-fade-height)), var(--app-light) 100%)`,
           }}
         >
           <h2 id="discover-heading" className="text-small font-semibold uppercase tracking-wide opacity-50 mb-5">
@@ -470,14 +434,14 @@ export default async function DashboardPage({
                 key={p.id}
                 className="flex flex-col rounded-xl overflow-hidden border shadow-sm"
                 style={{
-                  borderColor: 'color-mix(in srgb, var(--plattform-ink) 12%, transparent)',
-                  background: 'var(--plattform-white)',
+                  borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)',
+                  background: 'var(--app-white)',
                 }}
               >
                 {/* Cover thumbnail */}
                 <div
                   className="relative w-full h-40 overflow-hidden"
-                  style={{ background: 'var(--plattform-light)' }}
+                  style={{ background: 'var(--app-light)' }}
                 >
                   {p.coverImage?.url && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -494,14 +458,14 @@ export default async function DashboardPage({
                 <div className="flex-1 flex flex-col p-4 gap-2">
                   <h3
                     className="text-text font-bold leading-snug"
-                    style={{ color: 'var(--plattform-ink-accent)' }}
+                    style={{ color: 'var(--app-ink-accent)' }}
                   >
                     {p.title}
                   </h3>
                   {p.shortDescription && (
                     <p
                       className="text-small line-clamp-2 flex-1"
-                      style={{ color: 'var(--plattform-ink)', opacity: 0.65 }}
+                      style={{ color: 'var(--app-ink)', opacity: 0.65 }}
                     >
                       {p.shortDescription}
                     </p>
@@ -511,10 +475,10 @@ export default async function DashboardPage({
                   <div className="flex flex-wrap gap-2 mt-2">
                     <Link
                       href={`/${locale}/projekte/${p.slug}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium border transition-colors hover:bg-[color-mix(in_srgb,var(--plattform-ink)_5%,transparent)]"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-medium border transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_5%,transparent)]"
                       style={{
-                        color: 'var(--plattform-ink)',
-                        borderColor: 'color-mix(in srgb, var(--plattform) 35%, transparent)',
+                        color: 'var(--app-ink)',
+                        borderColor: 'color-mix(in srgb, var(--app-accent) 35%, transparent)',
                         minHeight: 44,
                       }}
                     >
@@ -534,7 +498,7 @@ export default async function DashboardPage({
       <section className="px-6 md:px-10 py-10 text-center">
         <Link
           href={`/${locale}/bereich/projekte-archiv/alle-projekte`}
-          className="inline-flex items-center gap-1 text-small font-medium transition-colors text-[var(--plattform)] hover:text-[var(--plattform-accent)]"
+          className="inline-flex items-center gap-1 text-small font-medium transition-colors text-[var(--app-accent)] hover:text-[var(--app-ink-accent)]"
           style={{ minHeight: 44 }}
         >
           {t('discoverAll')} <ChevronRight className="w-[0.9em] h-[0.9em] shrink-0" aria-hidden="true" />
