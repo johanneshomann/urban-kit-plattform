@@ -161,6 +161,14 @@ export const PlatformSettings: GlobalConfig = {
               colorField('plattformWhiteTransparent', { en: 'Platform white (transparent)', de: 'Plattform White Transparent' }, { en: 'Translucent white overlay.', de: 'Transparente weiße Überlagerung.' }),
               colorField('plattformBlack', { en: 'Platform black', de: 'Plattform Black' }, { en: 'Contrast black for dark accents.', de: 'Kontrast-Schwarz für dunkle Akzente.' }),
             ]),
+            colorGroup({ en: 'App colors (workspace)', de: 'App-Farben (Arbeitsbereich)' }, [
+              colorField('appBlack', { en: 'App black', de: 'App Black' }, { en: 'Darkest contrast color for the workspace.', de: 'Dunkelste Kontrastfarbe für den Arbeitsbereich.' }),
+              colorField('appInk', { en: 'App ink', de: 'App Ink' }, { en: 'Default body-copy color in the workspace.', de: 'Standardfarbe für Fließtext im Arbeitsbereich.' }),
+              colorField('appInkAccent', { en: 'App ink accent', de: 'App Ink Accent' }, { en: 'Strong text / heading color in the workspace.', de: 'Kräftige Text-/Überschriftenfarbe im Arbeitsbereich.' }),
+              colorField('appWhite', { en: 'App white', de: 'App White' }, { en: 'Card / surface white in the workspace.', de: 'Weiß für Karten und Flächen im Arbeitsbereich.' }),
+              colorField('appLight', { en: 'App light', de: 'App Light' }, { en: 'Light surface background in the workspace.', de: 'Helle Hintergrundfläche im Arbeitsbereich.' }),
+              colorField('appAccent', { en: 'App accent', de: 'App Accent' }, { en: 'Accent color for buttons and highlights in the workspace.', de: 'Akzentfarbe für Buttons und Hervorhebungen im Arbeitsbereich.' }),
+            ]),
             {
               name: 'resetColors',
               type: 'ui',

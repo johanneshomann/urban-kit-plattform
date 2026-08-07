@@ -35,6 +35,13 @@ export interface PlatformColors {
   plattformWhite: string
   plattformWhiteTransparent: string
   plattformBlack: string
+  // App (workspace) — duplicates of plattform tokens, editable in admin
+  appBlack: string
+  appInk: string
+  appInkAccent: string
+  appWhite: string
+  appLight: string
+  appAccent: string
 }
 
 export const COLOR_DEFAULTS: PlatformColors = {
@@ -66,4 +73,12 @@ export const COLOR_DEFAULTS: PlatformColors = {
   plattformWhite:            '#ffffff',
   plattformWhiteTransparent: 'rgba(255, 255, 255, 0.7)',
   plattformBlack:            '#000000',
+
+  // App (workspace) — neutral black/white scheme, no "real" accent color
+  appBlack:  '#000000',
+  appInk:    '#555555',
+  appInkAccent: '#1c1c1c',
+  appWhite:  '#ffffff',
+  appLight:  '#f0f0f0',
+  appAccent: '#1c1c1c',
 }

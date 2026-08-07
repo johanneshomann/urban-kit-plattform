@@ -45,6 +45,13 @@ export async function getPlatformColors(): Promise<PlatformColors> {
       plattformWhite:            pick(s.plattformWhite,            COLOR_DEFAULTS.plattformWhite),
       plattformWhiteTransparent: pick(s.plattformWhiteTransparent, COLOR_DEFAULTS.plattformWhiteTransparent),
       plattformBlack:            pick(s.plattformBlack,            COLOR_DEFAULTS.plattformBlack),
+
+      appBlack:     pick(s.appBlack,     COLOR_DEFAULTS.appBlack),
+      appInk:       pick(s.appInk,       COLOR_DEFAULTS.appInk),
+      appInkAccent: pick(s.appInkAccent, COLOR_DEFAULTS.appInkAccent),
+      appWhite:     pick(s.appWhite,     COLOR_DEFAULTS.appWhite),
+      appLight:     pick(s.appLight,     COLOR_DEFAULTS.appLight),
+      appAccent:    pick(s.appAccent,    COLOR_DEFAULTS.appAccent),
     }
   } catch {
     return COLOR_DEFAULTS
@@ -79,5 +86,12 @@ export function colorsToCssVars(c: PlatformColors): Record<string, string> {
     '--plattform-white':              c.plattformWhite,
     '--plattform-white-transparent':  c.plattformWhiteTransparent,
     '--plattform-black':              c.plattformBlack,
+
+    '--app-black':     c.appBlack,
+    '--app-ink':       c.appInk,
+    '--app-ink-accent': c.appInkAccent,
+    '--app-white':     c.appWhite,
+    '--app-light':     c.appLight,
+    '--app-accent':    c.appAccent,
   }
 }

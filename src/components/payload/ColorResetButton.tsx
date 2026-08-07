@@ -32,6 +32,13 @@ const RESETS: Record<keyof PlatformColors, string> = {
   plattformWhite: COLOR_DEFAULTS.plattformWhite,
   plattformWhiteTransparent: COLOR_DEFAULTS.plattformWhiteTransparent,
   plattformBlack: COLOR_DEFAULTS.plattformBlack,
+
+  appBlack:     COLOR_DEFAULTS.appBlack,
+  appInk:       COLOR_DEFAULTS.appInk,
+  appInkAccent: COLOR_DEFAULTS.appInkAccent,
+  appWhite:     COLOR_DEFAULTS.appWhite,
+  appLight:     COLOR_DEFAULTS.appLight,
+  appAccent:    COLOR_DEFAULTS.appAccent,
 }
 
 export function ColorResetButton() {
