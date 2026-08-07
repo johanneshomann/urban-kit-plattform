@@ -238,7 +238,7 @@ export function ActivityFeed({
       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-6">
         {/* Search */}
         <div
-          className="md:flex-1 flex items-center gap-2 px-4 h-10 rounded-lg text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm focus-within:shadow-md focus-within:ring-2"
+          className="md:flex-1 flex items-center gap-2 px-4 h-10 rounded-lg text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))] hover:shadow-sm focus-within:shadow-md focus-within:ring-2"
           style={{ '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
         >
           <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
@@ -273,7 +273,7 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setProjectOpen((v) => !v); setTypeOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm cursor-pointer"
+                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))] hover:shadow-sm cursor-pointer"
                     style={{ color: 'var(--app-ink)' }}
                     aria-haspopup="listbox"
                     aria-expanded={projectOpen}
@@ -318,7 +318,7 @@ export function ActivityFeed({
                   <button
                     type="button"
                     onClick={() => { setTypeOpen((v) => !v); setProjectOpen(false) }}
-                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm cursor-pointer"
+                    className="w-full flex items-center justify-between gap-1 px-2.5 h-10 rounded-md text-small bg-[var(--app-white)] transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))] hover:shadow-sm cursor-pointer"
                     style={{ color: 'var(--app-ink)' }}
                     aria-haspopup="listbox"
                     aria-expanded={typeOpen}

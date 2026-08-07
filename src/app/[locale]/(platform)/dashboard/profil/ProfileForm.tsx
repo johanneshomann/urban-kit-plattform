@@ -154,7 +154,7 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label
-              className="inline-flex items-center h-10 px-4 rounded-lg text-small font-medium cursor-pointer transition-all duration-200 bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] hover:shadow-sm"
+              className="inline-flex items-center h-10 px-4 rounded-lg text-small font-medium cursor-pointer transition-all duration-200 bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))] hover:shadow-sm"
               style={{ color: 'var(--app-ink)' }}
             >
               <input
@@ -253,7 +253,7 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
           ))}
           {galleryCount < GALLERY_MAX && (
             <label
-              className="aspect-square rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 bg-[var(--app-white)] shadow-sm hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
+              className="aspect-square rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 bg-[var(--app-white)] shadow-sm hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))]"
               style={{ color: 'var(--app-ink)' }}
             >
               <input
@@ -327,7 +327,7 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
                 className={`flex items-center h-10 px-4 rounded-lg text-small cursor-pointer transition-all duration-200 select-none hover:shadow-sm ${
                   active
                     ? 'bg-[var(--app-accent)] text-[var(--app-white)]'
-                    : 'bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]'
+                    : 'bg-[var(--app-white)] hover:bg-[color-mix(in_srgb,var(--app-ink)_16%,var(--app-white))]'
                 }`}
                 style={active ? undefined : { color: 'var(--app-ink)' }}
               >
