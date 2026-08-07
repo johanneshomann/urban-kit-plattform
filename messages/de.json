@@ -920,7 +920,14 @@
     "leaveProject": "Projekt verlassen",
     "leaveConfirmTitle": "„{title}“ wirklich verlassen?",
     "leaveConfirmBody": "Sie verlieren den Zugriff auf den Projektraum. Ein erneuter Beitritt ist per Anfrage möglich.",
-    "leaving": "Wird verlassen …"
+    "leaving": "Wird verlassen …",
+    "about": "Über mich",
+    "aboutHint": "Max. 1.000 Zeichen.",
+    "aboutPlaceholder": "Erzählen Sie etwas über sich …",
+    "galleryTitle": "Meine Galerie",
+    "galleryHint": "Bis zu 12 Bilder, je maximal 5 MB.",
+    "galleryAdd": "Hinzufügen",
+    "galleryRemove": "Bild entfernen"
   },
   "modules": {
     "news": "News",

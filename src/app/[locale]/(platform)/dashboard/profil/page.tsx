@@ -20,6 +20,8 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     firstName?: string
     lastName?: string
     avatar?: string | { id: string; url?: string | null } | null
+    bio?: string | null
+    gallery?: { image?: string | { id: string; url?: string | null } | null }[] | null
     gender?: string | null
     birthYear?: number | null
     stadtbereich?: string | null
@@ -40,8 +42,35 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     avatarUrl = (media as { url?: string | null } | null)?.url ?? null
   }
 
-  // Active memberships — for the leave-project list at the bottom.
   const payloadClient = await getPayload({ config })
+
+  // Gallery: entries may arrive populated or as bare media ids — resolve all
+  // to {id, url}; bare ids are batch-fetched in one query.
+  const galleryEntries = (u.gallery ?? []).map((g) => g.image).filter((img): img is NonNullable<typeof img> => !!img)
+  const galleryImages: { id: string; url: string }[] = []
+  const pendingIds: string[] = []
+  for (const img of galleryEntries) {
+    if (typeof img === 'object') {
+      if (img.url) galleryImages.push({ id: String(img.id), url: img.url })
+    } else {
+      pendingIds.push(img)
+    }
+  }
+  if (pendingIds.length > 0) {
+    const mediaRes = await payloadClient.find({
+      collection: 'media',
+      where: { id: { in: pendingIds } },
+      limit: pendingIds.length,
+      depth: 0,
+      overrideAccess: true,
+    })
+    for (const id of pendingIds) {
+      const doc = mediaRes.docs.find((d) => String(d.id) === id) as { id: string; url?: string | null } | undefined
+      if (doc?.url) galleryImages.push({ id, url: doc.url })
+    }
+  }
+
+  // Active memberships — for the leave-project list.
   const membershipsRes = await payloadClient.find({
     collection: 'project-memberships',
     where: { and: [{ user: { equals: user.id } }, { status: { equals: 'active' } }] },
@@ -117,6 +146,8 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
             lastName={lastName}
             email={user.email}
             avatarUrl={avatarUrl}
+            bio={u.bio ?? ''}
+            galleryImages={galleryImages}
             gender={u.gender ?? ''}
             birthYear={u.birthYear ?? null}
             stadtbereich={u.stadtbereich ?? ''}

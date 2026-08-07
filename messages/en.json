@@ -920,7 +920,14 @@
     "leaveProject": "Leave project",
     "leaveConfirmTitle": "Leave “{title}”?",
     "leaveConfirmBody": "You will lose access to the project space. You can request to join again.",
-    "leaving": "Leaving …"
+    "leaving": "Leaving …",
+    "about": "About me",
+    "aboutHint": "Up to 1,000 characters.",
+    "aboutPlaceholder": "Tell others a bit about yourself …",
+    "galleryTitle": "My gallery",
+    "galleryHint": "Up to 12 images, 5 MB each.",
+    "galleryAdd": "Add",
+    "galleryRemove": "Remove image"
   },
   "modules": {
     "news": "News",

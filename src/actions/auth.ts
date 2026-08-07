@@ -158,6 +158,22 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
   if (!me.user) return { error: 'Nicht eingeloggt' }
 
+  const bio = ((formData.get('bio') as string) || '').trim().slice(0, 1000) || null
+
+  // Personal gallery: `galleryKeep` lists the media ids of existing images the
+  // user kept, `galleryImages` carries newly picked files. Everything that was
+  // in the gallery but not kept gets its media doc deleted afterwards.
+  const galleryKeep = (formData.getAll('galleryKeep') as string[]).filter(Boolean)
+  const galleryFiles = formData.getAll('galleryImages').filter((f): f is File => f instanceof File && f.size > 0)
+  const previousGalleryIds = (Array.isArray(me.user.gallery) ? me.user.gallery : [])
+    .map((g) => (typeof g.image === 'object' && g.image ? String(g.image.id) : g.image ? String(g.image) : null))
+    .filter((id): id is string => id !== null)
+  if (galleryKeep.length + galleryFiles.length > 12) return { error: 'Maximal 12 Bilder in der Galerie.' }
+  for (const f of galleryFiles) {
+    if (!f.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
+    if (f.size > 5 * 1024 * 1024) return { error: 'Bild ist zu groß (max. 5 MB).' }
+  }
+
   // Profile picture: replace (upload new media doc) or remove. The previous
   // avatar media doc is deleted on both paths — it is only ever referenced by
   // this user.
@@ -193,20 +209,45 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
     }
   }
 
+  // Upload new gallery images, then assemble kept + new (order: kept first).
+  const newGalleryIds: string[] = []
+  for (const f of galleryFiles) {
+    try {
+      const media = await payload.create({
+        collection: 'media',
+        data: {
+          alt: [firstName, lastName].filter(Boolean).join(' ') || me.user.email,
+          visibility: 'PUBLIC',
+          uploadedBy: me.user.id,
+        },
+        file: { data: Buffer.from(await f.arrayBuffer()), mimetype: f.type, name: f.name, size: f.size },
+        overrideAccess: true,
+      })
+      newGalleryIds.push(String(media.id))
+    } catch {
+      return { error: 'Bild konnte nicht hochgeladen werden.' }
+    }
+  }
+  const keptIds = galleryKeep.filter((id) => previousGalleryIds.includes(id))
+  const gallery = [...keptIds, ...newGalleryIds].map((id) => ({ image: id }))
+
   try {
     await payload.update({
       collection: 'users',
       id: me.user.id,
-      data: { firstName, lastName, affiliations, cityInfo, gender, birthYear, stadtbereich, ...avatarUpdate },
+      data: { firstName, lastName, bio, affiliations, cityInfo, gender, birthYear, stadtbereich, gallery, ...avatarUpdate },
       overrideAccess: true,
     })
   } catch {
     return { error: 'Speichern fehlgeschlagen.' }
   }
 
-  // Clean up the replaced/removed avatar file (best effort).
+  // Clean up replaced/removed media files (best effort).
   if (previousAvatarId && avatarUpdate.avatar !== undefined && avatarUpdate.avatar !== previousAvatarId) {
     await payload.delete({ collection: 'media', id: previousAvatarId, overrideAccess: true }).catch(() => {})
+  }
+  for (const removedId of previousGalleryIds.filter((id) => !keptIds.includes(id))) {
+    await payload.delete({ collection: 'media', id: removedId, overrideAccess: true }).catch(() => {})
   }
 
   if (newPassword) {

@@ -3,17 +3,21 @@
 import { useActionState, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { updateProfileAction } from '@/actions/auth'
-import { CheckCircle, UserCircle } from 'lucide-react'
+import { CheckCircle, Plus, UserCircle, X } from 'lucide-react'
 
 const AFFILIATION_OPTIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
 const GENDER_OPTIONS = ['female', 'male', 'diverse', 'noAnswer'] as const
 const STADTBEREICH_OPTIONS = ['innenstadt', 'norden', 'sueden', 'osten', 'westen'] as const
+
+const GALLERY_MAX = 12
 
 interface ProfileFormProps {
   firstName: string
   lastName: string
   email: string
   avatarUrl: string | null
+  bio: string
+  galleryImages: { id: string; url: string }[]
   gender: string
   birthYear: number | null
   stadtbereich: string
@@ -32,7 +36,7 @@ function SectionHeader({ label, hint }: { label: string; hint?: string }) {
   )
 }
 
-export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
+export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galleryImages, gender, birthYear, stadtbereich, affiliations, cityInfo }: ProfileFormProps) {
   const [state, action, pending] = useActionState(updateProfileAction, null)
   const t = useTranslations('profile')
   const tax = useTranslations('taxonomy')
@@ -55,6 +59,33 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, bir
     setAvatarRemoved(true)
     setAvatarPreview(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // Gallery: kept existing images (hidden `galleryKeep` inputs) + newly picked
+  // files, accumulated across picks and mirrored into the real file input via
+  // DataTransfer so the server action receives exactly what's previewed.
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+  const [keptIds, setKeptIds] = useState<string[]>(galleryImages.map((g) => g.id))
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([])
+  const galleryCount = keptIds.length + newImages.length
+
+  const syncGalleryInput = (files: File[]) => {
+    const dt = new DataTransfer()
+    files.forEach((f) => dt.items.add(f))
+    if (galleryInputRef.current) galleryInputRef.current.files = dt.files
+  }
+  const onGalleryPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith('image/'))
+    if (!picked.length) return
+    const room = Math.max(0, GALLERY_MAX - keptIds.length - newImages.length)
+    const next = [...newImages, ...picked.slice(0, room).map((f) => ({ file: f, preview: URL.createObjectURL(f) }))]
+    setNewImages(next)
+    syncGalleryInput(next.map((n) => n.file))
+  }
+  const removeNewImage = (preview: string) => {
+    const next = newImages.filter((n) => n.preview !== preview)
+    setNewImages(next)
+    syncGalleryInput(next.map((n) => n.file))
   }
 
   const toggleAffiliation = (value: string, checked: boolean) => {
@@ -147,6 +178,79 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, bir
           <input id="email" type="email" value={email} disabled className={`${inputBase} opacity-50 cursor-not-allowed`} style={ringStyle} />
           <p className="text-small opacity-40 mt-1.5">{t('emailReadonly')}</p>
         </div>
+      </section>
+
+      {/* About me */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader label={t('about')} hint={t('aboutHint')} />
+        <textarea
+          id="bio"
+          name="bio"
+          defaultValue={bio}
+          maxLength={1000}
+          rows={5}
+          placeholder={t('aboutPlaceholder')}
+          className="w-full px-4 py-3 rounded-lg text-small outline-none shadow-sm transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-white)] resize-y min-h-28"
+          style={ringStyle}
+        />
+      </section>
+
+      {/* Personal gallery */}
+      <section className="flex flex-col gap-4">
+        <SectionHeader label={t('galleryTitle')} hint={t('galleryHint')} />
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+          {galleryImages.filter((g) => keptIds.includes(g.id)).map((g) => (
+            <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden shadow-sm group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={g.url} alt="" aria-hidden className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setKeptIds((ids) => ids.filter((id) => id !== g.id))}
+                aria-label={t('galleryRemove')}
+                className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-7 w-7 rounded-full bg-[var(--app-white)] shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer"
+                style={{ color: 'var(--app-ink-accent)' }}
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+          ))}
+          {newImages.map((n) => (
+            <div key={n.preview} className="relative aspect-square rounded-lg overflow-hidden shadow-sm group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={n.preview} alt="" aria-hidden className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => removeNewImage(n.preview)}
+                aria-label={t('galleryRemove')}
+                className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-7 w-7 rounded-full bg-[var(--app-white)] shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer"
+                style={{ color: 'var(--app-ink-accent)' }}
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+          ))}
+          {galleryCount < GALLERY_MAX && (
+            <label
+              className="aspect-square rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 bg-[var(--app-white)] shadow-sm hover:shadow-md hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))]"
+              style={{ color: 'var(--app-ink)' }}
+            >
+              <input
+                ref={galleryInputRef}
+                type="file"
+                name="galleryImages"
+                accept="image/*"
+                multiple
+                onChange={onGalleryPick}
+                className="sr-only"
+              />
+              <Plus className="h-5 w-5 opacity-60" aria-hidden />
+              <span className="text-small opacity-60">{t('galleryAdd')}</span>
+            </label>
+          )}
+        </div>
+        {keptIds.map((id) => (
+          <input key={id} type="hidden" name="galleryKeep" value={id} />
+        ))}
       </section>
 
       {/* Voluntary demographics */}

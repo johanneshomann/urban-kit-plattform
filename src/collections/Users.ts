@@ -18,6 +18,19 @@ export const Users: CollectionConfig = {
     { name: 'lastName', type: 'text', label: { en: 'Last name', de: 'Nachname' } },
     { name: 'avatar', type: 'upload', relationTo: 'media', label: { en: 'Avatar', de: 'Avatar' } },
     {
+      name: 'bio',
+      type: 'textarea',
+      label: { en: 'About me', de: 'Über mich' },
+      maxLength: 1000,
+    },
+    {
+      name: 'gallery',
+      type: 'array',
+      label: { en: 'Gallery', de: 'Galerie' },
+      maxRows: 12,
+      fields: [{ name: 'image', type: 'upload', relationTo: 'media', label: { en: 'Image', de: 'Bild' } }],
+    },
+    {
       name: 'memberships',
       type: 'join',
       collection: 'project-memberships',
