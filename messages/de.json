@@ -816,7 +816,7 @@
     "sectionMember": "Beteiligt",
     "sectionStarred": "Favoriten",
     "sectionMemberProjects": "Meine Projekte",
-    "sectionOtherProjects": "Weitere Projekte",
+    "sectionOtherProjects": "Alle Projekte",
     "openProject": "Öffnen",
     "openWorkspace": "Projektraum öffnen",
     "rolePM": "Projektmanager:in",
@@ -856,7 +856,13 @@
     "activityInProject": "in {project}",
     "activityFilterAll": "Alle",
     "activityFilterProject": "Projekt",
-    "activityFilterType": "Typ"
+    "activityFilterType": "Typ",
+    "activitySearchPlaceholder": "Aktivitäten durchsuchen …",
+    "projectSearchPlaceholder": "Projekte durchsuchen …",
+    "paginationPrev": "Vorherige Seite",
+    "paginationNext": "Nächste Seite",
+    "paginationPage": "Seite {page} von {total}",
+    "reorderProjects": "Reihenfolge ändern"
   },
   "profile": {
     "title": "Mein Profil",

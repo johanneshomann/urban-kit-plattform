@@ -816,7 +816,7 @@
     "sectionMember": "Participating",
     "sectionStarred": "Starred",
     "sectionMemberProjects": "My projects",
-    "sectionOtherProjects": "Other projects",
+    "sectionOtherProjects": "All projects",
     "openProject": "Open",
     "openWorkspace": "Open project workspace",
     "rolePM": "Project manager",
@@ -856,7 +856,13 @@
     "activityInProject": "in {project}",
     "activityFilterAll": "All",
     "activityFilterProject": "Project",
-    "activityFilterType": "Type"
+    "activityFilterType": "Type",
+    "activitySearchPlaceholder": "Search activities …",
+    "projectSearchPlaceholder": "Search projects …",
+    "paginationPrev": "Previous page",
+    "paginationNext": "Next page",
+    "paginationPage": "Page {page} of {total}",
+    "reorderProjects": "Change order"
   },
   "profile": {
     "title": "My profile",
