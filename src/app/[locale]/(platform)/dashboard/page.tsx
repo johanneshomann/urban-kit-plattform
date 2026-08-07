@@ -11,6 +11,8 @@ import { CtaButton } from '@/components/platform/CtaButton'
 import { ProjectPillList } from '@/components/platform/ProjectPillList'
 import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
 import { AllProjectsSection } from '@/components/platform/dashboard/AllProjectsSection'
+import { PeopleSection } from '@/components/platform/dashboard/PeopleSection'
+import { findPeople } from '@/lib/people-search'
 
 type Project = {
   id: string
@@ -363,6 +365,9 @@ export default async function DashboardPage({
     // Non-fatal — feed just shows empty
   }
 
+  // People search — initial state shows the viewer's project peers.
+  const initialPeople = await findPeople(String(user.id)).catch(() => [])
+
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
   // but never below 200px so content always fits. The pill list paginates at
   // 3 per page, so the divisor caps there.
@@ -455,6 +460,12 @@ export default async function DashboardPage({
           />
         </section>
       )}
+
+      {/* ── Personen entdecken (people search — peers by default) ──── */}
+      <PeopleSection
+        initialPeople={initialPeople}
+        projects={memberProjects.map((p) => ({ id: p.project.id, title: p.project.title }))}
+      />
 
     </div>
   )

@@ -865,7 +865,21 @@
     "paginationPage": "Page {page} of {total}",
     "reorderProjects": "Change order",
     "viewList": "List view",
-    "viewGrid": "Grid view"
+    "viewGrid": "Grid view",
+    "peopleHeading": "Discover people",
+    "peopleSearchPlaceholder": "Search the whole platform by name …",
+    "peopleFilterProject": "Project",
+    "peopleFilterAffiliation": "Background",
+    "peopleAllProjects": "All projects",
+    "peopleAllAffiliations": "All backgrounds",
+    "peopleShared": "{count, plural, one {# shared project} other {# shared projects}}",
+    "peopleSharedTitle": "Shared projects",
+    "peopleGalleryTitle": "Gallery",
+    "peopleNoResults": "No people found.",
+    "peopleNoName": "Unnamed member",
+    "peopleShowMore": "Show {count} more",
+    "peopleShowLess": "Show less",
+    "peopleClose": "Close"
   },
   "profile": {
     "title": "My profile",

@@ -865,7 +865,21 @@
     "paginationPage": "Seite {page} von {total}",
     "reorderProjects": "Reihenfolge ändern",
     "viewList": "Listenansicht",
-    "viewGrid": "Rasteransicht"
+    "viewGrid": "Rasteransicht",
+    "peopleHeading": "Personen entdecken",
+    "peopleSearchPlaceholder": "Auf der ganzen Plattform nach Namen suchen …",
+    "peopleFilterProject": "Projekt",
+    "peopleFilterAffiliation": "Hintergrund",
+    "peopleAllProjects": "Alle Projekte",
+    "peopleAllAffiliations": "Alle Hintergründe",
+    "peopleShared": "{count, plural, one {# gemeinsames Projekt} other {# gemeinsame Projekte}}",
+    "peopleSharedTitle": "Gemeinsame Projekte",
+    "peopleGalleryTitle": "Galerie",
+    "peopleNoResults": "Keine Personen gefunden.",
+    "peopleNoName": "Unbenanntes Mitglied",
+    "peopleShowMore": "{count} weitere anzeigen",
+    "peopleShowLess": "Weniger anzeigen",
+    "peopleClose": "Schließen"
   },
   "profile": {
     "title": "Mein Profil",
