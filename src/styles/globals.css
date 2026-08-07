@@ -226,6 +226,16 @@ h1, h2, h3, h4, h5, h6 {
   animation: tooltip-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Bottom-center toast (e.g. "changes saved" on the profile page). */
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px) scale(0.95); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Downward variant for tooltips attached under a trigger (top bar icons). */
 @keyframes tooltip-in-down {
   from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(0.9); }

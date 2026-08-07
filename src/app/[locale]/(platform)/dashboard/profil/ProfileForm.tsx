@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { updateProfileAction } from '@/actions/auth'
 import { CheckCircle, Plus, UserCircle, X } from 'lucide-react'
@@ -92,6 +92,24 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
     setSelected(prev => (checked ? [...prev, value] : prev.filter(v => v !== value)))
   }
 
+  // Saved toast: the action's success value is `null`, which is also the
+  // initial state — so only show after a submission actually ran.
+  const [showSaved, setShowSaved] = useState(false)
+  const wasPending = useRef(false)
+  useEffect(() => {
+    if (pending) {
+      wasPending.current = true
+      setShowSaved(false)
+      return
+    }
+    if (wasPending.current && state === null) {
+      wasPending.current = false
+      setShowSaved(true)
+      const timer = setTimeout(() => setShowSaved(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [pending, state])
+
   // Borderless controls per dashboard rules: white surface on the grey page,
   // definition via focus ring + shadow, all h-10 / rounded-lg.
   const inputBase =
@@ -102,17 +120,21 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, bio, galler
   return (
     <form action={action} className="flex flex-col gap-10">
 
-      {/* Feedback */}
+      {/* Errors stay inline at the top; success floats as a toast (below) */}
       {state?.error && (
         <p className="px-4 py-3 rounded-lg text-small text-red-700 bg-red-50">
           {state.error}
         </p>
       )}
-      {state === null && (
-        <p className="px-4 py-3 rounded-lg text-small flex items-center gap-2 text-green-700 bg-green-50">
-          <CheckCircle className="w-4 h-4 shrink-0" />
+      {showSaved && (
+        <div
+          role="status"
+          className="toast-in fixed bottom-6 left-1/2 z-50 flex items-center gap-2 px-4 h-11 rounded-lg shadow-lg text-small font-medium"
+          style={{ background: 'var(--app-ink-accent)', color: 'var(--app-white)' }}
+        >
+          <CheckCircle className="w-4 h-4 shrink-0" aria-hidden />
           {t('saved')}
-        </p>
+        </div>
       )}
 
       {/* Profile picture */}
