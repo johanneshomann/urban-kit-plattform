@@ -3,15 +3,16 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Accessibility, FileText, Minus, Plus, RotateCcw } from 'lucide-react'
+import { Accessibility, FileText, Minus, Plus, RotateCcw, X } from 'lucide-react'
 import { IconTooltip } from '@/components/platform/IconTooltip'
 import { useAccessibility } from './AccessibilityProvider'
 
 /**
- * Dropdown variant of the accessibility settings for the dashboard top bar —
- * inside the platform area it replaces the floating FAB (which stays on the
- * public portal). Same controls and `accessibility` message namespace as
- * {@link AccessibilityButton}, styled with the neutral --app-* tokens.
+ * Centered pop-up variant of the accessibility settings for the dashboard top
+ * bar — inside the platform area it replaces the floating FAB (which stays on
+ * the public portal). Same controls and `accessibility` message namespace as
+ * {@link AccessibilityButton}, presented like the logout confirmation dialog
+ * (dark blurred backdrop, centered panel), styled with the --app-* tokens.
  */
 export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: string }) {
   const t = useTranslations('accessibility')
@@ -29,12 +30,11 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
   } = useAccessibility()
 
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const panelId = useId()
 
-  // Close on Escape (returning focus to the trigger) and on outside click.
+  // Close on Escape, returning focus to the trigger (backdrop handles clicks).
   useEffect(() => {
     if (!open) return
     function onKeyDown(e: KeyboardEvent) {
@@ -43,15 +43,8 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
         buttonRef.current?.focus()
       }
     }
-    function onPointerDown(e: PointerEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
-    }
     document.addEventListener('keydown', onKeyDown)
-    document.addEventListener('pointerdown', onPointerDown)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.removeEventListener('pointerdown', onPointerDown)
-    }
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [open])
 
   // Move focus into the panel when it opens.
@@ -63,7 +56,7 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
     'inline-flex h-9 w-9 items-center justify-center rounded-md bg-[var(--app-light)] transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer'
 
   return (
-    <div ref={containerRef} className="relative self-stretch flex items-center">
+    <>
       <IconTooltip label={t('title')}>
         <button
           ref={buttonRef}
@@ -74,33 +67,48 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
           aria-controls={open ? panelId : undefined}
           className={triggerClassName}
         >
-          <Accessibility aria-hidden="true" className="h-4 w-4" />
+          <Accessibility aria-hidden="true" className="w-[1.25em] h-[1.25em] shrink-0" />
           <span className="sr-only">{t('open')}</span>
         </button>
       </IconTooltip>
 
       {open && (
-        /* overflow-hidden wrapper at the bar's bottom edge clips the slide-down,
-           so the panel emerges from UNDER the header (public-nav pattern)
-           instead of animating over it. */
-        <div className="absolute right-0 top-full overflow-hidden rounded-b-xl z-50">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color-mix(in_srgb,var(--app-black)_45%,transparent)] backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false)
+          }}
+        >
         <div
           ref={panelRef}
           id={panelId}
           role="dialog"
-          aria-modal="false"
+          aria-modal="true"
           aria-label={t('title')}
           tabIndex={-1}
           data-a11y-panel
-          className="nav-panel-enter w-72 rounded-b-xl p-4 outline-none shadow-md"
+          className="popover-in w-full max-w-sm rounded-xl p-6 outline-none shadow-xl"
           style={{
             background: 'var(--app-white)',
             color: 'var(--app-ink)',
           }}
         >
-          <h2 className="text-text font-bold mb-3" style={{ color: 'var(--app-ink-accent)' }}>
-            {t('title')}
-          </h2>
+          <div className="flex items-start justify-between mb-3">
+            <h2 className="text-display font-bold" style={{ color: 'var(--app-ink-accent)' }}>
+              {t('title')}
+            </h2>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false)
+                buttonRef.current?.focus()
+              }}
+              aria-label={t('close')}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] cursor-pointer"
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
 
           {/* Font size */}
           <div className="mb-4">
@@ -150,7 +158,7 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
         </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
