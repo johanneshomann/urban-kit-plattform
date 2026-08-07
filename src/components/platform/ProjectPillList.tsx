@@ -15,11 +15,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, ArrowRight, SquarePen, Users, Asterisk } from 'lucide-react'
+import { GripVertical, ArrowRight, SquarePen, Users, Asterisk, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
 import { reorderProjects } from '@/actions/reorder-projects'
 import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
+import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 type PillProject = {
   membershipId: string
@@ -33,6 +35,8 @@ type PillProject = {
   projektphase?: string
   memberCount?: number
 }
+
+const PAGE_SIZE = 4
 
 /** Resolve the German phase label from a phase value. */
 function phaseLabel(value: string | undefined): string | null {
@@ -48,6 +52,7 @@ function SortablePill({
   tOpenWorkspace,
   tManageProject,
   rowHeight,
+  onNavigate,
 }: {
   project: PillProject
   isPM: boolean
@@ -55,7 +60,9 @@ function SortablePill({
   tOpenWorkspace: string
   tManageProject: string
   rowHeight: string
+  onNavigate: (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
+  const t = useTranslations('dashboard')
   const {
     attributes,
     listeners,
@@ -82,6 +89,9 @@ function SortablePill({
     zIndex: isDragging ? 10 : 1,
   }
 
+  const workspaceHref = `/${locale}/dashboard/projekte/${project.slug}`
+  const manageHref = `${workspaceHref}/manage`
+
   return (
     <div
       ref={setNodeRef}
@@ -103,7 +113,7 @@ function SortablePill({
             src={project.coverImageUrl}
             alt=""
             aria-hidden
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 origin-right"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] origin-right"
           />
         </div>
       )}
@@ -143,14 +153,15 @@ function SortablePill({
           )}
         </div>
 
-        <h2 className="text-title font-black leading-tight tracking-tight mb-4" style={{ color: 'var(--project-black)' }}>
+        <h3 className="text-title font-black leading-tight tracking-tight mb-4" style={{ color: 'var(--project-black)' }}>
           {project.title}
-        </h2>
+        </h3>
 
         <div className="flex flex-wrap gap-2">
           <Link
-            href={`/${locale}/dashboard/projekte/${project.slug}`}
+            href={workspaceHref}
             prefetch={true}
+            onClick={onNavigate(workspaceHref)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
             style={{
               background: 'var(--project-general)',
@@ -166,8 +177,9 @@ function SortablePill({
           </Link>
           {isPM && (
             <Link
-              href={`/${locale}/dashboard/projekte/${project.slug}/manage`}
+              href={manageHref}
               prefetch={true}
+              onClick={onNavigate(manageHref)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold"
               style={{
                 background: 'var(--project-general)',
@@ -198,7 +210,7 @@ function SortablePill({
           opacity: 0.85,
           boxShadow: '0 2px 8px color-mix(in srgb, var(--app-ink) 35%, transparent)',
         }}
-        aria-label="Reihenfolge ändern"
+        aria-label={t('reorderProjects')}
       >
         <GripVertical className="w-5 h-5" aria-hidden />
       </div>
@@ -220,7 +232,14 @@ export function ProjectPillList({
   tManageProject: string
   rowHeight: string
 }) {
+  const t = useTranslations('dashboard')
+  const exitNavigate = useDashboardExit()
   const [items, setItems] = useState(projects)
+  const [page, setPage] = useState(0)
+
+  const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
+  const safePage = Math.min(page, pageCount - 1)
+  const pageItems = items.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -228,6 +247,15 @@ export function ProjectPillList({
         distance: 4,
       },
     }),
+  )
+
+  const onNavigate = useCallback(
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!exitNavigate || !isPlainLeftClick(e)) return
+      e.preventDefault()
+      exitNavigate(href)
+    },
+    [exitNavigate],
   )
 
   const handleDragEnd = useCallback(
@@ -254,21 +282,74 @@ export function ProjectPillList({
 
   return (
     <section aria-labelledby="my-projects" className="flex flex-col gap-4 px-6 md:px-10 py-10" style={{ minHeight: '60vh' }}>
+      <h2 id="my-projects" className="text-small font-semibold uppercase tracking-wide opacity-50">
+        {t('sectionMine')}
+      </h2>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={items.map((p) => p.membershipId)} strategy={verticalListSortingStrategy}>
-          {items.map((project) => (
-            <SortablePill
-              key={project.membershipId}
-              project={project}
-              isPM={project.role === 'PM'}
-              locale={locale}
-              tOpenWorkspace={tOpenWorkspace}
-              tManageProject={tManageProject}
-              rowHeight={rowHeight}
-            />
-          ))}
+        <SortableContext items={pageItems.map((p) => p.membershipId)} strategy={verticalListSortingStrategy}>
+          {/* Keyed on the page index so the card-in stagger replays per page */}
+          <div key={safePage} className="flex flex-col gap-4">
+            {pageItems.map((project, i) => (
+              <div key={project.membershipId} className="card-in" style={{ animationDelay: `${i * 60}ms` }}>
+                <SortablePill
+                  project={project}
+                  isPM={project.role === 'PM'}
+                  locale={locale}
+                  tOpenWorkspace={tOpenWorkspace}
+                  tManageProject={tManageProject}
+                  rowHeight={rowHeight}
+                  onNavigate={onNavigate}
+                />
+              </div>
+            ))}
+          </div>
         </SortableContext>
       </DndContext>
+
+      {/* Pagination — only past 4 projects */}
+      {pageCount > 1 && (
+        <nav aria-label={t('sectionMine')} className="flex items-center justify-center gap-3 mt-2">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={safePage === 0}
+            aria-label={t('paginationPrev')}
+            className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
+            style={{ background: 'var(--app-white)', color: 'var(--app-ink-accent)', boxShadow: '0 1px 3px color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
+          >
+            <ChevronLeft className="w-5 h-5" aria-hidden />
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: pageCount }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setPage(i)}
+                aria-label={t('paginationPage', { page: i + 1, total: pageCount })}
+                aria-current={i === safePage ? 'page' : undefined}
+                className="h-2.5 rounded-full cursor-pointer"
+                style={{
+                  width: i === safePage ? '1.75rem' : '0.625rem',
+                  background: i === safePage ? 'var(--app-accent)' : 'color-mix(in srgb, var(--app-ink) 25%, transparent)',
+                  transition: 'width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s',
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            disabled={safePage === pageCount - 1}
+            aria-label={t('paginationNext')}
+            className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 enabled:hover:scale-110 enabled:hover:shadow-md enabled:cursor-pointer disabled:opacity-30"
+            style={{ background: 'var(--app-white)', color: 'var(--app-ink-accent)', boxShadow: '0 1px 3px color-mix(in srgb, var(--app-ink) 20%, transparent)' }}
+          >
+            <ChevronRight className="w-5 h-5" aria-hidden />
+          </button>
+        </nav>
+      )}
     </section>
   )
 }
