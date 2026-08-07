@@ -68,7 +68,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
     .filter((x): x is MembershipItem => x !== null)
 
   return (
-    <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
+    <div className="px-6 md:px-10 py-10 flex flex-col gap-8" style={{ color: 'var(--app-ink)' }}>
 
       {/* Back to the dashboard */}
       <IconTooltip label={tp('navDashboard')}>
@@ -102,23 +102,30 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
         </div>
       </div>
 
-      <ProfileForm
-        firstName={firstName}
-        lastName={lastName}
-        email={user.email}
-        avatarUrl={avatarUrl}
-        gender={u.gender ?? ''}
-        birthYear={u.birthYear ?? null}
-        stadtbereich={u.stadtbereich ?? ''}
-        affiliations={u.affiliations ?? []}
-        cityInfo={{
-          organization: u.cityInfo?.organization ?? '',
-          fachbereich: u.cityInfo?.fachbereich ?? '',
-          position: u.cityInfo?.position ?? '',
-        }}
-      />
+      {/* Wide layout: form left (2/3), memberships as a sticky aside right */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+        <div className="lg:col-span-2">
+          <ProfileForm
+            firstName={firstName}
+            lastName={lastName}
+            email={user.email}
+            avatarUrl={avatarUrl}
+            gender={u.gender ?? ''}
+            birthYear={u.birthYear ?? null}
+            stadtbereich={u.stadtbereich ?? ''}
+            affiliations={u.affiliations ?? []}
+            cityInfo={{
+              organization: u.cityInfo?.organization ?? '',
+              fachbereich: u.cityInfo?.fachbereich ?? '',
+              position: u.cityInfo?.position ?? '',
+            }}
+          />
+        </div>
 
-      <MembershipList items={membershipItems} />
+        <div className="lg:sticky lg:top-16">
+          <MembershipList items={membershipItems} />
+        </div>
+      </div>
 
     </div>
   )

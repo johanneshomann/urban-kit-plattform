@@ -246,14 +246,16 @@ export function ProfileForm({ firstName, lastName, email, avatarUrl, gender, bir
       {/* Password */}
       <section className="flex flex-col gap-4">
         <SectionHeader label={t('changePassword')} />
-        <div>
-          <label className={labelClass} htmlFor="currentPassword">{t('currentPassword')}</label>
-          <input id="currentPassword" name="currentPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="newPassword">{t('newPassword')}</label>
-          <input id="newPassword" name="newPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
-          <p className="text-small opacity-40 mt-1.5">{t('newPasswordHint')}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass} htmlFor="currentPassword">{t('currentPassword')}</label>
+            <input id="currentPassword" name="currentPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="newPassword">{t('newPassword')}</label>
+            <input id="newPassword" name="newPassword" type="password" className={inputBase} placeholder="••••••••" style={ringStyle} />
+            <p className="text-small opacity-40 mt-1.5">{t('newPasswordHint')}</p>
+          </div>
         </div>
       </section>
 
