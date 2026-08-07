@@ -63,7 +63,7 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
     'inline-flex h-9 w-9 items-center justify-center rounded-md bg-[var(--app-light)] transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-light))] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer'
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative self-stretch flex items-center">
       <IconTooltip label={t('title')}>
         <button
           ref={buttonRef}
@@ -80,6 +80,10 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
       </IconTooltip>
 
       {open && (
+        /* overflow-hidden wrapper at the bar's bottom edge clips the slide-down,
+           so the panel emerges from UNDER the header (public-nav pattern)
+           instead of animating over it. */
+        <div className="absolute right-0 top-full overflow-hidden rounded-b-xl z-50">
         <div
           ref={panelRef}
           id={panelId}
@@ -88,7 +92,7 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
           aria-label={t('title')}
           tabIndex={-1}
           data-a11y-panel
-          className="nav-panel-enter absolute right-0 top-full mt-[9px] w-72 rounded-b-xl p-4 outline-none z-50 shadow-md"
+          className="nav-panel-enter w-72 rounded-b-xl p-4 outline-none shadow-md"
           style={{
             background: 'var(--app-white)',
             color: 'var(--app-ink)',
@@ -143,6 +147,7 @@ export function AccessibilityMenu({ triggerClassName }: { triggerClassName?: str
             <FileText className="h-3.5 w-3.5" aria-hidden />
             {t('statement')}
           </Link>
+        </div>
         </div>
       )}
     </div>

@@ -10,7 +10,9 @@ import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu'
 import { IconTooltip } from '@/components/platform/IconTooltip'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
-const barLink = 'inline-flex items-center justify-center h-10 w-10 rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)] cursor-pointer'
+// Plain control style, matching the public header: no boxes, icon at text size,
+// color shift on hover.
+const barLink = 'flex items-center gap-1.5 text-text cursor-pointer transition-colors text-[var(--app-ink)] hover:text-[var(--app-accent)]'
 const BLACK = 'var(--app-black)'
 
 /**
@@ -48,7 +50,7 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
 
   return (
     <div
-      className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 py-2 border-b shadow-md"
+      className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 md:px-10 border-b shadow-md"
       style={{
         background: 'var(--app-white)',
         borderColor: 'color-mix(in srgb, var(--app-ink) 10%, transparent)',
@@ -67,11 +69,11 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
       </Link>
 
       {/* User tools — all real links/buttons, always visible */}
-      <nav aria-label={t('personalTools')} className="flex items-center gap-1">
+      <nav aria-label={t('personalTools')} className="flex items-center gap-4 h-full">
         {/* Public portal — new tab */}
         <IconTooltip label={t('navBack')}>
           <a href={`/${locale}`} target="_blank" rel="noopener noreferrer" className={barLink}>
-            <Globe aria-hidden="true" className="h-4 w-4" />
+            <Globe aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
             <span className="sr-only">{t('navBack')}</span>
           </a>
         </IconTooltip>
@@ -81,7 +83,7 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
           <button
             type="button"
             onClick={() => router.replace(pathname, { locale: nextLocale })}
-            className="inline-flex items-center justify-center h-10 px-2.5 rounded-lg text-text font-normal transition-colors hover:bg-[color-mix(in_srgb,var(--app-black)_8%,transparent)] cursor-pointer"
+            className={barLink}
           >
             {nextLocale.toUpperCase()}
             <span className="sr-only">{langLabel}</span>
@@ -94,14 +96,14 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
         {/* Separator */}
         <span
           aria-hidden="true"
-          className="mx-1 h-5 w-px shrink-0"
+          className="h-5 w-px shrink-0"
           style={{ background: 'color-mix(in srgb, var(--app-black) 16%, transparent)' }}
         />
 
         {/* Dashboard */}
         <IconTooltip label={t('navDashboard')}>
           <Link href={`/${locale}/dashboard`} className={barLink}>
-            <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
+            <LayoutDashboard aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
             <span className="sr-only">{t('navDashboard')}</span>
           </Link>
         </IconTooltip>
@@ -117,15 +119,15 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
             }}
             className={barLink}
           >
-            <User aria-hidden="true" className="h-4 w-4" />
+            <User aria-hidden="true" className="w-[1.1em] h-[1.1em] shrink-0" />
             <span className="sr-only">{t('navMyProfile')}</span>
           </Link>
         </IconTooltip>
 
         {/* Logout — asks for confirmation first */}
         <IconTooltip label={t('logout')}>
-          <button type="button" onClick={() => setConfirmOpen(true)} className={barLink}>
-            <LogOut aria-hidden="true" className="h-4 w-4" />
+          <button type="button" onClick={() => setConfirmOpen(true)} className={`${barLink} opacity-70 hover:opacity-100`}>
+            <LogOut aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
             <span className="sr-only">{t('logout')}</span>
           </button>
         </IconTooltip>
