@@ -119,8 +119,8 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
     <div className="flex flex-col gap-2">
       {/* Search */}
       <div
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
-        style={{ background: 'var(--app-white)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-small shadow-sm transition-shadow duration-200 focus-within:shadow-md focus-within:ring-2"
+        style={{ background: 'var(--app-light)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
       >
         <Search aria-hidden className="w-[1em] h-[1em] shrink-0 opacity-40" style={{ color: 'var(--app-ink)' }} />
         <input
@@ -159,7 +159,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
                 className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-md text-small border transition-all duration-200 hover:bg-black/5 hover:shadow-sm cursor-pointer"
                 style={{
                   color: active !== null ? 'var(--app-white)' : 'var(--app-ink)',
-                  background: active !== null ? 'var(--app-accent)' : 'var(--app-white)',
+                  background: active !== null ? 'var(--app-accent)' : 'var(--app-light)',
                   borderColor: active !== null ? 'var(--app-accent)' : 'color-mix(in srgb, var(--app-ink) 15%, transparent)',
                 }}
                 aria-haspopup="listbox"
@@ -170,7 +170,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               </button>
               <div
                 className={`absolute top-full left-0 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border shadow-lg z-10 ${open ? 'dropdown-enter' : 'hidden'}`}
-                style={{ background: 'var(--app-white)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
+                style={{ background: 'var(--app-light)', borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)', transformOrigin: 'top left' }}
                 role="listbox"
                 aria-label={label}
               >
@@ -224,7 +224,7 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               type="button"
               onClick={() => setFilters((f) => ({ ...f, [key]: null }))}
               className="group inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-small border transition-all duration-200 hover:shadow-sm cursor-pointer"
-              style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)', background: 'var(--app-white)' }}
+              style={{ color: 'var(--app-ink)', borderColor: 'color-mix(in srgb, var(--app-ink) 20%, transparent)', background: 'var(--app-light)' }}
             >
               <span className="opacity-60">{label}:</span>
               <span className="font-semibold">{opt?.label ?? String(v)}</span>
@@ -269,11 +269,11 @@ export function AllProjectsSection({ projects, locale }: { projects: DiscoverPro
               style={{
                 animationDelay: `${Math.min(i * 40, 320)}ms`,
                 borderColor: 'color-mix(in srgb, var(--app-ink) 12%, transparent)',
-                background: 'var(--app-white)',
+                background: 'var(--app-light)',
               }}
             >
               {/* Cover thumbnail */}
-              <div className="relative w-full h-40 overflow-hidden" style={{ background: 'var(--app-light)' }}>
+              <div className="relative w-full h-40 overflow-hidden" style={{ background: 'var(--app-white)' }}>
                 {p.coverImageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
