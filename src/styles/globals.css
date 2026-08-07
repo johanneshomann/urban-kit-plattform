@@ -37,6 +37,22 @@ html.dashboard-exiting [data-dashboard-topbar] {
   animation: slide-out-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* First load of the app area (direct link / new tab — e.g. "Mein Profil" from
+   the portal header): subtle fade-up intro, applied by DashboardTransition on
+   its initial mount only. */
+@keyframes app-intro {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-app-intro {
+  animation: app-intro 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-app-intro {
+    animation: none;
+  }
+}
+
 /* Login intro — the page opens in a new tab, so a short entrance (app top bar
    slides down, form panel fades up after it) marks the switch into the app. */
 @keyframes login-bar-in {

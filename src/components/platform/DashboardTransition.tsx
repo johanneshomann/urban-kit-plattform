@@ -43,7 +43,10 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const router = useRouter()
   const prevPath = useRef(pathname)
-  const [animClass, setAnimClass] = useState<string | null>(null)
+  // First mount = the app area was opened directly (new tab / deep link, e.g.
+  // "Mein Profil" from the portal header) — play a subtle intro instead of a
+  // route-change slide.
+  const [animClass, setAnimClass] = useState<string | null>('animate-app-intro')
   const [animKey, setAnimKey] = useState(0)
   const [exiting, setExiting] = useState(false)
   const [coverColor, setCoverColor] = useState<string | null>(null)
