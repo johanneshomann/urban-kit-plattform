@@ -42,9 +42,10 @@ function NavLink({ href, label, icon: Icon, active, badge, badgeSr }: {
       className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-small w-full transition-colors hover:bg-[color-mix(in_srgb,var(--project-general)_18%,transparent)]"
       style={active ? { background: 'var(--project-accent)', color: 'var(--project-white)' } : { color: 'var(--project-accent)' }}
     >
-      {/* Active state is background + indicator bar, not color alone (WCAG 1.4.1) */}
+      {/* Active state is background + indicator bar, not color alone (WCAG
+          1.4.1) — the bar is white so it stays visible on the accent bg. */}
       {active && (
-        <span aria-hidden="true" className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full" style={{ background: 'var(--project-accent)' }} />
+        <span aria-hidden="true" className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full" style={{ background: 'var(--project-white)' }} />
       )}
       <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />
       <span className="flex-1 truncate">{label}</span>
