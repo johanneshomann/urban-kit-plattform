@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
-import { relId, ensureProjectRoomMemberships } from '@/lib/chat/access'
+import { relId, ensureProjectRoomMemberships, isPMOfAnyProject } from '@/lib/chat/access'
 import { serializeUserRef } from '@/lib/chat/serialize'
 import type { ChatRoom, ChatRoomMember, Project } from '@/payload-types'
 
@@ -34,8 +34,11 @@ export async function GET(req: NextRequest) {
     overrideAccess: true,
   })).docs as ChatRoomMember[]
 
+  // Gates the "Neue Gruppe" button client-side (createGroup re-checks anyway).
+  const canCreateGroups = await isPMOfAnyProject(payload, userId)
+
   const roomIds = memberships.map((m) => relId(m.room)).filter((v): v is string => !!v)
-  if (roomIds.length === 0) return NextResponse.json({ rooms: [], totalUnread: 0 })
+  if (roomIds.length === 0) return NextResponse.json({ rooms: [], totalUnread: 0, canCreateGroups })
 
   const rooms = (await payload.find({
     collection: 'chat-rooms', where: { id: { in: roomIds } }, limit: 500, depth: 0, overrideAccess: true,
@@ -68,9 +71,6 @@ export async function GET(req: NextRequest) {
     if (m.lastReadAt) and.push({ createdAt: { greater_than: m.lastReadAt } })
     const unread = (await payload.count({ collection: 'chat-messages', where: { and } as never, overrideAccess: true })).totalDocs
     const project = room.type === 'project' ? projectById.get(relId(room.project) ?? '') : null
-    // Module gate: project rooms vanish from the list while the project's
-    // chat module is disabled (for members and PMs alike).
-    if (room.type === 'project' && (!project || !(project.modules ?? []).includes('chat'))) return null
     const other = room.type === 'dm' ? otherByRoom.get(String(room.id)) ?? null : null
     return {
       id: String(room.id),
@@ -90,5 +90,5 @@ export async function GET(req: NextRequest) {
   const rooms_ = items.filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime())
   const totalUnread = rooms_.reduce((s, r) => s + r.unread, 0)
-  return NextResponse.json({ rooms: rooms_, totalUnread })
+  return NextResponse.json({ rooms: rooms_, totalUnread, canCreateGroups })
 }

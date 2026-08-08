@@ -6,6 +6,7 @@ import { DashboardChrome } from '@/components/platform/DashboardChrome'
 import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { DashboardFooter } from '@/components/platform/DashboardFooter'
 import { HideAccessibilityFab } from '@/components/accessibility/HideAccessibilityFab'
+import { ChatLauncher } from '@/components/platform/chat/ChatLauncher'
 import { getAppVars } from '@/lib/app-theme'
 
 export default async function DashboardLayout({
@@ -43,6 +44,10 @@ export default async function DashboardLayout({
           </DashboardShell>
         </DashboardChrome>
       </main>
+      {/* Floating chat — mounted ONCE in this ancestor layout so popup state
+          survives dashboard ⇄ workspace navigation; inherits the chameleon
+          via var(--project-*, var(--app-*)). Outside <main> (not page content). */}
+      <ChatLauncher />
     </div>
   )
 }

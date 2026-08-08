@@ -445,25 +445,16 @@ html.a11y-high-contrast [data-project-theme] {
 
 
 /*
-  Project tab bar (< lg): while it is mounted, lift the two fixed corner FABs
-  (accessibility, platform dock) above the bar so neither covers a tab.
-  ProjectTabBar toggles the class.
+  Project tab bar (< lg): while it is mounted, lift the fixed chat launcher
+  above the bar so it never covers a tab. ProjectTabBar toggles the class.
+  (The a11y FAB needs no lift — it is display:none in the whole app area via
+  html.a11y-fab-hidden, the only place the tab bar exists.)
 */
-html.has-project-tabbar [data-a11y-fab],
-html.has-project-tabbar [data-platform-dock] {
+html.has-project-tabbar [data-chat-launcher] {
   bottom: 5.5rem;
 }
 @media (min-width: 1024px) {
-  html.has-project-tabbar [data-a11y-fab],
-  html.has-project-tabbar [data-platform-dock] {
+  html.has-project-tabbar [data-chat-launcher] {
     bottom: 1.5rem;
-  }
-
-  /*
-    The project sidebar (w-60 = 15rem) owns the left edge from ≥ lg, so the
-    bottom-left a11y FAB moves clear of it instead of covering its footer.
-  */
-  html.has-project-sidebar [data-a11y-fab] {
-    left: calc(15rem + 1.5rem);
   }
 }
