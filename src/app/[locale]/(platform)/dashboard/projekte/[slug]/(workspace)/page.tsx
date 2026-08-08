@@ -7,7 +7,7 @@ import { ModuleSection } from '@/components/platform/ModuleSection'
 import { RecentActivityCard } from '@/components/platform/RecentActivityCard'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 import { MODULE_ORDER, PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
-import { findProjektphase } from '@/lib/options/projektphasen'
+import { PROJEKTPHASEN, findProjektphase } from '@/lib/options/projektphasen'
 import { loadWorkspaceCards } from '@/lib/workspace-cards'
 import { loadProjectActivity } from '@/lib/project-activity'
 import { getWorkspaceContext } from '@/lib/workspace-context'
@@ -54,7 +54,7 @@ export default async function ProjectDashboardPage({
   const collaborateItems = ordered.filter((m) => (COLLABORATE_MODULES as readonly string[]).includes(m))
 
   const phase = findProjektphase(project.projektphase)
-  const phaseLabel = phase ? tw('phaseLabel', { step: phase.step + 1, label: tax(`phase.${phase.value}`) }) : null
+  const phaseLabel = phase ? tw('phaseLabel', { step: phase.step + 1, total: PROJEKTPHASEN.length, label: tax(`phase.${phase.value}`) }) : null
 
   const themaList = (project.thema ?? []).filter(Boolean)
 

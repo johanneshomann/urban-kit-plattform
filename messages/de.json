@@ -1027,7 +1027,7 @@
     "sidebarMore": "Mehr",
     "sheetClose": "Schließen",
     "tabBarLabel": "Projektbereiche",
-    "phaseLabel": "Phase {step}/7 · {label}",
+    "phaseLabel": "Phase {step}/{total} · {label}",
     "projectInfo": "Projektinformationen",
     "detailYear": "Startjahr",
     "detailStadtbereich": "Stadtbereich",
