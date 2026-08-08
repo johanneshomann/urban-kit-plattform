@@ -13,6 +13,7 @@ import { ActivityFeed } from '@/components/platform/dashboard/ActivityFeed'
 import { AllProjectsSection } from '@/components/platform/dashboard/AllProjectsSection'
 import { PeopleSection } from '@/components/platform/dashboard/PeopleSection'
 import { DashboardDotsNav } from '@/components/platform/dashboard/DashboardDotsNav'
+import { getMethodSuggestions, getMethodenBaseUrl } from '@/lib/methodensammlung'
 import { findPeople } from '@/lib/people-search'
 
 type Project = {
@@ -383,6 +384,21 @@ export default async function DashboardPage({
   // People search — initial state shows the viewer's project peers.
   const initialPeople = hidePeopleSearch ? [] : await findPeople(String(user.id)).catch(() => [])
 
+  // Method suggestions (PM cards): one cached fetch per distinct phase among
+  // the user's PM projects; degrades to {} without an archive API key.
+  const pmPhases = [
+    ...new Set(
+      memberProjects
+        .filter((x) => x.role === 'PM')
+        .map((x) => x.project.projektphase)
+        .filter((v): v is string => !!v),
+    ),
+  ]
+  const [methodSuggestions, methodenBaseUrl] = await Promise.all([
+    pmPhases.length > 0 ? getMethodSuggestions(locale === 'en' ? 'en' : 'de', pmPhases, 6) : Promise.resolve({}),
+    getMethodenBaseUrl(),
+  ])
+
   // Dynamic height: 1–2 projects get a generous max, more projects get smaller
   // but never below 200px so content always fits. The pill list paginates at
   // 3 per page, so the divisor caps there.
@@ -431,6 +447,8 @@ export default async function DashboardPage({
           tOpenWorkspace={t('openWorkspace')}
           tManageProject={t('manageProject')}
           rowHeight={memberRowHeight}
+          methodSuggestions={methodSuggestions}
+          methodenBaseUrl={methodenBaseUrl}
         />
       )}
 

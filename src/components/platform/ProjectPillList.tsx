@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   DndContext,
   type DragEndEvent,
@@ -15,7 +16,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, ArrowRight, SquarePen, Users, Asterisk, ChevronLeft, ChevronRight } from 'lucide-react'
+import { GripVertical, ArrowRight, ArrowUpRight, ExternalLink, Lightbulb, SquarePen, Users, Asterisk, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { IconTooltip } from '@/components/platform/IconTooltip'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
@@ -36,6 +38,14 @@ type PillProject = {
   memberCount?: number
 }
 
+/** Suggested method from the Methodensammlung (fetched server-side, keyed by phase). */
+export type MethodSuggestion = {
+  id: string
+  title: string
+  slug?: string | null
+  auszug?: string | null
+}
+
 const PAGE_SIZE = 3
 
 /** Resolve the German phase label from a phase value. */
@@ -53,6 +63,7 @@ function SortablePill({
   tManageProject,
   rowHeight,
   onNavigate,
+  onOpenMethods,
 }: {
   project: PillProject
   isPM: boolean
@@ -61,6 +72,8 @@ function SortablePill({
   tManageProject: string
   rowHeight: string
   onNavigate: (href: string, coverColor?: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void
+  /** PM-only: opens the phase-based method suggestions popup for this project. */
+  onOpenMethods?: () => void
 }) {
   const t = useTranslations('dashboard')
   const {
@@ -197,6 +210,25 @@ function SortablePill({
         </div>
       </div>
 
+      {/* Method suggestions — PM-only, top right over the cover */}
+      {isPM && onOpenMethods && (
+        <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
+          <IconTooltip label={t('methodsTooltip')}>
+            <button
+              type="button"
+              onClick={onOpenMethods}
+              aria-label={t('methodsTooltip')}
+              className="inline-flex items-center justify-center h-10 w-10 rounded-lg cursor-pointer transition-all duration-200 hover:scale-110 shadow-sm"
+              style={{ background: 'var(--project-general)', color: 'var(--project-black)', transition: 'background-color 0.2s, transform 0.2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--project-dark)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--project-general)' }}
+            >
+              <Lightbulb className="w-5 h-5" aria-hidden />
+            </button>
+          </IconTooltip>
+        </div>
+      )}
+
       {/* Drag handle — right side, only this triggers the sortable drag */}
       <div
         ref={setActivatorNodeRef}
@@ -224,6 +256,8 @@ export function ProjectPillList({
   tOpenWorkspace,
   tManageProject,
   rowHeight,
+  methodSuggestions,
+  methodenBaseUrl,
 }: {
   projects: PillProject[]
   roleLabels: Record<string, string>
@@ -231,12 +265,26 @@ export function ProjectPillList({
   tOpenWorkspace: string
   tManageProject: string
   rowHeight: string
+  /** Suggested methods per Projektphase value (PM cards only). */
+  methodSuggestions?: Record<string, MethodSuggestion[]>
+  methodenBaseUrl?: string
 }) {
   const t = useTranslations('dashboard')
   const exitNavigate = useDashboardExit()
   const sectionRef = useRef<HTMLElement>(null)
   const [items, setItems] = useState(projects)
   const [page, setPage] = useState(0)
+
+  // Method-suggestions popup (PM-only, opened from a card's top-right icon).
+  const [methodsFor, setMethodsFor] = useState<PillProject | null>(null)
+  useEffect(() => {
+    if (!methodsFor) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMethodsFor(null)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [methodsFor])
 
   /**
    * Switch the page immediately (instant click feedback), then scroll back to
@@ -319,6 +367,7 @@ export function ProjectPillList({
                   tManageProject={tManageProject}
                   rowHeight={rowHeight}
                   onNavigate={onNavigate}
+                  onOpenMethods={methodenBaseUrl ? () => setMethodsFor(project) : undefined}
                 />
               </div>
             ))}
@@ -370,6 +419,98 @@ export function ProjectPillList({
           </button>
         </nav>
       )}
+
+      {/* Method suggestions popup — project-colored rows in the standard
+          dialog shell; portalled so the transition wrapper can't hijack it. */}
+      {methodsFor &&
+        methodenBaseUrl &&
+        (() => {
+          const scheme = resolveColorScheme(methodsFor.colorScheme)
+          const suggestions = methodSuggestions?.[methodsFor.projektphase ?? ''] ?? []
+          const phase = phaseLabel(methodsFor.projektphase)
+          return createPortal(
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color-mix(in_srgb,var(--app-black)_45%,transparent)] backdrop-blur-sm"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setMethodsFor(null)
+              }}
+            >
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="methods-popup-title"
+                className="popover-in w-full max-w-md rounded-xl p-6 shadow-xl max-h-[85vh] overflow-y-auto"
+                style={{ background: 'var(--app-white)', color: 'var(--app-ink)' }}
+              >
+                <div className="flex items-start justify-between gap-3 mb-1">
+                  <h2 id="methods-popup-title" className="text-display font-bold" style={{ color: 'var(--app-ink-accent)' }}>
+                    {t('methodsTitle')}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setMethodsFor(null)}
+                    aria-label={t('methodsClose')}
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] cursor-pointer"
+                  >
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+                <p className="text-small opacity-70 mb-5">
+                  {phase ? t('methodsForPhase', { phase }) : methodsFor.title}
+                </p>
+
+                {suggestions.length === 0 ? (
+                  <p className="text-small opacity-50">{t('methodsEmpty')}</p>
+                ) : (
+                  <ul className="flex flex-col gap-2" role="list">
+                    {suggestions.map((m) => (
+                      <li key={m.id}>
+                        <a
+                          href={`${methodenBaseUrl}/${locale}/methods/${m.slug ?? ''}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between gap-3 rounded-lg shadow-sm px-3 py-2 group/method"
+                          style={{ background: scheme.light }}
+                        >
+                          <div className="min-w-0">
+                            <p className="text-text font-medium leading-snug flex items-start gap-2" style={{ color: 'var(--app-ink-accent)' }}>
+                              <Lightbulb aria-hidden className="h-4 w-4 shrink-0 mt-0.5" style={{ color: scheme.accent }} />
+                              <span className="min-w-0">{m.title}</span>
+                            </p>
+                            {m.auszug && (
+                              <p className="text-small mt-0.5 line-clamp-2" style={{ color: 'var(--app-ink)', opacity: 0.6 }}>
+                                {m.auszug}
+                              </p>
+                            )}
+                          </div>
+                          <span
+                            aria-hidden
+                            className="inline-flex items-center justify-center h-10 w-10 shrink-0 rounded-lg"
+                            style={{ background: scheme.general, color: scheme.accent, transition: 'background-color 0.2s' }}
+                          >
+                            <ArrowUpRight className="h-5 w-5" />
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <a
+                  href={`${methodenBaseUrl}/${locale}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center gap-1.5 text-small underline transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--app-accent)' }}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  {t('methodsOpenArchive')}
+                </a>
+              </div>
+            </div>,
+            document.body,
+          )
+        })()}
     </section>
   )
 }
