@@ -1,7 +1,41 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useField, useTranslation } from '@payloadcms/ui'
-import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
+import { defaultColorSchemes, type ColorScheme } from '@/lib/defaults/colorSchemes'
+
+const HEX_RE = /^#[0-9a-fA-F]{6}$/
+const ROLES = ['light', 'general', 'dark', 'accent', 'ink', 'white', 'black'] as const
+
+/** Merge the admin-edited palettes (project-color-schemes global) over the defaults. */
+function useEffectiveSchemes(): ColorScheme[] {
+  const [schemes, setSchemes] = useState<ColorScheme[]>(defaultColorSchemes)
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/globals/project-color-schemes')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { schemes?: ({ name?: string } & Partial<Record<(typeof ROLES)[number], string>>)[] } | null) => {
+        if (cancelled || !data?.schemes) return
+        setSchemes(
+          defaultColorSchemes.map((def) => {
+            const row = data.schemes!.find((r) => r.name === def.name)
+            if (!row) return def
+            const merged = { ...def }
+            for (const role of ROLES) {
+              const v = row[role]
+              if (typeof v === 'string' && HEX_RE.test(v)) merged[role] = v
+            }
+            return merged
+          }),
+        )
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return schemes
+}
 
 // Labels arrive localized ({ en, de }) — render the current language's one.
 function labelOf(field: { label?: unknown }, fallback: string): string {
@@ -16,12 +50,13 @@ export function ColorSchemeField({ field }: { field: { label?: unknown } }) {
   const { i18n } = useTranslation()
   const de = i18n.language?.startsWith('de')
   const label = labelOf(field, de ? 'Farbschema' : 'Color scheme')
+  const schemes = useEffectiveSchemes()
 
   return (
     <div className="field-type">
       <label className="field-label">{label}</label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-        {defaultColorSchemes.map((scheme) => {
+        {schemes.map((scheme) => {
           const isSelected = value === scheme.name
           return (
             <button

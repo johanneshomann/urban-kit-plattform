@@ -21,6 +21,7 @@ import { IconTooltip } from '@/components/platform/IconTooltip'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import type { ColorScheme } from '@/lib/defaults/colorSchemes'
 import { reorderProjects } from '@/actions/reorder-projects'
 import { findProjektphase } from '@/lib/options/projektphasen'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
@@ -64,6 +65,7 @@ function SortablePill({
   rowHeight,
   onNavigate,
   onOpenMethods,
+  schemes,
 }: {
   project: PillProject
   isPM: boolean
@@ -74,6 +76,8 @@ function SortablePill({
   onNavigate: (href: string, coverColor?: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void
   /** PM-only: opens the phase-based method suggestions popup for this project. */
   onOpenMethods?: () => void
+  /** Effective palettes (admin-edited); defaults apply when omitted. */
+  schemes?: ColorScheme[]
 }) {
   const t = useTranslations('dashboard')
   const {
@@ -89,7 +93,7 @@ function SortablePill({
     disabled: false,
   })
 
-  const scheme = resolveColorScheme(project.colorScheme)
+  const scheme = resolveColorScheme(project.colorScheme, schemes)
 
   const style: React.CSSProperties = {
     ...schemeToCssVars(scheme),
@@ -258,6 +262,7 @@ export function ProjectPillList({
   rowHeight,
   methodSuggestions,
   methodenBaseUrl,
+  schemes,
 }: {
   projects: PillProject[]
   roleLabels: Record<string, string>
@@ -268,6 +273,8 @@ export function ProjectPillList({
   /** Suggested methods per Projektphase value (PM cards only). */
   methodSuggestions?: Record<string, MethodSuggestion[]>
   methodenBaseUrl?: string
+  /** Effective palettes (admin-edited); defaults apply when omitted. */
+  schemes?: ColorScheme[]
 }) {
   const t = useTranslations('dashboard')
   const exitNavigate = useDashboardExit()
@@ -368,6 +375,7 @@ export function ProjectPillList({
                   rowHeight={rowHeight}
                   onNavigate={onNavigate}
                   onOpenMethods={methodenBaseUrl ? () => setMethodsFor(project) : undefined}
+                  schemes={schemes}
                 />
               </div>
             ))}
@@ -425,7 +433,7 @@ export function ProjectPillList({
       {methodsFor &&
         methodenBaseUrl &&
         (() => {
-          const scheme = resolveColorScheme(methodsFor.colorScheme)
+          const scheme = resolveColorScheme(methodsFor.colorScheme, schemes)
           const suggestions = methodSuggestions?.[findProjektphase(methodsFor.projektphase)?.value ?? ''] ?? []
           const phase = phaseLabel(methodsFor.projektphase)
           return createPortal(

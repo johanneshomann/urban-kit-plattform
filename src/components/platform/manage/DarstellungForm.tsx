@@ -21,7 +21,18 @@ const PALETTE_ORDER: { key: keyof Omit<ColorScheme, 'name'>; labelKey: string }[
   { key: 'black',   labelKey: 'darstellung.tokenBlack' },
 ]
 
-export function DarstellungForm({ slug, locale, initialScheme }: { slug: string; locale: string; initialScheme: string }) {
+export function DarstellungForm({
+  slug,
+  locale,
+  initialScheme,
+  schemes = defaultColorSchemes,
+}: {
+  slug: string
+  locale: string
+  initialScheme: string
+  /** Effective palettes (admin-edited); defaults apply when omitted. */
+  schemes?: ColorScheme[]
+}) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -30,7 +41,7 @@ export function DarstellungForm({ slug, locale, initialScheme }: { slug: string;
   const [savedScheme, setSavedScheme] = useState(initialScheme)
 
   const dirty = scheme !== savedScheme
-  const active = defaultColorSchemes.find((s) => s.name === scheme)
+  const active = schemes.find((s) => s.name === scheme)
 
   const save = () => {
     setError(null)
@@ -48,7 +59,7 @@ export function DarstellungForm({ slug, locale, initialScheme }: { slug: string;
       <div className="rounded-xl border p-5" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
         <h2 className="text-small font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--project-ink)' }}>{t('darstellung.sectionColorScheme')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {defaultColorSchemes.map((s) => {
+          {schemes.map((s) => {
             const selected = scheme === s.name
             return (
               <button

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 import { projectDefaults } from '@/lib/defaults/project'
 import { MODULE_ORDER, PARTICIPATE_MODULES, COLLABORATE_MODULES, MANAGE_MODULES } from '@/lib/options/modules'
@@ -32,7 +33,7 @@ export default async function ProjectLayout({
   const ctx = await getWorkspaceContext(slug)
   if (!ctx) notFound()
 
-  const scheme = resolveColorScheme(ctx.project.colorScheme ?? null)
+  const scheme = resolveColorScheme(ctx.project.colorScheme ?? null, await getColorSchemes())
   const cssVars = schemeToCssVars(scheme)
 
   const enabled = MODULE_ORDER.filter((m) => ctx.modules.includes(m))

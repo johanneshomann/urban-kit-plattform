@@ -5,10 +5,15 @@ import { projectDefaults } from '@/lib/defaults/project'
  * Resolve a project's stored colour-scheme name to its full palette.
  * Falls back to the project default scheme, then to the first scheme,
  * so the return value is always a valid {@link ColorScheme}.
+ *
+ * Pass `schemes` (from `getColorSchemes()` in color-schemes-store.ts) to
+ * resolve against the admin-edited palettes; without it the code defaults
+ * apply — client components receive the effective list via props.
  */
-export function resolveColorScheme(name?: string | null): ColorScheme {
+export function resolveColorScheme(name?: string | null, schemes: readonly ColorScheme[] = defaultColorSchemes): ColorScheme {
   return (
-    defaultColorSchemes.find((s) => s.name === (name ?? projectDefaults.colorScheme)) ??
+    schemes.find((s) => s.name === (name ?? projectDefaults.colorScheme)) ??
+    schemes[0] ??
     defaultColorSchemes[0]!
   )
 }

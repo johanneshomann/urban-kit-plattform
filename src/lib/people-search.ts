@@ -1,6 +1,7 @@
 import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 import { resolveColorScheme } from '@/lib/colorScheme'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 
 /** What the people search exposes about a user — never e-mail or demographics. */
 export type Person = {
@@ -30,6 +31,7 @@ export async function findPeople(
   opts: { query?: string; projectId?: string; affiliation?: string } = {},
 ): Promise<Person[]> {
   const payload = await getPayload({ config })
+  const colorSchemes = await getColorSchemes()
 
   // The viewer's own projects — basis for peer discovery and shared-project pills.
   const viewerMemberships = await payload.find({
@@ -116,7 +118,7 @@ export async function findPeople(
       .filter((pid) => projectMeta.has(pid))
       .map((pid) => {
         const meta = projectMeta.get(pid)!
-        const scheme = resolveColorScheme(meta.colorScheme)
+        const scheme = resolveColorScheme(meta.colorScheme, colorSchemes)
         return { id: pid, title: meta.title, light: scheme.light, accent: scheme.accent }
       })
     return {

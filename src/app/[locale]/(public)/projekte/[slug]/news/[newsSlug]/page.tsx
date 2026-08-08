@@ -8,6 +8,7 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ProjectBackButton } from '@/components/public/ProjectBackButton'
 import { CtaButton } from '@/components/public/CtaButton'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { getUser } from '@/lib/auth/getUser'
 import { isProjectManager } from '@/lib/access/project'
 import { getViewerTier } from '@/lib/visibility'
@@ -114,7 +115,7 @@ export default async function PublicProjectNewsPage({
   const isPM = user ? await isProjectManager(payload, String(user.id), project.id) : false
   const comments = await loadPostComments(payload, String(post.id), { userId: user ? String(user.id) : null, isPM })
 
-  const scheme = resolveColorScheme(project.colorScheme)
+  const scheme = resolveColorScheme(project.colorScheme, await getColorSchemes())
   const contentHtml = lexicalToHtml(post.content)
   const author = post.author
     ? [post.author.firstName, post.author.lastName].filter(Boolean).join(' ')

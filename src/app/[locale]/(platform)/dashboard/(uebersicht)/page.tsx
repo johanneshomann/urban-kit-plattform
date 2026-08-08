@@ -15,6 +15,7 @@ import { PeopleSection } from '@/components/platform/dashboard/PeopleSection'
 import { DashboardDotsNav } from '@/components/platform/dashboard/DashboardDotsNav'
 import { getMethodSuggestions, getMethodenBaseUrl } from '@/lib/methodensammlung'
 import { normalizeProjektphase } from '@/lib/options/projektphasen'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { findPeople } from '@/lib/people-search'
 
 type Project = {
@@ -73,6 +74,7 @@ export default async function DashboardPage({
   }
 
   const payload = await getPayload({ config })
+  const colorSchemes = await getColorSchemes()
 
   const [memberships, starredOnly] = await Promise.all([
     payload.find({
@@ -268,7 +270,7 @@ export default async function DashboardPage({
       ])
 
       const projectById = Object.fromEntries(memberProjects.map((x) => [x.project.id, x.project]))
-      const schemeFor = (p: Project) => resolveColorScheme(p.colorScheme)
+      const schemeFor = (p: Project) => resolveColorScheme(p.colorScheme, colorSchemes)
 
       const toItem = (type: ActivityItem['type'], title: string, projectRaw: unknown, date?: string, doc?: { visibility?: string | null; visibilityTeams?: string[] | null }, href?: string): ActivityItem | null => {
         const p = projectById[(projectRaw as { id: string })?.id ?? String(projectRaw)]
@@ -450,6 +452,7 @@ export default async function DashboardPage({
           rowHeight={memberRowHeight}
           methodSuggestions={methodSuggestions}
           methodenBaseUrl={methodenBaseUrl}
+          schemes={colorSchemes}
         />
       )}
 

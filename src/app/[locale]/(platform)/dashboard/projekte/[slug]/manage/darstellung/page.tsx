@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { projectDefaults } from '@/lib/defaults/project'
 import { DarstellungForm } from '@/components/platform/manage/DarstellungForm'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { DarstellungImages, type GalleryRow } from '@/components/platform/manage/DarstellungImages'
 
 export default async function ManageDarstellungPage({
@@ -39,7 +40,12 @@ export default async function ManageDarstellungPage({
       <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('darstellung.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('darstellung.subtitle')}</p>
 
-      <DarstellungForm slug={slug} locale={locale} initialScheme={ctx.project.colorScheme ?? projectDefaults.colorScheme} />
+      <DarstellungForm
+        slug={slug}
+        locale={locale}
+        initialScheme={ctx.project.colorScheme ?? projectDefaults.colorScheme}
+        schemes={await getColorSchemes()}
+      />
       <DarstellungImages slug={slug} locale={locale} coverUrl={coverUrl} gallery={gallery} />
     </div>
   )

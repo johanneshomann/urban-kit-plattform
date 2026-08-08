@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/getUser'
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { resolveColorScheme } from '@/lib/colorScheme'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { ProfileForm } from './ProfileForm'
 import { MembershipList, type MembershipItem } from './MembershipList'
 import { ProfileSettingsSection } from './ProfileSettingsSection'
@@ -46,6 +47,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
   }
 
   const payloadClient = await getPayload({ config })
+  const colorSchemes = await getColorSchemes()
 
   // Gallery: entries may arrive populated or as bare media ids — resolve all
   // to {id, url}; bare ids are batch-fetched in one query.
@@ -85,7 +87,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ locale:
   const toMembershipItem = (m: (typeof membershipsRes.docs)[number]): (MembershipItem & { status: string }) | null => {
     const project = m.project as { id: string; title?: string; colorScheme?: string | null } | undefined
     if (!project?.title) return null
-    const scheme = resolveColorScheme(project.colorScheme)
+    const scheme = resolveColorScheme(project.colorScheme, colorSchemes)
     return {
       membershipId: String(m.id),
       title: project.title,

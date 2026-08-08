@@ -13,6 +13,7 @@ import { SectionDotsNav } from '@/components/public/SectionDotsNav'
 import { GalleryLightbox } from '@/components/public/GalleryLightbox'
 import { AktuellesSection, type AktuellesNewsPost, type AktuellesCalEvent } from '@/components/public/AktuellesSection'
 import { resolveColorScheme } from '@/lib/colorScheme'
+import { getColorSchemes } from '@/lib/color-schemes-store'
 import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
 import { StarButton } from '@/components/public/StarButton'
@@ -135,7 +136,7 @@ export default async function PublicProjectPage({
   if (!project) notFound()
 
   const payload = await getPayload({ config })
-  const scheme = resolveColorScheme(project.colorScheme)
+  const scheme = resolveColorScheme(project.colorScheme, await getColorSchemes())
 
   // Visitor's login + membership state for the join CTA
   const viewer = await getUser()
