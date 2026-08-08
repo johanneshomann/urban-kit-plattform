@@ -85,7 +85,7 @@ export function ChatPopup({
         className="popover-in fixed z-50 flex flex-col overflow-hidden shadow-xl outline-none inset-x-0 bottom-0 top-16 rounded-t-xl sm:inset-x-auto sm:top-auto sm:bottom-24 sm:right-6 sm:w-[22rem] sm:h-[32rem] sm:rounded-xl"
         style={{ background: 'var(--project-white, var(--app-white))', color: 'var(--project-ink, var(--app-ink))' }}
       >
-        <div className="h-12 shrink-0 flex items-center gap-1 px-3">
+        <div className="min-h-12 shrink-0 flex items-center gap-1 px-3 py-1.5">
           {onBack && (
             <button
               type="button"
@@ -96,7 +96,7 @@ export function ChatPopup({
               <ChevronLeft className="h-4 w-4" aria-hidden />
             </button>
           )}
-          <div className="flex-1 min-w-0 px-1 text-text font-semibold truncate" style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>
+          <div className="flex-1 min-w-0 px-1 text-text font-semibold" style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>
             {title}
           </div>
           <button

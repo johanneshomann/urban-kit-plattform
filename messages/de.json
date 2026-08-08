@@ -811,7 +811,11 @@
     "attachImage": "Bild anhängen",
     "attachmentAdded": "Bild angehängt",
     "removeAttachment": "Anhang entfernen",
-    "addReaction": "Reagieren"
+    "addReaction": "Reagieren",
+    "sharedProjectsCount": "{count, plural, one {# gemeinsames Projekt} other {# gemeinsame Projekte}}",
+    "noSharedProject": "Keine gemeinsamen Projekte",
+    "memberCount": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+    "groupOwner": "von {name}"
   },
   "platform": {
     "roleAdmin": "Admin",

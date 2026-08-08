@@ -7,6 +7,14 @@ export interface UserRef {
   avatarUrl: string | null
 }
 
+/** Compact project reference with the two chameleon colors the UI renders. */
+export interface ProjectChip {
+  slug: string
+  title: string
+  light: string
+  accent: string
+}
+
 export interface OverviewRoom {
   id: string
   type: RoomType
@@ -14,8 +22,13 @@ export interface OverviewRoom {
   name: string | null
   role: 'owner' | 'member'
   status: 'active' | 'invited'
-  project: { slug: string; title: string } | null
-  other: UserRef | null
+  /** Set for project rooms AND project-assigned groups. */
+  project: ProjectChip | null
+  /** DM partner incl. the projects shared with the viewer (the identity cue). */
+  other: (UserRef & { sharedProjects?: { id: string; title: string; light: string; accent: string }[] }) | null
+  /** Group rooms: active member count + owner display name. */
+  memberCount?: number | null
+  owner?: string | null
   lastMessageAt: string
   lastMessagePreview: string
   unread: number

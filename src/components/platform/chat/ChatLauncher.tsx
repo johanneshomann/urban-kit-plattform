@@ -8,6 +8,7 @@ import { useChatOverview } from './useChatOverview'
 import { ChatPopup } from './ChatPopup'
 import { ChatRoomList } from './ChatRoomList'
 import { ChatRoom } from './ChatRoom'
+import { ChatRoomContextHeader } from './ChatRoomContextHeader'
 import { NewDMDialog, NewGroupDialog } from './NewChatDialogs'
 import type { OverviewRoom } from './types'
 
@@ -100,7 +101,7 @@ export function ChatLauncher() {
 
       {open && (
         <ChatPopup
-          title={activeRoom ? roomTitle(activeRoom) : t('title')}
+          title={activeRoom ? <ChatRoomContextHeader room={activeRoom} /> : t('title')}
           onBack={activeRoom ? () => setActiveRoom(null) : undefined}
           onClose={close}
         >

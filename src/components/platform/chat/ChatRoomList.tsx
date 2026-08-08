@@ -70,6 +70,17 @@ export function ChatRoomList({
   const roomName = (room: OverviewRoom): string =>
     room.name ?? (room.type === 'dm' ? t('dmFallback') : t('roomFallback'))
 
+  /** One-line "who is this" context per row — the cue exists before opening. */
+  const contextLabel = (room: OverviewRoom): string | null => {
+    if (room.project) return room.project.title
+    if (room.type === 'dm') {
+      const count = room.other?.sharedProjects?.length ?? 0
+      return count > 0 ? t('sharedProjectsCount', { count }) : null
+    }
+    if (room.type === 'group') return t('memberCount', { count: room.memberCount ?? 0 })
+    return null
+  }
+
   const actionButton =
     'flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg text-small font-medium cursor-pointer transition-colors bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_18%,transparent)]'
 
@@ -130,7 +141,7 @@ export function ChatRoomList({
                     <span className="text-[0.7rem] shrink-0 opacity-50">{relTime(room.lastMessageAt)}</span>
                   </span>
                   <span className="block text-small truncate opacity-60">
-                    {room.lastMessagePreview || t('noMessages')}
+                    {[contextLabel(room), room.lastMessagePreview || t('noMessages')].filter(Boolean).join(' · ')}
                   </span>
                 </span>
                 {room.unread > 0 && (
