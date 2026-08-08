@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, LayoutGrid, List, RotateCcw, Search, X } from 'lucide-react'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
-import { scrollToSection } from '@/lib/smooth-scroll'
 
 type ActivityItem = {
   type: 'poll' | 'pollActivated' | 'event' | 'eventSoon' | 'news' | 'forum' | 'forumComment' | 'threadPinned' | 'threadLocked' | 'task' | 'taskDone' | 'taskAssigned' | 'taskDueSoon' | 'file' | 'board' | 'newsComment' | 'memberJoined'
@@ -180,12 +179,10 @@ export function ActivityFeed({
 
   const collapse = () => {
     setExpanded(false)
-    const el = sectionRef.current
-    if (!el) return
-    // Let the collapse animation get going first, then drift back up calmly.
-    window.setTimeout(() => {
-      void scrollToSection(el, 800)
-    }, 250)
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-reduce-motion')
+    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
   }
 
   const activityLabel = (item: ActivityItem) => {
