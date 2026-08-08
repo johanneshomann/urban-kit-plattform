@@ -18,6 +18,9 @@ services:
       - METHODEN_API_KEY=${METHODEN_API_KEY:-}
     volumes:
       - media_data:/app/media
+      # Project document uploads (file-uploads collection, staticDir uploads/files)
+      # — without this volume they are destroyed on every container rebuild.
+      - uploads_data:/app/uploads
     depends_on:
       mongo:
         condition: service_healthy
@@ -83,3 +86,4 @@ networks:
 volumes:
   mongo_data:
   media_data:
+  uploads_data:
