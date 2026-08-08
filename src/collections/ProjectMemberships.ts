@@ -51,6 +51,10 @@ export const ProjectMemberships: CollectionConfig = {
         { label: { en: 'Active', de: 'Aktiv' }, value: 'active' },
         { label: { en: 'Invited', de: 'Eingeladen' }, value: 'invited' },
         { label: { en: 'Rejected', de: 'Abgelehnt' }, value: 'rejected' },
+        // Star-only rows: the user merely bookmarked the project. NOT a join
+        // request — the Anfragen inbox and pending-request UIs query
+        // status 'requested' and must never see these.
+        { label: { en: 'None (starred only)', de: 'Keine (nur gemerkt)' }, value: 'none' },
       ],
     },
     {

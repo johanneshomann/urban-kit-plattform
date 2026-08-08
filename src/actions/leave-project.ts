@@ -24,7 +24,12 @@ export async function leaveProject(membershipId: string): Promise<LeaveProjectSt
   if (membership.role === 'PM') return { error: 'Projektmanager:innen können das Projekt nicht selbst verlassen.' }
 
   try {
-    await payload.delete({ collection: 'project-memberships', id: membershipId, overrideAccess: true })
+    if (membership.status === 'requested' && membership.starred) {
+      // Withdrawing a request while the project is starred: keep the star.
+      await payload.update({ collection: 'project-memberships', id: membershipId, data: { status: 'none' }, overrideAccess: true })
+    } else {
+      await payload.delete({ collection: 'project-memberships', id: membershipId, overrideAccess: true })
+    }
   } catch {
     return { error: 'Verlassen fehlgeschlagen.' }
   }

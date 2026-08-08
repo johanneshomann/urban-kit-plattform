@@ -87,7 +87,7 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
     if (existing?.status === 'requested') return { error: 'Deine Anfrage ist bereits eingegangen.' }
 
     if (existing) {
-      // previously rejected — allow re-requesting
+      // previously rejected or star-only ('none') — allow requesting
       const data: Record<string, unknown> = { status: 'requested', role: 'Citizen' }
       await payload.update({ collection: 'project-memberships', id: existing.id, data, overrideAccess: true })
     } else {
@@ -143,10 +143,15 @@ export async function cancelJoinRequest(slug: string, locale: string): Promise<J
       depth: 0,
       overrideAccess: true,
     })
-    const existing = existingRes.docs[0] as MembershipRow | undefined
+    const existing = existingRes.docs[0] as (MembershipRow & { starred?: boolean }) | undefined
     if (!existing) return { error: 'Keine offene Anfrage gefunden.' }
 
-    await payload.delete({ collection: 'project-memberships', id: existing.id, overrideAccess: true })
+    if (existing.starred) {
+      // The user also starred the project — keep the star, drop the request.
+      await payload.update({ collection: 'project-memberships', id: existing.id, data: { status: 'none' }, overrideAccess: true })
+    } else {
+      await payload.delete({ collection: 'project-memberships', id: existing.id, overrideAccess: true })
+    }
   } catch {
     return { error: 'Anfrage konnte nicht zurückgezogen werden.' }
   }
