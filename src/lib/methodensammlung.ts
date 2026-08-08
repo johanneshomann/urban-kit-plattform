@@ -80,21 +80,20 @@ export async function getMethodTeasers(locale: 'de' | 'en', limit = 6): Promise<
 }
 
 /**
- * Our Projektphasen (src/lib/options/projektphasen.ts) → the Methodensammlung's
- * `project-phases` taxonomy. Since the platform adopted the archive's phase
- * system 1:1, this is a pure identity mapping by German display name (the
- * archive has no stable slugs yet — renaming a phase over there breaks the
- * match and silently empties the suggestions).
+ * Our Projektphasen (src/lib/options/projektphasen.ts) are adopted 1:1 from
+ * the Methodensammlung — our phase VALUES are the archive's stable `slug`s,
+ * so matching is slug identity. The German display names below remain only as
+ * a fallback for archive databases whose phases don't carry slugs yet.
  */
-const PHASE_MATCH: Record<string, { phases?: string[]; category?: string }> = {
-  einarbeitung: { phases: ['Einarbeitung'] },
-  konzeptentwicklung: { phases: ['Konzeptentwicklung'] },
-  projektplanung: { phases: ['Projektplanung'] },
-  projektausfuehrung: { phases: ['Projektausführung'] },
-  projektueberwachung: { phases: ['Projektüberwachung'] },
-  projektabschluss: { phases: ['Projektabschluss'] },
-  'abschluss-wirkung': { phases: ['Abschluss & Wirkung'] },
-  'reflexion-evaluation': { phases: ['Reflexion & Evaluation'] },
+const PHASE_NAME_FALLBACK: Record<string, string> = {
+  einarbeitung: 'Einarbeitung',
+  konzeptentwicklung: 'Konzeptentwicklung',
+  projektplanung: 'Projektplanung',
+  projektausfuehrung: 'Projektausführung',
+  projektueberwachung: 'Projektüberwachung',
+  projektabschluss: 'Projektabschluss',
+  'abschluss-wirkung': 'Abschluss & Wirkung',
+  'reflexion-evaluation': 'Reflexion & Evaluation',
 }
 
 /**
@@ -110,7 +109,7 @@ export async function getMethodSuggestions(
 ): Promise<Record<string, MethodTeaser[]>> {
   const key = process.env.METHODEN_API_KEY
   if (!key) return {}
-  const requested = [...new Set(phaseValues.map((v) => normalizeProjektphase(v)))].filter((v) => v in PHASE_MATCH)
+  const requested = [...new Set(phaseValues.map((v) => normalizeProjektphase(v)))].filter((v) => v in PHASE_NAME_FALLBACK)
   if (requested.length === 0) return {}
   const headers = {
     'Content-Type': 'application/json',
@@ -122,22 +121,23 @@ export async function getMethodSuggestions(
       method: 'POST',
       headers,
       body: JSON.stringify({
-        query: 'query { ProjectPhases(limit: 100, locale: de) { docs { id name category { name } } } }',
+        query: 'query { ProjectPhases(limit: 100, locale: de) { docs { id name slug } } }',
       }),
       next: { revalidate: 3600 },
     })
     if (!phasesRes.ok) return {}
     const phasesJson = (await phasesRes.json()) as {
-      data?: { ProjectPhases?: { docs?: { id: string; name?: string | null; category?: { name?: string | null } | null }[] } }
+      data?: { ProjectPhases?: { docs?: { id: string; name?: string | null; slug?: string | null }[] } }
     }
     const archivePhases = phasesJson.data?.ProjectPhases?.docs ?? []
 
     const matched = requested
       .map((ours, i) => {
-        const spec = PHASE_MATCH[ours]
-        const ids = spec.phases
-          ? archivePhases.filter((d) => spec.phases!.includes(d.name ?? '')).map((d) => d.id)
-          : archivePhases.filter((d) => d.category?.name === spec.category).map((d) => d.id)
+        // Stable slug first; German display name only as legacy fallback.
+        let ids = archivePhases.filter((d) => d.slug === ours).map((d) => d.id)
+        if (ids.length === 0) {
+          ids = archivePhases.filter((d) => d.name === PHASE_NAME_FALLBACK[ours]).map((d) => d.id)
+        }
         return { ours, ids, alias: `p${i}` }
       })
       .filter((m) => m.ids.length > 0)
@@ -170,7 +170,7 @@ export async function getMethodSuggestions(
  * same data source and mapping as {@link getMethodSuggestions}.
  */
 export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Promise<Record<string, MethodTeaser[]>> {
-  return getMethodSuggestions(locale, Object.keys(PHASE_MATCH), limit)
+  return getMethodSuggestions(locale, Object.keys(PHASE_NAME_FALLBACK), limit)
 }
 
 // Number of fallback cover images in the Methodensammlung's /method-defaults pool.
