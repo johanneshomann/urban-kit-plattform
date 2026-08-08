@@ -41,7 +41,6 @@ export interface MethodTeaser {
   image?: { url?: string | null; sizes?: { card?: { url?: string | null } | null } | null } | null
   characteristics?: { id: string; name?: string | null }[] | null
 }
-
 const TEASER_QUERY = `
   query MethodTeasers($limit: Int, $locale: LocaleInputType) {
     Methods(limit: $limit, locale: $locale, fallbackLocale: de, sort: "-updatedAt") {
@@ -81,28 +80,37 @@ export async function getMethodTeasers(locale: 'de' | 'en', limit = 6): Promise<
 
 /**
  * Our Projektphasen (src/lib/options/projektphasen.ts) → the Methodensammlung's
- * `project-phases` taxonomy, matched by German name. `warum-wofuer` has no
- * counterpart over there and simply yields no example methods.
+ * `project-phases` taxonomy, matched by German name. Phases without a 1:1
+ * counterpart map to a whole archive CATEGORY (`project-phase-categories`,
+ * union of its phases): `warum-wofuer` draws from all of Vorbereitung,
+ * `abschluss` from all of Nachbereitung (Projektabschluss, Abschluss &
+ * Wirkung, Reflexion & Evaluation).
  */
-const PHASE_NAME_MAP: Record<string, string | null> = {
-  'warum-wofuer': null,
-  einarbeitung: 'Einarbeitung',
-  konzept: 'Konzeptentwicklung',
-  projektplanung: 'Projektplanung',
-  ausfuehrung: 'Projektausführung',
-  ueberwachung: 'Projektüberwachung',
-  abschluss: 'Projektabschluss',
+const PHASE_MATCH: Record<string, { phases?: string[]; category?: string }> = {
+  'warum-wofuer': { category: 'Vorbereitung' },
+  einarbeitung: { phases: ['Einarbeitung'] },
+  konzept: { phases: ['Konzeptentwicklung'] },
+  projektplanung: { phases: ['Projektplanung'] },
+  ausfuehrung: { phases: ['Projektausführung'] },
+  ueberwachung: { phases: ['Projektüberwachung'] },
+  abschluss: { category: 'Nachbereitung' },
 }
 
 /**
- * Up to `limit` example methods per Projektphase, keyed by OUR phase value.
- * Two round-trips: resolve the phase taxonomy ids by German name, then one
- * aliased query fetching the methods of every matched phase. Degrades to an
- * empty map without a key or on any failure.
+ * Up to `limit` suggested methods per requested Projektphase, keyed by OUR
+ * phase value. Two round-trips: resolve the archive's phase taxonomy (with
+ * categories) once, then one aliased query fetching the methods of every
+ * matched phase set. Degrades to an empty map without a key or on any failure.
  */
-export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Promise<Record<string, MethodTeaser[]>> {
+export async function getMethodSuggestions(
+  locale: 'de' | 'en',
+  phaseValues: string[],
+  limit = 6,
+): Promise<Record<string, MethodTeaser[]>> {
   const key = process.env.METHODEN_API_KEY
   if (!key) return {}
+  const requested = [...new Set(phaseValues)].filter((v) => v in PHASE_MATCH)
+  if (requested.length === 0) return {}
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `api-clients API-Key ${key}`,
@@ -112,20 +120,33 @@ export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Pro
     const phasesRes = await fetch(`${base}/api/graphql`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ query: 'query { ProjectPhases(limit: 50, locale: de) { docs { id name } } }' }),
+      body: JSON.stringify({
+        query: 'query { ProjectPhases(limit: 100, locale: de) { docs { id name category { name } } } }',
+      }),
       next: { revalidate: 3600 },
     })
     if (!phasesRes.ok) return {}
-    const phasesJson = (await phasesRes.json()) as { data?: { ProjectPhases?: { docs?: { id: string; name?: string | null }[] } } }
-    const byName = new Map((phasesJson.data?.ProjectPhases?.docs ?? []).map((d) => [d.name ?? '', d.id]))
+    const phasesJson = (await phasesRes.json()) as {
+      data?: { ProjectPhases?: { docs?: { id: string; name?: string | null; category?: { name?: string | null } | null }[] } }
+    }
+    const archivePhases = phasesJson.data?.ProjectPhases?.docs ?? []
 
-    const matched = Object.entries(PHASE_NAME_MAP)
-      .map(([ours, theirs], i) => ({ ours, id: theirs ? byName.get(theirs) : undefined, alias: `p${i}` }))
-      .filter((m): m is { ours: string; id: string; alias: string } => !!m.id)
+    const matched = requested
+      .map((ours, i) => {
+        const spec = PHASE_MATCH[ours]
+        const ids = spec.phases
+          ? archivePhases.filter((d) => spec.phases!.includes(d.name ?? '')).map((d) => d.id)
+          : archivePhases.filter((d) => d.category?.name === spec.category).map((d) => d.id)
+        return { ours, ids, alias: `p${i}` }
+      })
+      .filter((m) => m.ids.length > 0)
     if (matched.length === 0) return {}
 
     const query = `query PhaseMethods($locale: LocaleInputType) { ${matched
-      .map((m) => `${m.alias}: Methods(limit: ${limit}, locale: $locale, fallbackLocale: de, sort: "-updatedAt", where: { projectPhases: { in: ["${m.id}"] } }) { docs { id title slug } }`)
+      .map(
+        (m) =>
+          `${m.alias}: Methods(limit: ${limit}, locale: $locale, fallbackLocale: de, sort: "-updatedAt", where: { projectPhases: { in: [${m.ids.map((id) => `"${id}"`).join(', ')}] } }) { docs { id title slug auszug } }`,
+      )
       .join(' ')} }`
     const res = await fetch(`${base}/api/graphql`, {
       method: 'POST',
@@ -141,6 +162,14 @@ export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Pro
   } catch {
     return {}
   }
+}
+
+/**
+ * Up to `limit` example methods for EVERY Projektphase (Grundlagen page) —
+ * same data source and mapping as {@link getMethodSuggestions}.
+ */
+export async function getPhaseMethodTeasers(locale: 'de' | 'en', limit = 3): Promise<Record<string, MethodTeaser[]>> {
+  return getMethodSuggestions(locale, Object.keys(PHASE_MATCH), limit)
 }
 
 // Number of fallback cover images in the Methodensammlung's /method-defaults pool.
