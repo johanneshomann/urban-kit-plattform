@@ -182,7 +182,13 @@ export function ActivityFeed({
     const reduceMotion =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
       document.documentElement.classList.contains('a11y-reduce-motion')
-    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+    // Let scroll anchoring keep the viewport stable during the collapse, then
+    // — once the 0.45s transition has settled — only nudge the section back
+    // into view if the collapse left it outside ('nearest' is a no-op when
+    // it's already visible).
+    window.setTimeout(() => {
+      sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' })
+    }, reduceMotion ? 0 : 470)
   }
 
   const activityLabel = (item: ActivityItem) => {

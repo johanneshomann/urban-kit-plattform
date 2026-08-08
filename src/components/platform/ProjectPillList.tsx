@@ -238,13 +238,20 @@ export function ProjectPillList({
   const [items, setItems] = useState(projects)
   const [page, setPage] = useState(0)
 
-  /** Change page and smooth-scroll back to the section top. */
+  /**
+   * Switch the page immediately (instant click feedback), then scroll back to
+   * the section top only if it is out of view (above or under the sticky bar).
+   */
   const goToPage = useCallback((p: number) => {
     setPage(p)
+    const el = sectionRef.current
+    if (!el) return
+    const margin = parseFloat(getComputedStyle(el).scrollMarginTop || '0') || 0
+    if (el.getBoundingClientRect().top >= margin - 1) return
     const reduceMotion =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ||
       document.documentElement.classList.contains('a11y-reduce-motion')
-    sectionRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+    el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
   }, [])
 
   const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
