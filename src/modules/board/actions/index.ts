@@ -11,7 +11,8 @@ export type BoardActionState = { error?: string; ok?: boolean; boardId?: string 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 
 function revalidateBoard() {
-  revalidatePath('/', 'layout')
+  // Scoped to the workspace subtree — never bust the whole app cache.
+  revalidatePath('/[locale]/dashboard/projekte/[slug]', 'layout')
 }
 
 /** Confirm a board belongs to the PM's project. */

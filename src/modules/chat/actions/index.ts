@@ -12,7 +12,8 @@ import { isProjectManager } from '@/lib/access/project'
 export type ChatActionState = { error?: string; ok?: boolean; roomId?: string }
 
 function revalidateChat() {
-  revalidatePath('/', 'layout')
+  // Scoped to the workspace subtree — never bust the whole app cache.
+  revalidatePath('/[locale]/dashboard/projekte/[slug]', 'layout')
 }
 
 /** Ensure a membership row exists (idempotent). */
