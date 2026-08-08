@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authUser } from '@/lib/chat/route-auth'
-import { relId } from '@/lib/chat/access'
+import { relId, getRoomMembership } from '@/lib/chat/access'
+import { canDirectMessage } from '@/lib/chat/reachability'
 import type { ChatRoomMember } from '@/payload-types'
 
 // POST { userId } — find or create the 1:1 DM room between the caller and userId.
@@ -13,8 +14,10 @@ export async function POST(req: NextRequest) {
   const targetId = typeof body.userId === 'string' ? body.userId : ''
   if (!targetId || targetId === userId) return NextResponse.json({ error: 'invalid' }, { status: 400 })
 
-  const target = await payload.findByID({ collection: 'users', id: targetId, depth: 0, overrideAccess: true }).catch(() => null)
-  if (!target) return NextResponse.json({ error: 'not found' }, { status: 404 })
+  // Reachability shares one policy with the picker — no DMs by guessed id.
+  if (!(await canDirectMessage(payload, userId, targetId))) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  }
 
   // Existing DM: a room where both are members. Gather my DM rooms, then intersect.
   const myDmMemberRoomIds = ((await payload.find({
@@ -30,7 +33,18 @@ export async function POST(req: NextRequest) {
       where: { and: [{ room: { in: myDmMemberRoomIds } }, { user: { equals: targetId } }] },
       limit: 1, depth: 0, overrideAccess: true,
     })).docs[0] as ChatRoomMember | undefined
-    if (shared) return NextResponse.json({ roomId: relId(shared.room) })
+    if (shared) {
+      const sharedRoomId = relId(shared.room)
+      // Re-opening a DM one previously left reactivates the CALLER's row only —
+      // the other side's 'left' (their deliberate exit) stays untouched.
+      if (sharedRoomId) {
+        const myRow = await getRoomMembership(payload, userId, sharedRoomId, 'any')
+        if (myRow?.status === 'left') {
+          await payload.update({ collection: 'chat-room-members', id: String(myRow.id), data: { status: 'active' }, overrideAccess: true })
+        }
+      }
+      return NextResponse.json({ roomId: sharedRoomId })
+    }
   }
 
   const room = await payload.create({ collection: 'chat-rooms', data: { type: 'dm', createdBy: userId }, overrideAccess: true })
