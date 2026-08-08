@@ -44,6 +44,10 @@ export const ChatRoomMembers: CollectionConfig = {
       options: [
         { label: { en: 'Active', de: 'Aktiv' }, value: 'active' },
         { label: { en: 'Invited', de: 'Eingeladen' }, value: 'invited' },
+        // Durable exit: 'left' rows are never auto-resurrected by the
+        // project-room sync — leaving a room sticks until an explicit rejoin
+        // (or, for groups, a fresh invite).
+        { label: { en: 'Left', de: 'Verlassen' }, value: 'left' },
       ],
     },
     { name: 'lastReadAt', type: 'date', label: { en: 'Last read at', de: 'Zuletzt gelesen' } },

@@ -6,7 +6,7 @@ import type { Payload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { isPMOfAnyProject, requireRoomOwner, getRoomMembership, relId } from '@/lib/chat/access'
+import { isPMOfAnyProject, requireRoomOwner, requireRoomManager, getRoomMembership, projectChatEnabled, relId } from '@/lib/chat/access'
 import { isProjectManager } from '@/lib/access/project'
 
 export type ChatActionState = { error?: string; ok?: boolean; roomId?: string }
@@ -16,15 +16,29 @@ function revalidateChat() {
   revalidatePath('/[locale]/dashboard/projekte/[slug]', 'layout')
 }
 
-/** Ensure a membership row exists (idempotent). */
+/**
+ * Ensure a membership row exists (idempotent). Rows with status 'left' are
+ * only revived when `resurrectLeft` is set (explicit invites) — auto-joins
+ * (project-room sync, reconcile) must never undo a deliberate leave.
+ */
 async function addMember(
   payload: Payload,
   roomId: string,
   userId: string,
-  opts: { role?: 'owner' | 'member'; status?: 'active' | 'invited'; invitedBy?: string } = {},
+  opts: { role?: 'owner' | 'member'; status?: 'active' | 'invited'; invitedBy?: string; resurrectLeft?: boolean } = {},
 ) {
   const existing = await getRoomMembership(payload, userId, roomId, 'any')
-  if (existing) return
+  if (existing) {
+    if (opts.resurrectLeft && existing.status === 'left') {
+      await payload.update({
+        collection: 'chat-room-members',
+        id: String(existing.id),
+        data: { status: opts.status ?? 'active', role: opts.role ?? existing.role, invitedBy: opts.invitedBy },
+        overrideAccess: true,
+      })
+    }
+    return
+  }
   await payload.create({
     collection: 'chat-room-members',
     data: { room: roomId, user: userId, role: opts.role ?? 'member', status: opts.status ?? 'active', invitedBy: opts.invitedBy },
@@ -53,6 +67,9 @@ export async function createProjectRoom(slug: string, name: string): Promise<Cha
 
   try {
     const payload = await getPayload({ config })
+    if (!(await projectChatEnabled(payload, String(pm.project.id)))) {
+      return { error: 'Das Chat-Modul ist für dieses Projekt nicht aktiviert.' }
+    }
     const room = await payload.create({
       collection: 'chat-rooms',
       data: { type: 'project', name: trimmed, project: pm.project.id, createdBy: pm.user.id },
@@ -109,7 +126,8 @@ export async function inviteToGroup(roomId: string, userIds: string[]): Promise<
     const ctx = await requireRoomOwner(payload, String(user.id), roomId)
     if (!ctx || ctx.room.type !== 'group') return { error: 'Keine Berechtigung.' }
     for (const uid of [...new Set(userIds.filter(Boolean))]) {
-      await addMember(payload, roomId, uid, { role: 'member', status: 'invited', invitedBy: String(user.id) })
+      // A fresh invite may revive a 'left' row — that's the sanctioned way back.
+      await addMember(payload, roomId, uid, { role: 'member', status: 'invited', invitedBy: String(user.id), resurrectLeft: true })
     }
     revalidateChat()
     return { ok: true }
@@ -134,7 +152,7 @@ export async function acceptInvite(roomId: string): Promise<ChatActionState> {
   }
 }
 
-/** Owner removes a member; the room owner cannot be removed. */
+/** Owner removes a member (flips to 'left' so auto-joins can't re-add them). */
 export async function removeMember(roomId: string, userId: string): Promise<ChatActionState> {
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
@@ -144,7 +162,7 @@ export async function removeMember(roomId: string, userId: string): Promise<Chat
     if (!ctx) return { error: 'Keine Berechtigung.' }
     const target = await getRoomMembership(payload, userId, roomId, 'any')
     if (!target || target.role === 'owner') return { error: 'Mitglied kann nicht entfernt werden.' }
-    await payload.delete({ collection: 'chat-room-members', id: String(target.id), overrideAccess: true })
+    await payload.update({ collection: 'chat-room-members', id: String(target.id), data: { status: 'left' }, overrideAccess: true })
     revalidateChat()
     return { ok: true }
   } catch {
@@ -152,7 +170,12 @@ export async function removeMember(roomId: string, userId: string): Promise<Chat
   }
 }
 
-/** Leave a room (groups/DMs). Owners must transfer or delete instead. */
+/**
+ * Leave a room. Durable: the row flips to 'left' instead of being deleted, so
+ * the project-room sync cannot silently re-add the member. Project membership
+ * is deliberately untouched (leaving chat ≠ leaving the project). Owners must
+ * transfer or delete instead.
+ */
 export async function leaveRoom(roomId: string): Promise<ChatActionState> {
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
@@ -160,8 +183,9 @@ export async function leaveRoom(roomId: string): Promise<ChatActionState> {
     const payload = await getPayload({ config })
     const m = await getRoomMembership(payload, String(user.id), roomId, 'any')
     if (!m) return { error: 'Nicht Mitglied.' }
+    if (m.status === 'left') return { ok: true }
     if (m.role === 'owner') return { error: 'Owner können den Raum nicht verlassen, nur löschen.' }
-    await payload.delete({ collection: 'chat-room-members', id: String(m.id), overrideAccess: true })
+    await payload.update({ collection: 'chat-room-members', id: String(m.id), data: { status: 'left' }, overrideAccess: true })
     revalidateChat()
     return { ok: true }
   } catch {
@@ -169,7 +193,42 @@ export async function leaveRoom(roomId: string): Promise<ChatActionState> {
   }
 }
 
-/** Owner renames a room. */
+/**
+ * Re-enter a room previously left. Project rooms require the caller to still
+ * be an active project member (and the chat module enabled); DMs can always be
+ * rejoined; groups need a fresh invite from the owner instead.
+ */
+export async function rejoinRoom(roomId: string): Promise<ChatActionState> {
+  const user = await getUser()
+  if (!user) return { error: 'Nicht angemeldet.' }
+  try {
+    const payload = await getPayload({ config })
+    const m = await getRoomMembership(payload, String(user.id), roomId, 'any')
+    if (!m || m.status !== 'left') return { error: 'Kein Wiedereintritt möglich.' }
+    const room = await payload.findByID({ collection: 'chat-rooms', id: roomId, depth: 0, overrideAccess: true }).catch(() => null)
+    if (!room) return { error: 'Raum nicht gefunden.' }
+    if (room.type === 'group') return { error: 'Für Gruppen ist eine neue Einladung nötig.' }
+    if (room.type === 'project') {
+      const projectId = relId(room.project)
+      if (!projectId || !(await projectChatEnabled(payload, projectId))) return { error: 'Keine Berechtigung.' }
+      const active = await payload.find({
+        collection: 'project-memberships',
+        where: { and: [{ user: { equals: user.id } }, { project: { equals: projectId } }, { status: { equals: 'active' } }] },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      })
+      if (active.totalDocs === 0) return { error: 'Keine Berechtigung.' }
+    }
+    await payload.update({ collection: 'chat-room-members', id: String(m.id), data: { status: 'active' }, overrideAccess: true })
+    revalidateChat()
+    return { ok: true, roomId }
+  } catch {
+    return { error: 'Aktion fehlgeschlagen.' }
+  }
+}
+
+/** Room owner, project PM, or admin renames a room. */
 export async function renameRoom(roomId: string, name: string): Promise<ChatActionState> {
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
@@ -177,7 +236,7 @@ export async function renameRoom(roomId: string, name: string): Promise<ChatActi
   if (!trimmed) return { error: 'Name darf nicht leer sein.' }
   try {
     const payload = await getPayload({ config })
-    const ctx = await requireRoomOwner(payload, String(user.id), roomId)
+    const ctx = await requireRoomManager(payload, String(user.id), roomId, { isAdmin: user.role === 'admin' })
     if (!ctx) return { error: 'Keine Berechtigung.' }
     await payload.update({ collection: 'chat-rooms', id: roomId, data: { name: trimmed }, overrideAccess: true })
     revalidateChat()
@@ -187,13 +246,13 @@ export async function renameRoom(roomId: string, name: string): Promise<ChatActi
   }
 }
 
-/** Owner deletes a room and its messages + memberships. */
+/** Room owner, project PM, or admin deletes a room and its messages + memberships. */
 export async function deleteRoom(roomId: string): Promise<ChatActionState> {
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
   try {
     const payload = await getPayload({ config })
-    const ctx = await requireRoomOwner(payload, String(user.id), roomId)
+    const ctx = await requireRoomManager(payload, String(user.id), roomId, { isAdmin: user.role === 'admin' })
     if (!ctx) return { error: 'Keine Berechtigung.' }
     await payload.delete({ collection: 'chat-messages', where: { room: { equals: roomId } }, overrideAccess: true })
     await payload.delete({ collection: 'chat-room-members', where: { room: { equals: roomId } }, overrideAccess: true })

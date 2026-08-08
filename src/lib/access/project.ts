@@ -12,7 +12,7 @@ async function isProjectMember(
 ): Promise<{ isMember: boolean; role: string | null }> {
   const result = await payload.find({
     collection: 'project-memberships',
-    where: { and: [{ user: { equals: userId } }, { project: { equals: projectId } }] },
+    where: { and: [{ user: { equals: userId } }, { project: { equals: projectId } }, { status: { equals: 'active' } }] },
     limit: 1,
     overrideAccess: true,
   })
