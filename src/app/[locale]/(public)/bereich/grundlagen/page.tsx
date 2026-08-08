@@ -11,7 +11,6 @@ import { BereichThemeScope } from '@/components/public/BereichThemeScope'
 import { BookOpen, ExternalLink, Handshake, Route, Scale } from 'lucide-react'
 import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
-import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
 import { getMethodTeasers, getPhaseMethodTeasers, methodImageUrl, getMethodenBaseUrl } from '@/lib/methodensammlung'
 import { CardSlider } from '@/components/public/CardSlider'
 
@@ -74,18 +73,39 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     getPhaseMethodTeasers(apiLocale, 3),
     getMethodenBaseUrl(),
   ])
-  const projektSteps: ProjektStep[] = PROJEKTPHASEN.map((phase, i) => ({
-    phase: tax(`phase.${phase.value}`),
+  // Editorial journey — decoupled from the phase system: the intro ("Zuerst –
+  // Warum & Wofür?") is deliberately NOT a project phase, and the final step
+  // spans the whole Nachbereitung category (three phases). `content` indexes
+  // the s0–s6 journey copy; `phases` lists the covered lifecycle phases.
+  const JOURNEY: { content: number; phases: string[] }[] = [
+    { content: 0, phases: [] },
+    { content: 1, phases: ['einarbeitung'] },
+    { content: 2, phases: ['konzeptentwicklung'] },
+    { content: 3, phases: ['projektplanung'] },
+    { content: 4, phases: ['projektausfuehrung'] },
+    { content: 5, phases: ['projektueberwachung'] },
+    { content: 6, phases: ['projektabschluss', 'abschluss-wirkung', 'reflexion-evaluation'] },
+  ]
+  const projektSteps: ProjektStep[] = JOURNEY.map(({ content: i, phases }, idx) => ({
+    phase:
+      idx === 0
+        ? tpp('introPhase')
+        : phases.length === 1
+          ? tax(`phase.${phases[0]}`)
+          : tax('phaseCategory.nachbereitung'),
+    badge: idx === 0 ? '?' : String(idx),
+    stepLabel: idx === 0 ? tpp('stepFirst') : `${tpp('stepWord')} ${idx}`,
     title: tpp(`s${i}Title`),
     ziel: tpp.rich(`s${i}Ziel`, richTags),
     intro: tpp.rich(`s${i}Intro`, richTags),
     todos: tpp.raw(`s${i}Todos`) as TodoItem[],
     wichtig: tpp.rich(`s${i}Wichtig`, richTags),
     methoden: tpp.raw(`s${i}Methoden`) as MethodItem[],
-    methodLinks: (phaseMethods[phase.value] ?? []).map((m) => ({
-      title: m.title,
-      href: `${methodenUrl}/${locale}/methods/${m.slug ?? ''}`,
-    })),
+    methodLinks: phases
+      .flatMap((p) => phaseMethods[p] ?? [])
+      .filter((m, mi, arr) => arr.findIndex((x) => x.id === m.id) === mi)
+      .slice(0, 5)
+      .map((m) => ({ title: m.title, href: `${methodenUrl}/${locale}/methods/${m.slug ?? ''}` })),
   }))
 
   return (

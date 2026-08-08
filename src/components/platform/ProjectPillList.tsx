@@ -22,7 +22,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { resolveColorScheme, schemeToCssVars } from '@/lib/colorScheme'
 import { reorderProjects } from '@/actions/reorder-projects'
-import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
+import { findProjektphase } from '@/lib/options/projektphasen'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
 
 type PillProject = {
@@ -48,10 +48,10 @@ export type MethodSuggestion = {
 
 const PAGE_SIZE = 3
 
-/** Resolve the German phase label from a phase value. */
+/** Resolve the German phase label from a (possibly legacy) phase value. */
 function phaseLabel(value: string | undefined): string | null {
   if (!value) return null
-  const phase = PROJEKTPHASEN.find((p) => p.value === value)
+  const phase = findProjektphase(value)
   return phase ? `${phase.step + 1}. ${phase.label.de}` : null
 }
 
@@ -426,7 +426,7 @@ export function ProjectPillList({
         methodenBaseUrl &&
         (() => {
           const scheme = resolveColorScheme(methodsFor.colorScheme)
-          const suggestions = methodSuggestions?.[methodsFor.projektphase ?? ''] ?? []
+          const suggestions = methodSuggestions?.[findProjektphase(methodsFor.projektphase)?.value ?? ''] ?? []
           const phase = phaseLabel(methodsFor.projektphase)
           return createPortal(
             <div

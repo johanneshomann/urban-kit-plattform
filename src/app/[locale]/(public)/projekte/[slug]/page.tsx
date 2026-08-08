@@ -17,7 +17,7 @@ import { getUser } from '@/lib/auth/getUser'
 import { JoinRequestButton } from '@/components/public/JoinRequestButton'
 import { StarButton } from '@/components/public/StarButton'
 import { projectDefaults } from '@/lib/defaults/project'
-import { PROJEKTPHASEN } from '@/lib/options/projektphasen'
+import { PROJEKTPHASEN, findProjektphase } from '@/lib/options/projektphasen'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
 import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
@@ -154,7 +154,7 @@ export default async function PublicProjectPage({
     membershipStatus = status === 'requested' || status === 'active' || status === 'invited' || status === 'rejected' ? status : null
     isStarred = m?.starred === true
   }
-  const phase = PROJEKTPHASEN.find((p) => p.value === project.projektphase)
+  const phase = findProjektphase(project.projektphase)
   const coverSrc = project.coverImage?.url ?? projectDefaults.coverImage
   const modules: string[] = project.modules ?? ['news', 'calendar']
   const now = new Date().toISOString()

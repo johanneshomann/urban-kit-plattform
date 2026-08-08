@@ -288,13 +288,19 @@
       "gesamtstadt": "Gesamtstadt"
     },
     "phase": {
-      "warum-wofuer": "Warum & Wofür?",
       "einarbeitung": "Einarbeitung",
-      "konzept": "Konzept",
+      "konzeptentwicklung": "Konzeptentwicklung",
       "projektplanung": "Projektplanung",
-      "ausfuehrung": "Ausführung",
-      "ueberwachung": "Überwachung",
-      "abschluss": "Abschluss"
+      "projektausfuehrung": "Projektausführung",
+      "projektueberwachung": "Projektüberwachung",
+      "projektabschluss": "Projektabschluss",
+      "abschluss-wirkung": "Abschluss & Wirkung",
+      "reflexion-evaluation": "Reflexion & Evaluation"
+    },
+    "phaseCategory": {
+      "vorbereitung": "Vorbereitung",
+      "durchfuehrung": "Durchführung",
+      "nachbereitung": "Nachbereitung"
     },
     "altersgruppe": {
       "kinder": "Kinder (0–12)",
@@ -489,6 +495,8 @@
     "heroTitle": "Projektplanung<accentG>.</accentG>",
     "heroBody": "Von der ersten Idee bis zur Umsetzung — ein Leitfaden durch die Phasen eines partizipativen Stadtprojekts.",
     "stepWord": "Schritt",
+    "stepFirst": "Zuerst",
+    "introPhase": "Warum & Wofür?",
     "methodbox": "Methodenkiste",
     "s0Title": "Vor dem Anfang",
     "s0Ziel": "<p>Grundverständnis und Motivation schaffen: Wozu machen wir Beteiligung überhaupt? Welche Werte, Haltungen und Leitlinien tragen uns? Nur wenn allen klar ist, <strong>warum Beteiligung wichtig ist</strong>, entsteht Vertrauen, Offenheit und Energie für den gesamten Prozess.</p>",

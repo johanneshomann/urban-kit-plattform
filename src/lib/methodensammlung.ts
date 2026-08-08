@@ -12,6 +12,7 @@ import 'server-only'
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { normalizeProjektphase } from '@/lib/options/projektphasen'
 
 const DEFAULT_METHODEN_URL = 'https://methoden.urbankit.de'
 
@@ -80,20 +81,20 @@ export async function getMethodTeasers(locale: 'de' | 'en', limit = 6): Promise<
 
 /**
  * Our Projektphasen (src/lib/options/projektphasen.ts) → the Methodensammlung's
- * `project-phases` taxonomy, matched by German name. Phases without a 1:1
- * counterpart map to a whole archive CATEGORY (`project-phase-categories`,
- * union of its phases): `warum-wofuer` draws from all of Vorbereitung,
- * `abschluss` from all of Nachbereitung (Projektabschluss, Abschluss &
- * Wirkung, Reflexion & Evaluation).
+ * `project-phases` taxonomy. Since the platform adopted the archive's phase
+ * system 1:1, this is a pure identity mapping by German display name (the
+ * archive has no stable slugs yet — renaming a phase over there breaks the
+ * match and silently empties the suggestions).
  */
 const PHASE_MATCH: Record<string, { phases?: string[]; category?: string }> = {
-  'warum-wofuer': { category: 'Vorbereitung' },
   einarbeitung: { phases: ['Einarbeitung'] },
-  konzept: { phases: ['Konzeptentwicklung'] },
+  konzeptentwicklung: { phases: ['Konzeptentwicklung'] },
   projektplanung: { phases: ['Projektplanung'] },
-  ausfuehrung: { phases: ['Projektausführung'] },
-  ueberwachung: { phases: ['Projektüberwachung'] },
-  abschluss: { category: 'Nachbereitung' },
+  projektausfuehrung: { phases: ['Projektausführung'] },
+  projektueberwachung: { phases: ['Projektüberwachung'] },
+  projektabschluss: { phases: ['Projektabschluss'] },
+  'abschluss-wirkung': { phases: ['Abschluss & Wirkung'] },
+  'reflexion-evaluation': { phases: ['Reflexion & Evaluation'] },
 }
 
 /**
@@ -109,7 +110,7 @@ export async function getMethodSuggestions(
 ): Promise<Record<string, MethodTeaser[]>> {
   const key = process.env.METHODEN_API_KEY
   if (!key) return {}
-  const requested = [...new Set(phaseValues)].filter((v) => v in PHASE_MATCH)
+  const requested = [...new Set(phaseValues.map((v) => normalizeProjektphase(v)))].filter((v) => v in PHASE_MATCH)
   if (requested.length === 0) return {}
   const headers = {
     'Content-Type': 'application/json',

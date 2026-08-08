@@ -14,6 +14,7 @@ import { AllProjectsSection } from '@/components/platform/dashboard/AllProjectsS
 import { PeopleSection } from '@/components/platform/dashboard/PeopleSection'
 import { DashboardDotsNav } from '@/components/platform/dashboard/DashboardDotsNav'
 import { getMethodSuggestions, getMethodenBaseUrl } from '@/lib/methodensammlung'
+import { normalizeProjektphase } from '@/lib/options/projektphasen'
 import { findPeople } from '@/lib/people-search'
 
 type Project = {
@@ -390,7 +391,7 @@ export default async function DashboardPage({
     ...new Set(
       memberProjects
         .filter((x) => x.role === 'PM')
-        .map((x) => x.project.projektphase)
+        .map((x) => (x.project.projektphase ? normalizeProjektphase(x.project.projektphase) : null))
         .filter((v): v is string => !!v),
     ),
   ]

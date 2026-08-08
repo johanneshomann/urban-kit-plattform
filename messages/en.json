@@ -288,13 +288,19 @@
       "gesamtstadt": "Citywide"
     },
     "phase": {
-      "warum-wofuer": "Why & what for?",
-      "einarbeitung": "Familiarisation",
-      "konzept": "Concept",
+      "einarbeitung": "Onboarding",
+      "konzeptentwicklung": "Concept development",
       "projektplanung": "Project planning",
-      "ausfuehrung": "Execution",
-      "ueberwachung": "Monitoring",
-      "abschluss": "Completion"
+      "projektausfuehrung": "Project execution",
+      "projektueberwachung": "Project monitoring",
+      "projektabschluss": "Project closure",
+      "abschluss-wirkung": "Finalisation & impact",
+      "reflexion-evaluation": "Reflection & evaluation"
+    },
+    "phaseCategory": {
+      "vorbereitung": "Preparation",
+      "durchfuehrung": "Execution",
+      "nachbereitung": "Follow-up"
     },
     "altersgruppe": {
       "kinder": "Children (0–12)",
@@ -489,6 +495,8 @@
     "heroTitle": "Project planning<accentG>.</accentG>",
     "heroBody": "From the first idea to implementation – a guide through the phases of a participatory city project.",
     "stepWord": "Step",
+    "stepFirst": "First",
+    "introPhase": "Why & what for?",
     "methodbox": "Method box",
     "s0Title": "Before the beginning",
     "s0Ziel": "<p>Create a basic understanding and motivation: why are we doing participation at all? Which values, attitudes and guidelines carry us? Only when everyone is clear about <strong>why participation matters</strong> do trust, openness and energy emerge for the whole process.</p>",

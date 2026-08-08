@@ -9,6 +9,10 @@ export interface MethodItem { name: string; description: string }
 
 export interface ProjektStep {
   phase: string
+  /** Content of the numbered ball ("?" for the intro, "1"…"6" for the steps). */
+  badge: string
+  /** Header prefix ("Zuerst" for the intro, "Schritt N" for the steps). */
+  stepLabel: string
   title: string
   ziel: React.ReactNode
   intro: React.ReactNode
@@ -91,7 +95,6 @@ function StepContent({ step }: { step: ProjektStep }) {
 }
 
 export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
-  const t = useTranslations('projektplanung')
   const [open, setOpen] = useState<number | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
   const baseId = useId()
@@ -123,10 +126,10 @@ export function ProjektplanungAccordion({ steps }: { steps: ProjektStep[] }) {
                   transition: 'filter 150ms',
                 }}
               >
-                {i}
+                {step.badge}
               </span>
               <span className="flex-1 font-black tracking-tight transition-colors duration-200" style={{ color: 'var(--plattform-ink-accent)' }}>
-                {t('stepWord')} {i} · {step.phase}
+                {step.stepLabel} · {step.phase}
               </span>
               <ChevronDown
                 className={`w-[1em] h-[1em] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
