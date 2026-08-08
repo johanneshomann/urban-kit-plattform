@@ -2,14 +2,16 @@ type RoomType = 'project' | 'group' | 'dm'
 
 export interface UserRef {
   id: string
-  name: string
+  /** Null when unknown — render the localized fallback client-side. */
+  name: string | null
   avatarUrl: string | null
 }
 
 export interface OverviewRoom {
   id: string
   type: RoomType
-  name: string
+  /** Null for unnamed rooms/DMs — render the localized fallback client-side. */
+  name: string | null
   role: 'owner' | 'member'
   status: 'active' | 'invited'
   project: { slug: string; title: string } | null

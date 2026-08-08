@@ -5,14 +5,15 @@ import { relId } from '@/lib/chat/access'
 
 export interface UserRef {
   id: string
-  name: string
+  /** Null when unknown — the CLIENT renders the localized fallback. */
+  name: string | null
   avatarUrl: string | null
 }
 
-export function personName(u: unknown): string {
-  if (!u || typeof u !== 'object') return 'Unbekannt'
+export function personName(u: unknown): string | null {
+  if (!u || typeof u !== 'object') return null
   const o = u as { firstName?: string | null; lastName?: string | null; email?: string }
-  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
+  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || null
 }
 
 function mediaUrl(v: unknown): string | null {
@@ -22,7 +23,7 @@ function mediaUrl(v: unknown): string | null {
 
 export function serializeUserRef(u: unknown): UserRef {
   const id = relId(u) ?? ''
-  if (!u || typeof u !== 'object') return { id, name: 'Unbekannt', avatarUrl: null }
+  if (!u || typeof u !== 'object') return { id, name: null, avatarUrl: null }
   return { id, name: personName(u), avatarUrl: mediaUrl((u as User).avatar) }
 }
 

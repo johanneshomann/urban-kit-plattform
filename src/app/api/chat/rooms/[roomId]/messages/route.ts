@@ -14,15 +14,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ room
   if ('error' in a) return a.error
   const { payload, userId } = a
 
+  // Windowing: `after` = incremental poll (ascending). Without it, the NEWEST
+  // 50 are returned (fetched descending, reversed) — a busy room must open on
+  // the present, not on ancient history. `before` pages backwards for
+  // scroll-back; client detects "more" via a full page.
   const after = req.nextUrl.searchParams.get('after')
+  const before = req.nextUrl.searchParams.get('before')
   const and: Record<string, unknown>[] = [{ room: { equals: roomId } }]
   if (after) and.push({ createdAt: { greater_than: after } })
+  else if (before) and.push({ createdAt: { less_than: before } })
 
   const res = await payload.find({
     collection: 'chat-messages', where: { and } as never,
-    sort: 'createdAt', limit: 100, depth: 1, overrideAccess: true,
+    sort: after ? 'createdAt' : '-createdAt', limit: after ? 100 : 50, depth: 1, overrideAccess: true,
   })
-  const messages = (res.docs as ChatMessage[]).map((m) => serializeMessage(m, userId))
+  const docs = after ? (res.docs as ChatMessage[]) : (res.docs as ChatMessage[]).reverse()
+  const messages = docs.map((m) => serializeMessage(m, userId))
 
   // Heartbeat: mark caller present
   await payload.update({ collection: 'chat-room-members', id: String(a.ctx.membership.id), data: { lastSeenAt: new Date().toISOString() }, overrideAccess: true }).catch(() => {})
@@ -34,7 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ room
     where: { and: [{ room: { equals: roomId } }, { user: { not_equals: userId } }, { lastTypingAt: { greater_than: since } }] },
     depth: 1, limit: 20, overrideAccess: true,
   })).docs as ChatRoomMember[]
-  const typing = typingDocs.map((m) => personName(m.user))
+  const typing = typingDocs.map((m) => personName(m.user)).filter((n): n is string => !!n)
 
   return NextResponse.json({ messages, typing, serverTime: new Date().toISOString() })
 }
@@ -57,7 +64,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
     depth: 1, overrideAccess: true,
   })
 
-  const preview = content ? content.slice(0, 120) : '📎 Anhang'
+  // Language-neutral preview — the JSON API must not carry German strings.
+  const preview = content ? content.slice(0, 120) : '📎'
   await payload.update({ collection: 'chat-rooms', id: roomId, data: { lastMessageAt: new Date().toISOString(), lastMessagePreview: preview }, overrideAccess: true }).catch(() => {})
   // Clear the sender's typing flag and mark read up to now
   await payload.update({ collection: 'chat-room-members', id: String(a.ctx.membership.id), data: { lastTypingAt: null, lastReadAt: new Date().toISOString() }, overrideAccess: true }).catch(() => {})

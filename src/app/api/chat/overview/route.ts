@@ -68,11 +68,15 @@ export async function GET(req: NextRequest) {
     if (m.lastReadAt) and.push({ createdAt: { greater_than: m.lastReadAt } })
     const unread = (await payload.count({ collection: 'chat-messages', where: { and } as never, overrideAccess: true })).totalDocs
     const project = room.type === 'project' ? projectById.get(relId(room.project) ?? '') : null
+    // Module gate: project rooms vanish from the list while the project's
+    // chat module is disabled (for members and PMs alike).
+    if (room.type === 'project' && (!project || !(project.modules ?? []).includes('chat'))) return null
     const other = room.type === 'dm' ? otherByRoom.get(String(room.id)) ?? null : null
     return {
       id: String(room.id),
       type: room.type,
-      name: room.type === 'dm' ? (other?.name ?? 'Direktnachricht') : (room.name ?? 'Raum'),
+      // Null names — the client renders the localized fallback.
+      name: room.type === 'dm' ? (other?.name ?? null) : (room.name ?? null),
       role: m.role,
       status: m.status,
       project: project ? { slug: project.slug, title: project.title } : null,
