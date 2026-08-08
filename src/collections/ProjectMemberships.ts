@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, ownRowsOrAdmin } from '@/lib/access'
 
 export const ProjectMemberships: CollectionConfig = {
   slug: 'project-memberships',
@@ -8,10 +8,10 @@ export const ProjectMemberships: CollectionConfig = {
     plural: { en: 'Project memberships', de: 'Projektmitgliedschaften' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: ownRowsOrAdmin(),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'user', type: 'relationship', relationTo: 'users', required: true, label: { en: 'User', de: 'Benutzer:in' } },

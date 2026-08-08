@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin } from '@/lib/access'
 
 /**
  * A chat room. One of three kinds:
@@ -18,10 +18,10 @@ export const ChatRooms: CollectionConfig = {
     plural: { en: 'Chat rooms', de: 'Chat-Räume' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'name' },
   fields: [

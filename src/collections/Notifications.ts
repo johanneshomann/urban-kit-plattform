@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { ownRowsOrAdmin } from '@/lib/access'
 
 export const Notifications: CollectionConfig = {
   slug: 'notifications',
@@ -8,10 +8,12 @@ export const Notifications: CollectionConfig = {
     plural: { en: 'Notifications', de: 'Benachrichtigungen' },
   },
   access: {
-    read: isAuthenticated,
+    // Strictly own rows — a future notification UI reads/marks/deletes only
+    // the requester's notifications; admins see all.
+    read: ownRowsOrAdmin(),
     create: () => false, // only via emitNotification helper
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    update: ownRowsOrAdmin(),
+    delete: ownRowsOrAdmin(),
   },
   fields: [
     { name: 'user', type: 'relationship', relationTo: 'users', required: true, label: { en: 'User', de: 'Benutzer:in' } },

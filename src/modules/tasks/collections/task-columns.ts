@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const TaskColumns: CollectionConfig = {
   slug: 'task-columns',
@@ -8,10 +8,10 @@ export const TaskColumns: CollectionConfig = {
     plural: { en: 'Task columns', de: 'Aufgabenspalten' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'name' },
   fields: [

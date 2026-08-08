@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const Folders: CollectionConfig = {
   slug: 'folders',
@@ -8,10 +8,10 @@ export const Folders: CollectionConfig = {
     plural: { en: 'Folders', de: 'Ordner' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ visibilityPath: 'visibility', projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'name' },
   fields: [

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const Tasks: CollectionConfig = {
   slug: 'tasks',
@@ -9,10 +9,10 @@ export const Tasks: CollectionConfig = {
     plural: { en: 'Tasks', de: 'Aufgaben' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'title' },
   fields: [

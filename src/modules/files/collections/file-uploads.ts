@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import path from 'path'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 /**
  * Project document library. Payload upload collection (local disk for now —
@@ -14,11 +14,12 @@ export const FileUploads: CollectionConfig = {
     plural: { en: 'Files', de: 'Dateien' },
   },
   access: {
-    // Authenticated users may read all (UI gates by tier); logged-out only PUBLIC.
-    read: ({ req: { user } }) => (user ? true : { visibility: { equals: 'PUBLIC' } }),
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    // PUBLIC files for everyone, the rest only for active project members
+    // (TEAM granularity stays a per-document concern in the UI layer).
+    read: scopedRead({ visibilityPath: 'visibility', projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'filename' },
   upload: { staticDir: path.resolve(process.cwd(), 'uploads/files') },

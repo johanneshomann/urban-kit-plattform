@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const BoardCanvases: CollectionConfig = {
   slug: 'board-canvases',
@@ -8,10 +8,10 @@ export const BoardCanvases: CollectionConfig = {
     plural: { en: 'Boards', de: 'Boards' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'name' },
   fields: [

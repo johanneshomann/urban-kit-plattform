@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const TaskAssignees: CollectionConfig = {
   slug: 'task-assignees',
@@ -8,10 +8,10 @@ export const TaskAssignees: CollectionConfig = {
     plural: { en: 'Task assignees', de: 'Aufgabenzuweisungen' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'task.project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'task', type: 'relationship', relationTo: 'tasks', required: true, label: { en: 'Task', de: 'Aufgabe' } },

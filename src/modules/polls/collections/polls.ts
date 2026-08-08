@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const Polls: CollectionConfig = {
   slug: 'polls',
@@ -8,10 +8,10 @@ export const Polls: CollectionConfig = {
     plural: { en: 'Polls', de: 'Umfragen' },
   },
   access: {
-    read: () => true,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ visibilityPath: 'visibility', projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'title' },
   fields: [

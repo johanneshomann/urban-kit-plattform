@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin } from '@/lib/access'
 
 export const ChatMessages: CollectionConfig = {
   slug: 'chat-messages',
@@ -8,10 +8,10 @@ export const ChatMessages: CollectionConfig = {
     plural: { en: 'Chat messages', de: 'Chat-Nachrichten' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'room', type: 'relationship', relationTo: 'chat-rooms', required: true, index: true, label: { en: 'Room', de: 'Raum' } },

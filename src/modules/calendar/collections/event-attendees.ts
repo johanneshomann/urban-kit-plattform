@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 /** One row per "Ich nehme teil" — uniqueness enforced in the action layer. */
 export const EventAttendees: CollectionConfig = {
@@ -9,10 +9,10 @@ export const EventAttendees: CollectionConfig = {
     plural: { en: 'Event attendees', de: 'Teilnehmer:innen' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'event', type: 'relationship', relationTo: 'calendar-events', required: true, label: { en: 'Event', de: 'Termin' } },

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '@/lib/access'
 
 export const PollVotes: CollectionConfig = {
   slug: 'poll-votes',
@@ -7,9 +8,11 @@ export const PollVotes: CollectionConfig = {
     plural: { en: 'Poll votes', de: 'Umfragestimmen' },
   },
   access: {
-    // Votes are write-once; only admins can read raw votes (results are aggregated)
-    read: ({ req }) => Boolean(req.user),
-    create: () => true, // anonymous + authenticated — rate limiting enforced in route handler
+    // Raw votes carry the voter relationship — admins only. All legitimate
+    // voting goes through the submitPollVote server action (overrideAccess),
+    // so the REST surface accepts nothing.
+    read: isAdmin,
+    create: () => false,
     update: () => false,
     delete: () => false,
   },

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const NewsComments: CollectionConfig = {
   slug: 'news-comments',
@@ -8,10 +8,10 @@ export const NewsComments: CollectionConfig = {
     plural: { en: 'News comments', de: 'News-Kommentare' },
   },
   access: {
-    read: () => true,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ visibilityPath: 'post.visibility', projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'body' },
   fields: [

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAdmin, isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const Activity: CollectionConfig = {
   slug: 'activity',
@@ -8,7 +8,7 @@ export const Activity: CollectionConfig = {
     plural: { en: 'Activities', de: 'Aktivitäten' },
   },
   access: {
-    read: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
     create: () => false, // only via emitActivity helper
     update: () => false,
     delete: isAdmin,

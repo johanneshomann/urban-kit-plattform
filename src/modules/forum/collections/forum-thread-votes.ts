@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 /** One upvote per user per thread — uniqueness enforced in the action layer. */
 export const ForumThreadVotes: CollectionConfig = {
@@ -9,10 +9,10 @@ export const ForumThreadVotes: CollectionConfig = {
     plural: { en: 'Thread votes', de: 'Themenstimmen' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ projectPath: 'project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'thread', type: 'relationship', relationTo: 'forum-threads', required: true, label: { en: 'Thread', de: 'Thema' } },

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin } from '@/lib/access'
 
 /**
  * Join table for chat-room membership. Powers:
@@ -16,10 +16,10 @@ export const ChatRoomMembers: CollectionConfig = {
     plural: { en: 'Chat room members', de: 'Chat-Mitglieder' },
   },
   access: {
-    read: isAuthenticated,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: { useAsTitle: 'id' },
   indexes: [{ fields: ['room', 'user'], unique: true }],

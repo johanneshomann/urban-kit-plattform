@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin } from '@/lib/access'
 
 export const PollOptions: CollectionConfig = {
   slug: 'poll-options',
@@ -8,10 +8,10 @@ export const PollOptions: CollectionConfig = {
     plural: { en: 'Poll options', de: 'Umfrageoptionen' },
   },
   access: {
-    read: () => true,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'question', type: 'relationship', relationTo: 'poll-questions', required: true, label: { en: 'Question', de: 'Frage' } },

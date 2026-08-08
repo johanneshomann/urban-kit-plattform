@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { isAuthenticated } from '@/lib/access'
+import { isAdmin, scopedRead } from '@/lib/access'
 
 export const ForumComments: CollectionConfig = {
   slug: 'forum-comments',
@@ -9,10 +9,10 @@ export const ForumComments: CollectionConfig = {
     plural: { en: 'Forum comments', de: 'Forenkommentare' },
   },
   access: {
-    read: () => true,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: scopedRead({ visibilityPath: 'thread.visibility', projectPath: 'thread.project' }),
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     { name: 'thread', type: 'relationship', relationTo: 'forum-threads', required: true, label: { en: 'Thread', de: 'Thema' } },
