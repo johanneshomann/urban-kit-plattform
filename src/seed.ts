@@ -99,7 +99,7 @@ async function seed() {
       projektphase: 'konzeptentwicklung',
       thema: ['mobilitaet'],
       startYear: 2025,
-      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'chat', 'files'],
+      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'files'],
       teams: ['Kernteam', 'Lenkungsgruppe', 'AG Radverkehr'],
     },
     {
@@ -126,7 +126,7 @@ async function seed() {
       thema: ['wohnraum', 'stadtentwicklung'],
       stadtbereich: ['norden'],
       startYear: 2025,
-      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'files', 'chat', 'board'],
+      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'files', 'board'],
       teams: ['Kernteam', 'Stadtplanung', 'Investor'],
     },
     {
@@ -153,7 +153,7 @@ async function seed() {
       thema: ['gruenflaechen', 'stadtentwicklung'],
       stadtbereich: ['innenstadt'],
       startYear: 2025,
-      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'chat', 'board'],
+      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'board'],
       teams: ['Kernteam', 'Grünflächenamt', 'Klimaschutz'],
     },
     {
@@ -181,7 +181,7 @@ async function seed() {
       thema: ['mobilitaet'],
       stadtbereich: ['norden'],
       startYear: 2024,
-      modules: ['news', 'calendar', 'polls', 'tasks', 'chat'],
+      modules: ['news', 'calendar', 'polls', 'tasks'],
       teams: ['Kernteam', 'Tiefbauamt', 'AG Radverkehr'],
     },
     {
@@ -237,7 +237,7 @@ async function seed() {
       thema: ['infrastruktur'],
       stadtbereich: ['innenstadt'],
       startYear: 2024,
-      modules: ['news', 'calendar', 'polls', 'forum', 'tasks', 'chat'],
+      modules: ['news', 'calendar', 'polls', 'forum', 'tasks'],
       teams: ['Kernteam', 'Stadtwerke'],
     },
     {

@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   ArrowLeft, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare,
-  MessageCircle, Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users,
+  Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users,
   UserPlus, Settings, Settings2, Shield,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -14,7 +14,7 @@ import { SidebarUserBar } from '@/components/platform/SidebarUserBar'
 
 export const MODULE_ICONS: Record<string, LucideIcon> = {
   news: Newspaper, calendar: CalendarDays, polls: BarChart2, forum: MessageSquare,
-  tasks: CheckSquare, chat: MessageCircle, board: Kanban, files: FolderOpen, 'urban-agent': Bot,
+  tasks: CheckSquare, board: Kanban, files: FolderOpen, 'urban-agent': Bot,
 }
 
 export const MANAGE_PROJECT_ITEMS: { key: string; labelKey: string; icon: LucideIcon }[] = [

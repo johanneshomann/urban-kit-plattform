@@ -172,7 +172,6 @@ export const Projects: CollectionConfig = {
         { label: { en: 'Polls', de: 'Umfragen' }, value: 'polls' },
         { label: { en: 'Forum', de: 'Forum' }, value: 'forum' },
         { label: { en: 'Tasks', de: 'Aufgaben' }, value: 'tasks' },
-        { label: { en: 'Chat', de: 'Chat' }, value: 'chat' },
         { label: { en: 'Board', de: 'Board' }, value: 'board' },
         { label: { en: 'Files', de: 'Dateien' }, value: 'files' },
         { label: { en: 'Urban Agent', de: 'Urban Agent' }, value: 'urban-agent' },

@@ -6,7 +6,7 @@ import type { Payload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { isPMOfAnyProject, requireRoomOwner, requireRoomManager, getRoomMembership, projectChatEnabled, relId } from '@/lib/chat/access'
+import { isPMOfAnyProject, requireRoomOwner, requireRoomManager, getRoomMembership, relId } from '@/lib/chat/access'
 import { isProjectManager } from '@/lib/access/project'
 
 export type ChatActionState = { error?: string; ok?: boolean; roomId?: string }
@@ -67,9 +67,6 @@ export async function createProjectRoom(slug: string, name: string): Promise<Cha
 
   try {
     const payload = await getPayload({ config })
-    if (!(await projectChatEnabled(payload, String(pm.project.id)))) {
-      return { error: 'Das Chat-Modul ist für dieses Projekt nicht aktiviert.' }
-    }
     const room = await payload.create({
       collection: 'chat-rooms',
       data: { type: 'project', name: trimmed, project: pm.project.id, createdBy: pm.user.id },
@@ -195,8 +192,8 @@ export async function leaveRoom(roomId: string): Promise<ChatActionState> {
 
 /**
  * Re-enter a room previously left. Project rooms require the caller to still
- * be an active project member (and the chat module enabled); DMs can always be
- * rejoined; groups need a fresh invite from the owner instead.
+ * be an active project member; DMs can always be rejoined; groups need a
+ * fresh invite from the owner instead.
  */
 export async function rejoinRoom(roomId: string): Promise<ChatActionState> {
   const user = await getUser()
@@ -210,7 +207,7 @@ export async function rejoinRoom(roomId: string): Promise<ChatActionState> {
     if (room.type === 'group') return { error: 'Für Gruppen ist eine neue Einladung nötig.' }
     if (room.type === 'project') {
       const projectId = relId(room.project)
-      if (!projectId || !(await projectChatEnabled(payload, projectId))) return { error: 'Keine Berechtigung.' }
+      if (!projectId) return { error: 'Keine Berechtigung.' }
       const active = await payload.find({
         collection: 'project-memberships',
         where: { and: [{ user: { equals: user.id } }, { project: { equals: projectId } }, { status: { equals: 'active' } }] },

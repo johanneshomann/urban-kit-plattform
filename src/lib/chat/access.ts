@@ -25,30 +25,16 @@ export interface RoomContext {
   membership: ChatRoomMember
 }
 
-/** True when the project has the chat module enabled (hard module gate). */
-export async function projectChatEnabled(payload: Payload, projectId: string): Promise<boolean> {
-  const project = await payload
-    .findByID({ collection: 'projects', id: projectId, depth: 0, overrideAccess: true })
-    .catch(() => null)
-  const modules = (project as { modules?: string[] | null } | null)?.modules
-  return Array.isArray(modules) && modules.includes('chat')
-}
-
 /**
  * Guard: returns the room + the caller's active membership, or null if not a
- * member. Project rooms additionally require the project's chat module to be
- * enabled — disabling the module cuts off messages/read/typing/reactions for
- * members AND PMs in one place (every room route goes through here).
+ * member. Chat is platform-wide (NOT a project module) — there is deliberately
+ * no module gate here.
  */
 export async function requireRoomMember(payload: Payload, userId: string, roomId: string): Promise<RoomContext | null> {
   const membership = await getRoomMembership(payload, userId, roomId, 'active')
   if (!membership) return null
   const room = await payload.findByID({ collection: 'chat-rooms', id: roomId, depth: 0, overrideAccess: true }).catch(() => null)
   if (!room) return null
-  if ((room as ChatRoom).type === 'project') {
-    const projectId = relId((room as ChatRoom).project)
-    if (!projectId || !(await projectChatEnabled(payload, projectId))) return null
-  }
   return { room: room as ChatRoom, membership }
 }
 
@@ -94,11 +80,9 @@ export async function requireRoomManager(
  * Ensure an active project member is a member of every project room. Called when
  * a member opens the project chat, so people who joined after a room was created
  * still see it. Safe to call repeatedly (idempotent per room). Rows with status
- * 'left' are deliberately NOT resurrected — leaving a room is durable. Skips
- * projects whose chat module is disabled.
+ * 'left' are deliberately NOT resurrected — leaving a room is durable.
  */
 export async function ensureProjectRoomMemberships(payload: Payload, projectId: string, userId: string): Promise<void> {
-  if (!(await projectChatEnabled(payload, projectId))) return
   const rooms = await payload.find({
     collection: 'chat-rooms',
     where: { and: [{ type: { equals: 'project' } }, { project: { equals: projectId } }] },
