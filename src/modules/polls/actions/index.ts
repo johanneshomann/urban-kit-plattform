@@ -1,4 +1,7 @@
-'use server'
+// NOT a 'use server' module on purpose: closePoll takes its acting user as an
+// argument (payloadAs), so exposing it as a callable server-action endpoint
+// would let clients forge the identity. Its only caller is the guarded
+// closeProjectPoll action (src/actions/manage/polls.ts), server-side.
 
 import { getPayload } from 'payload'
 import config from '@payload-config'

@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { isPMOfAnyProject, requireRoomOwner, getRoomMembership, relId } from '@/lib/chat/access'
+import { isProjectManager } from '@/lib/access/project'
 
 export type ChatActionState = { error?: string; ok?: boolean; roomId?: string }
 
@@ -203,14 +204,21 @@ export async function deleteRoom(roomId: string): Promise<ChatActionState> {
   }
 }
 
-/** Re-sync a project room's members against current active project members. */
+/**
+ * Re-sync a project room's members against current active project members.
+ * PM-of-the-room's-project (or admin) only — like every export here, this is
+ * a public server-action endpoint and must guard itself.
+ */
 export async function reconcileProjectRoomMembers(roomId: string): Promise<void> {
+  const user = await getUser()
+  if (!user) return
   const payload = await getPayload({ config })
   const room = await payload.findByID({ collection: 'chat-rooms', id: roomId, depth: 0, overrideAccess: true }).catch(() => null)
   if (!room || room.type !== 'project') return
-  const projectId = relId(room.project)
-  if (!projectId) return
-  for (const uid of await activeProjectMemberIds(payload, projectId)) {
+  const roomProjectId = relId(room.project)
+  if (!roomProjectId) return
+  if (user.role !== 'admin' && !(await isProjectManager(payload, String(user.id), roomProjectId))) return
+  for (const uid of await activeProjectMemberIds(payload, roomProjectId)) {
     await addMember(payload, roomId, uid, { role: relId(room.createdBy) === uid ? 'owner' : 'member' })
   }
 }
