@@ -108,6 +108,15 @@ export const Projects: CollectionConfig = {
       defaultValue: projectDefaults.joinRequestsEnabled,
     },
     {
+      // Chat is platform-wide; this only governs whether NEW chat groups may
+      // be attached to this project for structuring. Existing assignments are
+      // never removed by switching it off.
+      name: 'chatGroupAssignmentEnabled',
+      type: 'checkbox',
+      label: { en: 'Allow assigning chat groups', de: 'Chat-Gruppen können dem Projekt zugewiesen werden' },
+      defaultValue: true,
+    },
+    {
       name: 'projektphase',
       type: 'select',
       label: { en: 'Project phase', de: 'Projektphase' },

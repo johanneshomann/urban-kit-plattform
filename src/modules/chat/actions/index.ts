@@ -85,8 +85,30 @@ export async function createProjectRoom(slug: string, name: string): Promise<Cha
   }
 }
 
-/** PM (of any project) creates a standalone, invite-only group. */
-export async function createGroup(name: string, memberIds: string[]): Promise<ChatActionState> {
+/**
+ * May `userId` attach a group to `projectId`? Requires an active membership
+ * in the project, and the project's chatGroupAssignmentEnabled setting — the
+ * setting gates NEW bindings for everyone, PMs included (a PM simply flips it
+ * on first). PM-ship only widens WHO may perform the assignment beyond the
+ * group owner (see setGroupProject).
+ */
+async function canAssignGroupToProject(payload: Payload, userId: string, projectId: string): Promise<{ ok: boolean; isPM: boolean }> {
+  const membership = await payload.find({
+    collection: 'project-memberships',
+    where: { and: [{ user: { equals: userId } }, { project: { equals: projectId } }, { status: { equals: 'active' } }] },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const row = membership.docs[0] as { role?: string } | undefined
+  if (!row) return { ok: false, isPM: false }
+  const project = await payload.findByID({ collection: 'projects', id: projectId, depth: 0, overrideAccess: true }).catch(() => null)
+  const enabled = !!project && project.chatGroupAssignmentEnabled !== false
+  return { ok: enabled, isPM: row.role === 'PM' }
+}
+
+/** PM (of any project) creates a standalone, invite-only group — optionally assigned to a project for structure. */
+export async function createGroup(name: string, memberIds: string[], projectId?: string): Promise<ChatActionState> {
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
   const trimmed = name.trim()
@@ -97,9 +119,13 @@ export async function createGroup(name: string, memberIds: string[]): Promise<Ch
     if (!(await isPMOfAnyProject(payload, String(user.id)))) {
       return { error: 'Nur Projektmanager:innen können Gruppen erstellen.' }
     }
+    if (projectId) {
+      const { ok } = await canAssignGroupToProject(payload, String(user.id), projectId)
+      if (!ok) return { error: 'Gruppe kann diesem Projekt nicht zugewiesen werden.' }
+    }
     const room = await payload.create({
       collection: 'chat-rooms',
-      data: { type: 'group', name: trimmed, createdBy: user.id },
+      data: { type: 'group', name: trimmed, createdBy: user.id, ...(projectId ? { project: projectId } : {}) },
       overrideAccess: true,
     })
     const roomId = String(room.id)
@@ -258,6 +284,43 @@ export async function deleteRoom(roomId: string): Promise<ChatActionState> {
     return { ok: true }
   } catch {
     return { error: 'Raum konnte nicht gelöscht werden.' }
+  }
+}
+
+/**
+ * Assign a group to a project (structure only) or detach it (projectId null).
+ * Assigning: the project's setting must allow it, the caller must be an
+ * active member of the project AND either the group's owner or a PM of that
+ * project (with an active room membership). Detaching: group owner or a PM of
+ * the currently assigned project — never blocked by the setting.
+ */
+export async function setGroupProject(roomId: string, projectId: string | null): Promise<ChatActionState> {
+  const user = await getUser()
+  if (!user) return { error: 'Nicht angemeldet.' }
+  try {
+    const payload = await getPayload({ config })
+    const room = await payload.findByID({ collection: 'chat-rooms', id: roomId, depth: 0, overrideAccess: true }).catch(() => null)
+    if (!room || room.type !== 'group') return { error: 'Keine Berechtigung.' }
+    const membership = await getRoomMembership(payload, String(user.id), roomId, 'active')
+    const isOwner = membership?.role === 'owner'
+
+    if (projectId === null) {
+      const currentProjectId = relId(room.project)
+      const isPMOfCurrent = currentProjectId
+        ? await isProjectManager(payload, String(user.id), currentProjectId)
+        : false
+      if (!isOwner && !isPMOfCurrent && user.role !== 'admin') return { error: 'Keine Berechtigung.' }
+      await payload.update({ collection: 'chat-rooms', id: roomId, data: { project: null }, overrideAccess: true })
+    } else {
+      const { ok, isPM } = await canAssignGroupToProject(payload, String(user.id), projectId)
+      if (!ok) return { error: 'Gruppe kann diesem Projekt nicht zugewiesen werden.' }
+      if (!isOwner && !(isPM && membership) && user.role !== 'admin') return { error: 'Keine Berechtigung.' }
+      await payload.update({ collection: 'chat-rooms', id: roomId, data: { project: projectId }, overrideAccess: true })
+    }
+    revalidateChat()
+    return { ok: true }
+  } catch {
+    return { error: 'Aktion fehlgeschlagen.' }
   }
 }
 

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { X, Search, UserCircle, Check } from 'lucide-react'
 import { createGroup } from '@/modules/chat/actions'
+import type { MyProject } from './types'
 
 /** Picker result — /api/chat/users (findPeople policy) incl. shared projects. */
 type PickerUser = {
@@ -158,10 +159,20 @@ export function NewDMDialog({ onClose, onCreated }: { onClose: () => void; onCre
   )
 }
 
-export function NewGroupDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (roomId: string) => void }) {
+export function NewGroupDialog({
+  assignableProjects = [],
+  onClose,
+  onCreated,
+}: {
+  /** Projects the creator may attach the new group to (setting-gated / PM). */
+  assignableProjects?: MyProject[]
+  onClose: () => void
+  onCreated: (roomId: string) => void
+}) {
   const t = useTranslations('chat')
   const { q, setQ, results } = useUserSearch()
   const [name, setName] = useState('')
+  const [projectId, setProjectId] = useState('')
   const [selected, setSelected] = useState<PickerUser[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -171,7 +182,7 @@ export function NewGroupDialog({ onClose, onCreated }: { onClose: () => void; on
 
   const create = async () => {
     setError(null); setBusy(true)
-    const res = await createGroup(name, selected.map((u) => u.id))
+    const res = await createGroup(name, selected.map((u) => u.id), projectId || undefined)
     setBusy(false)
     if (res.error) { setError(res.error); return }
     if (res.roomId) onCreated(res.roomId)
@@ -187,6 +198,23 @@ export function NewGroupDialog({ onClose, onCreated }: { onClose: () => void; on
         className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm mb-3 transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]"
         style={{ color: 'var(--app-ink)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
       />
+      {assignableProjects.length > 0 && (
+        <div className="mb-3">
+          <label className="block text-small font-medium mb-1.5" htmlFor="group-project">{t('groupProjectLabel')}</label>
+          <select
+            id="group-project"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm cursor-pointer transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]"
+            style={{ color: 'var(--app-ink)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+          >
+            <option value="">{t('groupProjectNone')}</option>
+            {assignableProjects.map((p) => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {selected.map((u) => (

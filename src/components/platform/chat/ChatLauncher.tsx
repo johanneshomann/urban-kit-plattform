@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { MessageCircle } from 'lucide-react'
 import { IconTooltip } from '@/components/platform/IconTooltip'
@@ -29,7 +30,11 @@ export function ChatLauncher() {
   const [activeRoom, setActiveRoom] = useState<OverviewRoom | null>(null)
   const [dialog, setDialog] = useState<'dm' | 'group' | null>(null)
   const bubbleRef = useRef<HTMLButtonElement>(null)
-  const { rooms, totalUnread, canCreateGroups, loading, refresh } = useChatOverview(open)
+  const pathname = usePathname()
+  const { rooms, myProjects, totalUnread, canCreateGroups, loading, refresh } = useChatOverview(open)
+
+  // Inside a workspace, that project's section surfaces first in the list.
+  const currentProjectSlug = pathname?.match(/\/dashboard\/projekte\/([^/]+)/)?.[1] ?? null
 
   // ?chat= deep link — read once on mount (plain URL read avoids the
   // useSearchParams suspense requirement in a layout-mounted component).
@@ -110,7 +115,9 @@ export function ChatLauncher() {
           ) : (
             <ChatRoomList
               rooms={rooms}
+              myProjects={myProjects}
               canCreateGroups={canCreateGroups}
+              currentProjectSlug={currentProjectSlug}
               loading={loading}
               onOpenRoom={(room) => setActiveRoom(room)}
               onNewDm={() => setDialog('dm')}
@@ -134,6 +141,7 @@ export function ChatLauncher() {
       )}
       {dialog === 'group' && (
         <NewGroupDialog
+          assignableProjects={myProjects.filter((p) => p.isPM || p.groupAssignmentEnabled)}
           onClose={() => setDialog(null)}
           onCreated={(roomId) => {
             setDialog(null)

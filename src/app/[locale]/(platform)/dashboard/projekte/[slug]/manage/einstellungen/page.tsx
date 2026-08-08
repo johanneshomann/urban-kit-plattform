@@ -21,6 +21,7 @@ export default async function ManageEinstellungenPage({
   const initial: EinstellungenInitial = {
     isPublic: p.isPublic !== false,
     joinRequestsEnabled: p.joinRequestsEnabled !== false,
+    chatGroupAssignmentEnabled: p.chatGroupAssignmentEnabled !== false,
   }
 
   return <EinstellungenForm slug={slug} locale={locale} projectTitle={ctx.project.title} initial={initial} />

@@ -3,12 +3,13 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Check, Globe, UserPlus, AlertTriangle } from 'lucide-react'
+import { Check, Globe, UserPlus, MessagesSquare, AlertTriangle } from 'lucide-react'
 import { updateProjectVisibility, deleteProject } from '@/actions/manage/settings'
 
 export interface EinstellungenInitial {
   isPublic: boolean
   joinRequestsEnabled: boolean
+  chatGroupAssignmentEnabled: boolean
 }
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
@@ -62,18 +63,22 @@ export function EinstellungenForm({
 
   const [isPublic, setIsPublic] = useState(initial.isPublic)
   const [joinRequestsEnabled, setJoinRequestsEnabled] = useState(initial.joinRequestsEnabled)
+  const [chatGroupAssignmentEnabled, setChatGroupAssignmentEnabled] = useState(initial.chatGroupAssignmentEnabled)
 
   // Danger zone
   const [confirmText, setConfirmText] = useState('')
   const [deletePending, startDelete] = useTransition()
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const dirty = isPublic !== initial.isPublic || joinRequestsEnabled !== initial.joinRequestsEnabled
+  const dirty =
+    isPublic !== initial.isPublic ||
+    joinRequestsEnabled !== initial.joinRequestsEnabled ||
+    chatGroupAssignmentEnabled !== initial.chatGroupAssignmentEnabled
 
   const save = () => {
     setError(null)
     startTransition(async () => {
-      const res = await updateProjectVisibility(slug, locale, { isPublic, joinRequestsEnabled })
+      const res = await updateProjectVisibility(slug, locale, { isPublic, joinRequestsEnabled, chatGroupAssignmentEnabled })
       if (res.error) { setError(res.error); return }
       setSaved(true)
       router.refresh()
@@ -114,6 +119,14 @@ export function EinstellungenForm({
             hint={t('einstellungen.joinHint')}
             checked={joinRequestsEnabled}
             onChange={(v) => onChange(() => setJoinRequestsEnabled(v))}
+            disabled={pending}
+          />
+          <SettingRow
+            icon={MessagesSquare}
+            title={t('einstellungen.chatGroupsTitle')}
+            hint={t('einstellungen.chatGroupsHint')}
+            checked={chatGroupAssignmentEnabled}
+            onChange={(v) => onChange(() => setChatGroupAssignmentEnabled(v))}
             disabled={pending}
           />
         </div>

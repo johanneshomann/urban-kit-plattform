@@ -16,15 +16,19 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const userId = String(user.id)
 
+  // The viewer's own projects — powers the grouped list headers (incl. empty
+  // ones so a PM can create a project's FIRST room from the popup), the
+  // DM shared-project pills, the assignment picker, and the ?sync pass.
+  const viewerMemberships = (await payload.find({
+    collection: 'project-memberships',
+    where: { and: [{ user: { equals: userId } }, { status: { equals: 'active' } }] },
+    limit: 100, depth: 0, overrideAccess: true,
+  })).docs
+  const viewerProjectIds = viewerMemberships.map((m) => relId((m as { project?: unknown }).project)).filter((v): v is string => !!v)
+
   if (req.nextUrl.searchParams.get('sync') === '1') {
-    const activeMemberships = await payload.find({
-      collection: 'project-memberships',
-      where: { and: [{ user: { equals: userId } }, { status: { equals: 'active' } }] },
-      limit: 100, depth: 0, overrideAccess: true,
-    })
-    for (const m of activeMemberships.docs) {
-      const projectId = relId((m as { project?: unknown }).project)
-      if (projectId) await ensureProjectRoomMemberships(payload, projectId, userId).catch(() => {})
+    for (const projectId of viewerProjectIds) {
+      await ensureProjectRoomMemberships(payload, projectId, userId).catch(() => {})
     }
   }
 
@@ -39,8 +43,31 @@ export async function GET(req: NextRequest) {
   // Gates the "Neue Gruppe" button client-side (createGroup re-checks anyway).
   const canCreateGroups = await isPMOfAnyProject(payload, userId)
 
+  const pmProjectIds = new Set(
+    viewerMemberships
+      .filter((m) => (m as { role?: string }).role === 'PM')
+      .map((m) => relId((m as { project?: unknown }).project))
+      .filter((v): v is string => !!v),
+  )
+  const myProjectDocs = viewerProjectIds.length
+    ? ((await payload.find({ collection: 'projects', where: { id: { in: viewerProjectIds } }, limit: 100, depth: 0, overrideAccess: true })).docs as Project[])
+    : []
+  const colorSchemes = await getColorSchemes()
+  const myProjects = myProjectDocs.map((p) => {
+    const scheme = resolveColorScheme(p.colorScheme, colorSchemes)
+    return {
+      id: String(p.id),
+      slug: p.slug,
+      title: p.title,
+      light: scheme.light,
+      accent: scheme.accent,
+      isPM: pmProjectIds.has(String(p.id)),
+      groupAssignmentEnabled: p.chatGroupAssignmentEnabled !== false,
+    }
+  })
+
   const roomIds = memberships.map((m) => relId(m.room)).filter((v): v is string => !!v)
-  if (roomIds.length === 0) return NextResponse.json({ rooms: [], totalUnread: 0, canCreateGroups })
+  if (roomIds.length === 0) return NextResponse.json({ rooms: [], totalUnread: 0, canCreateGroups, myProjects })
 
   const rooms = (await payload.find({
     collection: 'chat-rooms', where: { id: { in: roomIds } }, limit: 500, depth: 0, overrideAccess: true,
@@ -53,7 +80,6 @@ export async function GET(req: NextRequest) {
     ? (await payload.find({ collection: 'projects', where: { id: { in: projectIds } }, limit: 500, depth: 0, overrideAccess: true })).docs as Project[]
     : []
   const projectById = new Map(projects.map((p) => [String(p.id), p]))
-  const colorSchemes = await getColorSchemes()
   /** Compact project chip payload — title + the two colors the UI needs. */
   const projectChip = (p: Project | undefined) => {
     if (!p) return null
@@ -72,22 +98,11 @@ export async function GET(req: NextRequest) {
     })).docs as ChatRoomMember[]
     for (const m of dmMembers) otherByRoom.set(relId(m.room) ?? '', serializeUserRef(m.user))
 
-    // Shared projects with each DM partner — two batched queries total:
-    // the viewer's active project ids, then the partners' memberships therein.
-    const viewerProjects = (await payload.find({
-      collection: 'project-memberships',
-      where: { and: [{ user: { equals: userId } }, { status: { equals: 'active' } }] },
-      limit: 100, depth: 0, overrideAccess: true,
-    })).docs
-    const viewerProjectIds = viewerProjects.map((m) => relId((m as { project?: unknown }).project)).filter((v): v is string => !!v)
+    // Shared projects with each DM partner — one batched query over the
+    // viewer's own projects (already fetched above).
     const partnerIds = [...otherByRoom.values()].map((u) => u.id).filter(Boolean)
     if (viewerProjectIds.length && partnerIds.length) {
-      const sharedProjectDocs = (await payload.find({
-        collection: 'projects',
-        where: { id: { in: viewerProjectIds } },
-        limit: 100, depth: 0, overrideAccess: true,
-      })).docs as Project[]
-      const sharedProjectById = new Map(sharedProjectDocs.map((p) => [String(p.id), p]))
+      const sharedProjectById = new Map(myProjectDocs.map((p) => [String(p.id), p]))
       const partnerMemberships = (await payload.find({
         collection: 'project-memberships',
         where: { and: [{ user: { in: partnerIds } }, { project: { in: viewerProjectIds } }, { status: { equals: 'active' } }] },
@@ -169,5 +184,5 @@ export async function GET(req: NextRequest) {
   const rooms_ = items.filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime())
   const totalUnread = rooms_.reduce((s, r) => s + r.unread, 0)
-  return NextResponse.json({ rooms: rooms_, totalUnread, canCreateGroups })
+  return NextResponse.json({ rooms: rooms_, totalUnread, canCreateGroups, myProjects })
 }

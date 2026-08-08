@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { OverviewRoom } from './types'
+import type { MyProject, OverviewRoom } from './types'
 
 const POLL_OPEN_MS = 6_000
 const POLL_CLOSED_MS = 25_000
@@ -15,6 +15,7 @@ const POLL_CLOSED_MS = 25_000
  */
 export function useChatOverview(open: boolean) {
   const [rooms, setRooms] = useState<OverviewRoom[]>([])
+  const [myProjects, setMyProjects] = useState<MyProject[]>([])
   const [totalUnread, setTotalUnread] = useState(0)
   const [canCreateGroups, setCanCreateGroups] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -28,6 +29,7 @@ export function useChatOverview(open: boolean) {
       .catch(() => null)
     if (id !== requestId.current || !res) return
     setRooms(res.rooms ?? [])
+    setMyProjects(res.myProjects ?? [])
     setTotalUnread(res.totalUnread ?? 0)
     setCanCreateGroups(res.canCreateGroups === true)
     setLoading(false)
@@ -48,5 +50,5 @@ export function useChatOverview(open: boolean) {
     return () => clearInterval(id)
   }, [open, refresh])
 
-  return { rooms, totalUnread, canCreateGroups, loading, refresh }
+  return { rooms, myProjects, totalUnread, canCreateGroups, loading, refresh }
 }

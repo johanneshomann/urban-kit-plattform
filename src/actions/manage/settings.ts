@@ -9,7 +9,7 @@ export type SettingsActionState = { error?: string; ok?: boolean }
 export async function updateProjectVisibility(
   slug: string,
   locale: string,
-  input: { isPublic: boolean; joinRequestsEnabled: boolean },
+  input: { isPublic: boolean; joinRequestsEnabled: boolean; chatGroupAssignmentEnabled?: boolean },
 ): Promise<SettingsActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
@@ -18,6 +18,9 @@ export async function updateProjectVisibility(
     const data: Record<string, unknown> = {
       isPublic: !!input.isPublic,
       joinRequestsEnabled: !!input.joinRequestsEnabled,
+      ...(input.chatGroupAssignmentEnabled !== undefined
+        ? { chatGroupAssignmentEnabled: !!input.chatGroupAssignmentEnabled }
+        : {}),
     }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {

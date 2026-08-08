@@ -15,6 +15,13 @@ export interface ProjectChip {
   accent: string
 }
 
+/** One of the viewer's own projects — powers list headers and pickers. */
+export interface MyProject extends ProjectChip {
+  id: string
+  isPM: boolean
+  groupAssignmentEnabled: boolean
+}
+
 export interface OverviewRoom {
   id: string
   type: RoomType

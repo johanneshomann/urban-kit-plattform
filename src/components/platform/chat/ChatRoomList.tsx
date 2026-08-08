@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { MessageSquarePlus, Users, FolderKanban, UserCircle } from 'lucide-react'
-import { acceptInvite } from '@/modules/chat/actions'
-import type { OverviewRoom } from './types'
+import { MessageSquarePlus, Users, Plus, Check, X } from 'lucide-react'
+import { createProjectRoom } from '@/modules/chat/actions'
+import { ChatRoomRow } from './ChatRoomRow'
+import type { MyProject, OverviewRoom } from './types'
 
 /** Compact relative time for the room list, reusing the platform date keys. */
 function useRelativeTime() {
@@ -24,21 +25,28 @@ function useRelativeTime() {
   }
 }
 
-function roomIcon(type: OverviewRoom['type']) {
-  const className = 'h-4 w-4 shrink-0'
-  if (type === 'project') return <FolderKanban className={className} aria-hidden />
-  if (type === 'group') return <Users className={className} aria-hidden />
-  return <UserCircle className={className} aria-hidden />
+type Section = {
+  key: string
+  title: string
+  /** Left accent color for project headers (chameleon light tone). */
+  accentColor?: string
+  /** Project slug — set on project sections; enables the PM "+" button. */
+  projectSlug?: string
+  canCreateRoom?: boolean
+  rooms: OverviewRoom[]
 }
 
 /**
- * The popup's inbox: every room with preview, relative time and unread pill;
- * pending group invites render an inline accept button. New-DM / new-group
- * entry points on top (the group button only for PMs — the action re-checks).
+ * The popup's inbox, structured by project: one section per project (rooms +
+ * project-assigned groups, PMs can create rooms right here — even the first
+ * one), then unassigned groups, then DMs. Headers roll up unread counts so a
+ * busy project signals activity at a glance.
  */
 export function ChatRoomList({
   rooms,
+  myProjects,
   canCreateGroups,
+  currentProjectSlug,
   loading,
   onOpenRoom,
   onNewDm,
@@ -46,7 +54,9 @@ export function ChatRoomList({
   onChanged,
 }: {
   rooms: OverviewRoom[]
+  myProjects: MyProject[]
   canCreateGroups: boolean
+  currentProjectSlug?: string | null
   loading: boolean
   onOpenRoom: (room: OverviewRoom) => void
   onNewDm: () => void
@@ -55,24 +65,74 @@ export function ChatRoomList({
 }) {
   const t = useTranslations('chat')
   const relTime = useRelativeTime()
+  const [creatingFor, setCreatingFor] = useState<string | null>(null)
+  const [newRoomName, setNewRoomName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [, startTransition] = useTransition()
 
-  const accept = (roomId: string) => {
+  const sections = useMemo((): Section[] => {
+    const byProjectSlug = new Map<string, OverviewRoom[]>()
+    const groups: OverviewRoom[] = []
+    const dms: OverviewRoom[] = []
+    for (const room of rooms) {
+      if (room.project) {
+        const list = byProjectSlug.get(room.project.slug) ?? []
+        list.push(room)
+        byProjectSlug.set(room.project.slug, list)
+      } else if (room.type === 'group') {
+        groups.push(room)
+      } else if (room.type === 'dm') {
+        dms.push(room)
+      } else {
+        groups.push(room)
+      }
+    }
+
+    const projectSections: Section[] = []
+    for (const p of myProjects) {
+      const projectRooms = byProjectSlug.get(p.slug) ?? []
+      byProjectSlug.delete(p.slug)
+      // Non-PMs with zero rooms in a project get no empty section noise.
+      if (projectRooms.length === 0 && !p.isPM) continue
+      projectSections.push({
+        key: `project:${p.slug}`,
+        title: p.title,
+        accentColor: p.accent,
+        projectSlug: p.slug,
+        canCreateRoom: p.isPM,
+        rooms: projectRooms,
+      })
+    }
+    // Rooms of projects the viewer left (or was never in): header from the chip.
+    for (const [slug, list] of byProjectSlug) {
+      projectSections.push({ key: `project:${slug}`, title: list[0].project!.title, accentColor: list[0].project!.accent, rooms: list })
+    }
+    // The current workspace's project surfaces first.
+    if (currentProjectSlug) {
+      projectSections.sort((a, b) =>
+        (a.projectSlug === currentProjectSlug ? -1 : 0) - (b.projectSlug === currentProjectSlug ? -1 : 0),
+      )
+    }
+
+    const out = [...projectSections]
+    if (groups.length > 0) out.push({ key: 'groups', title: t('groupsHeading'), rooms: groups })
+    if (dms.length > 0) out.push({ key: 'dms', title: t('dmsHeading'), rooms: dms })
+    return out
+  }, [rooms, myProjects, currentProjectSlug, t])
+
+  const createRoom = (slug: string) => {
     setError(null)
     startTransition(async () => {
-      const res = await acceptInvite(roomId)
-      if (res.error) setError(res.error)
+      const res = await createProjectRoom(slug, newRoomName)
+      if (res.error) { setError(res.error); return }
+      setCreatingFor(null)
+      setNewRoomName('')
       onChanged()
     })
   }
 
-  const roomName = (room: OverviewRoom): string =>
-    room.name ?? (room.type === 'dm' ? t('dmFallback') : t('roomFallback'))
-
   /** One-line "who is this" context per row — the cue exists before opening. */
   const contextLabel = (room: OverviewRoom): string | null => {
-    if (room.project) return room.project.title
     if (room.type === 'dm') {
       const count = room.other?.sharedProjects?.length ?? 0
       return count > 0 ? t('sharedProjectsCount', { count }) : null
@@ -101,62 +161,84 @@ export function ChatRoomList({
 
       {error && <p className="shrink-0 px-4 pt-2 text-small text-red-700">{error}</p>}
 
-      <ul className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 p-3" role="list">
-        {rooms.length === 0 && (
-          <li className="m-auto text-small opacity-50 py-8">{loading ? '…' : t('empty')}</li>
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-4">
+        {sections.length === 0 && (
+          <p className="m-auto text-small opacity-50 py-8">{loading ? '…' : t('empty')}</p>
         )}
-        {rooms.map((room, i) => (
-          <li key={room.id} className="card-in" style={{ animationDelay: `${Math.min(i * 25, 200)}ms` }}>
-            {room.status === 'invited' ? (
-              <div className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_8%,transparent)]">
-                <div className="min-w-0">
-                  <p className="text-small font-medium truncate flex items-center gap-1.5" style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>
-                    {roomIcon(room.type)}
-                    {roomName(room)}
-                  </p>
-                  <p className="text-small opacity-60">{t('invitation')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => accept(room.id)}
-                  className="shrink-0 h-8 px-3 rounded-lg text-small font-semibold cursor-pointer transition-colors bg-[var(--project-accent,var(--app-accent))] text-[var(--project-white,var(--app-white))] hover:opacity-90"
-                >
-                  {t('acceptInvite')}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onOpenRoom(room)}
-                className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left cursor-pointer transition-colors hover:bg-[color-mix(in_srgb,var(--project-ink,var(--app-ink))_6%,transparent)]"
-              >
-                <span aria-hidden className="shrink-0 opacity-60" style={{ color: 'var(--project-accent, var(--app-accent))' }}>
-                  {roomIcon(room.type)}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className={`text-small truncate ${room.unread > 0 ? 'font-bold' : 'font-medium'}`} style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>
-                      {roomName(room)}
-                    </span>
-                    <span className="text-[0.7rem] shrink-0 opacity-50">{relTime(room.lastMessageAt)}</span>
-                  </span>
-                  <span className="block text-small truncate opacity-60">
-                    {[contextLabel(room), room.lastMessagePreview || t('noMessages')].filter(Boolean).join(' · ')}
-                  </span>
-                </span>
-                {room.unread > 0 && (
-                  <span
-                    className="shrink-0 min-w-5 h-5 px-1.5 rounded-full text-[0.7rem] font-bold flex items-center justify-center bg-[var(--project-accent,var(--app-accent))] text-[var(--project-white,var(--app-white))]"
-                    aria-label={t('unreadBadge', { count: room.unread })}
-                  >
-                    {room.unread > 99 ? '99+' : room.unread}
+        {sections.map((section) => {
+          const sectionUnread = section.rooms.reduce((sum, r) => sum + r.unread, 0)
+          return (
+            <section key={section.key} aria-label={section.title}>
+              <div className="flex items-center gap-2 px-1">
+                {section.accentColor && (
+                  <span aria-hidden className="h-3 w-1 rounded-full shrink-0" style={{ background: section.accentColor }} />
+                )}
+                <h3 className="flex-1 min-w-0 text-small font-semibold opacity-50 truncate">{section.title}</h3>
+                {sectionUnread > 0 && (
+                  <span className="shrink-0 min-w-4 h-4 px-1 rounded-full text-[0.65rem] font-bold flex items-center justify-center bg-[var(--project-accent,var(--app-accent))] text-[var(--project-white,var(--app-white))]">
+                    {sectionUnread > 99 ? '99+' : sectionUnread}
                   </span>
                 )}
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+                {section.canCreateRoom && section.projectSlug && (
+                  <button
+                    type="button"
+                    onClick={() => { setCreatingFor(creatingFor === section.projectSlug ? null : section.projectSlug!); setNewRoomName('') }}
+                    aria-label={t('newRoom')}
+                    aria-expanded={creatingFor === section.projectSlug}
+                    className="shrink-0 p-1 rounded-md opacity-50 hover:opacity-100 cursor-pointer transition-opacity"
+                    style={{ color: 'var(--project-accent, var(--app-accent))' }}
+                  >
+                    <Plus className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                )}
+              </div>
+              <div aria-hidden className="h-px mt-1 mb-1" style={{ background: 'color-mix(in srgb, var(--project-ink, var(--app-ink)) 12%, transparent)' }} />
+
+              {creatingFor === section.projectSlug && section.projectSlug && (
+                <div className="flex items-center gap-1.5 px-1 py-1.5">
+                  <input
+                    autoFocus
+                    value={newRoomName}
+                    onChange={(e) => setNewRoomName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') createRoom(section.projectSlug!)
+                      if (e.key === 'Escape') { e.stopPropagation(); setCreatingFor(null) }
+                    }}
+                    placeholder={t('roomNamePlaceholder')}
+                    aria-label={t('roomNamePlaceholder')}
+                    className="flex-1 min-w-0 px-3 h-9 rounded-lg text-small outline-none shadow-sm focus:ring-2 bg-[color-mix(in_srgb,var(--project-ink,var(--app-ink))_5%,transparent)]"
+                    style={{ color: 'var(--project-ink, var(--app-ink))', '--tw-ring-color': 'var(--project-accent, var(--app-accent))' } as React.CSSProperties}
+                  />
+                  <button type="button" onClick={() => createRoom(section.projectSlug!)} disabled={!newRoomName.trim()} aria-label={t('newRoom')} className="p-1.5 cursor-pointer disabled:opacity-40" style={{ color: 'var(--project-accent, var(--app-accent))' }}>
+                    <Check className="h-4 w-4" aria-hidden />
+                  </button>
+                  <button type="button" onClick={() => setCreatingFor(null)} aria-label={t('close')} className="p-1.5 cursor-pointer opacity-60" style={{ color: 'var(--project-ink, var(--app-ink))' }}>
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              )}
+
+              <ul className="flex flex-col gap-0.5" role="list">
+                {section.rooms.map((room) => (
+                  <li key={room.id}>
+                    <ChatRoomRow
+                      room={room}
+                      contextLabel={contextLabel(room)}
+                      relTime={relTime}
+                      myProjects={myProjects}
+                      onOpen={() => onOpenRoom(room)}
+                      onChanged={onChanged}
+                    />
+                  </li>
+                ))}
+                {section.rooms.length === 0 && (
+                  <li className="px-1 py-1 text-small opacity-40">{t('noRoomsYet')}</li>
+                )}
+              </ul>
+            </section>
+          )
+        })}
+      </div>
     </div>
   )
 }
