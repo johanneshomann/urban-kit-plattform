@@ -24,8 +24,13 @@ One document per user × project:
 
 ## 3. Chat room role — `chat-room-members.role`
 
-`owner` | `member`, with its own `active`/`invited` status. Scoped to chat
-only.
+`owner` | `member`, with its own `active`/`invited`/`left` status. Scoped to
+chat only. `left` is a durable exit: the project-room sync never resurrects
+it (rejoin is explicit via `rejoinRoom`; groups need a fresh invite). Room
+administration (rename/delete) uses `requireRoomManager`: room owner, active
+PM of the room's project, or platform admin. DM reachability follows the
+people-search policy (`canDirectMessage`): non-admin users whose profile is
+visible.
 
 ## Visibility tiers — `src/lib/visibility.ts`
 

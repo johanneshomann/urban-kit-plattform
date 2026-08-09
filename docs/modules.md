@@ -31,7 +31,6 @@ folder + registry entry + option in `projects.modules` + entries in
 | `polls` | polls, poll-questions, poll-options, poll-votes | |
 | `forum` | forum-threads, forum-comments, forum-thread-votes | |
 | `tasks` | tasks, task-columns, task-assignees | TEAM-only (Aufgaben board) |
-| `chat` | chat-rooms, chat-room-members, chat-messages | popup UI, polling |
 | `board` | board-canvases | Excalidraw + Yjs via Hocuspocus |
 | `files` | file-uploads, folders | has public content |
 | `urban-agent` | — | LLM chat (Anthropic > OpenAI > Ollama) |
@@ -42,7 +41,11 @@ folder + registry entry + option in `projects.modules` + entries in
   Mitmachen (participate) and Zusammen arbeiten (collaborate, active members
   only). Users can drag-reorder; the order is stored per membership
   (`project-memberships.moduleOrder`) and filtered against the currently
-  active modules on read. Chat is excluded (it's a header popup).
+  active modules on read. Chat is NOT a module: it is platform-wide (floating
+  `ChatLauncher` in the dashboard layout, collections chat-rooms /
+  chat-room-members / chat-messages); projects only structure the room list —
+  project rooms plus groups assigned via the per-project setting
+  `chatGroupAssignmentEnabled`.
 - **Module page** (`(workspace)/m/[moduleType]/page.tsx`): consumption view;
   404s when the module isn't enabled.
 - **Manage** (`manage/inhalte/[moduleType]`): PM content editing, driven by

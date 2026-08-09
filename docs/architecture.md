@@ -136,7 +136,9 @@ pulls all registered plugins in. Projects enable a subset via `projects.modules`
   `board:<projectSlug>:<canvasId>`.
 - **Chat**: no WebSocket — same-origin polling against `/api/chat/*`
   (message poll + typing + read receipts), rendered in the floating
-  `PlatformDock`.
+  `ChatLauncher` (bubble + popup, mounted once in `dashboard/layout.tsx`).
+  Chat is **platform-wide, not a project module** — projects only structure
+  the room list (project rooms + project-assigned groups under headers).
 
 ## Theming
 
@@ -177,9 +179,11 @@ Two consequences worth remembering:
   (`ProjectPillList`) paint `schemeToCssVars` onto a `data-project-theme`
   wrapper per card, which the preset targets explicitly.
 
-The logged-in area has **no header bar**: `dashboard/layout.tsx` renders only
-`<main id="main-content">` plus the floating `PlatformDock` (chat + activity,
-two tabs). Project navigation — and the account controls (`SidebarUserBar`:
+`dashboard/layout.tsx` wraps `<main id="main-content">` in the sticky
+`DashboardTopBar` + `DashboardFooter` (hidden inside project workspaces via
+`DashboardChrome`) and mounts the floating `ChatLauncher` once — being an
+ancestor layout, the chat popup and its state survive dashboard ⇄ workspace
+navigation. Project navigation — and the account controls (`SidebarUserBar`:
 profile, language, back to the public site, logout) — live in
 `ProjectSidebar` / `ProjectTabBar`.
 
