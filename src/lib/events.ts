@@ -9,9 +9,17 @@ export interface ActivityEvent {
 }
 
 export interface NotificationEvent {
-  type: 'invited' | 'task_assigned' | 'poll_closed' | 'join_request' | 'new_content'
+  type: 'invited' | 'task_assigned' | 'poll_closed' | 'join_request' | 'new_content' | 'member_joined'
   userId: string
   reference?: { collectionSlug: string; id: string }
+}
+
+/** Emit many notifications concurrently (chunked so mass fan-outs can't spike). */
+export async function emitNotifications(events: NotificationEvent[]): Promise<void> {
+  const CHUNK = 25
+  for (let i = 0; i < events.length; i += CHUNK) {
+    await Promise.all(events.slice(i, i + CHUNK).map((e) => emitNotification(e)))
+  }
 }
 
 export async function emitActivity(event: ActivityEvent): Promise<void> {

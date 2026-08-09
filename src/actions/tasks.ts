@@ -38,13 +38,28 @@ async function getProjectTask(payload: Payload, projectId: string, taskId: strin
 }
 
 /** Replace a task's assignees with the given user ids (validated as active members). */
-async function syncAssignees(payload: Payload, projectId: string, taskId: string, userIds: string[]) {
+/** Replace a task's assignees; returns the ids that are NEWLY assigned. */
+async function syncAssignees(payload: Payload, projectId: string, taskId: string, userIds: string[]): Promise<string[]> {
+  const previous = await payload.find({ collection: 'task-assignees', where: { task: { equals: taskId } }, limit: 100, depth: 0, overrideAccess: true })
+  const previousIds = new Set(
+    previous.docs
+      .map((a) => {
+        const u = (a as { user?: unknown }).user
+        return u == null ? null : String(typeof u === 'object' ? (u as { id: unknown }).id : u)
+      })
+      .filter((id): id is string => !!id),
+  )
   await payload.delete({ collection: 'task-assignees', where: { task: { equals: taskId } }, overrideAccess: true })
   const unique = [...new Set(userIds.filter(Boolean))]
+  const added: string[] = []
   for (const uid of unique) {
     const mem = await payload.find({ collection: 'project-memberships', where: { and: [{ user: { equals: uid } }, { project: { equals: projectId } }, { status: { equals: 'active' } }] }, limit: 1, depth: 0, overrideAccess: true })
-    if (mem.totalDocs > 0) await payload.create({ collection: 'task-assignees', data: { task: taskId, user: uid }, overrideAccess: true })
+    if (mem.totalDocs > 0) {
+      await payload.create({ collection: 'task-assignees', data: { task: taskId, user: uid }, overrideAccess: true })
+      if (!previousIds.has(uid)) added.push(uid)
+    }
   }
+  return added
 }
 
 export async function createTask(slug: string, locale: string, input: TaskInput): Promise<TasksActionState> {
@@ -67,8 +82,8 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
       overrideAccess: true,
     })
     if (input.assigneeIds?.length) {
-      await syncAssignees(payload, pm.project.id, String(task.id), input.assigneeIds)
-      for (const uid of input.assigneeIds) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: String(task.id) } })
+      const added = await syncAssignees(payload, pm.project.id, String(task.id), input.assigneeIds)
+      for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: String(task.id) } })
     }
   } catch {
     return { error: 'Aufgabe konnte nicht erstellt werden.' }
@@ -94,7 +109,11 @@ export async function updateTask(slug: string, locale: string, taskId: string, i
       data: { title, description, status: status(input.status), priority: priority(input.priority), deadline: input.deadline || null, labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean) },
       overrideAccess: true,
     })
-    if (input.assigneeIds) await syncAssignees(payload, pm.project.id, taskId, input.assigneeIds)
+    if (input.assigneeIds) {
+      // Newly added assignees on an EDIT get notified too (not just on create).
+      const added = await syncAssignees(payload, pm.project.id, taskId, input.assigneeIds)
+      for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: taskId } })
+    }
   } catch {
     return { error: 'Aufgabe konnte nicht gespeichert werden.' }
   }

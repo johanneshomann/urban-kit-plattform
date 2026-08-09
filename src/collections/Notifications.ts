@@ -28,6 +28,7 @@ export const Notifications: CollectionConfig = {
         { label: { en: 'Poll closed', de: 'Umfrage beendet' }, value: 'poll_closed' },
         { label: { en: 'Join request', de: 'Beitrittsanfrage' }, value: 'join_request' },
         { label: { en: 'New content', de: 'Neuer Inhalt' }, value: 'new_content' },
+        { label: { en: 'Member joined', de: 'Mitglied beigetreten' }, value: 'member_joined' },
       ],
     },
     { name: 'read', type: 'checkbox', defaultValue: false, label: { en: 'Read', de: 'Gelesen' } },

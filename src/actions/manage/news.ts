@@ -8,7 +8,7 @@ import type { NewsPost } from '@/payload-types'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
-import { emitActivity, emitNotification } from '@/lib/events'
+import { emitActivity, emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 
 export type NewsActionState = { error?: string; ok?: boolean }
@@ -39,13 +39,15 @@ async function notifyMembers(payload: Payload, projectId: string, exceptUserId: 
     depth: 0,
     overrideAccess: true,
   })
-  for (const m of members.docs) {
-    const u = (m as { user?: unknown }).user
-    const userId = u == null ? null : typeof u === 'object' ? String((u as { id: unknown }).id) : String(u)
-    if (userId && userId !== exceptUserId) {
-      await emitNotification({ type: 'new_content', userId, reference })
-    }
-  }
+  const userIds = members.docs
+    .map((m) => {
+      const u = (m as { user?: unknown }).user
+      return u == null ? null : typeof u === 'object' ? String((u as { id: unknown }).id) : String(u)
+    })
+    .filter((id): id is string => !!id && id !== exceptUserId)
+  // Chunked-concurrent — publishing to a big project must not serialize
+  // hundreds of notification writes.
+  await emitNotifications(userIds.map((userId) => ({ type: 'new_content' as const, userId, reference })))
 }
 
 export async function createProjectNewsPost(

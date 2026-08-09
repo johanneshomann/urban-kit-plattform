@@ -59,8 +59,10 @@ export async function redeemInvite(code: string, locale: string): Promise<Invite
       const u = (pm as { user?: unknown }).user
       const userId = u == null ? null : typeof u === 'object' ? String((u as { id: unknown }).id) : String(u)
       if (userId) {
+        // Redeeming an invite means the person is already IN — notify PMs of
+        // the new member, not of a (non-existent) pending request.
         await emitNotification({
-          type: 'join_request',
+          type: 'member_joined',
           userId,
           reference: { collectionSlug: 'projects', id: String(project.id) },
         })
