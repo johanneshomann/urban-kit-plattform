@@ -31,7 +31,9 @@ export async function emitActivity(event: ActivityEvent): Promise<void> {
         type: event.type,
         user: event.userId ?? undefined,
         project: event.projectId ?? undefined,
-        reference: event.reference,
+        // Stored as docId — a group field named `id` is reserved by Payload
+        // and would be silently dropped.
+        reference: event.reference ? { collectionSlug: event.reference.collectionSlug, docId: event.reference.id } : undefined,
       },
       overrideAccess: true,
     })
@@ -49,7 +51,9 @@ export async function emitNotification(event: NotificationEvent): Promise<void> 
         type: event.type,
         user: event.userId,
         read: false,
-        reference: event.reference,
+        // Stored as docId — a group field named `id` is reserved by Payload
+        // and would be silently dropped.
+        reference: event.reference ? { collectionSlug: event.reference.collectionSlug, docId: event.reference.id } : undefined,
       },
       overrideAccess: true,
     })

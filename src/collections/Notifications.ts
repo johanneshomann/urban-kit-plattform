@@ -37,7 +37,9 @@ export const Notifications: CollectionConfig = {
       type: 'group',
       fields: [
         { name: 'collectionSlug', type: 'text' },
-        { name: 'id', type: 'text' },
+        // NOTE: must not be named `id` — Payload reserves that name and
+        // silently drops the value on save.
+        { name: 'docId', type: 'text' },
       ],
     },
   ],

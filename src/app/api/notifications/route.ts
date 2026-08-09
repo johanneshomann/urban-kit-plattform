@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
   const idsBySlug = new Map<string, Set<string>>()
   for (const n of docs) {
     const slug = n.reference?.collectionSlug
-    const id = n.reference?.id
+    const id = n.reference?.docId
     if (!slug || !id) continue
     if (!idsBySlug.has(slug)) idsBySlug.set(slug, new Set())
     idsBySlug.get(slug)!.add(id)
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
 
   const items: NotificationItem[] = docs.map((n) => {
     const refSlug = n.reference?.collectionSlug
-    const refId = n.reference?.id
+    const refId = n.reference?.docId
     const ref = refSlug && refId ? refByKey.get(`${refSlug}:${refId}`) : undefined
 
     let title: string | null = null
