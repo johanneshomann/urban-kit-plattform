@@ -784,10 +784,10 @@
     "allProjects": "Alle Projekte"
   },
   "chat": {
-    "title": "Chat",
-    "open": "Chat öffnen",
-    "openWithCount": "Chat öffnen – {count} ungelesen",
-    "close": "Chat schließen",
+    "title": "Chat & Mitteilungen",
+    "open": "Chat & Mitteilungen öffnen",
+    "openWithCount": "Chat & Mitteilungen öffnen – {count} ungelesen",
+    "close": "Chat & Mitteilungen schließen",
     "back": "Zurück zur Übersicht",
     "unreadBadge": "{count, plural, one {# ungelesene Nachricht} other {# ungelesene Nachrichten}}",
     "newDm": "Direktnachricht",
@@ -832,7 +832,8 @@
     "groupProjectLabel": "Projekt (optional)",
     "groupProjectNone": "Ohne Projekt",
     "mentionContent": "Projektinhalt erwähnen (#)",
-    "mentionRemove": "Erwähnung entfernen"
+    "mentionRemove": "Erwähnung entfernen",
+    "tabLabel": "Chat"
   },
   "notifications": {
     "heading": "Mitteilungen",
@@ -843,7 +844,9 @@
     "typePollClosed": "Umfrage beendet: „{title}“",
     "typeJoinRequest": "Neue Beitrittsanfrage für „{title}“",
     "typeNewContent": "Neuer Beitrag: „{title}“",
-    "typeMemberJoined": "Neues Mitglied in „{title}“"
+    "typeMemberJoined": "Neues Mitglied in „{title}“",
+    "delete": "Mitteilung löschen",
+    "deleteAll": "Alle löschen"
   },
   "platform": {
     "roleAdmin": "Admin",

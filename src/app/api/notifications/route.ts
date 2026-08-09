@@ -140,3 +140,22 @@ export async function POST(req: NextRequest) {
   await payload.update({ collection: 'notifications', where, data: { read: true }, overrideAccess: true })
   return NextResponse.json({ ok: true })
 }
+
+// DELETE { all: true } | { ids: string[] } — delete own notifications.
+export async function DELETE(req: NextRequest) {
+  const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: req.headers })
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const body = await req.json().catch(() => ({}))
+  const where: Where | null =
+    body.all === true
+      ? { user: { equals: user.id } }
+      : Array.isArray(body.ids) && body.ids.length > 0
+        ? { and: [{ user: { equals: user.id } }, { id: { in: body.ids.filter((v: unknown) => typeof v === 'string').slice(0, 100) } }] }
+        : null
+  if (!where) return NextResponse.json({ error: 'invalid' }, { status: 400 })
+
+  await payload.delete({ collection: 'notifications', where, overrideAccess: true })
+  return NextResponse.json({ ok: true })
+}

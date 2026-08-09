@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { MessageCircle } from 'lucide-react'
+import { Bell, MessageCircle } from 'lucide-react'
 import { IconTooltip } from '@/components/platform/IconTooltip'
 import { useChatOverview } from './useChatOverview'
 import { useNotifications } from './useNotifications'
@@ -101,7 +101,17 @@ export function ChatLauncher() {
             transition: 'background-color 250ms, transform 200ms, bottom 200ms',
           }}
         >
-          <MessageCircle className="h-6 w-6" aria-hidden />
+          {/* Chat glyph + bell overlay — the popup holds BOTH chat and
+              notifications, so the bubble must not read as chat-only. */}
+          <span className="relative" aria-hidden>
+            <MessageCircle className="h-6 w-6" />
+            <span
+              className="absolute -bottom-1 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full shadow-sm"
+              style={{ background: 'var(--project-white, var(--app-white))', color: 'var(--project-accent, var(--app-accent))' }}
+            >
+              <Bell className="h-2.5 w-2.5" />
+            </span>
+          </span>
           {combinedUnread > 0 && (
             <span
               aria-hidden
@@ -119,7 +129,7 @@ export function ChatLauncher() {
 
       {open && (
         <ChatPopup
-          title={activeRoom ? <ChatRoomContextHeader room={activeRoom} /> : tab === 'chat' ? t('title') : tn('heading')}
+          title={activeRoom ? <ChatRoomContextHeader room={activeRoom} /> : t('title')}
           onBack={activeRoom ? () => setActiveRoom(null) : undefined}
           onClose={close}
         >
@@ -144,7 +154,7 @@ export function ChatLauncher() {
                         color: active ? 'var(--project-white, var(--app-white))' : 'var(--project-ink, var(--app-ink))',
                       }}
                     >
-                      {key === 'chat' ? t('title') : tn('heading')}
+                      {key === 'chat' ? t('tabLabel') : tn('heading')}
                       {badge > 0 && (
                         <span
                           className="min-w-4 h-4 px-1 rounded-full text-[0.65rem] font-bold flex items-center justify-center"
@@ -173,7 +183,7 @@ export function ChatLauncher() {
                   onChanged={() => void refresh()}
                 />
               ) : (
-                <NotificationList items={notifications.items} loading={notifications.loading} />
+                <NotificationList items={notifications.items} loading={notifications.loading} onChanged={() => void notifications.refresh()} />
               )}
             </>
           )}

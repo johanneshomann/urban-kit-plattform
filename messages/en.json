@@ -784,10 +784,10 @@
     "allProjects": "All projects"
   },
   "chat": {
-    "title": "Chat",
-    "open": "Open chat",
-    "openWithCount": "Open chat – {count} unread",
-    "close": "Close chat",
+    "title": "Chat & notifications",
+    "open": "Open chat & notifications",
+    "openWithCount": "Open chat & notifications – {count} unread",
+    "close": "Close chat & notifications",
     "back": "Back to overview",
     "unreadBadge": "{count, plural, one {# unread message} other {# unread messages}}",
     "newDm": "Direct message",
@@ -832,7 +832,8 @@
     "groupProjectLabel": "Project (optional)",
     "groupProjectNone": "No project",
     "mentionContent": "Mention project content (#)",
-    "mentionRemove": "Remove mention"
+    "mentionRemove": "Remove mention",
+    "tabLabel": "Chat"
   },
   "notifications": {
     "heading": "Notifications",
@@ -843,7 +844,9 @@
     "typePollClosed": "Poll closed: “{title}”",
     "typeJoinRequest": "New join request for “{title}”",
     "typeNewContent": "New post: “{title}”",
-    "typeMemberJoined": "New member in “{title}”"
+    "typeMemberJoined": "New member in “{title}”",
+    "delete": "Delete notification",
+    "deleteAll": "Delete all"
   },
   "platform": {
     "roleAdmin": "Admin",
