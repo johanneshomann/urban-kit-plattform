@@ -32,6 +32,20 @@ export const ChatMessages: CollectionConfig = {
     // Cross-module content reference — resolved via resolveReference at render time
     { name: 'referenceCollection', type: 'text', label: { en: 'Reference collection', de: 'Referenz-Collection' } },
     { name: 'referenceId', type: 'text', label: { en: 'Reference ID', de: 'Referenz-ID' } },
+    // Content mentions (project rooms / project-assigned groups): snapshots of
+    // referenced module content — title and workspace-relative href are
+    // captured at send time, so later renames/deletions never break messages.
+    {
+      name: 'mentions',
+      type: 'array',
+      label: { en: 'Content mentions', de: 'Inhalts-Erwähnungen' },
+      fields: [
+        { name: 'module', type: 'text', required: true, label: { en: 'Module', de: 'Modul' } },
+        { name: 'docId', type: 'text', required: true, label: { en: 'Document ID', de: 'Dokument-ID' } },
+        { name: 'title', type: 'text', required: true, label: { en: 'Title', de: 'Titel' } },
+        { name: 'href', type: 'text', required: true, label: { en: 'Href', de: 'Href' } },
+      ],
+    },
   ],
   timestamps: true,
 }

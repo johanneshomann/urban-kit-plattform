@@ -33,6 +33,8 @@ export interface MessageDTO {
   author: UserRef
   attachment: { url: string; filename: string | null; mimeType: string | null } | null
   reactions: { emoji: string; count: number; mine: boolean }[]
+  /** Content-mention snapshots (workspace-relative hrefs). */
+  mentions: { module: string; title: string; href: string }[]
   createdAt: string
 }
 
@@ -51,6 +53,7 @@ export function serializeMessage(doc: ChatMessage, viewerId: string): MessageDTO
     author: serializeUserRef(doc.author),
     attachment: att?.url ? { url: att.url, filename: att.filename ?? null, mimeType: att.mimeType ?? null } : null,
     reactions: [...byEmoji.entries()].map(([emoji, v]) => ({ emoji, count: v.count, mine: v.mine })),
+    mentions: (doc.mentions ?? []).map((m) => ({ module: m.module, title: m.title, href: m.href })),
     createdAt: doc.createdAt,
   }
 }

@@ -111,7 +111,7 @@ export function ChatLauncher() {
           onClose={close}
         >
           {activeRoom ? (
-            <ChatRoom roomId={activeRoom.id} onActivity={refresh} />
+            <ChatRoom roomId={activeRoom.id} projectSlug={activeRoom.project?.slug ?? null} onActivity={refresh} />
           ) : (
             <ChatRoomList
               rooms={rooms}

@@ -830,7 +830,9 @@
     "unassignProject": "Vom Projekt lösen",
     "noAssignableProjects": "Keine zuweisbaren Projekte.",
     "groupProjectLabel": "Projekt (optional)",
-    "groupProjectNone": "Ohne Projekt"
+    "groupProjectNone": "Ohne Projekt",
+    "mentionContent": "Projektinhalt erwähnen (#)",
+    "mentionRemove": "Erwähnung entfernen"
   },
   "platform": {
     "roleAdmin": "Admin",

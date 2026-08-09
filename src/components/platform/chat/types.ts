@@ -47,5 +47,15 @@ export interface MessageDTO {
   author: UserRef
   attachment: { url: string; filename: string | null; mimeType: string | null } | null
   reactions: { emoji: string; count: number; mine: boolean }[]
+  /** Content-mention snapshots (workspace-relative hrefs). */
+  mentions: { module: string; title: string; href: string }[]
   createdAt: string
+}
+
+/** Typeahead item from /api/chat/rooms/[roomId]/mentionables. */
+export interface MentionableItem {
+  module: string
+  docId: string
+  title: string
+  href: string
 }

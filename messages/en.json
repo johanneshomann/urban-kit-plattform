@@ -830,7 +830,9 @@
     "unassignProject": "Detach from project",
     "noAssignableProjects": "No assignable projects.",
     "groupProjectLabel": "Project (optional)",
-    "groupProjectNone": "No project"
+    "groupProjectNone": "No project",
+    "mentionContent": "Mention project content (#)",
+    "mentionRemove": "Remove mention"
   },
   "platform": {
     "roleAdmin": "Admin",

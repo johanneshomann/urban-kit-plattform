@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { authRoom } from '@/lib/chat/route-auth'
+import { relId } from '@/lib/chat/access'
+import { resolveMention, type Mentionable } from '@/lib/chat/mentionables'
 import { serializeMessage, personName } from '@/lib/chat/serialize'
 import type { ChatMessage, ChatRoomMember } from '@/payload-types'
 
@@ -58,9 +60,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
   const attachmentId = typeof body.attachmentId === 'string' ? body.attachmentId : undefined
   if (!content && !attachmentId) return NextResponse.json({ error: 'empty' }, { status: 400 })
 
+  // Content mentions: re-validated server-side — each must belong to the
+  // room's project and be visible to the sender; snapshots stored (cap 5).
+  let mentions: Mentionable[] = []
+  const roomProjectId = relId(a.ctx.room.project)
+  if (roomProjectId && Array.isArray(body.mentions)) {
+    const requested = (body.mentions as { module?: unknown; id?: unknown }[])
+      .filter((m) => typeof m.module === 'string' && typeof m.id === 'string')
+      .slice(0, 5)
+    const resolved = await Promise.all(
+      requested.map((m) => resolveMention(payload, userId, roomProjectId, m.module as string, m.id as string)),
+    )
+    mentions = resolved.filter((m): m is Mentionable => m !== null)
+  }
+
   const created = await payload.create({
     collection: 'chat-messages',
-    data: { room: roomId, content, author: userId, attachment: attachmentId },
+    data: { room: roomId, content, author: userId, attachment: attachmentId, mentions },
     depth: 1, overrideAccess: true,
   })
 

@@ -1,21 +1,48 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { Send, Paperclip, Smile, X, ChevronUp } from 'lucide-react'
-import type { MessageDTO } from './types'
+import { Send, Paperclip, Smile, X, ChevronUp, Newspaper, CalendarDays, MessageSquare, CheckSquare, BarChart2, FolderOpen, Kanban, Hash } from 'lucide-react'
+import type { MentionableItem, MessageDTO } from './types'
 
 const QUICK_EMOJI = ['👍', '❤️', '😄', '🎉', '🙏']
 const POLL_MS = 3000
 const PAGE_SIZE = 50
 
+const MENTION_ICONS: Record<string, typeof Newspaper> = {
+  news: Newspaper,
+  calendar: CalendarDays,
+  forum: MessageSquare,
+  tasks: CheckSquare,
+  polls: BarChart2,
+  files: FolderOpen,
+  board: Kanban,
+}
+
+function MentionIcon({ module, className }: { module: string; className?: string }) {
+  const Icon = MENTION_ICONS[module] ?? Hash
+  return <Icon className={className} aria-hidden />
+}
+
 /**
  * Message view inside the chat popup. Polls incrementally (after-cursor),
  * pages backwards with the before-cursor, and reports send/read activity up
- * so the overview badge refreshes. Colors inherit the chameleon
- * (`--project-*` with `--app-*` fallbacks). The popup owns the header.
+ * so the overview badge refreshes. In rooms with a project context, typing
+ * `#` mentions project content (server-validated snapshots rendered as
+ * deep-link chips). Colors inherit the chameleon (`--project-*` with
+ * `--app-*` fallbacks). The popup owns the header.
  */
-export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: () => void }) {
+export function ChatRoom({
+  roomId,
+  projectSlug,
+  onActivity,
+}: {
+  roomId: string
+  /** Project context — enables content mentions and prefixes their links. */
+  projectSlug?: string | null
+  onActivity?: () => void
+}) {
   const t = useTranslations('chat')
   const locale = useLocale()
   const [messages, setMessages] = useState<MessageDTO[]>([])
@@ -25,6 +52,11 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
   const [hasOlder, setHasOlder] = useState(false)
   const [attachment, setAttachment] = useState<{ id: string; url: string | null } | null>(null)
   const [reactingId, setReactingId] = useState<string | null>(null)
+  // Content-mention typeahead ('#' in rooms with a project context)
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
+  const [mentionItems, setMentionItems] = useState<MentionableItem[]>([])
+  const [mentionIndex, setMentionIndex] = useState(0)
+  const [pendingMentions, setPendingMentions] = useState<MentionableItem[]>([])
   const cursorRef = useRef<string | null>(null)
   const lastTypingSent = useRef(0)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -110,17 +142,58 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
     fetch(`/api/chat/rooms/${roomId}/typing`, { method: 'POST' }).catch(() => {})
   }
 
+  /** '#token' at the end of the input opens the content-mention typeahead. */
+  const detectMention = (value: string) => {
+    if (!projectSlug) return
+    const match = value.match(/(?:^|\s)#([^\s#]{0,40})$/)
+    setMentionQuery(match ? match[1] : null)
+    setMentionIndex(0)
+  }
+
+  // Debounced mentionables fetch while the typeahead is open.
+  useEffect(() => {
+    if (mentionQuery === null || !projectSlug) {
+      setMentionItems([])
+      return
+    }
+    let active = true
+    const timer = setTimeout(async () => {
+      const res = await fetch(`/api/chat/rooms/${roomId}/mentionables?q=${encodeURIComponent(mentionQuery)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+      if (active && res) setMentionItems(res.items ?? [])
+    }, 200)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [mentionQuery, roomId, projectSlug])
+
+  const selectMention = (item: MentionableItem) => {
+    setPendingMentions((prev) =>
+      prev.some((m) => m.module === item.module && m.docId === item.docId) || prev.length >= 5 ? prev : [...prev, item],
+    )
+    // Strip the '#token' the user was typing.
+    setInput((prev) => prev.replace(/(?:^|\s)#[^\s#]{0,40}$/, (s) => (s.startsWith(' ') ? ' ' : '')))
+    setMentionQuery(null)
+    setMentionItems([])
+  }
+
   const send = async () => {
     const content = input.trim()
-    if ((!content && !attachment) || pending) return
+    if ((!content && !attachment && pendingMentions.length === 0) || pending) return
     setPending(true)
     try {
       const res = await fetch(`/api/chat/rooms/${roomId}/messages`, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ content, attachmentId: attachment?.id }),
+        body: JSON.stringify({
+          content,
+          attachmentId: attachment?.id,
+          mentions: pendingMentions.map((m) => ({ module: m.module, id: m.docId })),
+        }),
       }).then((r) => r.json()).catch(() => null)
       if (res?.message) merge([res.message])
-      setInput(''); setAttachment(null)
+      setInput(''); setAttachment(null); setPendingMentions([]); setMentionQuery(null)
       onActivity?.()
     } finally {
       setPending(false)
@@ -194,6 +267,28 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
               </button>
             </div>
             {m.content && <p className="text-text whitespace-pre-wrap" style={{ color: ink }}>{m.content}</p>}
+            {(m.mentions?.length ?? 0) > 0 && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {m.mentions.map((mention, mi) =>
+                  projectSlug ? (
+                    <Link
+                      key={`${mention.href}-${mi}`}
+                      href={`/${locale}/dashboard/projekte/${projectSlug}${mention.href}`}
+                      className="inline-flex items-center gap-1 text-small px-2 py-0.5 rounded-full max-w-full truncate transition-colors bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_18%,transparent)]"
+                      style={{ color: accent }}
+                    >
+                      <MentionIcon module={mention.module} className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{mention.title}</span>
+                    </Link>
+                  ) : (
+                    <span key={`${mention.href}-${mi}`} className="inline-flex items-center gap-1 text-small px-2 py-0.5 rounded-full max-w-full truncate bg-[color-mix(in_srgb,var(--project-ink,var(--app-ink))_8%,transparent)]" style={{ color: ink }}>
+                      <MentionIcon module={mention.module} className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{mention.title}</span>
+                    </span>
+                  ),
+                )}
+              </div>
+            )}
             {m.attachment?.url && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={m.attachment.url} alt={m.attachment.filename ?? ''} className="max-w-60 rounded-lg shadow-sm" />
@@ -232,7 +327,55 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
         {typingLabel}
       </div>
 
-      <div className="shrink-0 p-3" style={{ borderTop: `1px solid ${hairline}` }}>
+      <div className="shrink-0 p-3 relative" style={{ borderTop: `1px solid ${hairline}` }}>
+        {/* Content-mention typeahead — anchored above the composer */}
+        {mentionQuery !== null && mentionItems.length > 0 && (
+          <div
+            role="listbox"
+            aria-label={t('mentionContent')}
+            className="absolute bottom-full left-3 right-3 mb-1 max-h-48 overflow-y-auto rounded-lg shadow-lg dropdown-enter z-10"
+            style={{ background: 'var(--project-white, var(--app-white))', transformOrigin: 'bottom left' }}
+          >
+            {mentionItems.map((item, i) => (
+              <button
+                key={`${item.module}-${item.docId}`}
+                type="button"
+                role="option"
+                aria-selected={i === mentionIndex}
+                onClick={() => selectMention(item)}
+                onMouseEnter={() => setMentionIndex(i)}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-small text-left cursor-pointer"
+                style={{
+                  color: ink,
+                  background: i === mentionIndex ? 'color-mix(in srgb, ' + accent + ' 10%, transparent)' : 'transparent',
+                }}
+              >
+                <MentionIcon module={item.module} className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                <span className="truncate">{item.title}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {pendingMentions.length > 0 && (
+          <div className="flex items-center gap-1 flex-wrap mb-2">
+            {pendingMentions.map((m) => (
+              <span key={`${m.module}-${m.docId}`} className="inline-flex items-center gap-1 text-small px-2 py-0.5 rounded-full bg-[color-mix(in_srgb,var(--project-accent,var(--app-accent))_10%,transparent)]" style={{ color: accent }}>
+                <MentionIcon module={m.module} className="h-3 w-3 shrink-0" />
+                <span className="truncate max-w-40">{m.title}</span>
+                <button
+                  type="button"
+                  onClick={() => setPendingMentions((prev) => prev.filter((x) => !(x.module === m.module && x.docId === m.docId)))}
+                  aria-label={t('mentionRemove')}
+                  className="cursor-pointer"
+                >
+                  <X className="h-3 w-3" aria-hidden />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
         {attachment && (
           <div className="flex items-center gap-2 mb-2 text-small opacity-70" style={{ color: ink }}>
             <Paperclip className="w-3.5 h-3.5" aria-hidden /> {t('attachmentAdded')}
@@ -255,8 +398,17 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
           </button>
           <textarea
             value={input}
-            onChange={(e) => { setInput(e.target.value); sendTyping() }}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+            onChange={(e) => { setInput(e.target.value); detectMention(e.target.value); sendTyping() }}
+            onKeyDown={(e) => {
+              const typeaheadOpen = mentionQuery !== null && mentionItems.length > 0
+              if (typeaheadOpen) {
+                if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIndex((i) => Math.min(i + 1, mentionItems.length - 1)); return }
+                if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIndex((i) => Math.max(i - 1, 0)); return }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); selectMention(mentionItems[mentionIndex]); return }
+                if (e.key === 'Escape') { e.stopPropagation(); setMentionQuery(null); setMentionItems([]); return }
+              }
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
+            }}
             rows={1}
             aria-label={t('composerPlaceholder')}
             placeholder={t('composerPlaceholder')}
@@ -266,7 +418,7 @@ export function ChatRoom({ roomId, onActivity }: { roomId: string; onActivity?: 
           <button
             type="button"
             onClick={send}
-            disabled={pending || (!input.trim() && !attachment)}
+            disabled={pending || (!input.trim() && !attachment && pendingMentions.length === 0)}
             aria-label={t('send')}
             className="p-2 rounded-lg disabled:opacity-40 cursor-pointer transition-opacity hover:opacity-90"
             style={{ background: accent, color: 'var(--project-white, var(--app-white))' }}
