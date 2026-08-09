@@ -834,6 +834,17 @@
     "mentionContent": "Projektinhalt erwähnen (#)",
     "mentionRemove": "Erwähnung entfernen"
   },
+  "notifications": {
+    "heading": "Mitteilungen",
+    "empty": "Keine Mitteilungen.",
+    "missingRef": "Gelöschter Inhalt",
+    "typeInvited": "Sie wurden in „{title}“ aufgenommen",
+    "typeTaskAssigned": "Neue Aufgabe für Sie: „{title}“",
+    "typePollClosed": "Umfrage beendet: „{title}“",
+    "typeJoinRequest": "Neue Beitrittsanfrage für „{title}“",
+    "typeNewContent": "Neuer Beitrag: „{title}“",
+    "typeMemberJoined": "Neues Mitglied in „{title}“"
+  },
   "platform": {
     "roleAdmin": "Admin",
     "roleUser": "Nutzer:in",

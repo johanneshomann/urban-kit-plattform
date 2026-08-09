@@ -834,6 +834,17 @@
     "mentionContent": "Mention project content (#)",
     "mentionRemove": "Remove mention"
   },
+  "notifications": {
+    "heading": "Notifications",
+    "empty": "No notifications.",
+    "missingRef": "Deleted content",
+    "typeInvited": "You were added to “{title}”",
+    "typeTaskAssigned": "New task for you: “{title}”",
+    "typePollClosed": "Poll closed: “{title}”",
+    "typeJoinRequest": "New join request for “{title}”",
+    "typeNewContent": "New post: “{title}”",
+    "typeMemberJoined": "New member in “{title}”"
+  },
   "platform": {
     "roleAdmin": "Admin",
     "roleUser": "User",

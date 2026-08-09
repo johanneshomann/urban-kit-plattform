@@ -1,29 +1,12 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { MessageSquarePlus, Users, Plus, Check, X } from 'lucide-react'
 import { createProjectRoom } from '@/modules/chat/actions'
 import { ChatRoomRow } from './ChatRoomRow'
+import { useRelativeTime } from './useRelativeTime'
 import type { MyProject, OverviewRoom } from './types'
-
-/** Compact relative time for the room list, reusing the platform date keys. */
-function useRelativeTime() {
-  const tp = useTranslations('platform')
-  const locale = useLocale()
-  return (dateStr: string): string => {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    if (diff < 0) return new Date(dateStr).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'short' })
-    const minutes = Math.floor(diff / 60_000)
-    if (minutes < 1) return tp('dateJustNow')
-    if (minutes < 60) return tp('dateMinutesAgo', { minutes })
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return tp('dateHoursAgo', { hours })
-    const days = Math.floor(hours / 24)
-    if (days === 1) return tp('dateYesterday')
-    return tp('dateDaysAgo', { days })
-  }
-}
 
 type Section = {
   key: string
