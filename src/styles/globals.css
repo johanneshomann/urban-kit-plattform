@@ -400,6 +400,30 @@ html.a11y-high-contrast {
   --project-black:          #000 !important;
 }
 
+/*
+  App area (dashboard/workspace): its layout wrapper re-declares --app-* and
+  the --plattform-* aliases INLINE, which shadows the html-level rules above
+  for every descendant (nearest custom-property definition wins). Repeating
+  the overrides on the wrapper itself (author !important beats its normal
+  inline declarations) keeps high contrast working inside the app.
+*/
+html.a11y-high-contrast [data-app-theme] {
+  --app-black:      #000 !important;
+  --app-ink:        #000 !important;
+  --app-ink-accent: #000 !important;
+  --app-accent:     #000 !important;
+  --app-white:      #fff !important;
+  --app-light:      #fff !important;
+  --plattform:              #000 !important;
+  --plattform-accent:       #000 !important;
+  --plattform-ink:          #000 !important;
+  --plattform-ink-accent:   #000 !important;
+  --plattform-black:        #000 !important;
+  --plattform-light:             #fff !important;
+  --plattform-white:             #fff !important;
+  --plattform-white-transparent: #fff !important;
+}
+
 html.a11y-high-contrast :focus-visible {
   outline-color: #000 !important;
 }

@@ -28,7 +28,7 @@ export default async function DashboardLayout({
   const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName ?? lastName ?? null
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--app-light)', ...appVars }}>
+    <div data-app-theme className="min-h-screen flex flex-col" style={{ background: 'var(--app-light)', ...appVars }}>
       <HideAccessibilityFab />
       <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
         {/* Top bar + footer live OUTSIDE the transition wrapper: the bar stays
