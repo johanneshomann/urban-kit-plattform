@@ -1,4 +1,4 @@
-line o# AGENTS.md — working on UrbanKIT
+# AGENTS.md — working on UrbanKIT
 
 Civic-participation platform: public portal (`urbankit.de`) + logged-in
 workspace (`app.urbankit.de`) served by one Next.js App Router app with
@@ -181,6 +181,16 @@ and their collections: [docs/modules.md](docs/modules.md).
    source). Never add a bare German string to a field the admin renders — and
    keep shared select options (Projektthemen, Phasen, …) in the central
    helpers under `src/lib/options/` so the admin and the manage UI stay in sync.
+10. **SPDX headers (REUSE).** Every source file starts with the 3-line SPDX
+    header (copyright line, blank comment line, license-identifier line for
+    `EUPL-1.2`; `//` comments in TS/JS, `/* */` in CSS, `<!-- -->` in
+    Markdown — copy it from any neighboring file). New files must carry it —
+    easiest via
+    `reuse annotate --copyright "Johannes Homann" --license EUPL-1.2 <file>`.
+    Non-headerable files (configs, JSON, binaries, docs) are covered by globs
+    in `REUSE.toml` — extend it there instead. `reuse lint` must pass before a
+    PR. Note: the header sits *above* `'use client'` — comments before the
+    directive are fine, statements are not.
 
 ---
 
