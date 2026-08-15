@@ -14,6 +14,7 @@ import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { getCitySettings } from '@/lib/instance'
 import { barrierefreiheitDefault } from '@/lib/legalDefaults'
+import { hasRichTextContent } from '@/lib/richtext'
 import { Accessibility } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -49,7 +50,9 @@ export default async function BarrierefreiheitPage({ params }: { params: Promise
       overrideAccess: true,
     })
     const content = (data as unknown as { barrierefreiheit?: unknown }).barrierefreiheit ?? null
-    if (content) {
+    // Shared emptiness check: a saved-but-empty admin document must degrade to
+    // the bundled template, same as a missing one.
+    if (hasRichTextContent(content)) {
       contentHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     }
   } catch {}

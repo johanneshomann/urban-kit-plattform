@@ -12,6 +12,7 @@ import { PublicNavServer } from '@/components/public/PublicNavServer'
 import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
+import { hasRichTextContent } from '@/lib/richtext'
 import { ShieldCheck } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -33,14 +34,18 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
   let datenschutzHtml: string | null = null
   try {
     const payload = await getPayload({ config })
-    const data = await payload.findGlobal({
-      slug: 'legal-settings',
-      locale: locale as 'de' | 'en',
-      fallbackLocale: 'de',
-      overrideAccess: true,
-    })
-    const content = (data as unknown as { datenschutz?: unknown }).datenschutz
-    if (content) {
+    const read = async (loc: 'de' | 'en') =>
+      (await payload.findGlobal({
+        slug: 'legal-settings',
+        locale: loc,
+        fallbackLocale: 'de',
+        overrideAccess: true,
+      })) as unknown as { datenschutz?: unknown }
+    let content = (await read(locale as 'de' | 'en')).datenschutz
+    // Payload's fallbackLocale only covers absent values — a saved-but-empty EN
+    // document counts as a value and defeats it, so fall back to DE manually.
+    if (locale !== 'de' && !hasRichTextContent(content)) content = (await read('de')).datenschutz
+    if (hasRichTextContent(content)) {
       datenschutzHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     }
   } catch {}

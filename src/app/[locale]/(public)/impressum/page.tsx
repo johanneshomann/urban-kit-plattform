@@ -13,6 +13,7 @@ import { PublicFooter } from '@/components/public/PublicFooter'
 import { EyebrowBadge } from '@/components/public/EyebrowBadge'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { getCitySettings } from '@/lib/instance'
+import { hasRichTextContent } from '@/lib/richtext'
 import { ScrollText } from 'lucide-react'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
@@ -35,14 +36,18 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
   let impressumHtml: string | null = null
   try {
     const payload = await getPayload({ config })
-    const data = await payload.findGlobal({
-      slug: 'legal-settings',
-      locale: locale as 'de' | 'en',
-      fallbackLocale: 'de',
-      overrideAccess: true,
-    })
-    const content = (data as unknown as { impressum?: unknown }).impressum
-    if (content) {
+    const read = async (loc: 'de' | 'en') =>
+      (await payload.findGlobal({
+        slug: 'legal-settings',
+        locale: loc,
+        fallbackLocale: 'de',
+        overrideAccess: true,
+      })) as unknown as { impressum?: unknown }
+    let content = (await read(locale as 'de' | 'en')).impressum
+    // Payload's fallbackLocale only covers absent values — a saved-but-empty EN
+    // document counts as a value and defeats it, so fall back to DE manually.
+    if (locale !== 'de' && !hasRichTextContent(content)) content = (await read('de')).impressum
+    if (hasRichTextContent(content)) {
       impressumHtml = convertLexicalToHTML({ data: content as Parameters<typeof convertLexicalToHTML>[0]['data'] })
     }
   } catch {}
