@@ -107,7 +107,7 @@ Globals (`src/globals/`):
 
 | Global | Slug | Purpose |
 |---|---|---|
-| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Farben) with native color-picker fields + reset-to-defaults; no free-text description (homepage copy is i18n-hardcoded) |
+| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Über / Partner / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 
 ## Access control
