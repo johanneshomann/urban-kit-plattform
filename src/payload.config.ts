@@ -13,7 +13,6 @@ import { Activity } from './collections/Activity'
 import { Notifications } from './collections/Notifications'
 import { PlatformSettings } from './globals/PlatformSettings'
 import { LegalSettings } from './globals/LegalSettings'
-import { ProjectColorSchemes } from './globals/ProjectColorSchemes'
 import { moduleRegistry } from './modules/registry'
 import './modules/index' // registers all module plugins
 
@@ -53,7 +52,7 @@ export default buildConfig({
     Activity,
     Notifications,
   ],
-  globals: [PlatformSettings, LegalSettings, ProjectColorSchemes],
+  globals: [PlatformSettings, LegalSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? 'dev-secret-change-me',
   typescript: {

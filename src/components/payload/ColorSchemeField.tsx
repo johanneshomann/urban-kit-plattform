@@ -7,12 +7,12 @@ import { defaultColorSchemes, type ColorScheme } from '@/lib/defaults/colorSchem
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 const ROLES = ['light', 'general', 'dark', 'accent', 'ink', 'white', 'black'] as const
 
-/** Merge the admin-edited palettes (project-color-schemes global) over the defaults. */
+/** Merge the admin-edited palettes (platform-settings `schemes`, Projektfarben tab) over the defaults. */
 function useEffectiveSchemes(): ColorScheme[] {
   const [schemes, setSchemes] = useState<ColorScheme[]>(defaultColorSchemes)
   useEffect(() => {
     let cancelled = false
-    fetch('/api/globals/project-color-schemes')
+    fetch('/api/globals/platform-settings?depth=0')
       .then((r) => (r.ok ? r.json() : null))
       .then((data: { schemes?: ({ name?: string } & Partial<Record<(typeof ROLES)[number], string>>)[] } | null) => {
         if (cancelled || !data?.schemes) return

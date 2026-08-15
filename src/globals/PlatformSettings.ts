@@ -1,9 +1,27 @@
-import type { GlobalConfig, Field } from 'payload'
+import type { GlobalConfig, Field, TextField } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { isAdmin } from '@/lib/access'
 import { COLOR_DEFAULTS } from '@/lib/color-tokens'
+import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 
 type Localized = { en: string; de: string }
+
+const HEX_RE = /^#[0-9a-fA-F]{6}$/
+
+/** Hex color text field with validation — one per project-scheme palette role. */
+function schemeColorField(name: string, label: Localized, description: Localized): TextField {
+  return {
+    name,
+    type: 'text',
+    required: true,
+    label,
+    validate: (value: unknown) =>
+      typeof value === 'string' && HEX_RE.test(value)
+        ? true
+        : 'Bitte einen 6-stelligen Hex-Farbwert angeben (z. B. #aabbcc). / Please provide a 6-digit hex color (e.g. #aabbcc).',
+    admin: { description },
+  }
+}
 
 /**
  * A brand color field rendered with the native color-picker UI
@@ -217,6 +235,56 @@ export const PlatformSettings: GlobalConfig = {
                     },
                   ],
                 },
+              ],
+            },
+          ],
+        },
+        {
+          label: { en: 'Project Colors', de: 'Projektfarben' },
+          description: {
+            en: 'Fine-tune the palettes of the eight project color schemes. Scheme names are fixed — projects reference them. Mind the contrast pairings: accent/ink/black carry text on white/light/general, black on dark, white on accent.',
+            de: 'Feinjustierung der Paletten der acht Projekt-Farbschemata. Die Namen sind fest — Projekte referenzieren sie. Kontrast-Paarungen beachten: accent/ink/black tragen Text auf white/light/general, black auf dark, white auf accent.',
+          },
+          fields: [
+            // The scheme NAMES are fixed in code (src/lib/defaults/colorSchemes.ts) —
+            // projects store a scheme by name, so names are read-only here; only the
+            // seven role colors can be tuned. `getColorSchemes()` merges these rows
+            // over the code defaults. The role structure and its contrast gate are
+            // documented in src/lib/defaults/colorSchemes.ts.
+            {
+              name: 'schemes',
+              type: 'array',
+              label: { en: 'Schemes', de: 'Schemata' },
+              minRows: defaultColorSchemes.length,
+              maxRows: defaultColorSchemes.length,
+              defaultValue: defaultColorSchemes.map((s) => ({ ...s })),
+              admin: {
+                isSortable: false,
+                components: {
+                  RowLabel: '@/components/payload/SchemeRowLabel#SchemeRowLabel',
+                },
+              },
+              fields: [
+                {
+                  name: 'name',
+                  type: 'text',
+                  required: true,
+                  label: { en: 'Name (fixed)', de: 'Name (fest)' },
+                  admin: {
+                    readOnly: true,
+                    description: {
+                      en: 'Identity — projects store this name. Not editable.',
+                      de: 'Identität — Projekte speichern diesen Namen. Nicht änderbar.',
+                    },
+                  },
+                },
+                schemeColorField('light', { en: 'Light', de: 'Light' }, { en: 'Page / section background.', de: 'Seiten-/Abschnittshintergrund.' }),
+                schemeColorField('general', { en: 'General', de: 'General' }, { en: 'Pastel brand surface.', de: 'Pastellige Markenfläche.' }),
+                schemeColorField('dark', { en: 'Dark', de: 'Dark' }, { en: 'Chip/badge surface — carries dark text only.', de: 'Chip-/Badge-Fläche — trägt nur dunklen Text.' }),
+                schemeColorField('accent', { en: 'Accent', de: 'Accent' }, { en: 'Darkest hue tone: links, solid buttons (white text).', de: 'Dunkelster Farbton: Links, Buttons (weißer Text).' }),
+                schemeColorField('ink', { en: 'Ink', de: 'Ink' }, { en: 'Desaturated body copy.', de: 'Entsättigter Fließtext.' }),
+                schemeColorField('white', { en: 'White', de: 'White' }, { en: 'Near-white surface; text on accent.', de: 'Fast-weiße Fläche; Text auf Accent.' }),
+                schemeColorField('black', { en: 'Black', de: 'Black' }, { en: 'Headings; text on general/dark.', de: 'Überschriften; Text auf General/Dark.' }),
               ],
             },
           ],

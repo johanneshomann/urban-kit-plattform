@@ -9,15 +9,16 @@ const HEX_RE = /^#[0-9a-fA-F]{6}$/
 const ROLES = ['light', 'general', 'dark', 'accent', 'ink', 'white', 'black'] as const
 
 /**
- * The effective project color schemes: the admin-editable global
- * (project-color-schemes) merged over the code defaults, matched by scheme
- * name. Invalid or missing values fall back per role, so the result is always
- * eight complete, valid palettes. Cached per request.
+ * The effective project color schemes: the admin-editable `schemes` rows on
+ * the platform-settings global (Projektfarben tab) merged over the code
+ * defaults, matched by scheme name. Invalid or missing values fall back per
+ * role, so the result is always eight complete, valid palettes. Cached per
+ * request.
  */
 export const getColorSchemes = cache(async (): Promise<ColorScheme[]> => {
   try {
     const payload = await getPayload({ config })
-    const global = (await payload.findGlobal({ slug: 'project-color-schemes', overrideAccess: true })) as {
+    const global = (await payload.findGlobal({ slug: 'platform-settings', depth: 0, overrideAccess: true })) as {
       schemes?: ({ name?: string | null } & Partial<Record<(typeof ROLES)[number], string | null>>)[] | null
     }
     const rows = global.schemes ?? []
