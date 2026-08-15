@@ -53,6 +53,7 @@ npm run generate:types   # REQUIRED after any Payload collection/field/global ch
 npm run generate:importmap  # after adding/moving a custom admin component
 npm run payload          # Payload CLI (migrations etc.)
 npm run seed [-- --force]  # seed demo data; --force wipes & re-seeds (needs dev server / MongoDB)
+npm run seed:legal [-- --force]  # seed only the legal texts (fill-empty; --force overwrites) — see docs/legal-templates.md
 npm run lint             # next lint
 npx tsc --noEmit         # typecheck (run before committing)
 ```
@@ -136,7 +137,12 @@ and their collections: [docs/modules.md](docs/modules.md).
    Barrierefreiheit lives at `/barrierefreiheit` (CMS field
    `legal-settings.barrierefreiheit`, fallback template in
    `src/lib/legalDefaults.ts`) — if you add or remove a11y features, update
-   both the template and the statement.
+   both the template and the statement. The same sync rule covers all legal
+   templates: the seedable cookie-policy and privacy-policy defaults in
+   `legalDefaults.ts` describe actual code behavior (storage inventory, AI
+   provider, media/mail processing), so any change to what the platform
+   stores in the browser or transmits must update the templates **and**
+   [docs/legal-templates.md](docs/legal-templates.md) together.
 
 ---
 
