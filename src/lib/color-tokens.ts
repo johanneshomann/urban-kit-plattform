@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Pure platform color tokens — the single source of truth for the platform
  * palette defaults. Dependency-free on purpose: this module is imported by

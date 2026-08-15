@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'

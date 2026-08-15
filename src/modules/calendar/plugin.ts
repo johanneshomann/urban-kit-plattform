@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { Plugin } from 'payload'
 import { CalendarEvents } from './collections/calendar-events'
 import { EventAttendees } from './collections/event-attendees'

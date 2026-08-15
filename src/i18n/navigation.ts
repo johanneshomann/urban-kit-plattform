@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { createNavigation } from 'next-intl/navigation'
 import { routing } from './routing'
 

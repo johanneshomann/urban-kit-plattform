@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { COLOR_DEFAULTS } from './color-tokens'

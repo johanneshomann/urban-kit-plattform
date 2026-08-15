@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# SPDX-FileCopyrightText: 2026 Johannes Homann
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 set -e
 
 echo "Running payload migrate..."

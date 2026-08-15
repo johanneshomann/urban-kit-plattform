@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/lib/access'
 import { projectDefaults } from '@/lib/defaults/project'

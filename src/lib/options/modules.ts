@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Canonical module ids, ordered. Chat is NOT a module — it is a platform-wide
  * feature (floating launcher in the dashboard layout); projects only structure

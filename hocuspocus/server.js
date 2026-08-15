@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 // ADR-1: Authorizes WebSocket connections by calling Payload's internal endpoint.
 // ADR-2: Board canvases persist Yjs binary updates via the database extension.
 

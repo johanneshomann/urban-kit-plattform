@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Single source of truth for the project lifecycle ("Projektphase") — adopted
  * 1:1 from the Methodensammlung's phase taxonomy (`project-phases` grouped

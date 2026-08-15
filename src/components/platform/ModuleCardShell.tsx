@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { ArrowRight } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { ScrollTopLink } from '@/components/platform/ScrollTopLink'

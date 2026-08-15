@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { redirect } from 'next/navigation'
 
 // The module overview now lives as a chapter on the Bereich page itself —

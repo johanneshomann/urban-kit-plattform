@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NewsDashboardCard, type NewsCardPost } from '@/modules/news/components/news-dashboard-card'
 import { CalendarDashboardCard, type CalendarCardEvent } from '@/modules/calendar/components/calendar-dashboard-card'
 import { PollsDashboardCard, type PollCardData } from '@/modules/polls/components/polls-dashboard-card'

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { GlobalConfig, Field, TextField } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { isAdmin } from '@/lib/access'

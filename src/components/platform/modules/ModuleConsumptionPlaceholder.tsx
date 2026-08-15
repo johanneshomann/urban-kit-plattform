@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Hammer } from 'lucide-react'
 
 /** Temporary stand-in for module consumption UIs not yet built (filled in per module in Phase B). */

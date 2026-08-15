@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * One-off migration: star-only memberships were created with status
  * 'requested', which made every star from a non-member appear as a join

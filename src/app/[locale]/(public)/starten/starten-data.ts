@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { UserRound, Building2, Trash2, Search, FileText, UserPlus, Layers, Library, CheckCircle, type LucideIcon } from 'lucide-react'
 
 export interface Feature {

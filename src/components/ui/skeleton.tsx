@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { cn } from '@/lib/cn'
 
 function Skeleton({ className }: { className?: string }) {

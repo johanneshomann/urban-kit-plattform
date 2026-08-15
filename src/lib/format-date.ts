@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * "Heute"/"Gestern" (localized) for today/yesterday, otherwise a short absolute
  * date like "29. Jun". Used by dashboard cards and the recent-activity feed.

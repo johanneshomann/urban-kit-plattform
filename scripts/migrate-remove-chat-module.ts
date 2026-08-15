@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * One-off migration: chat left the module system (it is platform-wide now).
  * Strips the removed 'chat' value from projects' `modules` arrays — required

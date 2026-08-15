@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type React from 'react'
 import { notFound } from 'next/navigation'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'

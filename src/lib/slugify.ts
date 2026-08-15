@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /** URL-safe slug from a German title (umlauts transliterated). */
 function slugify(input: string): string {
   return input

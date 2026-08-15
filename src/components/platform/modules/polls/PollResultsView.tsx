@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { PollResults } from '@/lib/poll-results'
 
 /** Presentational per-question results: bars (choice), distribution (scale), text list. */

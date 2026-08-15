@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import 'server-only'
 import type { Payload, Where } from 'payload'
 import type { ChatRoom, ChatRoomMember } from '@/payload-types'

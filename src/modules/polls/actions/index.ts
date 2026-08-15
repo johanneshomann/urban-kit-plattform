@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 // NOT a 'use server' module on purpose: closePoll takes its acting user as an
 // argument (payloadAs), so exposing it as a callable server-action endpoint
 // would let clients forge the identity. Its only caller is the guarded

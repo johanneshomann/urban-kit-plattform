@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { defaultColorSchemes, type ColorScheme } from '@/lib/defaults/colorSchemes'
 import { projectDefaults } from '@/lib/defaults/project'
 

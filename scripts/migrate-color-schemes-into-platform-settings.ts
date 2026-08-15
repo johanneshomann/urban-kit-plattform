@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * One-off migration: the project-color-schemes global moved into
  * platform-settings (Projektfarben tab). Copies the old global's `schemes`

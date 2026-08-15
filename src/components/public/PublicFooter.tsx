@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import Link from 'next/link'
 import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cookie, Users, BookOpen, Accessibility } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'

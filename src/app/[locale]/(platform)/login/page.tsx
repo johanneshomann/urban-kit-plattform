@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { LoginForm } from './LoginForm'
 import { getCitySettings } from '@/lib/instance'
 import { getAppVars } from '@/lib/app-theme'

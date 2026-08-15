@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Profile loading skeleton — mirrors the real page (back-arrow title row,
  * form column left, memberships/settings aside right) in app tokens, so the

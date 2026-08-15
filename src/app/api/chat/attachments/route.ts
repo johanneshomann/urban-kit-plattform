@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NextRequest, NextResponse } from 'next/server'
 import { authUser } from '@/lib/chat/route-auth'
 import { readImageFile } from '@/lib/upload-media'

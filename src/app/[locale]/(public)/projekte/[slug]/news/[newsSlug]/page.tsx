@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'

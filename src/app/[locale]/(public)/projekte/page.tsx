@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { redirect } from 'next/navigation'
 
 // `/projekte` is referenced by the sitemap and external links — the canonical

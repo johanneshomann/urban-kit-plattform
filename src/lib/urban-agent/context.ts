@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import 'server-only'
 import { lexicalToMarkdown } from '@/lib/richtext'
 import type { NewsPost, CalendarEvent, Poll, Project } from '@/payload-types'

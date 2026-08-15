@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { Access, AccessArgs, PayloadRequest, Where } from 'payload'
 
 export function isAdmin({ req: { user } }: AccessArgs): boolean {

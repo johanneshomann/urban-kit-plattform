@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * One-off migration: rewrite legacy 7-step `projektphase` values on projects
  * to the archive-aligned 8-phase system (see LEGACY_PHASE_MAP). Idempotent —

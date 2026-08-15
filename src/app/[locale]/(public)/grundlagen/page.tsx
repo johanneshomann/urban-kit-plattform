@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { redirect } from 'next/navigation'
 
 export default async function GrundlagenPage({ params }: { params: Promise<{ locale: string }> }) {

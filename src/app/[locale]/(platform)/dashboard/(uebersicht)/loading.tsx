@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Dashboard loading skeleton — mirrors the real page (Meine-Projekte bands →
  * activity feed with its control row) in app tokens, so the slide-left/right

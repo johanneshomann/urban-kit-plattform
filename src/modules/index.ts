@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 // Import all module plugins — each self-registers with moduleRegistry on import
 import './news/plugin'
 import './calendar/plugin'

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import Link from 'next/link'
 import { cloneElement, type ReactElement, type JSX } from 'react'
 

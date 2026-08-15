@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 const lexicalText = (text: string) => ({
   detail: 0, format: 0, mode: 'normal', style: '', text, type: 'text', version: 1,
 })

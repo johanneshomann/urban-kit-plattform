@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /**
  * Built-in default for the Erklärung zur Barrierefreiheit (BITV 2.0 / EU model
  * declaration), as a Lexical rich-text document. The /barrierefreiheit page

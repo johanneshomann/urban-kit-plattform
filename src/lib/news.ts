@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import 'server-only'
 import type { Payload } from 'payload'
 import type { CommentItem } from '@/components/platform/modules/news/NewsComments'

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johannes Homann
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { RegisterForm } from './RegisterForm'
 import { getCitySettings } from '@/lib/instance'
 import { getTranslations } from 'next-intl/server'
