@@ -1,4 +1,5 @@
 import type { GlobalConfig, Field } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { isAdmin } from '@/lib/access'
 import { COLOR_DEFAULTS } from '@/lib/color-tokens'
 
@@ -120,6 +121,103 @@ export const PlatformSettings: GlobalConfig = {
                   de: 'Basis-URL der Methodensammlung — genutzt für die Methoden-Teaser (GraphQL-API) und alle Links in die Sammlung. Leer lassen, um die Umgebungsvariable METHODEN_URL bzw. den Standard zu nutzen.',
                 },
               },
+            },
+          ],
+        },
+        {
+          label: { en: 'About', de: 'Über' },
+          description: {
+            en: 'Editorial content of the “Über UrbanKIT” page (shown between the fixed sections).',
+            de: 'Redaktioneller Inhalt der Seite „Über UrbanKIT“ (erscheint zwischen den festen Abschnitten).',
+          },
+          fields: [
+            {
+              name: 'ueber',
+              type: 'richText',
+              localized: true,
+              editor: lexicalEditor(),
+              label: { en: 'Content', de: 'Inhalt' },
+              admin: {
+                description: {
+                  en: 'Free text about the project, e.g. background, funding, participants. Empty = the section is hidden.',
+                  de: 'Freitext über das Projekt, z. B. Hintergrund, Förderung, Beteiligte. Leer = der Abschnitt wird ausgeblendet.',
+                },
+              },
+            },
+          ],
+        },
+        {
+          label: { en: 'Partners', de: 'Partner' },
+          description: {
+            en: 'Partner / sponsor logos, shown in the footer of the public portal and on the “Über UrbanKIT” page. Order here = display order.',
+            de: 'Partner-/Förderer-Logos, erscheinen im Footer des öffentlichen Portals und auf der Seite „Über UrbanKIT“. Reihenfolge hier = Anzeigereihenfolge.',
+          },
+          fields: [
+            {
+              name: 'sponsors',
+              type: 'array',
+              label: { en: 'Partner logos', de: 'Partner-Logos' },
+              labels: {
+                singular: { en: 'Partner', de: 'Partner' },
+                plural: { en: 'Partners', de: 'Partner' },
+              },
+              admin: {
+                description: {
+                  en: 'Preferably SVG or an optimized PNG with transparent background.',
+                  de: 'Bevorzugt SVG oder ein optimiertes PNG mit transparentem Hintergrund.',
+                },
+              },
+              fields: [
+                {
+                  name: 'logo',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                  label: { en: 'Logo', de: 'Logo' },
+                },
+                {
+                  name: 'name',
+                  type: 'text',
+                  required: true,
+                  label: { en: 'Name', de: 'Name' },
+                  admin: {
+                    description: {
+                      en: 'Not shown as text — used as the accessible name / tooltip of the logo.',
+                      de: 'Wird nicht als Text angezeigt — dient als barrierefreier Name / Tooltip des Logos.',
+                    },
+                  },
+                },
+                {
+                  name: 'url',
+                  type: 'text',
+                  label: { en: 'Link (optional)', de: 'Link (optional)' },
+                  admin: { placeholder: 'https://…' },
+                },
+                {
+                  type: 'collapsible',
+                  label: { en: 'Display (optional)', de: 'Darstellung (optional)' },
+                  admin: { initCollapsed: true },
+                  fields: [
+                    {
+                      name: 'height',
+                      type: 'number',
+                      min: 24,
+                      max: 240,
+                      label: { en: 'Height (px)', de: 'Höhe (px)' },
+                      admin: { description: { en: 'Rendered logo height. Empty = 72 px.', de: 'Dargestellte Logo-Höhe. Leer = 72 px.' } },
+                    },
+                    {
+                      type: 'row',
+                      fields: [
+                        { name: 'padTop', type: 'number', min: 0, max: 120, label: { en: 'Padding top (px)', de: 'Abstand oben (px)' } },
+                        { name: 'padRight', type: 'number', min: 0, max: 120, label: { en: 'Padding right (px)', de: 'Abstand rechts (px)' } },
+                        { name: 'padBottom', type: 'number', min: 0, max: 120, label: { en: 'Padding bottom (px)', de: 'Abstand unten (px)' } },
+                        { name: 'padLeft', type: 'number', min: 0, max: 120, label: { en: 'Padding left (px)', de: 'Abstand links (px)' } },
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
