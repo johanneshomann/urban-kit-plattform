@@ -1,0 +1,82 @@
+# SPDX-FileCopyrightText: 2026 Johannes Homann
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+# publiccode.yml — metadata for the openCode Softwareverzeichnis and other
+# public-software catalogues. Spec: https://yml.publiccode.tools
+# Validate at https://publiccode-editor.developers.italia.it or the openCode editor.
+
+publiccodeYmlVersion: "0.4.0"
+
+name: UrbanKIT – Plattform
+url: "https://github.com/johanneshomann/urban-kit-plattform" # TODO: confirm canonical repository URL once published
+landingURL: "https://urbankit.de" # TODO: confirm public landing page
+
+softwareVersion: "1.0.0"
+releaseDate: "2026-08-15"
+
+developmentStatus: beta
+softwareType: standalone/web
+
+platforms:
+  - web
+
+categories:
+  - collaboration
+  - communications
+
+description:
+  de:
+    shortDescription: >-
+      Digitale Beteiligungsplattform für Städte: öffentliches Portal und
+      Projekt-Arbeitsräume mit modularen Beteiligungswerkzeugen.
+    longDescription: >-
+      UrbanKIT ist die digitale Beteiligungsplattform einer Stadt. Ein
+      öffentliches Portal macht laufende und abgeschlossene
+      Beteiligungsprojekte für alle sichtbar; ein geschützter Arbeitsbereich
+      bietet pro Projekt zuschaltbare Feature-Module — Neuigkeiten, Kalender,
+      Umfragen, Forum, Aufgaben, Chat, kollaboratives Whiteboard, Dateien und
+      einen KI-Assistenten. Redaktion und Verwaltung erfolgen über ein
+      eingebettetes Payload-CMS; das Whiteboard synchronisiert in Echtzeit
+      über einen Hocuspocus/Yjs-Sidecar.
+    features:
+      - Öffentliches Portal mit Projektübersicht und -archiv
+      - Projekt-Arbeitsräume mit zuschaltbaren Modulen (News, Kalender, Umfragen, Forum, Aufgaben, Chat, Board, Dateien)
+      - Kollaboratives Echtzeit-Whiteboard (Excalidraw + Yjs)
+      - KI-Assistent (anbieterunabhängig: Anthropic, OpenAI oder Ollama)
+      - Rollen- und stufenbasierte Zugriffskontrolle je Projekt
+  en:
+    shortDescription: >-
+      Digital civic-participation platform for cities: public portal and
+      per-project workspaces with modular participation tools.
+    longDescription: >-
+      UrbanKIT is a city's digital civic-participation platform. A public
+      portal makes ongoing and completed participation projects visible to
+      everyone; a logged-in workspace provides per-project, toggleable feature
+      modules — news, calendar, polls, forum, tasks, chat, collaborative
+      whiteboard, files and an AI assistant. Editing and administration happen
+      in an embedded Payload CMS; the whiteboard syncs in realtime through a
+      Hocuspocus/Yjs sidecar.
+    features:
+      - Public portal with project overview and archive
+      - Per-project workspaces with toggleable modules (news, calendar, polls, forum, tasks, chat, board, files)
+      - Collaborative realtime whiteboard (Excalidraw + Yjs)
+      - AI assistant (provider-agnostic: Anthropic, OpenAI or Ollama)
+      - Role- and tier-based access control per project
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Johannes Homann
+  repoOwner: Johannes Homann
+
+maintenance:
+  type: internal
+  contacts:
+    - name: Johannes Homann
+      email: "hi@johanneshomann.de"
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - de
+    - en

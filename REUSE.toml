@@ -1,0 +1,54 @@
+# REUSE licensing metadata for files that can't carry an SPDX header inline
+# (binaries, generated files, JSON/config, docs). See https://reuse.software.
+# Source code carries its own SPDX header; this file covers everything else.
+
+version = 1
+
+# --- Project-owned non-source files: config, data, docs, generated, assets ---
+[[annotations]]
+path = [
+  ".dockerignore",
+  ".gitignore",
+  ".env.example",
+  ".nvmrc",
+  "Dockerfile",
+  "docker-compose.yml",
+  "package.json",
+  "package-lock.json",
+  "tsconfig.json",
+  "next-env.d.ts",
+  "src/app/(payload)/admin/importMap.js",
+  "hocuspocus/Dockerfile",
+  "hocuspocus/package.json",
+  "hocuspocus/package-lock.json",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "PAYLOAD_PLAN.md",
+  "implementation_plan.md",
+  "docs/**",
+  "messages/de.json",
+  "messages/en.json",
+  "public/.gitkeep",
+  "src/migrations/.gitkeep",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Johannes Homann"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# --- Default cover / placeholder images ---
+# NOTE: declared as project assets. If any of these are third-party stock (e.g.
+# Unsplash), update the copyright/licence here to match the actual source.
+[[annotations]]
+path = "public/defaults/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Johannes Homann"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# --- Atkinson Hyperlegible font (bundled webfont) ---
+# Designed by Applied Design Works for the Braille Institute of America.
+# Licensed under the SIL Open Font License 1.1.
+[[annotations]]
+path = "public/fonts/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Braille Institute of America, Inc."
+SPDX-License-Identifier = "OFL-1.1"
