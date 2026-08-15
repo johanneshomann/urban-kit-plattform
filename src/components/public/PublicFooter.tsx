@@ -3,17 +3,22 @@ import { Flag, ExternalLink, Home, FolderOpen, Mail, FileText, ShieldCheck, Cook
 import { getTranslations } from 'next-intl/server'
 import { getCitySettings } from '@/lib/instance'
 import { getMethodenBaseUrl } from '@/lib/methodensammlung'
+import { getSponsors } from '@/lib/sponsors'
+import { SponsorStrip } from '@/components/public/SponsorStrip'
 
 interface PublicFooterProps {
   locale: string
+  /** Über-UrbanKIT shows its own partner section — suppress the footer band there to avoid doubled logos. */
+  showSponsors?: boolean
 }
 
-export async function PublicFooter({ locale }: PublicFooterProps) {
+export async function PublicFooter({ locale, showSponsors = true }: PublicFooterProps) {
   const l = `/${locale}`
-  const [{ cityName }, t, methodenUrl] = await Promise.all([
+  const [{ cityName }, t, methodenUrl, sponsors] = await Promise.all([
     getCitySettings(),
     getTranslations({ locale, namespace: 'footer' }),
     getMethodenBaseUrl(),
+    showSponsors ? getSponsors() : Promise.resolve([]),
   ])
 
   return (
@@ -143,6 +148,16 @@ export async function PublicFooter({ locale }: PublicFooterProps) {
           </div>
         </div>
       </div>
+
+      {/* Partner logos — last band of the page */}
+      {sponsors.length > 0 && (
+        <section aria-label={t('partners')} className="border-t px-6 md:px-16 lg:px-24 py-10">
+          <p className="text-small text-center mb-6" style={{ color: 'var(--plattform-ink)', opacity: 0.85 }}>
+            {t('partners')}
+          </p>
+          <SponsorStrip sponsors={sponsors} />
+        </section>
+      )}
     </footer>
   )
 }
