@@ -16,6 +16,9 @@
  * with docs/legal-templates.md — update both together.
  */
 
+import type { Payload } from 'payload'
+import { hasRichTextContent } from './richtext-content'
+
 // ── Lexical node factories ────────────────────────────────────────────────
 // Minimal shapes matching what Payload's Lexical editor produces, so
 // convertLexicalToHTML (the same converter the other legal pages use)
@@ -191,3 +194,43 @@ export const datenschutzEn = doc([
   p(txt('You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and objection to processing based on Art. 6 (1) (f) GDPR (Art. 21). You may withdraw any consent at any time with effect for the future. You can export your profile data yourself in the profile area, where you can also delete your account. You also have the right to lodge a complaint with a data protection supervisory authority, e.g. the authority responsible for us: [add supervisory authority with contact details].')),
   p(txt('Last updated: [add date]')),
 ])
+
+// ── Seeding ───────────────────────────────────────────────────────────────
+
+/**
+ * Seeds the default legal texts into the `legal-settings` global, both
+ * locales. Fills only effectively-empty fields (saved-but-empty Lexical
+ * documents count as empty) unless `force` overwrites; the Impressum is never
+ * seeded — there is no meaningful default for it. Shared by src/seed.ts and
+ * scripts/seed-legal.ts.
+ */
+export async function seedLegalTexts(payload: Payload, { force = false }: { force?: boolean } = {}): Promise<void> {
+  // City name for the accessibility statement's scope sentence; falls back to
+  // the same default getCitySettings uses on a fresh install.
+  let cityName = 'Stadt Detmold'
+  try {
+    const ps = (await payload.findGlobal({ slug: 'platform-settings', depth: 0, overrideAccess: true })) as { cityName?: string | null }
+    if (ps?.cityName) cityName = ps.cityName
+  } catch { /* fresh DB — keep the default */ }
+
+  const fields = [
+    { name: 'datenschutz', label: 'privacy policy — FILL THE [PLACEHOLDERS]', de: datenschutzDe, en: datenschutzEn },
+    { name: 'cookies', label: 'cookie policy', de: cookiePolicyDe, en: cookiePolicyEn },
+    { name: 'barrierefreiheit', label: 'accessibility statement — FILL THE [PLACEHOLDERS]', de: barrierefreiheitDefault('de', cityName), en: barrierefreiheitDefault('en', cityName) },
+  ] as const
+
+  // `locale: 'all'` returns { de, en } per localized field — "already set"
+  // means the German source text has renderable content.
+  const legal = (await payload.findGlobal({ slug: 'legal-settings', locale: 'all' as 'de', overrideAccess: true })) as unknown as Record<string, { de?: unknown } | undefined>
+
+  console.log(`\n── Legal texts ${force ? '(FORCE: overwriting)' : '(only empty fields)'} ─────`)
+  for (const field of fields) {
+    if (!force && hasRichTextContent(legal?.[field.name]?.de)) {
+      console.log(`  skip   legal-settings / ${field.name} (already set — use seed:legal --force to overwrite)`)
+      continue
+    }
+    await payload.updateGlobal({ slug: 'legal-settings', locale: 'de', data: { [field.name]: field.de }, overrideAccess: true })
+    await payload.updateGlobal({ slug: 'legal-settings', locale: 'en', data: { [field.name]: field.en }, overrideAccess: true })
+    console.log(`  ${force ? 'update' : 'create'} legal-settings / ${field.name} (${field.label}, de + en)`)
+  }
+}

@@ -13,6 +13,7 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { seedLegalTexts } from './lib/legalDefaults'
 
 const NOW = new Date()
 const DAY = 24 * 60 * 60 * 1000
@@ -49,6 +50,11 @@ function getPollOptions(idx: number): string[] {
 
 async function seed() {
   const payload = await getPayload({ config })
+
+  // ── 0. Legal texts ────────────────────────────────────────────────────
+  // Runs before the demo-data early exit so a fresh install always gets the
+  // templates. Fill-empty only — overwriting is seed:legal --force territory.
+  await seedLegalTexts(payload)
 
   const admin = await payload.find({ collection: 'users', where: { email: { equals: 'admin@urbankit.de' } }, limit: 1, overrideAccess: true })
   const citizen = await payload.find({ collection: 'users', where: { email: { equals: 'buegerin@urbankit.de' } }, limit: 1, overrideAccess: true })
