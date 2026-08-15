@@ -5,11 +5,13 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Send, Sparkles, ShieldCheck } from 'lucide-react'
 
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
 
 export function UrbanAgentChat({ projectId }: { projectId: string }) {
+  const locale = useLocale()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
@@ -61,7 +63,16 @@ export function UrbanAgentChat({ projectId }: { projectId: string }) {
       <div className="flex items-start gap-2 mb-5 px-4 py-3 rounded-lg text-small" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
         <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ opacity: 0.7 }} />
         <span style={{ opacity: 0.8 }}>
-          Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.
+          Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
+          {/* New tab: the transcript lives only in memory and would be lost by navigating away. */}
+          <a
+            href={`/${locale}/datenschutz`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:opacity-70 transition-opacity"
+          >
+            Mehr in der Datenschutzerklärung
+          </a>
         </span>
       </div>
 
