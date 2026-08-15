@@ -9,6 +9,7 @@ import { routing } from '@/i18n/routing'
 import { getPlatformColors, colorsToCssVars } from '@/lib/theme'
 import { AccessibilityProvider } from '@/components/accessibility/AccessibilityProvider'
 import { AccessibilityButton } from '@/components/accessibility/AccessibilityButton'
+import CookieNotice from '@/components/public/CookieNotice'
 import '@/styles/globals.css'
 import React from 'react'
 
@@ -47,6 +48,7 @@ export default async function LocaleLayout({
           <AccessibilityProvider>
             {children}
             <AccessibilityButton />
+            <CookieNotice />
           </AccessibilityProvider>
         </NextIntlClientProvider>
       </body>

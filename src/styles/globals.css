@@ -90,6 +90,15 @@ html.dashboard-exiting [data-dashboard-topbar] {
 .animate-cover-in {
   animation: cover-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+/* Cookie/storage notice entrance — the global reduce-motion rules below
+   already neutralise it for prefers-reduced-motion / html.a11y-reduce-motion. */
+@keyframes notice-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.notice-in {
+  animation: notice-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 @plugin "@tailwindcss/typography";
 @source inline("p-{8,10,12,14} px-{12,14} py-{8,10,12,14} h-{16,18,20,48,52,56,60,64,72} gap-{8,10,14} mt-{8,10,12,14} mb-{8,10,12,14} space-y-{8,10,12,14}");
 

@@ -267,6 +267,13 @@
     "barrierefreiheitTitle": "Barrierefreiheit<accent>.</accent>",
     "barrierefreiheitIntro": "Erklärung zur Barrierefreiheit gemäß BITV 2.0 — Informationen zum Stand der Barrierefreiheit dieser Plattform, Feedback-Möglichkeit und Durchsetzungsverfahren."
   },
+  "cookieNotice": {
+    "title": "Cookies & lokale Speicherung",
+    "text": "Diese Plattform nutzt nur technisch notwendige Cookies und lokale Speicherung – für Anmeldung, Sprache, Abstimmungen und Barrierefreiheit-Einstellungen. Kein Tracking, keine Analyse, keine Weitergabe an Dritte.",
+    "more": "Mehr in der Cookie-Richtlinie",
+    "dismiss": "Verstanden",
+    "close": "Schließen"
+  },
   "taxonomy": {
     "status": {
       "active": "Laufend",

@@ -267,6 +267,13 @@
     "barrierefreiheitTitle": "Accessibility<accent>.</accent>",
     "barrierefreiheitIntro": "Accessibility statement pursuant to BITV 2.0 — information on the accessibility status of this platform, how to give feedback, and the enforcement procedure."
   },
+  "cookieNotice": {
+    "title": "Cookies & local storage",
+    "text": "This platform only uses technically necessary cookies and local storage – for sign-in, language, polls and accessibility settings. No tracking, no analytics, no sharing with third parties.",
+    "more": "More in the cookie policy",
+    "dismiss": "Got it",
+    "close": "Close"
+  },
   "taxonomy": {
     "status": {
       "active": "Active",
