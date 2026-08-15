@@ -5,41 +5,33 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
-import Link from 'next/link'
-import { Cookie, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { FlaskConical, X } from 'lucide-react'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import {
-  PROTOTYPE_NOTICE_DONE_EVENT,
-  PROTOTYPE_NOTICE_SS_KEY,
-} from '@/components/public/PrototypeNotice'
 
 /**
- * Informational cookie/storage notice — not a consent gate (the platform uses
- * only strictly-necessary, functional storage, so none is required;
- * § 25 Abs. 2 TDDDG).
+ * Admin-toggleable prototype disclaimer (platform-settings → Prototyp-Hinweis):
+ * the platform is a prototype and the shown projects are mockups derived from
+ * real projects.
  *
- * Shows once per browser session and is synchronised across tabs: a
- * BroadcastChannel lets open tabs coordinate so only one shows it, and a
- * dismissal in any tab hides it everywhere. `sessionStorage` carries the
- * "already seen" state within a tab and resets when the browser session ends.
- *
- * With `waitForPrototypeNotice` the notice defers until the prototype
- * disclaimer has resolved in this tab, so the two dialogs never stack.
+ * Same presentation contract as CookieNotice: once per browser session,
+ * cross-tab deduplicated via BroadcastChannel, focus-trapped dialog with
+ * Escape close. Whenever this notice resolves in this tab — dismissed here,
+ * dismissed elsewhere, or already acknowledged — it fires the DONE_EVENT so
+ * CookieNotice can take its turn instead of stacking on top.
  */
-const SS_KEY = 'uk-cookie-notice-ack'
-const CHANNEL = 'uk-cookie-notice'
+const SS_KEY = 'uk-prototype-notice-ack'
+const CHANNEL = 'uk-prototype-notice'
+export const PROTOTYPE_NOTICE_DONE_EVENT = 'uk-prototype-notice-done'
+export const PROTOTYPE_NOTICE_SS_KEY = SS_KEY
 
-export default function CookieNotice({
-  waitForPrototypeNotice = false,
-}: {
-  waitForPrototypeNotice?: boolean
-}) {
-  const t = useTranslations('cookieNotice')
-  const locale = useLocale()
+const emitDone = () => {
+  window.dispatchEvent(new CustomEvent(PROTOTYPE_NOTICE_DONE_EVENT))
+}
+
+export default function PrototypeNotice({ text }: { text: string | null }) {
+  const t = useTranslations('prototypeNotice')
   const [visible, setVisible] = useState(false)
-  // Flips when the prototype notice resolves; re-runs the mount effect past the hold.
-  const [prototypeDone, setPrototypeDone] = useState(false)
   const visibleRef = useRef(false)
   const ackedRef = useRef(false)
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -48,25 +40,12 @@ export default function CookieNotice({
 
   useEffect(() => {
     try {
-      if (sessionStorage.getItem(SS_KEY) === '1') return
+      if (sessionStorage.getItem(SS_KEY) === '1') {
+        emitDone()
+        return
+      }
     } catch {
       /* storage blocked — fall through and just show it */
-    }
-
-    // Let the prototype disclaimer go first: hold everything until it reports
-    // done in this tab (already-acked sessions emit the event immediately).
-    if (waitForPrototypeNotice && !prototypeDone) {
-      let pending = true
-      try {
-        pending = sessionStorage.getItem(PROTOTYPE_NOTICE_SS_KEY) !== '1'
-      } catch {
-        /* storage blocked — assume pending and rely on the event */
-      }
-      if (pending) {
-        const onDone = () => setPrototypeDone(true)
-        window.addEventListener(PROTOTYPE_NOTICE_DONE_EVENT, onDone)
-        return () => window.removeEventListener(PROTOTYPE_NOTICE_DONE_EVENT, onDone)
-      }
     }
 
     const bc = 'BroadcastChannel' in window ? new BroadcastChannel(CHANNEL) : null
@@ -79,6 +58,7 @@ export default function CookieNotice({
       visibleRef.current = false
       setVisible(false)
       ack()
+      emitDone()
     }
     const present = () => {
       if (ackedRef.current) return
@@ -107,7 +87,7 @@ export default function CookieNotice({
       window.clearTimeout(timer)
       bc?.close()
     }
-  }, [waitForPrototypeNotice, prototypeDone])
+  }, [])
 
   const dismiss = () => {
     visibleRef.current = false
@@ -119,6 +99,7 @@ export default function CookieNotice({
       bc.postMessage({ type: 'dismiss' })
       bc.close()
     }
+    emitDone()
   }
 
   // Escape closes the notice — required while the focus trap is active (WCAG 2.1.2).
@@ -162,10 +143,10 @@ export default function CookieNotice({
         </button>
 
         <div className="flex items-start gap-3">
-          <Cookie className="h-6 w-6 shrink-0 mt-0.5" style={{ color: 'var(--plattform)' }} aria-hidden />
+          <FlaskConical className="h-6 w-6 shrink-0 mt-0.5" style={{ color: 'var(--plattform)' }} aria-hidden />
           <div className="pr-4">
             <p className="text-text font-bold mb-1" style={{ color: 'var(--plattform-ink-accent)' }}>{t('title')}</p>
-            <p className="text-small leading-relaxed">{t('text')}</p>
+            <p className="text-small leading-relaxed whitespace-pre-line">{text ?? t('text')}</p>
             <div className="mt-4 flex items-center gap-4">
               <button
                 onClick={dismiss}
@@ -177,14 +158,6 @@ export default function CookieNotice({
               >
                 {t('dismiss')}
               </button>
-              <Link
-                href={`/${locale}/cookies`}
-                onClick={dismiss}
-                className="text-small underline transition-colors hover:opacity-70"
-                style={{ color: 'var(--plattform-accent)' }}
-              >
-                {t('more')}
-              </Link>
             </div>
           </div>
         </div>

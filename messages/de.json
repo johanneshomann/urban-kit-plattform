@@ -274,6 +274,12 @@
     "dismiss": "Verstanden",
     "close": "Schließen"
   },
+  "prototypeNotice": {
+    "title": "Prototyp-Hinweis",
+    "text": "UrbanKIT befindet sich derzeit in der Erprobung: Die gesamte Plattform ist ein Prototyp. Alle dargestellten Projekte sind Mockups, die realen Projekten nachempfunden sind, und dienen nur der Veranschaulichung.",
+    "dismiss": "Verstanden",
+    "close": "Schließen"
+  },
   "taxonomy": {
     "status": {
       "active": "Laufend",

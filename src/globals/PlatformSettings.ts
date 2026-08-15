@@ -147,6 +147,40 @@ export const PlatformSettings: GlobalConfig = {
           ],
         },
         {
+          label: { en: 'Prototype Notice', de: 'Prototyp-Hinweis' },
+          description: {
+            en: 'A dismissible notice shown once per browser session, telling visitors the platform is a prototype and the projects are mockups.',
+            de: 'Ein schließbarer Hinweis, einmal pro Browser-Sitzung angezeigt: Die Plattform ist ein Prototyp, die Projekte sind Mockups.',
+          },
+          fields: [
+            {
+              name: 'prototypeNoticeEnabled',
+              type: 'checkbox',
+              defaultValue: false,
+              label: { en: 'Show prototype notice', de: 'Prototyp-Hinweis anzeigen' },
+              admin: {
+                description: {
+                  en: 'When enabled, visitors see the notice on their first page view of a browser session (portal and workspace).',
+                  de: 'Wenn aktiviert, sehen Besucher:innen den Hinweis beim ersten Seitenaufruf einer Browser-Sitzung (Portal und Arbeitsbereich).',
+                },
+              },
+            },
+            {
+              name: 'prototypeNoticeText',
+              type: 'textarea',
+              localized: true,
+              label: { en: 'Text (optional)', de: 'Text (optional)' },
+              admin: {
+                condition: (data) => Boolean(data?.prototypeNoticeEnabled),
+                description: {
+                  en: 'Overrides the built-in notice text. Empty = default text (prototype status, projects are mockups based on real projects).',
+                  de: 'Überschreibt den eingebauten Hinweistext. Leer = Standardtext (Prototyp-Status, Projekte sind Mockups nach realen Vorbildern).',
+                },
+              },
+            },
+          ],
+        },
+        {
           label: { en: 'About', de: 'Über' },
           description: {
             en: 'Editorial content of the “Über UrbanKIT” page (shown between the fixed sections).',

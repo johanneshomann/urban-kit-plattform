@@ -274,6 +274,12 @@
     "dismiss": "Got it",
     "close": "Close"
   },
+  "prototypeNotice": {
+    "title": "Prototype notice",
+    "text": "UrbanKIT is currently in a trial phase: the entire platform is a prototype. All projects shown are mockups modelled on real projects and serve illustration purposes only.",
+    "dismiss": "Got it",
+    "close": "Close"
+  },
   "taxonomy": {
     "status": {
       "active": "Active",

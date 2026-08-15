@@ -10,6 +10,8 @@ import { getPlatformColors, colorsToCssVars } from '@/lib/theme'
 import { AccessibilityProvider } from '@/components/accessibility/AccessibilityProvider'
 import { AccessibilityButton } from '@/components/accessibility/AccessibilityButton'
 import CookieNotice from '@/components/public/CookieNotice'
+import PrototypeNotice from '@/components/public/PrototypeNotice'
+import { getPrototypeNotice } from '@/lib/prototype-notice'
 import '@/styles/globals.css'
 import React from 'react'
 
@@ -29,10 +31,11 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const [messages, colors, t] = await Promise.all([
+  const [messages, colors, t, prototypeNotice] = await Promise.all([
     getMessages(),
     getPlatformColors(),
     getTranslations({ locale, namespace: 'common' }),
+    getPrototypeNotice(locale),
   ])
   const cssVars = colorsToCssVars(colors)
 
@@ -48,7 +51,8 @@ export default async function LocaleLayout({
           <AccessibilityProvider>
             {children}
             <AccessibilityButton />
-            <CookieNotice />
+            {prototypeNotice.enabled && <PrototypeNotice text={prototypeNotice.text} />}
+            <CookieNotice waitForPrototypeNotice={prototypeNotice.enabled} />
           </AccessibilityProvider>
         </NextIntlClientProvider>
       </body>
