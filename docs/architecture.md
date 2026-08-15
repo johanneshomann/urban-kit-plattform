@@ -107,7 +107,7 @@ Globals (`src/globals/`):
 
 | Global | Slug | Purpose |
 |---|---|---|
-| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Über / Partner / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
+| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), the eight project color schemes (`schemes` — fixed names, tunable role colors, merged over the code defaults by `getColorSchemes()`), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Über / Partner / Projektfarben / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 
 ## Access control
@@ -149,7 +149,9 @@ workspace "chameleon" into the project's color scheme with a CSS transition.
 
 Project palettes use the **same role structure as the Bereiche**, so a project
 palette and a Bereich palette are interchangeable. Seven tokens, defined in
-`src/lib/defaults/colorSchemes.ts` and mapped to CSS vars by the single
+`src/lib/defaults/colorSchemes.ts` (admin-tunable per scheme via the
+Projektfarben tab of `platform-settings` — `getColorSchemes()` merges the
+stored rows over the code defaults) and mapped to CSS vars by the single
 `schemeToCssVars` in `src/lib/colorScheme.ts`:
 
 | Token | Role | Bereich equivalent |
