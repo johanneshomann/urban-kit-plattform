@@ -4,6 +4,7 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
 import { ForumList, type ForumListItem } from './ForumList'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -14,10 +15,26 @@ function personName(u: unknown): string {
 }
 
 /** Loads a project's forum threads with vote/comment aggregates and renders the list. */
-export async function ForumFeed({ slug, locale, projectId, userId }: { slug: string; locale: string; projectId: string; userId: string | null }) {
+export async function ForumFeed({ slug, locale, projectId, userId, viewer, membership }: {
+  slug: string
+  locale: string
+  projectId: string
+  userId: string | null
+  viewer: ViewerContext
+  membership: ViewerMembership | null
+}) {
   const payload = await getPayload({ config })
-  const threadsRes = await payload.find({ collection: 'forum-threads', where: { project: { equals: projectId } }, limit: 300, depth: 1, overrideAccess: true })
-  const ids = threadsRes.docs.map((t) => (t as { id: string | number }).id)
+  // Threads today are PROJECT-visibility, but the field allows TEAM — filter
+  // like every other feed so a TEAM thread can never leak titles.
+  const threadsRes = await payload.find({
+    collection: 'forum-threads',
+    where: { and: [{ project: { equals: projectId } }, visibilityWhere(viewer)] },
+    limit: 300, depth: 1, overrideAccess: true,
+  })
+  const visibleThreads = threadsRes.docs.filter((d) =>
+    canViewContent(membership, d as { visibility?: string | null; visibilityTeams?: string[] | null }),
+  )
+  const ids = visibleThreads.map((t) => (t as { id: string | number }).id)
 
   const [votesRes, commentsRes] = ids.length
     ? await Promise.all([
@@ -40,7 +57,7 @@ export async function ForumFeed({ slug, locale, projectId, userId }: { slug: str
     if (t > (lastActivity.get(th) ?? 0)) lastActivity.set(th, t)
   }
 
-  const items: ForumListItem[] = threadsRes.docs.map((doc) => {
+  const items: ForumListItem[] = visibleThreads.map((doc) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const t = doc as any
     const id = String(t.id)

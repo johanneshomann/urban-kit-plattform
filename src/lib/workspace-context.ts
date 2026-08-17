@@ -85,10 +85,12 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   let teamTags: string[] = []
   let isLoggedIn = false
 
+  let viewerIsAdmin = false
   if (token) {
     const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
     if (me.user) {
       isLoggedIn = true
+      viewerIsAdmin = (me.user as { role?: string }).role === 'admin'
       const membershipResult = await payload.find({
         collection: 'project-memberships',
         where: { and: [{ user: { equals: me.user.id } }, { project: { equals: project.id } }] },
@@ -105,6 +107,11 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
       }
     }
   }
+
+  const isActiveMembership = membershipStatus === 'active'
+  // Private projects are invisible to everyone but active members and admins —
+  // same 404 as a non-existent slug, so the slug can't be probed.
+  if (project.isPublic === false && !isActiveMembership && !viewerIsAdmin) return null
 
   const canManage = role === 'PM' && membershipStatus === 'active'
   // Offer "Mitmachen" to logged-in users without an active membership (open

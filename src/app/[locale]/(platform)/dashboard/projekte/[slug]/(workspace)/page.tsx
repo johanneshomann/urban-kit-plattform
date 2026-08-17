@@ -37,9 +37,13 @@ export default async function ProjectDashboardPage({
   const { project, modules, isActiveMember } = ctx
 
   const payload = await getPayload({ config })
+  // Membership doc shape for per-document TEAM checks inside the loaders.
+  const membership = ctx.membershipId
+    ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams }
+    : null
   const [cardData, activity] = await Promise.all([
-    loadWorkspaceCards(payload, project.id, modules),
-    loadProjectActivity(payload, project.id, modules),
+    loadWorkspaceCards(payload, project.id, modules, ctx.viewer, membership),
+    loadProjectActivity(payload, project.id, modules, ctx.viewer, membership),
   ])
 
   // Canonical module order; the personalized drag-order was retired with the
@@ -68,7 +72,11 @@ export default async function ProjectDashboardPage({
         </div>
       )}
 
-      <RecentActivityCard items={activity} locale={locale} moreHref={`/${locale}/dashboard/projekte/${slug}/m/news`} />
+      <RecentActivityCard
+        items={activity}
+        locale={locale}
+        moreHref={modules.includes('news') ? `/${locale}/dashboard/projekte/${slug}/m/news` : undefined}
+      />
 
       {/* Mitmachen — always present (news + calendar guaranteed) */}
       <ModuleSection

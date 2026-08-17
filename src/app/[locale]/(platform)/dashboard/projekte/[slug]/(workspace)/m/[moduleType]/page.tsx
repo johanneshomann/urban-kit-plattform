@@ -74,7 +74,7 @@ export default async function ModulePage({
           : moduleType === 'forum'
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} />
-              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} />)
+              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={ctx.membershipId ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams } : null} />)
           : moduleType === 'files'
           ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'tasks'
