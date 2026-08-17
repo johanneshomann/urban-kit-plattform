@@ -6,39 +6,65 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { X, Plus, Check, Users } from 'lucide-react'
+import { X, Plus, Check, Users, Pencil } from 'lucide-react'
 import { updateProjectTeams } from '@/actions/manage/settings'
 
+/** A catalog entry: `original` is the saved name (null = newly added). */
+interface TeamDraft { original: string | null; name: string }
+
 export function TeamsManager({ slug, locale, teams: initial }: { slug: string; locale: string; teams: string[] }) {
-  const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
-  const [teams, setTeams] = useState<string[]>(initial)
+  const [items, setItems] = useState<TeamDraft[]>(initial.map((name) => ({ original: name, name })))
   const [newName, setNewName] = useState('')
+  const [editing, setEditing] = useState<number | null>(null)
+  const [editName, setEditName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+
+  const names = items.map((i) => i.name)
+  const removedOriginals = initial.filter((t) => !items.some((i) => i.original === t))
+  const renames = items.filter((i) => i.original && i.original !== i.name) as { original: string; name: string }[]
 
   const add = () => {
     const name = newName.trim()
     if (!name) return
-    if (teams.includes(name)) { setError('Team-Name existiert bereits.'); return }
-    setTeams((t) => [...t, name])
+    if (names.includes(name)) { setError('Team-Name existiert bereits.'); return }
+    setItems((s) => [...s, { original: null, name }])
     setNewName('')
     setError(null)
     setSaved(false)
   }
 
-  const remove = (name: string) => {
-    setTeams((t) => t.filter((n) => n !== name))
+  const remove = (idx: number) => {
+    setItems((s) => s.filter((_, i) => i !== idx))
     setSaved(false)
+    setConfirming(false)
+  }
+
+  const startRename = (idx: number) => { setEditing(idx); setEditName(items[idx].name); setError(null) }
+  const commitRename = () => {
+    if (editing === null) return
+    const name = editName.trim()
+    if (!name) { setEditing(null); return }
+    if (names.some((n, i) => i !== editing && n === name)) { setError('Team-Name existiert bereits.'); return }
+    setItems((s) => s.map((it, i) => (i === editing ? { ...it, name } : it)))
+    setEditing(null)
+    setSaved(false)
+    setConfirming(false)
   }
 
   const save = () => {
+    // Deleting a team cascades (membership tags, leadership, content scoping) —
+    // that deserves an explicit second click.
+    if (removedOriginals.length > 0 && !confirming) { setConfirming(true); return }
     setError(null)
+    setConfirming(false)
     startTransition(async () => {
-      const res = await updateProjectTeams(slug, locale, teams)
+      const res = await updateProjectTeams(slug, locale, names, renames.map((r) => ({ from: r.original, to: r.name })))
       if (res.error) { setError(res.error); return }
+      setItems((s) => s.map((i) => ({ original: i.name, name: i.name })))
       setSaved(true)
       router.refresh()
     })
@@ -76,24 +102,48 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
       </div>
 
       {/* Team list */}
-      {teams.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-text py-8 text-center rounded-xl border" style={{ color: 'var(--project-ink)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           Noch keine Teams definiert.
         </p>
       ) : (
-        <div className="flex flex-wrap gap-2 mb-8">
-          {teams.map((team) => (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {items.map((team, idx) => (
             <span
-              key={team}
+              key={`${team.original ?? '+'}-${idx}`}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full text-small font-medium"
               style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
             >
               <Users className="w-3.5 h-3.5" />
-              {team}
+              {editing === idx ? (
+                <input
+                  type="text"
+                  value={editName}
+                  autoFocus
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setEditing(null) }}
+                  onBlur={commitRename}
+                  className="w-32 px-1.5 py-0.5 rounded text-small outline-none"
+                  style={{ color: 'var(--project-accent)', background: 'var(--project-white)' }}
+                />
+              ) : (
+                <>
+                  {team.name}
+                  {team.original && team.original !== team.name && <span className="opacity-70">(vorher: {team.original})</span>}
+                </>
+              )}
               <button
                 type="button"
-                onClick={() => remove(team)}
-                className="ml-1 p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
+                onClick={() => startRename(idx)}
+                className="p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
+                title="Umbenennen"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(idx)}
+                className="p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
                 title="Entfernen"
               >
                 <X className="w-3.5 h-3.5" />
@@ -103,6 +153,18 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
         </div>
       )}
 
+      {renames.length > 0 && (
+        <p className="text-small mb-2" style={{ color: 'var(--project-ink)' }}>
+          Umbenennungen werden überall übernommen: bei Mitgliedern, Teamleitungen und team-sichtbaren Inhalten.
+        </p>
+      )}
+      {confirming && removedOriginals.length > 0 && (
+        <p className="text-small mb-2 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>
+          {removedOriginals.length === 1 ? `Team „${removedOriginals[0]}" wird gelöscht` : `Teams ${removedOriginals.map((t) => `„${t}"`).join(', ')} werden gelöscht`} —
+          Mitglieder verlieren die Zuordnung (und ggf. die Teamleitung), team-sichtbare Inhalte verlieren den Tag. Zum Bestätigen erneut speichern.
+        </p>
+      )}
+
       {/* Save */}
       <div className="flex items-center gap-3">
         <button
@@ -110,10 +172,10 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           onClick={save}
           disabled={pending}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-          style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
+          style={confirming ? { background: 'var(--project-danger)', color: 'var(--project-danger-on)' } : { background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           {saved ? <Check className="w-4 h-4" /> : null}
-          {pending ? 'Speichern …' : saved ? 'Gespeichert' : 'Speichern'}
+          {pending ? 'Speichern …' : confirming ? 'Löschen bestätigen' : saved ? 'Gespeichert' : 'Speichern'}
         </button>
         {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
       </div>
