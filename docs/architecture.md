@@ -14,7 +14,7 @@ logged-in workspace.
 | Styling | Tailwind CSS 4 + CSS custom properties (design tokens) |
 | i18n | next-intl (`de`, `en`) — UI chrome only, see [i18n.md](./i18n.md) |
 | Realtime board | Hocuspocus sidecar (Yjs over WebSocket) + Excalidraw |
-| AI | Urban Agent module — Anthropic > OpenAI > Ollama fallback |
+| AI | Urban Agent module — Vercel AI SDK; one selected provider (Mistral / Anthropic / OpenAI / Ollama), admin-configurable, no silent failover |
 | Language/runtime | TypeScript, ESM (`"type": "module"`), npm |
 
 ## Two domains, one deployment
@@ -109,6 +109,7 @@ Globals (`src/globals/`):
 |---|---|---|
 | PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the prototype notice (`prototypeNoticeEnabled` + optional localized `prototypeNoticeText` — a once-per-session dismissible dialog rendered by `PrototypeNotice` in the locale layout; `CookieNotice` defers until it is dismissed so the two never stack), the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), the eight project color schemes (`schemes` — fixed names, tunable role colors, merged over the code defaults by `getColorSchemes()`), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Prototyp-Hinweis / Über / Partner / Projektfarben / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
+| UrbanAgentSettings | `urban-agent-settings` | Urban Agent config: enabled, provider select (Mistral/Anthropic/OpenAI/Ollama), API key, model, localized operator instructions, per-user rate limit. **Admin-only `read`** (unlike the public-read globals) so the stored key never leaks via REST — server code reads it via `loadUrbanAgentSettings` (30 s cache, precedence global → env → default) |
 
 ## Access control
 

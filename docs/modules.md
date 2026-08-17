@@ -33,7 +33,7 @@ folder + registry entry + option in `projects.modules` + entries in
 | `tasks` | tasks, task-columns, task-assignees | TEAM-only (Aufgaben board) |
 | `board` | board-canvases | Excalidraw + Yjs via Hocuspocus |
 | `files` | file-uploads, folders | has public content |
-| `urban-agent` | — | LLM chat (Anthropic > OpenAI > Ollama) |
+| `urban-agent` | — | LLM chat (Vercel AI SDK, one selected provider — see `urban-agent-settings` global + `docs/env-reference.md`). Route enforces membership + module-enabled + per-user rate limit + daily ceiling |
 
 ## Where modules surface
 

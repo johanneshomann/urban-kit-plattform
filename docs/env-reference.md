@@ -30,11 +30,21 @@ Canonical list — matches `.env.example` and `docker-compose.yml`.
 
 ## Urban Agent (optional — module works with any one provider)
 
+Admin values (Einstellungen → Urban Agent) take precedence over env vars;
+see `src/lib/urban-agent/settings.ts`. There is deliberately **no
+cross-provider failover** — an outage is an honest 502, never a silent switch
+of the data processor.
+
 | Variable | Description |
 |---|---|
-| `ANTHROPIC_API_KEY` | Preferred provider. |
-| `OPENAI_API_KEY` | Used if no Anthropic key. |
-| `OLLAMA_BASE_URL` | Local fallback (e.g. `http://localhost:11434`). |
+| `URBAN_AGENT_PROVIDER` | Explicit provider: `mistral` / `anthropic` / `openai` / `ollama`. Unset ⇒ auto-detect by key presence (Anthropic → OpenAI → Mistral → Ollama). |
+| `URBAN_AGENT_MODEL` | Model id override. Unset ⇒ cheap default per provider (`mistral-small-latest` / `claude-haiku-4-5` / `gpt-4o-mini` / `llama3`). |
+| `MISTRAL_API_KEY` | Mistral (EU processing). |
+| `ANTHROPIC_API_KEY` | Anthropic. |
+| `OPENAI_API_KEY` | OpenAI. |
+| `OLLAMA_BASE_URL` | Self-hosted Ollama (e.g. `http://localhost:11434`); driven via its OpenAI-compatible endpoint. |
+| `OLLAMA_MODEL` | Ollama model (default `llama3`). |
+| `URBAN_AGENT_DAILY_MAX` | Global daily request ceiling across all users (default `600`) — cost backstop behind the per-user rate limit. |
 
 ## SMTP (optional)
 
