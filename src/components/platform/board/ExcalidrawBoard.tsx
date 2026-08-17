@@ -68,7 +68,11 @@ export function ExcalidrawBoard({ roomName, wsUrl, token, userId, userName }: {
     const yElements = ydoc.getMap<any>('elements')
 
     const applyRemote = () => {
-      const remote = Array.from(yElements.values())
+      // CLONE on read: reconciled remote objects become scene elements which
+      // Excalidraw mutates IN PLACE — without the clone those mutations would
+      // corrupt the snapshot stored inside the Y.Map (bumping its version
+      // untransmitted, which permanently silences the write guard below).
+      const remote = Array.from(yElements.values(), (v) => structuredClone(v))
       const local = api.getSceneElementsIncludingDeleted()
       const reconciled = exc.reconcileElements(local, remote as any, api.getAppState())
       api.updateScene({ elements: reconciled, captureUpdate: exc.CaptureUpdateAction.NEVER })
@@ -128,7 +132,11 @@ export function ExcalidrawBoard({ roomName, wsUrl, token, userId, userName }: {
           !prev ||
           prev.version < el.version ||
           (prev.version === el.version && el.versionNonce < prev.versionNonce)
-        if (newer) yElements.set(el.id, el)
+        // CLONE on write: Excalidraw mutates elements in place (same object,
+        // version bumped) — storing the live reference would make `prev` and
+        // `el` the same object, the version guard could never fire again and
+        // every edit after the first insert would stay local-only.
+        if (newer) yElements.set(el.id, structuredClone(el))
       }
     }, 'local')
   }
