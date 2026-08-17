@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { ForumThread, ForumComment } from '@/payload-types'
 import { getUser } from '@/lib/auth/getUser'
-import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
+import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
 import { isProjectManager } from '@/lib/access/project'
 import { getViewerTier } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
@@ -45,9 +45,9 @@ async function memberCtx(slug: string) {
 }
 
 /** Threads are PM-authored (from the manage moderation surface). */
-export async function createThread(slug: string, locale: string, input: { title: string; body?: string }): Promise<ForumActionState> {
-  const pm = await getProjectManagerContext(slug)
-  if (!pm) return { error: 'Nur Projektmanager:innen können Themen erstellen.' }
+export async function createThread(slug: string, locale: string, input: { title: string; body?: string; visibilityTeams?: string[] }): Promise<ForumActionState> {
+  const pm = await getContentAuthorContext(slug)
+  if (!pm) return { error: 'Nur Projektleitung und Teamleitungen können Themen erstellen.' }
   const title = input.title.trim()
   if (!title) return { error: 'Titel darf nicht leer sein.' }
 
@@ -56,7 +56,11 @@ export async function createThread(slug: string, locale: string, input: { title:
     const content = input.body?.trim() ? ((await markdownToLexical(input.body)) as ForumThread['content']) : undefined
     const thread = await payload.create({
       collection: 'forum-threads',
-      data: { title, slug: uniqueSlug(title, 'thema'), content, visibility: 'PROJECT', author: pm.user.id, project: pm.project.id },
+      data: { title, slug: uniqueSlug(title, 'thema'), content, // PMs open project-wide threads; team leads open TEAM threads for their teams.
+        visibility: pm.isPM ? 'PROJECT' : 'TEAM',
+        visibilityTeams: pm.isPM
+          ? []
+          : (() => { const t = (input.visibilityTeams ?? []).filter((x) => pm.leadOf.includes(x)); return t.length ? t : pm.leadOf })(), author: pm.user.id, project: pm.project.id },
       overrideAccess: true,
     })
     await emitActivity({ type: 'forum.thread.created', userId: String(pm.user.id), projectId: pm.project.id, reference: { collectionSlug: 'forum-threads', id: String(thread.id) } })

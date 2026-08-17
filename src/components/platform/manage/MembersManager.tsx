@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Trash2, UserCircle, Users, X, UserPlus, Copy, Check } from 'lucide-react'
+import { Trash2, UserCircle, Users, X, UserPlus, Copy, Check, Crown } from 'lucide-react'
 import { updateMemberRole, removeMember, setMemberTeams, generateInvite } from '@/actions/manage/members'
 
 export interface MemberItem {
@@ -16,6 +16,8 @@ export interface MemberItem {
   email: string
   role: string
   teams: string[]
+  /** Teams this member LEADS (subset of the catalog). */
+  leadOf: string[]
   isSelf: boolean
 }
 
@@ -27,12 +29,14 @@ const ROLE_OPTIONS = [
 function TeamPopover({
   member,
   teamCatalog,
-  onChange,
+  onToggleTeam,
+  onToggleLead,
   disabled,
 }: {
   member: MemberItem
   teamCatalog: string[]
-  onChange: (tag: string) => void
+  onToggleTeam: (tag: string) => void
+  onToggleLead: (tag: string) => void
   disabled: boolean
 }) {
   const t = useTranslations('manage')
@@ -57,9 +61,9 @@ function TeamPopover({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        disabled={isPM || disabled}
+        disabled={disabled}
         className="flex flex-wrap items-center gap-1.5 cursor-pointer disabled:cursor-default"
-        title={isPM ? t('members.teamLockedHint') : t('members.teamHint')}
+        title={t('members.teamHint')}
       >
         {active.length > 0 ? (
           active.map((tag) => (
@@ -68,7 +72,7 @@ function TeamPopover({
               className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium"
               style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
             >
-              <Users className="w-3 h-3" />
+              {(member.leadOf ?? []).includes(tag) ? <Crown className="w-3 h-3" /> : <Users className="w-3 h-3" />}
               {tag}
             </span>
           ))
@@ -91,7 +95,7 @@ function TeamPopover({
         )}
       </button>
 
-      {open && !isPM && (
+      {open && (
         <div
           className="popover-in absolute left-0 top-full mt-2 rounded-xl p-3 z-50 min-w-[12rem]"
           style={{
@@ -121,20 +125,33 @@ function TeamPopover({
             <div className="flex flex-col gap-1">
               {teamCatalog.map((tag) => {
                 const isActive = active.includes(tag)
+                const isLead = (member.leadOf ?? []).includes(tag)
                 return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => onChange(tag)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-small text-left transition-colors ${
-                      isActive
-                        ? 'bg-[var(--project-accent)] text-[var(--project-white)]'
-                        : 'text-[var(--project-accent)] hover:bg-[var(--project-light)]'
-                    }`}
-                  >
-                    <Users className="w-3 h-3 shrink-0" />
-                    {tag}
-                  </button>
+                  <div key={tag} className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onToggleTeam(tag)}
+                      className={`flex-1 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-small text-left transition-colors cursor-pointer ${
+                        isActive
+                          ? 'bg-[var(--project-accent)] text-[var(--project-white)]'
+                          : 'text-[var(--project-accent)] hover:bg-[var(--project-light)]'
+                      }`}
+                    >
+                      <Users className="w-3 h-3 shrink-0" />
+                      {tag}
+                    </button>
+                    {/* Lead toggle — activating it also joins the team */}
+                    <button
+                      type="button"
+                      onClick={() => onToggleLead(tag)}
+                      title={isLead ? t('members.leadOff') : t('members.leadOn')}
+                      className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-[var(--project-light)]"
+                      style={{ color: isLead ? 'var(--project-black)' : 'var(--project-ink)', background: isLead ? 'var(--project-dark)' : 'transparent' }}
+                    >
+                      <Crown className="w-3.5 h-3.5" aria-hidden />
+                      <span className="sr-only">{isLead ? t('members.leadOff') : t('members.leadOn')} — {tag}</span>
+                    </button>
+                  </div>
                 )
               })}
             </div>
@@ -234,11 +251,19 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
               <TeamPopover
                 member={m}
                 teamCatalog={teamCatalog}
-                onChange={(tag: string) => {
-                  const next = tagged.includes(tag)
-                    ? tagged.filter((t) => t !== tag)
-                    : [...tagged, tag]
-                  run(() => setMemberTeams(slug, locale, m.membershipId, next))
+                onToggleTeam={(tag: string) => {
+                  const wasTagged = tagged.includes(tag)
+                  const next = wasTagged ? tagged.filter((t) => t !== tag) : [...tagged, tag]
+                  // Leaving the team also drops its leadership.
+                  const nextLead = wasTagged ? (m.leadOf ?? []).filter((t) => t !== tag) : (m.leadOf ?? [])
+                  run(() => setMemberTeams(slug, locale, m.membershipId, next, nextLead))
+                }}
+                onToggleLead={(tag: string) => {
+                  const wasLead = (m.leadOf ?? []).includes(tag)
+                  const nextLead = wasLead ? (m.leadOf ?? []).filter((t) => t !== tag) : [...(m.leadOf ?? []), tag]
+                  // Leading implies belonging.
+                  const next = tagged.includes(tag) ? tagged : [...tagged, tag]
+                  run(() => setMemberTeams(slug, locale, m.membershipId, next, nextLead))
                 }}
                 disabled={pending}
               />

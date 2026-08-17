@@ -9,7 +9,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { CalendarEvent } from '@/payload-types'
-import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
+import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
@@ -18,6 +18,28 @@ export type CalendarActionState = { error?: string; ok?: boolean }
 
 const VISIBILITIES = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
 const vis = (v: unknown): 'PUBLIC' | 'PROJECT' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'PROJECT' | 'TEAM') : 'PROJECT')
+
+
+/** Clamp an author's visibility choice: PMs keep theirs, leads are forced to
+ * TEAM with tags intersected against the teams they lead (empty → all). */
+function clampAuthorVisibility(
+  ctx: { isPM: boolean; leadOf: string[] },
+  visibility: string | undefined,
+  visibilityTeams: string[] | undefined,
+): { visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'; visibilityTeams: string[] } {
+  if (ctx.isPM) {
+    const v = (visibility === 'PUBLIC' || visibility === 'TEAM' ? visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM'
+    return { visibility: v, visibilityTeams: v === 'TEAM' && Array.isArray(visibilityTeams) ? visibilityTeams : [] }
+  }
+  const teams = (Array.isArray(visibilityTeams) ? visibilityTeams : []).filter((t) => ctx.leadOf.includes(t))
+  return { visibility: 'TEAM', visibilityTeams: teams.length ? teams : ctx.leadOf }
+}
+
+
+const authorIdOf = (doc: unknown): string | null => {
+  const a = (doc as { author?: unknown }).author
+  return a == null ? null : String(typeof a === 'object' ? (a as { id: unknown }).id : a)
+}
 
 export interface EventInput {
   title: string
@@ -91,11 +113,13 @@ async function buildData(input: EventInput): Promise<{ data: EventData } | { err
 }
 
 export async function createProjectEvent(slug: string, locale: string, input: EventInput): Promise<CalendarActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  // PMs and team leads may create; leads are clamped to their teams below.
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
+  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams))
 
   try {
     const payload = await getPayload({ config })
@@ -119,15 +143,19 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
 }
 
 export async function updateProjectEvent(slug: string, locale: string, eventId: string, input: EventInput): Promise<CalendarActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
+  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams))
 
   try {
     const payload = await getPayload({ config })
-    if (!(await getProjectEvent(payload, ctx.project.id, eventId))) return { error: 'Termin nicht gefunden.' }
+    const existing = await getProjectEvent(payload, ctx.project.id, eventId)
+    if (!existing) return { error: 'Termin nicht gefunden.' }
+    // Leads only edit their own events.
+    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return { error: 'Nur eigene Termine können bearbeitet werden.' }
     await payload.update({
       collection: 'calendar-events',
       id: eventId,
@@ -143,12 +171,14 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
 }
 
 export async function deleteProjectEvent(slug: string, locale: string, eventId: string): Promise<CalendarActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   try {
     const payload = await getPayload({ config })
-    if (!(await getProjectEvent(payload, ctx.project.id, eventId))) return { error: 'Termin nicht gefunden.' }
+    const existing = await getProjectEvent(payload, ctx.project.id, eventId)
+    if (!existing) return { error: 'Termin nicht gefunden.' }
+    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return { error: 'Nur eigene Termine können gelöscht werden.' }
     await payload.delete({ collection: 'calendar-events', id: eventId, overrideAccess: true })
   } catch {
     return { error: 'Termin konnte nicht gelöscht werden.' }

@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
-import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
+import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
 import { closePoll } from '@/modules/polls/actions'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
@@ -97,12 +97,36 @@ async function deleteQuestionTree(payload: Payload, pollId: string) {
   await payload.delete({ collection: 'poll-questions', where: { poll: { equals: pollId } }, overrideAccess: true })
 }
 
+
+const authorIdOf = (doc: unknown): string | null => {
+  const a = (doc as { author?: unknown }).author
+  return a == null ? null : String(typeof a === 'object' ? (a as { id: unknown }).id : a)
+}
+
+/** PM keeps the choice; a team lead is forced to TEAM ∩ leadOf (empty → all led teams). */
+function clampPollVisibility(
+  ctx: { isPM: boolean; leadOf: string[] },
+  visibility: string | undefined,
+  visibilityTeams: string[] | undefined,
+): { visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'; visibilityTeams: string[] } {
+  if (ctx.isPM) {
+    const v = (VISIBILITIES.has(visibility ?? '') ? visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM'
+    return { visibility: v, visibilityTeams: v === 'TEAM' && Array.isArray(visibilityTeams) ? visibilityTeams : [] }
+  }
+  const teams = (Array.isArray(visibilityTeams) ? visibilityTeams : []).filter((t) => ctx.leadOf.includes(t))
+  return { visibility: 'TEAM', visibilityTeams: teams.length ? teams : ctx.leadOf }
+}
+
+/** Non-PM authors (team leads) may only touch their own polls. */
+const ownPollGuard = (ctx: { isPM: boolean; user: { id: unknown } }, poll: unknown): string | null =>
+  !ctx.isPM && authorIdOf(poll) !== String(ctx.user.id) ? 'Nur eigene Umfragen können verwaltet werden.' : null
+
 export async function createProjectPoll(
   slug: string,
   locale: string,
   input: CreatePollInput,
 ): Promise<PollsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const title = input.title.trim()
@@ -131,8 +155,7 @@ export async function createProjectPoll(
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
-        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
+        ...clampPollVisibility(ctx, input.visibility, input.visibilityTeams),
         author: ctx.user.id,
         project: ctx.project.id,
       },
@@ -162,13 +185,15 @@ export async function setPollStatus(
   pollId: string,
   status: 'active' | 'closed',
 ): Promise<PollsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   try {
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
     if (!poll) return { error: 'Umfrage nicht gefunden.' }
+    const ownErr = ownPollGuard(ctx, poll)
+    if (ownErr) return { error: ownErr }
 
     if (status === 'closed') {
       await closePoll(ctx.user, pollId, ctx.project.id)
@@ -195,13 +220,15 @@ export async function deleteProjectPoll(
   locale: string,
   pollId: string,
 ): Promise<PollsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   try {
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
     if (!poll) return { error: 'Umfrage nicht gefunden.' }
+    const ownErr = ownPollGuard(ctx, poll)
+    if (ownErr) return { error: ownErr }
 
     await deleteQuestionTree(payload, pollId)
     await payload.delete({ collection: 'polls', id: pollId, overrideAccess: true })
@@ -215,7 +242,7 @@ export async function deleteProjectPoll(
 
 /** Edit a poll while it is still a draft. Replaces questions/options wholesale. */
 export async function editPollDraft(slug: string, locale: string, pollId: string, input: CreatePollInput): Promise<PollsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const title = input.title.trim()
@@ -234,6 +261,8 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
     if (!poll) return { error: 'Umfrage nicht gefunden.' }
+    const ownErr = ownPollGuard(ctx, poll)
+    if (ownErr) return { error: ownErr }
     if ((poll as { status?: string }).status !== 'draft') return { error: 'Nur Entwürfe können bearbeitet werden.' }
 
     await payload.update({
@@ -245,8 +274,7 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
-        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
+        ...clampPollVisibility(ctx, input.visibility, input.visibilityTeams),
       },
       overrideAccess: true,
     })
@@ -263,11 +291,13 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
 
 /** Full draft data for prefilling the edit form. */
 export async function getPollEditData(slug: string, pollId: string): Promise<{ error: string } | { data: CreatePollInput }> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   const payload = await getPayload({ config })
   const poll = await getProjectPoll(payload, ctx.project.id, pollId)
   if (!poll) return { error: 'Umfrage nicht gefunden.' }
+  const ownErr = ownPollGuard(ctx, poll)
+  if (ownErr) return { error: ownErr }
 
   const p = poll as { title?: string; description?: string; closesAt?: string | null; visibility?: string; visibilityTeams?: string[] | null; allowAnonymous?: boolean; showLiveResults?: boolean }
   const [questionsRes, optionsRes] = await Promise.all([
@@ -301,7 +331,7 @@ export async function getPollEditData(slug: string, pollId: string): Promise<{ e
 // ─── Results ────────────────────────────────────────────────────────────────
 
 export async function getPollResults(slug: string, pollId: string): Promise<{ error: string } | { results: import('@/lib/poll-results').PollResults }> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   const payload = await getPayload({ config })
   if (!(await getProjectPoll(payload, ctx.project.id, pollId))) return { error: 'Umfrage nicht gefunden.' }

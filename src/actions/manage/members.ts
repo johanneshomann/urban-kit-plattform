@@ -137,6 +137,7 @@ export async function setMemberTeams(
   locale: string,
   membershipId: string,
   teams: string[],
+  leadOf?: string[],
 ): Promise<MembersActionState> {
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
@@ -146,7 +147,12 @@ export async function setMemberTeams(
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
     if (!membership) return { error: 'Mitglied nicht gefunden.' }
 
-    const data: Record<string, unknown> = { teams: Array.isArray(teams) ? teams : [] }
+    const teamList = Array.isArray(teams) ? teams : []
+    const data: Record<string, unknown> = { teams: teamList }
+    if (Array.isArray(leadOf)) {
+      // Leading implies belonging — leadOf must stay a subset of teams.
+      data.leadOf = leadOf.filter((t) => teamList.includes(t))
+    }
     await payload.update({ collection: 'project-memberships', id: membershipId, data, overrideAccess: true })
   } catch {
     return { error: 'Team-Status konnte nicht geändert werden.' }
