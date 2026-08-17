@@ -11,6 +11,7 @@ import { getUser } from '@/lib/auth/getUser'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 import { TeamRosterManager, type TeamRoster } from '@/components/platform/team/TeamRosterManager'
+import { TeamQuickActions } from '@/components/platform/team/TeamQuickActions'
 import { CalendarManager, type EventItem } from '@/components/platform/manage/CalendarManager'
 import { PollsManager, type PollItem } from '@/components/platform/manage/PollsManager'
 import { FilesManager, type FolderItem, type FileItem } from '@/components/platform/manage/FilesManager'
@@ -78,6 +79,11 @@ export default async function TeamLeadPage({
       },
     ],
   }
+
+  // Folder options for the quick upload popup (only fetched when needed).
+  const quickFolders = modules.includes('files')
+    ? (await payload.find({ collection: 'folders', where: { project: { equals: project.id } }, sort: 'name', limit: 500, depth: 0, overrideAccess: true })).docs.map((d) => ({ id: String((d as { id: string | number }).id), name: String((d as { name?: string }).name ?? '') }))
+    : []
 
   let content: React.ReactNode = null
 
@@ -210,6 +216,7 @@ export default async function TeamLeadPage({
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
         <h1 className="sr-only">Team</h1>
+        <TeamQuickActions slug={slug} locale={locale} leadOf={leadOf} modules={modules} folders={quickFolders} />
         {availableTabs.length > 1 && (
           <nav aria-label="Team-Bereiche" className="flex flex-wrap items-center gap-1.5 mb-6">
             {availableTabs.map((tb) => {
