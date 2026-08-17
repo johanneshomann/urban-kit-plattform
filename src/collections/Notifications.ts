@@ -33,6 +33,8 @@ export const Notifications: CollectionConfig = {
         { label: { en: 'Join request', de: 'Beitrittsanfrage' }, value: 'join_request' },
         { label: { en: 'New content', de: 'Neuer Inhalt' }, value: 'new_content' },
         { label: { en: 'Member joined', de: 'Mitglied beigetreten' }, value: 'member_joined' },
+        { label: { en: 'Forum reply', de: 'Forum-Antwort' }, value: 'forum_reply' },
+        { label: { en: 'News comment', de: 'News-Kommentar' }, value: 'news_comment' },
       ],
     },
     { name: 'read', type: 'checkbox', defaultValue: false, label: { en: 'Read', de: 'Gelesen' } },

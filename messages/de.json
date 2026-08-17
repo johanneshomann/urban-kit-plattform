@@ -862,6 +862,8 @@
     "typePollClosed": "Umfrage beendet: „{title}“",
     "typeJoinRequest": "Neue Beitrittsanfrage für „{title}“",
     "typeNewContent": "Neuer Beitrag: „{title}“",
+    "typeForumReply": "Neue Antwort in „{title}“",
+    "typeNewsComment": "Neuer Kommentar zu „{title}“",
     "typeMemberJoined": "Neues Mitglied in „{title}“",
     "delete": "Mitteilung löschen",
     "deleteAll": "Alle löschen"

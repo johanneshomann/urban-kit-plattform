@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
   type RefDoc = { id: string | number; title?: string | null; slug?: string | null; project?: unknown }
   const refByKey = new Map<string, RefDoc>()
-  const SUPPORTED = new Set(['projects', 'tasks', 'polls', 'news-posts'])
+  const SUPPORTED = new Set(['projects', 'tasks', 'polls', 'news-posts', 'forum-threads'])
   for (const [slug, ids] of idsBySlug) {
     if (!SUPPORTED.has(slug)) continue
     const found = await payload
@@ -107,6 +107,7 @@ export async function GET(req: NextRequest) {
             refSlug === 'tasks' ? `${base}/m/tasks`
             : refSlug === 'polls' ? `${base}/m/polls`
             : refSlug === 'news-posts' ? `${base}/m/news/${(ref as { slug?: string }).slug ?? ''}`
+            : refSlug === 'forum-threads' ? `${base}/m/forum/${(ref as { slug?: string }).slug ?? ''}`
             : base
         }
       }

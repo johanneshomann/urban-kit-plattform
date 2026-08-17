@@ -6,7 +6,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { UserPlus, CheckSquare, BarChart2, Newspaper, Users, BellRing, Trash2, X, type LucideIcon } from 'lucide-react'
+import { UserPlus, CheckSquare, BarChart2, Newspaper, Users, MessageSquare, BellRing, Trash2, X, type LucideIcon } from 'lucide-react'
 import { useRelativeTime } from './useRelativeTime'
 import type { NotificationItem } from './useNotifications'
 
@@ -17,6 +17,8 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
   join_request: UserPlus,
   new_content: Newspaper,
   member_joined: Users,
+  forum_reply: MessageSquare,
+  news_comment: MessageSquare,
 }
 
 /**
@@ -56,6 +58,8 @@ export function NotificationList({
       case 'join_request': return t('typeJoinRequest', { title })
       case 'new_content': return t('typeNewContent', { title })
       case 'member_joined': return t('typeMemberJoined', { title })
+      case 'forum_reply': return t('typeForumReply', { title })
+      case 'news_comment': return t('typeNewsComment', { title })
       default: return title
     }
   }

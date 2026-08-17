@@ -862,6 +862,8 @@
     "typePollClosed": "Poll closed: “{title}”",
     "typeJoinRequest": "New join request for “{title}”",
     "typeNewContent": "New post: “{title}”",
+    "typeForumReply": "New reply in “{title}”",
+    "typeNewsComment": "New comment on “{title}”",
     "typeMemberJoined": "New member in “{title}”",
     "delete": "Delete notification",
     "deleteAll": "Delete all"

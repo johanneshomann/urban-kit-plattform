@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
+import { emitNotification } from '@/lib/events'
 
 export type CommentActionState = { error?: string; ok?: boolean }
 
@@ -53,6 +54,15 @@ export async function postNewsComment(slug: string, locale: string, postId: stri
       data: { post: postId, body: text, author: user.id, project: project.id },
       overrideAccess: true,
     })
+
+    // Tell the post author (unless they commented themselves).
+    const postAuthor = relId((post as { author?: unknown }).author)
+    if (postAuthor && postAuthor !== String(user.id)) {
+      await emitNotification({
+        type: 'news_comment', userId: postAuthor,
+        reference: { collectionSlug: 'news-posts', id: String(postId) },
+      })
+    }
 
     revalidateComments(locale, slug, (post as { slug?: string }).slug)
   } catch {

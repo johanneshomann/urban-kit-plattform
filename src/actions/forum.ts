@@ -14,6 +14,7 @@ import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { isProjectManager } from '@/lib/access/project'
 import { getViewerTier } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
+import { emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { emitActivity } from '@/lib/events'
 
@@ -133,6 +134,30 @@ export async function postForumComment(slug: string, locale: string, threadId: s
     if ((thread as { locked?: boolean }).locked) return { error: 'Dieses Thema ist geschlossen.' }
     const content = (await markdownToLexical(text)) as ForumComment['content']
     await ctx.payload.create({ collection: 'forum-comments', data: { thread: threadId, content, author: ctx.user.id }, overrideAccess: true })
+
+    // Notify the thread author and everyone who commented before (minus the
+    // poster) — recipients could already see the thread, so no visibility
+    // widening happens here.
+    try {
+      const prior = await ctx.payload.find({
+        collection: 'forum-comments', where: { thread: { equals: threadId } }, limit: 500, depth: 0, overrideAccess: true,
+      })
+      const recipients = new Set<string>()
+      const threadAuthor = relId((thread as { author?: unknown }).author)
+      if (threadAuthor) recipients.add(threadAuthor)
+      for (const c of prior.docs) {
+        const a = relId((c as { author?: unknown }).author)
+        if (a) recipients.add(a)
+      }
+      recipients.delete(String(ctx.user.id))
+      await emitNotifications(
+        [...recipients].map((userId) => ({
+          type: 'forum_reply' as const, userId,
+          reference: { collectionSlug: 'forum-threads', id: String(threadId) },
+        })),
+      )
+    } catch { /* notifications are non-fatal */ }
+
     revalidateForum(locale, slug, (thread as { slug?: string }).slug)
   } catch {
     return { error: 'Kommentar konnte nicht gespeichert werden.' }
