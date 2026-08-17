@@ -7,7 +7,7 @@
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import { User, ArrowLeft, LogOut, Languages, Globe } from 'lucide-react'
+import { User, LogOut, Languages, Globe } from 'lucide-react'
 import { logoutAction } from '@/actions/auth'
 
 const item = 'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--project-general)_20%,transparent)]'
@@ -15,9 +15,10 @@ const item = 'flex h-9 w-9 items-center justify-center rounded-lg transition-col
 /**
  * Icon row at the foot of the project navigation. Replaces the platform
  * header's avatar dropdown — every action is a first-class control, so there
- * is no menu to open. In-app destinations (dashboard, profile, language) come
- * first; a divider separates the two that leave the workspace entirely — the
- * public site and logout.
+ * is no menu to open. In-app destinations (profile, language) come first
+ * (back-to-dashboard lives on the sidebar cover / in the mobile sheet); a
+ * divider separates the two that leave the workspace entirely — the public
+ * site and logout.
  */
 export function SidebarUserBar({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
   const t = useTranslations('platform')
@@ -28,11 +29,6 @@ export function SidebarUserBar({ className = '', style }: { className?: string; 
 
   return (
     <div className={`flex items-center gap-1 ${className}`} style={{ color: 'var(--project-accent)', ...style }}>
-      <Link href={`/${locale}/dashboard`} className={item} title={t('navDashboard')}>
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        <span className="sr-only">{t('navDashboard')}</span>
-      </Link>
-
       <Link href={`/${locale}/dashboard/profil`} className={item} title={t('navMyProfile')}>
         <User aria-hidden="true" className="h-4 w-4" />
         <span className="sr-only">{t('navMyProfile')}</span>

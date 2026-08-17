@@ -77,6 +77,9 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
         ...collaborate.map((m) => ({ href: moduleHref(m), label: tModules(m), icon: MODULE_ICONS[m] ?? FolderOpen })),
         { href: `${root}/info`, label: tw('aboutProject'), icon: Info },
         ...(canManage ? [{ href: manageBase, label: tw('manage'), icon: Settings2 }] : []),
+        // Mobile counterpart of the sidebar cover's arrow chip — the sheet is
+        // the only place to step back out on < lg.
+        { href: `/${locale}/dashboard`, label: tw('backToDashboard'), icon: ArrowLeft },
       ]
 
   // Navigation (from the bar or the sheet) closes the sheet.
@@ -201,27 +204,55 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
         </div>
       </div>
 
+      {/* Manage mode inverts the bar like the desktop sidebar: the nav paints
+          the original accent as background and captures it into --mi-* BEFORE
+          the swap; the inner wrapper then trades accent ↔ white for the tabs
+          and promotes muted ink to white (not gated on the dark accent).
+          Capture and swap MUST sit on different elements — on one element the
+          var references would cycle. Existing tokens only. */}
       <nav
         aria-label={tw('tabBarLabel')}
-        className="lg:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch border-t pb-[env(safe-area-inset-bottom)]"
-        style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}
+        className="lg:hidden fixed bottom-0 inset-x-0 z-30 flex border-t pb-[env(safe-area-inset-bottom)]"
+        style={{
+          background: manageMode ? 'var(--project-accent)' : 'var(--project-white)',
+          borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)',
+          ...(manageMode
+            ? ({
+                '--mi-accent': 'var(--project-accent)',
+                '--mi-white': 'var(--project-white)',
+              } as React.CSSProperties)
+            : undefined),
+        }}
       >
-        {tab(overviewHref, manageMode ? tm('sidebar.overview') : tw('overview'), LayoutGrid, true)}
-        {directModules.map((m) => tab(moduleHref(m), tModules(m), MODULE_ICONS[m] ?? FolderOpen))}
-        <button
-          ref={triggerRef}
-          type="button"
-          aria-expanded={open}
-          aria-controls={SHEET_ID}
-          aria-haspopup="dialog"
-          onClick={() => setOpen((o) => !o)}
-          className={tabClass}
-          style={tabStyle(open)}
+        <div
+          className="flex flex-1 items-stretch min-w-0"
+          style={
+            manageMode
+              ? ({
+                  '--project-accent': 'var(--mi-white)',
+                  '--project-white': 'var(--mi-accent)',
+                  '--project-ink': 'var(--mi-white)',
+                } as React.CSSProperties)
+              : undefined
+          }
         >
-          <span aria-hidden="true" className="w-9 h-1 rounded-full -mt-2 mb-0.5" style={{ background: 'transparent' }} />
-          <MoreHorizontal aria-hidden="true" className="w-5 h-5" />
-          <span className="truncate max-w-full">{tw('sidebarMore')}</span>
-        </button>
+          {tab(overviewHref, manageMode ? tm('sidebar.overview') : tw('overview'), LayoutGrid, true)}
+          {directModules.map((m) => tab(moduleHref(m), tModules(m), MODULE_ICONS[m] ?? FolderOpen))}
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-expanded={open}
+            aria-controls={SHEET_ID}
+            aria-haspopup="dialog"
+            onClick={() => setOpen((o) => !o)}
+            className={tabClass}
+            style={tabStyle(open)}
+          >
+            <span aria-hidden="true" className="w-9 h-1 rounded-full -mt-2 mb-0.5" style={{ background: 'transparent' }} />
+            <MoreHorizontal aria-hidden="true" className="w-5 h-5" />
+            <span className="truncate max-w-full">{tw('sidebarMore')}</span>
+          </button>
+        </div>
       </nav>
     </>
   )
