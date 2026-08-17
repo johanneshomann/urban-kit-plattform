@@ -5,6 +5,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
+import { matchesTeamFilter } from '@/lib/team-scope'
 import { ForumList, type ForumListItem } from './ForumList'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -15,13 +16,14 @@ function personName(u: unknown): string {
 }
 
 /** Loads a project's forum threads with vote/comment aggregates and renders the list. */
-export async function ForumFeed({ slug, locale, projectId, userId, viewer, membership }: {
+export async function ForumFeed({ slug, locale, projectId, userId, viewer, membership, teamFilter }: {
   slug: string
   locale: string
   projectId: string
   userId: string | null
   viewer: ViewerContext
   membership: ViewerMembership | null
+  teamFilter?: string | null
 }) {
   const payload = await getPayload({ config })
   // Threads today are PROJECT-visibility, but the field allows TEAM — filter
@@ -31,9 +33,10 @@ export async function ForumFeed({ slug, locale, projectId, userId, viewer, membe
     where: { and: [{ project: { equals: projectId } }, visibilityWhere(viewer)] },
     limit: 300, depth: 1, overrideAccess: true,
   })
-  const visibleThreads = threadsRes.docs.filter((d) =>
-    canViewContent(membership, d as { visibility?: string | null; visibilityTeams?: string[] | null }),
-  )
+  const visibleThreads = threadsRes.docs.filter((d) => {
+    const doc = d as { visibility?: string | null; visibilityTeams?: string[] | null }
+    return canViewContent(membership, doc) && matchesTeamFilter(doc, teamFilter)
+  })
   const ids = visibleThreads.map((t) => (t as { id: string | number }).id)
 
   const [votesRes, commentsRes] = ids.length
@@ -70,7 +73,9 @@ export async function ForumFeed({ slug, locale, projectId, userId, viewer, membe
       hasVoted: myVote.has(id),
       pinned: t.pinned === true,
       locked: t.locked === true,
-      canDelete: relId(t.author) === userId,
+      visibility: t.visibility ?? null,
+      visibilityTeams: Array.isArray(t.visibilityTeams) ? t.visibilityTeams : [],
+      canDelete: viewer.isPM || relId(t.author) === userId,
       _activity: Math.max(new Date(t.createdAt ?? 0).getTime(), lastActivity.get(id) ?? 0),
     } as ForumListItem & { _activity: number }
   })
@@ -78,5 +83,5 @@ export async function ForumFeed({ slug, locale, projectId, userId, viewer, membe
   // pinned first, then most recent activity
   items.sort((a, b) => Number(b.pinned) - Number(a.pinned) || ((b as ForumListItem & { _activity: number })._activity - (a as ForumListItem & { _activity: number })._activity))
 
-  return <ForumList slug={slug} locale={locale} threads={items} />
+  return <ForumList slug={slug} locale={locale} threads={items} isPM={viewer.isPM} leadOf={viewer.leadOf} />
 }

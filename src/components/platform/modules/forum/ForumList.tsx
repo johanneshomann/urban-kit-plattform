@@ -7,8 +7,9 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare } from 'lucide-react'
-import { toggleThreadVote } from '@/actions/forum'
+import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare, Plus, X, Trash2 } from 'lucide-react'
+import { toggleThreadVote, createThread, deleteThread } from '@/actions/forum'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 export interface ForumListItem {
   id: string
@@ -21,34 +22,93 @@ export interface ForumListItem {
   hasVoted: boolean
   pinned: boolean
   locked: boolean
+  visibility: string | null
+  visibilityTeams: string[]
   canDelete: boolean
 }
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
+const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
-export function ForumList({ slug, locale, threads }: { slug: string; locale: string; threads: ForumListItem[] }) {
+export function ForumList({ slug, locale, threads, isPM, leadOf }: { slug: string; locale: string; threads: ForumListItem[]; isPM: boolean; leadOf: string[] }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+  // Leads scope their thread to led teams (default: all of them). PMs open
+  // project-wide threads — the server forces the split either way.
+  const [teams, setTeams] = useState<string[]>(leadOf)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-  const vote = (id: string) => {
+  const canCreate = isPM || leadOf.length > 0
+
+  const run = (fn: () => Promise<{ error?: string; ok?: boolean }>, after?: () => void) => {
     setError(null)
     startTransition(async () => {
-      const res = await toggleThreadVote(slug, locale, id)
+      const res = await fn()
       if (res.error) { setError(res.error); return }
+      after?.()
       router.refresh()
     })
   }
 
+  const vote = (id: string) => run(() => toggleThreadVote(slug, locale, id))
+  const submit = () =>
+    run(() => createThread(slug, locale, { title, body, visibilityTeams: isPM ? [] : teams }), () => {
+      setCreating(false); setTitle(''); setBody(''); setTeams(leadOf)
+    })
+
   return (
     <div>
-      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-      <h1 className="sr-only">Forum</h1>
+      <div className="flex items-center justify-end mb-1">
+        {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+        <h1 className="sr-only">Forum</h1>
+        {canCreate && !creating && (
+          <button type="button" onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            <Plus className="w-4 h-4" /> Neues Thema
+          </button>
+        )}
+      </div>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Diskutiere mit, stimme für Themen ab und antworte.</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
-      {threads.length === 0 ? (
+      {creating && (
+        <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>Neues Thema</h2>
+            <button type="button" onClick={() => setCreating(false)} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
+          </div>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Worum geht es? (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
+          {isPM ? (
+            <p className="text-small" style={{ color: 'var(--project-ink)' }}>Sichtbar für alle Projektmitglieder.</p>
+          ) : (
+            <div>
+              <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für Team</p>
+              <div className="flex flex-wrap gap-1.5">
+                {leadOf.map((tag) => {
+                  const on = teams.includes(tag)
+                  return (
+                    <button key={tag} type="button" onClick={() => setTeams((s) => (on ? s.filter((t) => t !== tag) : [...s, tag]))} className="text-small px-2.5 py-1 rounded-full border transition-colors" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+                      {tag}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          <div>
+            <button type="button" onClick={submit} disabled={pending || !title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+              <Plus className="w-4 h-4" /> Erstellen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {threads.length === 0 && !creating ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <MessagesSquare className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Themen.</p>
@@ -64,16 +124,30 @@ export function ForumList({ slug, locale, threads }: { slug: string; locale: str
               </button>
 
               <Link href={`/${locale}/dashboard/projekte/${slug}/m/forum/${th.slug}`} className="flex-1 min-w-0">
-                <p className="flex items-center gap-1.5 text-display font-semibold leading-snug truncate" style={{ color: 'var(--project-accent)' }}>
+                <p className="flex items-center gap-1.5 text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>
                   {th.pinned && <Pin className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />}
                   {th.locked && <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--project-ink)' }} />}
-                  {th.title}
+                  <span className="truncate">{th.title}</span>
+                  <AudienceChip visibility={th.visibility} visibilityTeams={th.visibilityTeams} />
                 </p>
                 <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
                   {th.authorName} · {new Date(th.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}
                   <span className="inline-flex items-center gap-1 ml-2"><MessageSquare className="w-3.5 h-3.5" />{th.commentCount}</span>
                 </p>
               </Link>
+
+              {th.canDelete && (
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {confirmDelete === th.id ? (
+                    <>
+                      <button type="button" onClick={() => run(() => deleteThread(slug, locale, th.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>Löschen</button>
+                      <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>Abbrechen</button>
+                    </>
+                  ) : (
+                    <button type="button" onClick={() => setConfirmDelete(th.id)} disabled={pending} title="Thema löschen" className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
