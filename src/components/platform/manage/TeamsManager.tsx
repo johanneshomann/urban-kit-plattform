@@ -45,7 +45,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">Teams</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         Team-Katalog verwalten — diese Namen können Mitgliedern und Inhalten zugewiesen werden.

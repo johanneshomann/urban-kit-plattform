@@ -40,7 +40,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <div className="flex items-center justify-end mb-1">
         <h1 className="sr-only">{t('forum.title')}</h1>
         <button type="button" onClick={() => setShowForm((s) => !s)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>

@@ -94,7 +94,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <div className="flex items-center justify-end mb-1">
         <h1 className="sr-only">{t('news.title')}</h1>
         {!editing && (

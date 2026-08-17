@@ -116,7 +116,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">{t('allgemein.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('allgemein.subtitle')}</p>
 

@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl'
 export function ManagePlaceholder({ title, hint }: { title: string; hint?: string }) {
   const t = useTranslations('manage')
   return (
-    <div className="max-w-2xl">
+    <div>
       <h1 className="sr-only">{title}</h1>
       <div
         className="mt-6 flex items-center gap-3 rounded-xl px-5 py-4"

@@ -65,7 +65,7 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">{t('moduleForm.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('moduleForm.subtitle')}

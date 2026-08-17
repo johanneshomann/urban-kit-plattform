@@ -40,7 +40,7 @@ export default async function ManageDarstellungPage({
     .filter((r: GalleryRow | null): r is GalleryRow => r !== null)
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">{t('darstellung.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('darstellung.subtitle')}</p>
 

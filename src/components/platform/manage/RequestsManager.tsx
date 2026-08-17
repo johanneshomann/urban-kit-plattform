@@ -33,7 +33,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">{t('requests.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('requests.subtitle')}

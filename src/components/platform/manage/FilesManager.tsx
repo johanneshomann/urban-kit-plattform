@@ -96,7 +96,7 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
   const looseFiles = files.filter((f) => !f.folderId)
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h1 className="sr-only">{t('files.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('files.intro')}</p>
 

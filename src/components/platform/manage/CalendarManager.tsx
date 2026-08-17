@@ -122,7 +122,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <div className="flex items-center justify-end mb-1">
         <h1 className="sr-only">{t('calendar.title')}</h1>
         {!editing && (

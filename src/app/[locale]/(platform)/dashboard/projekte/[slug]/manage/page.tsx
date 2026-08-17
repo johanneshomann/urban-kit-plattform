@@ -26,7 +26,7 @@ export default async function ManageOverviewPage({
     .sort((a, b) => MODULE_ORDER.indexOf(a as never) - MODULE_ORDER.indexOf(b as never))
 
   return (
-    <div className="max-w-3xl">
+    <div>
       {/* Breadcrumb carries the Verwalten label; heading stays for screen readers (BITV). */}
       <h1 className="sr-only">{ctx.project.title}</h1>
       <p className="text-text mb-8" style={{ color: 'var(--project-ink)' }}>
