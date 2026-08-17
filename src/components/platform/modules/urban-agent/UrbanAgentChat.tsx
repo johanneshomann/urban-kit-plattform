@@ -39,7 +39,14 @@ export function UrbanAgentChat({ projectId }: { projectId: string }) {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setError(data?.message || (res.status === 503 ? 'Der Assistent ist derzeit nicht konfiguriert.' : 'Der Assistent ist momentan nicht erreichbar.'))
+        setError(
+          data?.message ||
+            (res.status === 429
+              ? 'Zu viele Anfragen. Bitte warten Sie einen Moment.'
+              : res.status === 503
+                ? 'Der Assistent ist derzeit nicht konfiguriert.'
+                : 'Der Assistent ist momentan nicht erreichbar.'),
+        )
         return
       }
       setMessages((m) => [...m, { role: 'assistant', content: data.reply ?? '' }])
