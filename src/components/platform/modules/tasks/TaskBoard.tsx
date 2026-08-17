@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core'
 import { Plus, X, Pencil, Trash2, Calendar, GripVertical } from 'lucide-react'
 import { createTask, updateTask, deleteTask, moveTask } from '@/actions/tasks'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 export interface TaskMember { id: string; name: string }
 export interface TaskCardData {
@@ -16,6 +17,10 @@ export interface TaskCardData {
   deadline: string | null; labels: string[]; assignees: TaskMember[]
   /** 'PROJECT' = alle Mitglieder sehen sie, 'TEAM' = nur Projektteam. */
   visibility: 'PROJECT' | 'TEAM'
+  /** Specific team tags a TEAM task addresses (empty → whole Projektteam). */
+  visibilityTeams: string[]
+  /** Assigned to the viewer (for the "Meine Aufgaben" toggle). */
+  mine: boolean
   canMove: boolean
   /** Edit/delete: PMs always, team members for their own tasks. */
   canManage: boolean
@@ -31,7 +36,7 @@ const PRIORITY = { low: { label: 'Niedrig', bg: 'var(--project-light)', fg: 'var
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
-const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], visibility: 'TEAM', canMove: true, canManage: true })
+const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], visibility: 'TEAM', visibilityTeams: [], mine: false, canMove: true, canManage: true })
 
 function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit: () => void; onDelete: () => void; pending: boolean }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id, disabled: !task.canMove })
@@ -45,9 +50,7 @@ function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit:
           <p className="text-text font-medium leading-snug" style={{ color: 'var(--project-accent)' }}>{task.title}</p>
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
             <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
-            {task.visibility === 'TEAM' && (
-              <span title="Nur für das Projektteam sichtbar" className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}>Team</span>
-            )}
+            <AudienceChip visibility={task.visibility} visibilityTeams={task.visibilityTeams} />
             {task.labels.map((l) => <span key={l} className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
           </div>
           {(task.assignees.length > 0 || task.deadline) && (
@@ -78,12 +81,13 @@ function Column({ id, label, count, children }: { id: string; label: string; cou
   )
 }
 
-export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean }) {
+export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamOptions = [] }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean; teamOptions?: string[] }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [local, setLocal] = useState<TaskCardData[]>(tasks)
   const [editing, setEditing] = useState<TaskCardData | null>(null)
+  const [mineOnly, setMineOnly] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   // re-sync local board when the server sends fresh data (after refresh)
@@ -112,19 +116,27 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { s
 
   const save = () => {
     if (!editing) return
-    const input = { title: editing.title, description: editing.description, status: editing.status, priority: editing.priority, deadline: editing.deadline, labels: editing.labels, assigneeIds: editing.assignees.map((a) => a.id), visibility: editing.visibility }
+    const input = { title: editing.title, description: editing.description, status: editing.status, priority: editing.priority, deadline: editing.deadline, labels: editing.labels, assigneeIds: editing.assignees.map((a) => a.id), visibility: editing.visibility, visibilityTeams: editing.visibility === 'TEAM' ? editing.visibilityTeams : [] }
     if (editing.id) run(() => updateTask(slug, locale, editing.id, input), () => setEditing(null))
     else run(() => createTask(slug, locale, input), () => setEditing(null))
   }
+
+  // Column counts respect the toggle — they derive from the filtered list.
+  const shown = mineOnly ? local.filter((t) => t.mine) : local
 
   const setF = <K extends keyof TaskCardData>(k: K, v: TaskCardData[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e))
   const toggleAssignee = (m: TaskMember) => setEditing((e) => e ? { ...e, assignees: e.assignees.some((a) => a.id === m.id) ? e.assignees.filter((a) => a.id !== m.id) : [...e.assignees, m] } : e)
 
   return (
     <div>
-      <div className="flex items-center justify-end mb-1">
+      <div className="flex items-center justify-end gap-2 mb-1">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
         <h1 className="sr-only">Aufgaben</h1>
+        <button type="button" onClick={() => setMineOnly((v) => !v)} aria-pressed={mineOnly}
+          className="text-small px-3 py-1.5 rounded-full border transition-colors"
+          style={{ background: mineOnly ? 'var(--project-dark)' : 'transparent', color: mineOnly ? 'var(--project-black)' : 'var(--project-accent)', borderColor: mineOnly ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+          Meine Aufgaben
+        </button>
         {canCreate && !editing && (
           <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> Neue Aufgabe
@@ -176,6 +188,21 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { s
             ) : (
               <p className="text-small" style={{ color: 'var(--project-ink)' }}>Nur Projektteam — allgemeine Aufgaben für alle Mitglieder legen Projektmanager:innen an.</p>
             )}
+            {editing.visibility === 'TEAM' && teamOptions.length > 0 && (
+              <div className="mt-2">
+                <p className="text-small mb-1.5" style={{ color: 'var(--project-ink)' }}>Bestimmte Teams (keine Auswahl = ganzes Projektteam)</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {teamOptions.map((tag) => {
+                    const on = editing.visibilityTeams.includes(tag)
+                    return (
+                      <button key={tag} type="button" onClick={() => setF('visibilityTeams', on ? editing.visibilityTeams.filter((t) => t !== tag) : [...editing.visibilityTeams, tag])} className="text-small px-2.5 py-1 rounded-full border transition-colors" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Zuständig</p>
@@ -195,7 +222,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { s
         </div>
       )}
 
-      {local.length === 0 && !editing ? (
+      {shown.length === 0 && !editing ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>
             {canCreate ? 'Noch keine Aufgaben. Erstellen Sie die erste über „Neue Aufgabe".' : 'Noch keine Aufgaben.'}
@@ -205,7 +232,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { s
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {COLUMNS.map((col) => {
-              const colTasks = local.filter((t) => t.status === col.id)
+              const colTasks = shown.filter((t) => t.status === col.id)
               return (
                 <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
                   {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>

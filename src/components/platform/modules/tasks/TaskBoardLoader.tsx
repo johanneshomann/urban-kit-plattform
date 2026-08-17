@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { lexicalToMarkdown } from '@/lib/richtext'
 import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
+import { matchesTeamFilter } from '@/lib/team-scope'
 import { TaskBoard, type TaskCardData, type TaskMember } from './TaskBoard'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -22,13 +23,16 @@ function personName(u: unknown): string {
  * Authoring: PMs everything; team members create TEAM tasks and manage their
  * own; assignees move their tasks.
  */
-export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer, membership }: {
+export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer, membership, teamFilter, teamCatalog = [] }: {
   slug: string
   locale: string
   projectId: string
   userId: string
   viewer: ViewerContext
   membership: ViewerMembership | null
+  teamFilter?: string | null
+  /** Project team catalog — tag options for the PM's task form. */
+  teamCatalog?: string[]
 }) {
   const payload = await getPayload({ config })
 
@@ -40,9 +44,10 @@ export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer,
     }),
     payload.find({ collection: 'project-memberships', where: { and: [{ project: { equals: projectId } }, { status: { equals: 'active' } }] }, depth: 1, limit: 200, overrideAccess: true }),
   ])
-  const visibleTasks = tasksRes.docs.filter((d) =>
-    canViewContent(membership, d as { visibility?: string | null; visibilityTeams?: string[] | null }),
-  )
+  const visibleTasks = tasksRes.docs.filter((d) => {
+    const doc = d as { visibility?: string | null; visibilityTeams?: string[] | null }
+    return canViewContent(membership, doc) && matchesTeamFilter(doc, teamFilter)
+  })
   const taskIds = visibleTasks.map((t) => (t as { id: string | number }).id)
   const assigneesRes = taskIds.length
     ? await payload.find({ collection: 'task-assignees', where: { task: { in: taskIds } }, depth: 1, limit: 100000, overrideAccess: true })
@@ -95,11 +100,15 @@ export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer,
         labels: Array.isArray(t.labels) ? t.labels : [],
         assignees: assigneesByTask.get(id) ?? [],
         visibility: t.visibility === 'PROJECT' ? 'PROJECT' : 'TEAM',
+        visibilityTeams: Array.isArray(t.visibilityTeams) ? t.visibilityTeams : [],
+        mine: myTasks.has(id),
         canMove: isPM || myTasks.has(id),
         canManage: isPM || (canCreate && mine),
       }
     }),
   )
 
-  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} canCreate={canCreate} />
+  // Tag options for the form: PMs pick from the whole catalog, members from their teams.
+  const teamOptions = isPM ? teamCatalog : viewer.teams
+  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} canCreate={canCreate} teamOptions={teamOptions} />
 }
