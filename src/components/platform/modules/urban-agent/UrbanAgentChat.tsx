@@ -22,6 +22,22 @@ const MODULE_LABELS: Record<string, string> = {
   files: 'Dateien',
 }
 
+/**
+ * Minimal inline rendering for assistant text: only **bold** is interpreted
+ * (the prompt allows exactly bold + "-" lists), everything else stays plain
+ * text. An unmatched ** during streaming simply shows literally until closed.
+ */
+const renderAssistantText = (content: string) => {
+  // Drop markdown horizontal rules the model sneaks in — they'd render as a
+  // literal line of dashes.
+  const cleaned = content
+    .split('\n')
+    .filter((line) => !/^\s*[-–—_*]{3,}\s*$/.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+  return cleaned.split(/\*\*([^*]+)\*\*/g).map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))
+}
+
 /** News and forum have item detail routes (by slug); everything else links to the module page. */
 const itemHref = (locale: string, projectSlug: string, item: AgentItem): string => {
   const root = `/${locale}/dashboard/projekte/${projectSlug}/m`
@@ -192,7 +208,9 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
               color: m.role === 'user' ? 'var(--project-black)' : 'var(--project-accent)',
               borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)',
             }}>
-            <p className="text-text whitespace-pre-wrap">{m.content}</p>
+            <p className="text-text whitespace-pre-wrap">
+              {m.role === 'assistant' ? renderAssistantText(m.content) : m.content}
+            </p>
             {m.items && m.items.length > 0 && (
               <ul className="mt-3 flex flex-col gap-2">
                 {m.items.map((item) => (
