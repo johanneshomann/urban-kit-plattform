@@ -6,8 +6,9 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart2, Check, Send } from 'lucide-react'
+import { BarChart2, Check, Send, Plus } from 'lucide-react'
 import { submitPollVote, type PollAnswer } from '@/actions/poll-vote'
+import { PollFormModal } from '@/components/platform/manage/PollFormModal'
 import { PollResultsView } from './PollResultsView'
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import type { CitizenPoll } from '@/lib/citizen-polls'
@@ -115,11 +116,29 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
   )
 }
 
-export function PollsConsumption({ slug, locale, polls, loginHref }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string }) {
+/** Authoring rights of the viewer on this polls page (PM or team lead). */
+export interface PollsAuthor {
+  isPM: boolean
+  /** PM: full catalog; lead: their led teams. */
+  teamCatalog: string[]
+}
+
+export function PollsConsumption({ slug, locale, polls, loginHref, author = null }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string; author?: PollsAuthor | null }) {
+  const [creating, setCreating] = useState(false)
   return (
     <div>
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
       <h1 className="sr-only">Umfragen</h1>
+      {author && (
+        <div className="flex items-center justify-end mb-4">
+          <button type="button" onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            <Plus className="w-4 h-4" /> Neue Umfrage
+          </button>
+        </div>
+      )}
+      {creating && author && (
+        <PollFormModal slug={slug} locale={locale} editing={null} teamCatalog={author.teamCatalog} leadMode={!author.isPM} onClose={() => setCreating(false)} />
+      )}
       {polls.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <BarChart2 className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />

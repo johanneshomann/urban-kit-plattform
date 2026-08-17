@@ -60,6 +60,11 @@ export default async function ModulePage({
   const teamFilter = rawTeam && filterTeams.includes(rawTeam) ? rawTeam : null
   const showTeamFilter = TEAM_FILTERABLE.has(moduleType) && tier !== 'public' && filterTeams.length > 0
 
+  // Authoring rights for in-place create buttons (PM or team lead).
+  const author = viewerCtx.isPM || viewerCtx.leadOf.length > 0
+    ? { isPM: viewerCtx.isPM, teamCatalog: viewerCtx.isPM ? (project.teams ?? []) : viewerCtx.leadOf }
+    : null
+
   const citizenPolls = moduleType === 'polls'
     ? (await loadCitizenPolls(payload, project.id, viewerCtx, userId)).filter((p) => matchesTeamFilter(p, teamFilter))
     : []
@@ -89,9 +94,9 @@ export default async function ModulePage({
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} teamFilter={teamFilter} />
           : moduleType === 'calendar'
-          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamFilter={teamFilter} />
+          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamFilter={teamFilter} author={author} />
           : moduleType === 'polls'
-          ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
+          ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} author={author} />
           : moduleType === 'forum'
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />

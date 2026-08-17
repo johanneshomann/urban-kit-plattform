@@ -7,12 +7,13 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Plus, Trash2, Play, Square, ChevronDown, ChevronUp, Pencil, BarChart2, Download, X } from 'lucide-react'
+import { Plus, Trash2, Play, Square, ChevronDown, ChevronUp, Pencil, BarChart2, Download } from 'lucide-react'
 import {
-  createProjectPoll, editPollDraft, setPollStatus, deleteProjectPoll,
+  setPollStatus, deleteProjectPoll,
   getPollEditData, getPollResults, exportPollCsv,
-  type PollQuestionInput,
+  type CreatePollInput,
 } from '@/actions/manage/polls'
+import { PollFormModal } from './PollFormModal'
 import type { PollResults } from '@/lib/poll-results'
 
 export interface PollItem {
@@ -31,27 +32,8 @@ const STATUS_META: Record<string, { labelKey: string; bg: string; fg: string }> 
   active: { labelKey: 'polls.statusActive', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
   closed: { labelKey: 'polls.statusClosed', bg: 'var(--project-light)', fg: 'var(--project-ink)' },
 }
-const QUESTION_TYPES = [
-  { value: 'single', labelKey: 'polls.typeSingle' },
-  { value: 'multiple', labelKey: 'polls.typeMultiple' },
-  { value: 'text', labelKey: 'polls.typeText' },
-  { value: 'scale', labelKey: 'polls.typeScale' },
-]
-
 const card = 'rounded-xl border'
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
-const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
-const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
-
-interface DraftQuestion { text: string; type: string; optionsText: string }
-const emptyQuestion = (): DraftQuestion => ({ text: '', type: 'single', optionsText: '' })
-
-function isoToLocalInput(iso?: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso); if (Number.isNaN(d.getTime())) return ''
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
 
 /**
  * `leadMode` mounts the manager for a team lead (team page): the visibility
@@ -64,18 +46,9 @@ export function PollsManager({ slug, locale, polls, teamCatalog, leadMode = fals
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null) // null = create
+  // null = closed; 'create' = new poll; object = draft edit (prefilled)
+  const [modal, setModal] = useState<'create' | { pollId: string; data: CreatePollInput } | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [closesAt, setClosesAt] = useState('')
-  const [visibility, setVisibility] = useState(leadMode ? 'TEAM' : 'PROJECT')
-  const [visibilityTeams, setVisibilityTeams] = useState<string[]>([])
-  const [allowAnonymous, setAllowAnonymous] = useState(false)
-  const [showLiveResults, setShowLiveResults] = useState(false)
-  const [questions, setQuestions] = useState<DraftQuestion[]>([emptyQuestion()])
 
   // results
   const [resultsFor, setResultsFor] = useState<string | null>(null)
@@ -91,31 +64,13 @@ export function PollsManager({ slug, locale, polls, teamCatalog, leadMode = fals
     })
   }
 
-  const resetForm = () => {
-    setTitle(''); setDescription(''); setClosesAt(''); setVisibility(leadMode ? 'TEAM' : 'PROJECT'); setVisibilityTeams([])
-    setAllowAnonymous(false); setShowLiveResults(false); setQuestions([emptyQuestion()])
-  }
-  const openCreate = () => { setEditingId(null); resetForm(); setShowForm(true) }
   const openEdit = (pollId: string) => {
     setError(null)
     startTransition(async () => {
       const res = await getPollEditData(slug, pollId)
       if ('error' in res) { setError(res.error); return }
-      const d = res.data
-      setTitle(d.title); setDescription(d.description ?? ''); setClosesAt(isoToLocalInput(d.closesAt))
-      setVisibility(d.visibility ?? 'PROJECT'); setVisibilityTeams(Array.isArray(d.visibilityTeams) ? d.visibilityTeams : []); setAllowAnonymous(!!d.allowAnonymous); setShowLiveResults(!!d.showLiveResults)
-      setQuestions(d.questions.length ? d.questions.map((q) => ({ text: q.text, type: q.type, optionsText: q.options.join('\n') })) : [emptyQuestion()])
-      setEditingId(pollId); setShowForm(true)
+      setModal({ pollId, data: res.data })
     })
-  }
-  const setQ = (i: number, patch: Partial<DraftQuestion>) => setQuestions((qs) => qs.map((q, idx) => (idx === i ? { ...q, ...patch } : q)))
-
-  const submit = () => {
-    const qInput: PollQuestionInput[] = questions.map((q) => ({ text: q.text, type: q.type, options: q.optionsText.split('\n').map((o) => o.trim()).filter(Boolean) }))
-    const input = { title, description, closesAt: closesAt || undefined, visibility, visibilityTeams, allowAnonymous, showLiveResults, questions: qInput }
-    const done = () => { setShowForm(false); setEditingId(null); resetForm() }
-    if (editingId) run(() => editPollDraft(slug, locale, editingId, input), done)
-    else run(() => createProjectPoll(slug, locale, input), done)
   }
 
   const toggleResults = (pollId: string) => {
@@ -145,97 +100,23 @@ export function PollsManager({ slug, locale, polls, teamCatalog, leadMode = fals
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
-      <button type="button" onClick={() => (showForm ? (setShowForm(false), setEditingId(null)) : openCreate())}
+      <button type="button" onClick={() => setModal('create')}
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta font-semibold mb-4" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-        {showForm ? <ChevronUp className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        {showForm ? t('polls.closeForm') : t('polls.newPoll')}
+        <Plus className="w-4 h-4" />
+        {t('polls.newPoll')}
       </button>
 
-      {showForm && (
-        <div className={`${card} p-5 mb-6`} style={cardStyle}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>{editingId ? t('polls.editDraft') : t('polls.newPoll')}</h2>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null) }} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
-          </div>
-          <div className="flex flex-col gap-3">
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('polls.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder={t('polls.descriptionPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
-            <div className="grid sm:grid-cols-2 gap-2">
-              <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.closesAtLabel')}</label>
-                <input type="datetime-local" value={closesAt} onChange={(e) => setClosesAt(e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
-              </div>
-              {!leadMode && (
-                <div>
-                  <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.visibilityLabel')}</label>
-                  <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
-                    <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="PROJECT">{t('polls.visibilityProject')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
-                  </select>
-                </div>
-              )}
-            </div>
-            {visibility === 'TEAM' && teamCatalog.length > 0 && (
-              <div>
-                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-accent)' }}>
-                  {t('members.teamLabel')}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {teamCatalog.map((tag) => {
-                    const active = visibilityTeams.includes(tag)
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => setVisibilityTeams((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag])}
-                        className="text-small px-2.5 py-1 rounded-full border transition-colors"
-                        style={{
-                          background: active ? 'var(--project-dark)' : 'transparent',
-                          color: active ? 'var(--project-black)' : 'var(--project-accent)',
-                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
-                        }}
-                      >
-                        {tag}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
-                <input type="checkbox" checked={allowAnonymous} onChange={(e) => setAllowAnonymous(e.target.checked)} /> {t('polls.allowAnonymous')}
-              </label>
-              <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
-                <input type="checkbox" checked={showLiveResults} onChange={(e) => setShowLiveResults(e.target.checked)} /> {t('polls.showLiveResults')}
-              </label>
-            </div>
-
-            <p className="text-small font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--project-ink)' }}>{t('polls.questionsHeading')}</p>
-            {questions.map((q, i) => (
-              <div key={i} className="rounded-lg border p-3 flex flex-col gap-2" style={cardStyle}>
-                <div className="flex gap-2">
-                  <input type="text" value={q.text} onChange={(e) => setQ(i, { text: e.target.value })} placeholder={t('polls.questionPlaceholder', { number: i + 1 })} className={`${inputCls} flex-1`} style={inputStyle} />
-                  <select value={q.type} onChange={(e) => setQ(i, { type: e.target.value })} className={inputCls} style={inputStyle}>
-                    {QUESTION_TYPES.map((qt) => <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>)}
-                  </select>
-                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, idx) => idx !== i))} disabled={questions.length === 1} title={t('polls.removeQuestion')} className="p-2 rounded-lg disabled:opacity-30" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
-                </div>
-                {(q.type === 'single' || q.type === 'multiple') && (
-                  <textarea value={q.optionsText} onChange={(e) => setQ(i, { optionsText: e.target.value })} rows={3} placeholder={t('polls.optionsPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
-                )}
-              </div>
-            ))}
-            <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="flex items-center gap-1.5 text-small font-semibold self-start" style={{ color: 'var(--project-accent)' }}><Plus className="w-4 h-4" /> {t('polls.addQuestion')}</button>
-
-            <div>
-              <button type="button" onClick={submit} disabled={pending || !title.trim() || questions.every((q) => !q.text.trim())}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-                {editingId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editingId ? t('polls.saveDraft') : t('polls.createPoll')}
-              </button>
-            </div>
-          </div>
-        </div>
+      {modal && (
+        <PollFormModal
+          slug={slug}
+          locale={locale}
+          editing={modal === 'create' ? null : modal}
+          teamCatalog={teamCatalog}
+          leadMode={leadMode}
+          onClose={() => setModal(null)}
+        />
       )}
+
 
       {/* List */}
       <div className="flex flex-col gap-2">
