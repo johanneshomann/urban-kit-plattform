@@ -7,8 +7,9 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Upload, FolderPlus, Folder, Trash2, Download, Globe, Lock, Users as UsersIcon, FileText, X } from 'lucide-react'
+import { Upload, FolderPlus, Folder, Trash2, Download, Globe, Lock, Users as UsersIcon, FileText } from 'lucide-react'
 import { createFolder, deleteFolder, setFolderVisibility, uploadFile, deleteFile, setFileVisibility } from '@/actions/files'
+import { FormModal } from '@/components/platform/FormModal'
 
 export interface FolderItem { id: string; name: string; visibility: string; visibilityTeams: string[] }
 export interface FileItem { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; visibility: string; visibilityTeams: string[]; folderId: string | null }
@@ -54,20 +55,135 @@ function TeamPills({ catalog, value, onToggle, disabled }: { catalog: string[]; 
   )
 }
 
+/**
+ * Self-contained upload popup: file choice happens inside, so folder,
+ * visibility and team tags are set deliberately before uploading.
+ * Mountable from the manager and the team page quick actions.
+ */
+export function FileUploadModal({ slug, locale, folders, teamCatalog, defaultVisibility = 'INTERNAL', onClose }: {
+  slug: string
+  locale: string
+  folders: { id: string; name: string }[]
+  teamCatalog: string[]
+  defaultVisibility?: string
+  onClose: () => void
+}) {
+  const t = useTranslations('manage')
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [folderId, setFolderId] = useState('')
+  const [vis, setVis] = useState(defaultVisibility)
+  const [teams, setTeams] = useState<string[]>([])
+  const [file, setFile] = useState<File | null>(null)
+  const fileInput = useRef<HTMLInputElement>(null)
+
+  const submit = () => {
+    if (!file) return
+    const fd = new FormData()
+    fd.append('file', file)
+    if (folderId) fd.append('folderId', folderId)
+    fd.append('visibility', vis)
+    if (vis === 'TEAM') for (const tag of teams) fd.append('visibilityTeams', tag)
+    setError(null)
+    startTransition(async () => {
+      const res = await uploadFile(slug, locale, fd)
+      if (res.error) { setError(res.error); return }
+      onClose()
+      router.refresh()
+    })
+  }
+
+  return (
+    <FormModal title={t('files.uploadFile')} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+        <button type="button" onClick={() => fileInput.current?.click()} className="flex items-center justify-center gap-2 px-4 py-6 rounded-xl border border-dashed text-text" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 40%, transparent)', background: 'var(--project-light)' }}>
+          <Upload className="w-4 h-4" /> {file ? file.name : t('files.uploadFile')}
+        </button>
+        <input ref={fileInput} type="file" hidden onChange={(e) => { setFile(e.target.files?.[0] ?? null); e.target.value = '' }} />
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.folder')}</label>
+            <select value={folderId} onChange={(e) => setFolderId(e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
+              <option value="">{t('files.noFolder')}</option>
+              {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.visibility')}</label>
+            <VisSelect value={vis} onChange={setVis} disabled={pending} />
+          </div>
+        </div>
+        {vis === 'TEAM' && (
+          <TeamPills catalog={teamCatalog} value={teams} disabled={pending}
+            onToggle={(tag) => setTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
+        )}
+        <div>
+          <button type="button" onClick={submit} disabled={pending || !file} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            <Upload className="w-4 h-4" /> {t('files.uploadFile')}
+          </button>
+        </div>
+      </div>
+    </FormModal>
+  )
+}
+
+/** Folder create popup — name, visibility, optional team tags. */
+export function FolderFormModal({ slug, locale, teamCatalog, defaultVisibility = 'INTERNAL', onClose }: {
+  slug: string
+  locale: string
+  teamCatalog: string[]
+  defaultVisibility?: string
+  onClose: () => void
+}) {
+  const t = useTranslations('manage')
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [name, setName] = useState('')
+  const [vis, setVis] = useState(defaultVisibility)
+  const [teams, setTeams] = useState<string[]>([])
+
+  const submit = () => {
+    setError(null)
+    startTransition(async () => {
+      const res = await createFolder(slug, locale, { name, visibility: vis, visibilityTeams: vis === 'TEAM' ? teams : [] })
+      if (res.error) { setError(res.error); return }
+      onClose()
+      router.refresh()
+    })
+  }
+
+  return (
+    <FormModal title={t('files.folderName')} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+        <input type="text" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('files.folderNamePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+        <div>
+          <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.visibility')}</label>
+          <VisSelect value={vis} onChange={setVis} disabled={pending} />
+        </div>
+        {vis === 'TEAM' && (
+          <TeamPills catalog={teamCatalog} value={teams} disabled={pending}
+            onToggle={(tag) => setTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
+        )}
+        <div>
+          <button type="button" onClick={submit} disabled={pending || !name.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            <FolderPlus className="w-4 h-4" /> {t('files.create')}
+          </button>
+        </div>
+      </div>
+    </FormModal>
+  )
+}
+
 export function FilesManager({ slug, locale, folders, files, teamCatalog = [] }: { slug: string; locale: string; folders: FolderItem[]; files: FileItem[]; teamCatalog?: string[] }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const fileInput = useRef<HTMLInputElement>(null)
-
-  const [uploadFolder, setUploadFolder] = useState<string>('')
-  const [uploadVis, setUploadVis] = useState('INTERNAL')
-  const [uploadTeams, setUploadTeams] = useState<string[]>([])
-  const [showFolderForm, setShowFolderForm] = useState(false)
-  const [folderName, setFolderName] = useState('')
-  const [folderVis, setFolderVis] = useState('INTERNAL')
-  const [folderTeams, setFolderTeams] = useState<string[]>([])
+  const [modal, setModal] = useState<'upload' | 'folder' | null>(null)
   const [confirm, setConfirm] = useState<string | null>(null)
 
   const run = (fn: () => Promise<{ error?: string; ok?: boolean }>, after?: () => void) => {
@@ -77,17 +193,6 @@ export function FilesManager({ slug, locale, folders, files, teamCatalog = [] }:
       if (res.error) { setError(res.error); return }
       after?.(); router.refresh()
     })
-  }
-
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; e.target.value = ''
-    if (!file) return
-    const fd = new FormData()
-    fd.append('file', file)
-    if (uploadFolder) fd.append('folderId', uploadFolder)
-    fd.append('visibility', uploadVis)
-    if (uploadVis === 'TEAM') for (const tag of uploadTeams) fd.append('visibilityTeams', tag)
-    run(() => uploadFile(slug, locale, fd))
   }
 
   const FileRow = ({ f }: { f: FileItem }) => {
@@ -128,44 +233,20 @@ export function FilesManager({ slug, locale, folders, files, teamCatalog = [] }:
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {/* Toolbar */}
-      <div className="rounded-xl border p-4 mb-6 flex flex-wrap items-end gap-3" style={cardStyle}>
-        <div>
-          <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.folder')}</label>
-          <select value={uploadFolder} onChange={(e) => setUploadFolder(e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
-            <option value="">{t('files.noFolder')}</option>
-            {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.visibility')}</label>
-          <VisSelect value={uploadVis} onChange={setUploadVis} disabled={pending} />
-        </div>
-        {uploadVis === 'TEAM' && (
-          <TeamPills catalog={teamCatalog} value={uploadTeams} disabled={pending}
-            onToggle={(tag) => setUploadTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
-        )}
-        <button type="button" onClick={() => fileInput.current?.click()} disabled={pending} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+      <div className="flex flex-wrap items-center justify-end gap-2 mb-6">
+        <button type="button" onClick={() => setModal('upload')} disabled={pending} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
           <Upload className="w-4 h-4" /> {t('files.uploadFile')}
         </button>
-        <button type="button" onClick={() => setShowFolderForm((s) => !s)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-medium border" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
-          {showFolderForm ? <X className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />} {t('files.folder')}
+        <button type="button" onClick={() => setModal('folder')} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-medium border" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
+          <FolderPlus className="w-4 h-4" /> {t('files.folder')}
         </button>
-        <input ref={fileInput} type="file" hidden onChange={onFile} />
       </div>
 
-      {showFolderForm && (
-        <div className="rounded-xl border p-4 mb-6 flex flex-wrap items-end gap-3" style={cardStyle}>
-          <div className="flex-1 min-w-40">
-            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.folderName')}</label>
-            <input type="text" value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder={t('files.folderNamePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
-          </div>
-          <VisSelect value={folderVis} onChange={setFolderVis} disabled={pending} />
-          {folderVis === 'TEAM' && (
-            <TeamPills catalog={teamCatalog} value={folderTeams} disabled={pending}
-              onToggle={(tag) => setFolderTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
-          )}
-          <button type="button" onClick={() => run(() => createFolder(slug, locale, { name: folderName, visibility: folderVis, visibilityTeams: folderVis === 'TEAM' ? folderTeams : [] }), () => { setFolderName(''); setFolderTeams([]); setShowFolderForm(false) })} disabled={pending || !folderName.trim()} className="px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>{t('files.create')}</button>
-        </div>
+      {modal === 'upload' && (
+        <FileUploadModal slug={slug} locale={locale} folders={folders} teamCatalog={teamCatalog} onClose={() => setModal(null)} />
+      )}
+      {modal === 'folder' && (
+        <FolderFormModal slug={slug} locale={locale} teamCatalog={teamCatalog} onClose={() => setModal(null)} />
       )}
 
       {folders.length === 0 && files.length === 0 && (
