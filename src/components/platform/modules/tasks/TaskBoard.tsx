@@ -7,9 +7,10 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core'
-import { Plus, X, Pencil, Trash2, Calendar, GripVertical } from 'lucide-react'
+import { Plus, Pencil, Trash2, Calendar, GripVertical } from 'lucide-react'
 import { createTask, updateTask, deleteTask, moveTask } from '@/actions/tasks'
 import { AudienceChip } from '@/components/platform/AudienceChip'
+import { FormModal } from '@/components/platform/FormModal'
 
 export interface TaskMember { id: string; name: string }
 export interface TaskCardData {
@@ -152,12 +153,10 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {editing && (
-        <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>{editing.id ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'}</h2>
-            <button type="button" onClick={() => setEditing(null)} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
-          </div>
-          <input type="text" value={editing.title} onChange={(e) => setF('title', e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+        <FormModal title={editing.id ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'} size="xl" onClose={() => setEditing(null)}>
+          <div className="flex flex-col gap-3">
+          {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+          <input type="text" autoFocus value={editing.title} onChange={(e) => setF('title', e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           <textarea value={editing.description} onChange={(e) => setF('description', e.target.value)} rows={3} placeholder="Beschreibung (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
           <div className="grid sm:grid-cols-3 gap-2">
             <select value={editing.status} onChange={(e) => setF('status', e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
@@ -219,7 +218,8 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
               {editing.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editing.id ? 'Speichern' : 'Erstellen'}
             </button>
           </div>
-        </div>
+          </div>
+        </FormModal>
       )}
 
       {shown.length === 0 && !editing ? (
