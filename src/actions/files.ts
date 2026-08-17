@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier } from '@/lib/visibility'
+import { clampTeamsToCatalog } from '@/lib/team-scope'
 
 export type FilesActionState = { error?: string; ok?: boolean }
 
@@ -20,7 +21,12 @@ const MAX_BYTES = 50 * 1024 * 1024
 
 async function projectBySlug(payload: Payload, slug: string) {
   const res = await payload.find({ collection: 'projects', where: { slug: { equals: slug } }, limit: 1, depth: 0, overrideAccess: true })
-  return res.docs[0] as { id: string } | undefined
+  return res.docs[0] as { id: string; teams?: string[] | null } | undefined
+}
+
+/** TEAM docs may carry tags (clamped to the catalog); other visibilities never do. */
+function teamTags(visibility: string, tags: string[] | null | undefined, catalog: string[] | null | undefined): string[] {
+  return vis(visibility) === 'TEAM' ? clampTeamsToCatalog(tags, catalog) : []
 }
 
 /** Team context — files are managed by PMs + team-flagged members (tier 'team'). */
@@ -43,13 +49,13 @@ function revalidateFiles(locale: string, slug: string) {
 
 // ─── Folders ──────────────────────────────────────────────────────────────────
 
-export async function createFolder(slug: string, locale: string, input: { name: string; visibility?: string }): Promise<FilesActionState> {
+export async function createFolder(slug: string, locale: string, input: { name: string; visibility?: string; visibilityTeams?: string[] }): Promise<FilesActionState> {
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   const name = input.name.trim()
   if (!name) return { error: 'Name darf nicht leer sein.' }
   try {
-    await ctx.payload.create({ collection: 'folders', data: { name, visibility: vis(input.visibility), project: ctx.project.id }, overrideAccess: true })
+    await ctx.payload.create({ collection: 'folders', data: { name, visibility: vis(input.visibility), visibilityTeams: teamTags(input.visibility ?? '', input.visibilityTeams, ctx.project.teams), project: ctx.project.id }, overrideAccess: true })
   } catch {
     return { error: 'Ordner konnte nicht erstellt werden.' }
   }
@@ -57,13 +63,13 @@ export async function createFolder(slug: string, locale: string, input: { name: 
   return { ok: true }
 }
 
-export async function setFolderVisibility(slug: string, locale: string, folderId: string, visibility: string): Promise<FilesActionState> {
+export async function setFolderVisibility(slug: string, locale: string, folderId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const folder = await ctx.payload.findByID({ collection: 'folders', id: folderId, depth: 0, overrideAccess: true }).catch(() => null)
     if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Ordner nicht gefunden.' }
-    await ctx.payload.update({ collection: 'folders', id: folderId, data: { visibility: vis(visibility) }, overrideAccess: true })
+    await ctx.payload.update({ collection: 'folders', id: folderId, data: { visibility: vis(visibility), visibilityTeams: teamTags(visibility, visibilityTeams, ctx.project.teams) }, overrideAccess: true })
   } catch {
     return { error: 'Aktion fehlgeschlagen.' }
   }
@@ -98,6 +104,7 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
 
   const folderId = (formData.get('folderId') as string) || null
   const visibility = (formData.get('visibility') as string) || 'PROJECT'
+  const visibilityTeams = formData.getAll('visibilityTeams').map(String)
   const label = ((formData.get('label') as string) || '').trim() || undefined
 
   try {
@@ -109,7 +116,7 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
     const data = Buffer.from(await f.arrayBuffer())
     await ctx.payload.create({
       collection: 'file-uploads',
-      data: { label, folder: folderId, visibility: vis(visibility), uploadedBy: ctx.user.id, project: ctx.project.id },
+      data: { label, folder: folderId, visibility: vis(visibility), visibilityTeams: teamTags(visibility, visibilityTeams, ctx.project.teams), uploadedBy: ctx.user.id, project: ctx.project.id },
       file: { data, mimetype: f.type || 'application/octet-stream', name: f.name, size: f.size },
       overrideAccess: true,
     })
@@ -120,13 +127,13 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
   return { ok: true }
 }
 
-export async function setFileVisibility(slug: string, locale: string, fileId: string, visibility: string): Promise<FilesActionState> {
+export async function setFileVisibility(slug: string, locale: string, fileId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const file = await ctx.payload.findByID({ collection: 'file-uploads', id: fileId, depth: 0, overrideAccess: true }).catch(() => null)
     if (!file || relId((file as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Datei nicht gefunden.' }
-    await ctx.payload.update({ collection: 'file-uploads', id: fileId, data: { visibility: vis(visibility) }, overrideAccess: true })
+    await ctx.payload.update({ collection: 'file-uploads', id: fileId, data: { visibility: vis(visibility), visibilityTeams: teamTags(visibility, visibilityTeams, ctx.project.teams) }, overrideAccess: true })
   } catch {
     return { error: 'Aktion fehlgeschlagen.' }
   }
