@@ -20,6 +20,7 @@ Canonical list — matches `.env.example` and `docker-compose.yml`.
 | `NEXT_PUBLIC_PUBLIC_DOMAIN` | `urbankit.de` | Public portal domain (informational; middleware derives the portal domain by stripping `app.`). |
 | `PAYLOAD_INTERNAL_URL` | `http://localhost:3000` | Where the sidecar reaches Payload (compose: `http://web:3000`). |
 | `HOCUSPOCUS_URL` | `ws://localhost:1234` | Server-side WS URL (sidecar address). |
+| `HOCUSPOCUS_PAYLOAD_URL` | `http://web:3000` | Where the DOCKERIZED sidecar reaches Payload for room auth + persistence (compose interpolation). Mixed dev — Next on the host, sidecar in Docker — needs `http://host.docker.internal:3000`, otherwise every board connection fails `permission-denied` and realtime is silently dead. |
 
 ## Methodensammlung (optional — method teasers on Bereich Grundlagen)
 
