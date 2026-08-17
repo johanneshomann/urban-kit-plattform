@@ -66,9 +66,10 @@ export default async function ProjectLayout({
       {/* Lift the scheme onto <html> so the platform header can adopt it */}
       <ProjectThemeScope scheme={scheme} />
       <div className="flex min-h-svh">
-        {/* Sidebar fades in independently (card-in) while the content area
-            slides in from the right via DashboardTransition. */}
-        <div className="card-in">
+        {/* Sidebar fades in independently while the content area slides in via
+            DashboardTransition. fade-in (opacity only), NOT card-in — its
+            retained transform would break the sidebar's position: sticky. */}
+        <div className="fade-in">
           <ProjectSidebar
             locale={locale}
             slug={slug}
