@@ -12,22 +12,15 @@ import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { RecentActivityCard } from '@/components/platform/RecentActivityCard'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 import { MODULE_ORDER, PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
-import { PROJEKTPHASEN, findProjektphase } from '@/lib/options/projektphasen'
 import { loadWorkspaceCards } from '@/lib/workspace-cards'
 import { loadProjectActivity } from '@/lib/project-activity'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 
-const P = {
-  white: 'var(--project-white)',
-  light: 'var(--project-light)',
-  general: 'var(--project-general)',
-  accent: 'var(--project-accent)',
-  ink: 'var(--project-ink)',
-} as const
+const P = { light: 'var(--project-light)' } as const
 
 // ─── page ─────────────────────────────────────────────────────────────────────
-// Project overview inside the sidebar shell ([slug]/layout.tsx): slim top strip
-// (phase + title + join), recent activity and the module content previews.
+// Project overview inside the sidebar shell ([slug]/layout.tsx): breadcrumb,
+// join button (non-members), recent activity and the module content previews.
 // Full project info lives on ./info.
 
 export default async function ProjectDashboardPage({
@@ -36,10 +29,7 @@ export default async function ProjectDashboardPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
-  const [tw, tax] = await Promise.all([
-    getTranslations({ locale, namespace: 'projectWorkspace' }),
-    getTranslations({ locale, namespace: 'taxonomy' }),
-  ])
+  const tw = await getTranslations({ locale, namespace: 'projectWorkspace' })
 
   // Shared with the shell layout via React.cache — one fetch per request
   const ctx = await getWorkspaceContext(slug)
@@ -58,11 +48,6 @@ export default async function ProjectDashboardPage({
   const participateItems = ordered.filter((m) => (PARTICIPATE_MODULES as readonly string[]).includes(m))
   const collaborateItems = ordered.filter((m) => (COLLABORATE_MODULES as readonly string[]).includes(m))
 
-  const phase = findProjektphase(project.projektphase)
-  const phaseLabel = phase ? tw('phaseLabel', { step: phase.step + 1, total: PROJEKTPHASEN.length, label: tax(`phase.${phase.value}`) }) : null
-
-  const themaList = (project.thema ?? []).filter(Boolean)
-
   return (
     <div className="flex-1 flex flex-col" style={{ background: P.light }}>
       {/* Same top pattern as the module pages: the breadcrumb names the page
@@ -72,45 +57,14 @@ export default async function ProjectDashboardPage({
       {/* White content card under the light breadcrumb band — same pattern as manage */}
       <div className="card-in flex-1 mt-5 p-6 md:p-10 min-w-0 flex flex-col gap-6" style={{ background: 'var(--project-white)' }}>
 
-      {/* top strip — phase pill left, join button right (skipped when both are absent) */}
-      {(phaseLabel || ctx.canRequestJoin) && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-          <div className="min-w-0 flex-1">
-            {phaseLabel && (
-              <span
-                className="inline-block text-small font-medium px-3 py-1 rounded-full"
-                style={{
-                  color: P.accent,
-                  background: `color-mix(in srgb, ${P.accent} 12%, transparent)`,
-                  border: `1.5px solid color-mix(in srgb, ${P.accent} 30%, transparent)`,
-                }}
-              >
-                {phaseLabel}
-              </span>
-            )}
-          </div>
-          {ctx.canRequestJoin && (
-            <JoinProjectButton
-              slug={slug}
-              locale={locale}
-              status={ctx.membershipStatus === 'requested' || ctx.membershipStatus === 'rejected' ? ctx.membershipStatus : null}
-            />
-          )}
-        </div>
-      )}
-
-      {/* thema tags */}
-      {themaList.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          {themaList.map((th) => (
-            <span
-              key={th}
-              className="text-small px-2.5 py-0.5 rounded-full"
-              style={{ background: P.white, border: `1px solid color-mix(in srgb, ${P.general} 20%, transparent)`, color: P.ink }}
-            >
-              {tax(`thema.${th}`)}
-            </span>
-          ))}
+      {/* join request — right-aligned, only for non-members */}
+      {ctx.canRequestJoin && (
+        <div className="flex justify-end">
+          <JoinProjectButton
+            slug={slug}
+            locale={locale}
+            status={ctx.membershipStatus === 'requested' || ctx.membershipStatus === 'rejected' ? ctx.membershipStatus : null}
+          />
         </div>
       )}
 
