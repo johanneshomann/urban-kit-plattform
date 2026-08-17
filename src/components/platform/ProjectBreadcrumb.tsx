@@ -4,6 +4,7 @@
 
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { BreadcrumbLangSwitch } from '@/components/platform/BreadcrumbLangSwitch'
 
 export interface Crumb {
   label: string
@@ -11,12 +12,14 @@ export interface Crumb {
 }
 
 /**
- * Breadcrumb for module subpages: Dashboard / News / Beitragstitel.
- * The last crumb is plain text; earlier crumbs link back up the hierarchy.
+ * Breadcrumb bar for workspace/manage pages: Projektname / News / Beitragstitel
+ * on the left, the language switch on the right. The last crumb is plain text;
+ * earlier crumbs link back up the hierarchy.
  */
 export function ProjectBreadcrumb({ items }: { items: Crumb[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 flex-wrap text-small px-6 md:px-8 pt-5">
+    <div className="flex items-center justify-between gap-4 px-6 md:px-8 pt-5">
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 flex-wrap text-small min-w-0">
       {items.map((item, i) => {
         const last = i === items.length - 1
         return (
@@ -33,5 +36,7 @@ export function ProjectBreadcrumb({ items }: { items: Crumb[] }) {
         )
       })}
     </nav>
+    <BreadcrumbLangSwitch />
+    </div>
   )
 }

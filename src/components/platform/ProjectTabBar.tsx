@@ -11,7 +11,6 @@ import { useTranslations } from 'next-intl'
 import { ArrowLeft, LayoutGrid, MoreHorizontal, Info, Settings2, FolderOpen, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { MODULE_ICONS, MANAGE_PROJECT_ITEMS } from '@/components/platform/ProjectSidebar'
-import { SidebarUserBar } from '@/components/platform/SidebarUserBar'
 
 const SHEET_ID = 'project-tabbar-sheet'
 /** Übersicht + up to 3 modules + Mehr = max 5 tab slots. */
@@ -199,8 +198,6 @@ export function ProjectTabBar({ locale, slug, participate, collaborate, manageMo
               )
             })}
           </ul>
-          {/* Account controls — the logged-in area has no header bar */}
-          <SidebarUserBar className="mt-3 pt-3 border-t justify-end" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }} />
         </div>
       </div>
 

@@ -14,7 +14,6 @@ import {
   UserPlus, Settings, Settings2, Shield,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { SidebarUserBar } from '@/components/platform/SidebarUserBar'
 
 export const MODULE_ICONS: Record<string, LucideIcon> = {
   news: Newspaper, calendar: CalendarDays, polls: BarChart2, forum: MessageSquare,
@@ -98,8 +97,6 @@ export interface ProjectSidebarProps {
  * Persistent project navigation for the whole `[slug]` subtree, desktop only
  * (`ProjectTabBar` covers < lg). Two modes derived from the pathname: the
  * citizen workspace and — for PMs on `/manage` routes — the manage area.
- * Since the logged-in area has no header bar, this also carries the account
- * controls (`SidebarUserBar`) at its foot.
  *
  * The module lists are presentation only; access is enforced server-side by
  * the manage layout guard and each module page's own checks.
@@ -234,12 +231,11 @@ export function ProjectSidebar({
         )}
       </nav>
 
-      <div className="shrink-0 border-t p-2 flex flex-col gap-1" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-        {canManage && !manageMode && (
+      {canManage && !manageMode && (
+        <div className="shrink-0 border-t p-2" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           <NavLink href={manageBase} label={tw('manage')} icon={Settings2} active={false} />
-        )}
-        <SidebarUserBar className="px-1" />
-      </div>
+        </div>
+      )}
     </div>
     </aside>
   )
