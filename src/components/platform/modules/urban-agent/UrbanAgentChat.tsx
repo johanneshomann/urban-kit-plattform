@@ -4,7 +4,7 @@
 
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { Send, Sparkles, ShieldCheck, ExternalLink } from 'lucide-react'
@@ -31,6 +31,10 @@ const itemHref = (locale: string, projectSlug: string, item: AgentItem): string 
   return `${root}/${item.module}`
 }
 
+/** Transcript survives navigation for the browser session (sessionStorage, per project). */
+const ssKey = (projectId: string) => `uk-urban-agent-chat:${projectId}`
+const MAX_STORED = 30
+
 export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; projectSlug: string }) {
   const locale = useLocale()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -38,6 +42,29 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const restoredRef = useRef(false)
+
+  // Restore after mount (not in the initializer) — the server-rendered HTML is
+  // always the empty state, so hydration stays consistent.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(ssKey(projectId))
+      const parsed = raw ? (JSON.parse(raw) as ChatMessage[]) : []
+      if (Array.isArray(parsed) && parsed.length) setMessages(parsed)
+    } catch {
+      /* storage blocked — start empty */
+    }
+    restoredRef.current = true
+  }, [projectId])
+
+  useEffect(() => {
+    if (!restoredRef.current) return
+    try {
+      sessionStorage.setItem(ssKey(projectId), JSON.stringify(messages.slice(-MAX_STORED)))
+    } catch {
+      /* storage blocked or full — transcript just won't survive navigation */
+    }
+  }, [messages, projectId])
 
   const scrollDown = () => requestAnimationFrame(() => {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
@@ -59,8 +86,8 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         // Cards are display-only — the API expects bare role/content messages.
         body: JSON.stringify({ projectId, messages: next.map(({ role, content }) => ({ role, content })) }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}))
         setError(
           data?.message ||
             (res.status === 429
@@ -71,11 +98,56 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         )
         return
       }
-      setMessages((m) => [
-        ...m,
-        { role: 'assistant', content: data.reply ?? '', items: Array.isArray(data.items) ? data.items : undefined },
-      ])
-      scrollDown()
+
+      // NDJSON stream: text deltas grow the assistant bubble live, the cards
+      // arrive at the end ({t:'items'}), errors mid-stream as {t:'error'}.
+      let started = false
+      const applyEvent = (ev: { t?: string; d?: string; items?: AgentItem[]; message?: string }) => {
+        if (ev.t === 'd' && ev.d) {
+          if (!started) {
+            started = true
+            setMessages((m) => [...m, { role: 'assistant', content: ev.d as string }])
+          } else {
+            setMessages((m) => {
+              const out = [...m]
+              const last = out[out.length - 1]
+              out[out.length - 1] = { ...last, content: last.content + ev.d }
+              return out
+            })
+          }
+          scrollDown()
+        } else if (ev.t === 'items' && Array.isArray(ev.items) && ev.items.length && started) {
+          setMessages((m) => {
+            const out = [...m]
+            const last = out[out.length - 1]
+            out[out.length - 1] = { ...last, items: ev.items }
+            return out
+          })
+          scrollDown()
+        } else if (ev.t === 'error') {
+          setError(ev.message || 'Der Assistent ist momentan nicht erreichbar.')
+        }
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        let nl: number
+        while ((nl = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, nl).trim()
+          buffer = buffer.slice(nl + 1)
+          if (!line) continue
+          try {
+            applyEvent(JSON.parse(line))
+          } catch {
+            /* malformed line — skip */
+          }
+        }
+      }
     } catch {
       setError('Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.')
     } finally {
@@ -96,7 +168,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ opacity: 0.7 }} />
         <span style={{ opacity: 0.8 }}>
           Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
-          {/* New tab: the transcript lives only in memory and would be lost by navigating away. */}
+          {/* New tab: the transcript lives in sessionStorage (this tab's browser session). */}
           <a
             href={`/${locale}/datenschutz`}
             target="_blank"
@@ -148,7 +220,8 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
             )}
           </div>
         ))}
-        {pending && (
+        {/* Thinking placeholder only until the first streamed token arrives. */}
+        {pending && messages[messages.length - 1]?.role === 'user' && (
           <div className="rounded-xl border px-4 py-3 self-start" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)', color: 'var(--project-ink)' }}>
             <p className="text-text">Der Assistent denkt nach …</p>
           </div>
