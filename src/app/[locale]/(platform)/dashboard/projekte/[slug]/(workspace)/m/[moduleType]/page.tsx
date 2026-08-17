@@ -79,7 +79,7 @@ export default async function ModulePage({
           ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'tasks'
           ? (tier !== 'team' || !userId
-              ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason="membership" />
+              ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason={tier === 'member' ? 'team' : 'membership'} />
               : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} />)
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
