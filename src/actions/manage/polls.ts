@@ -132,6 +132,7 @@ export async function createProjectPoll(
         showLiveResults: !!input.showLiveResults,
         closesAt,
         visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
+        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
         author: ctx.user.id,
         project: ctx.project.id,
       },
@@ -245,6 +246,7 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
         showLiveResults: !!input.showLiveResults,
         closesAt,
         visibility: (VISIBILITIES.has(input.visibility ?? '') ? input.visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM',
+        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
       },
       overrideAccess: true,
     })
@@ -267,7 +269,7 @@ export async function getPollEditData(slug: string, pollId: string): Promise<{ e
   const poll = await getProjectPoll(payload, ctx.project.id, pollId)
   if (!poll) return { error: 'Umfrage nicht gefunden.' }
 
-  const p = poll as { title?: string; description?: string; closesAt?: string | null; visibility?: string; allowAnonymous?: boolean; showLiveResults?: boolean }
+  const p = poll as { title?: string; description?: string; closesAt?: string | null; visibility?: string; visibilityTeams?: string[] | null; allowAnonymous?: boolean; showLiveResults?: boolean }
   const [questionsRes, optionsRes] = await Promise.all([
     payload.find({ collection: 'poll-questions', where: { poll: { equals: pollId } }, sort: 'order', limit: 500, depth: 0, overrideAccess: true }),
     payload.find({ collection: 'poll-options', where: {}, sort: 'order', limit: 2000, depth: 0, overrideAccess: true }),
@@ -288,6 +290,7 @@ export async function getPollEditData(slug: string, pollId: string): Promise<{ e
       description: p.description ?? '',
       closesAt: p.closesAt ?? undefined,
       visibility: p.visibility ?? 'PROJECT',
+      visibilityTeams: Array.isArray(p.visibilityTeams) ? p.visibilityTeams : [],
       allowAnonymous: !!p.allowAnonymous,
       showLiveResults: !!p.showLiveResults,
       questions,
