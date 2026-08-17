@@ -127,24 +127,33 @@ export function ProjectSidebar({
 
   return (
     <aside
-      className="hidden lg:flex w-60 shrink-0 flex-col sticky top-0 h-svh border-r"
+      className="hidden lg:flex w-[16.5rem] shrink-0 flex-col sticky top-0 h-svh border-r"
       style={{ background: 'var(--project-light)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
     >
-      {/* Project identity — cover image, then title */}
-      <div className="shrink-0">
-        <Link href={root} className="block" aria-label={projectTitle}>
-          <img src={coverSrc} alt="" className="h-24 w-full object-cover" />
+      {/* Project identity — title overlaid on the cover image (dark scrim keeps
+          the white text readable on any cover) */}
+      <div className="shrink-0 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
+        <Link href={root} className="relative block">
+          <img src={coverSrc} alt="" className="h-28 w-full object-cover" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.15) 55%, transparent)' }}
+          />
+          <span className="absolute inset-x-0 bottom-0 px-4 pb-2.5 font-semibold leading-snug line-clamp-2 text-white">
+            {projectTitle}
+          </span>
         </Link>
-        <div className="px-4 py-3 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-          {manageMode ? (
-            <Link href={root} className="flex items-center gap-2 text-small font-semibold min-w-0" style={{ color: 'var(--project-accent)' }}>
-              <ArrowLeft aria-hidden="true" className="w-4 h-4 shrink-0" />
-              <span className="truncate">{tm('sidebar.backToProject')}</span>
-            </Link>
-          ) : (
-            <p className="font-semibold leading-snug line-clamp-2" style={{ color: 'var(--project-accent)' }}>{projectTitle}</p>
-          )}
-        </div>
+        {manageMode && (
+          <Link
+            href={root}
+            className="flex items-center gap-2 text-small font-semibold min-w-0 px-4 py-3"
+            style={{ color: 'var(--project-accent)' }}
+          >
+            <ArrowLeft aria-hidden="true" className="w-4 h-4 shrink-0" />
+            <span className="truncate">{tm('sidebar.backToProject')}</span>
+          </Link>
+        )}
       </div>
 
       <nav aria-label={tw('sidebarNavLabel')} className="flex-1 py-2 px-2 flex flex-col gap-0.5 overflow-y-auto">
