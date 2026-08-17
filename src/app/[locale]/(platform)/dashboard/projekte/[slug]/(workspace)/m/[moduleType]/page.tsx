@@ -73,21 +73,21 @@ export default async function ModulePage({
           ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
           : moduleType === 'forum'
           ? (tier === 'public'
-              ? <ModuleConsumptionPlaceholder title={tm('forum')} />
+              ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />
               : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={ctx.membershipId ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams } : null} />)
           : moduleType === 'files'
           ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'tasks'
           ? (tier !== 'team' || !userId
-              ? <ModuleConsumptionPlaceholder title={tm('tasks')} />
+              ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason="membership" />
               : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} />)
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
-              ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} />
+              ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} reason="membership" />
               : <UrbanAgentChat projectId={project.id} projectSlug={project.slug} />)
           : moduleType === 'board'
           ? (!boardData
-              ? <ModuleConsumptionPlaceholder title={tm('board')} />
+              ? <ModuleConsumptionPlaceholder title={tm('board')} reason="membership" />
               : <div className="h-[calc(100svh-14rem)] lg:h-[calc(100svh-11rem)] min-h-[24rem]"><BoardView boards={boardData.boards} projectSlug={slug} wsUrl={boardData.wsUrl} token={boardData.token} userId={userId!} userName={boardData.userName} /></div>)
           : <ModuleConsumptionPlaceholder title={tm(moduleType)} />}
       </main>

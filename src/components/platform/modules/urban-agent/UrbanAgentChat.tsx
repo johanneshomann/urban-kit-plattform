@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { Send, ShieldCheck, ExternalLink } from 'lucide-react'
+import { Send, ShieldCheck, ExternalLink, RotateCcw } from 'lucide-react'
 
 /** Card reference resolved server-side (ids validated against tool results). */
 type AgentItem = { module: string; id: string; title: string; slug?: string }
@@ -51,6 +51,13 @@ const itemHref = (locale: string, projectSlug: string, item: AgentItem): string 
 const ssKey = (projectId: string) => `uk-urban-agent-chat:${projectId}`
 const MAX_STORED = 30
 
+/** Empty-state suggestions — clicking sends the question directly. */
+const SUGGESTED_PROMPTS = [
+  'Welche Termine stehen demnächst an?',
+  'Was gibt es Neues im Projekt?',
+  'Was wird gerade diskutiert?',
+]
+
 export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; projectSlug: string }) {
   const locale = useLocale()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -86,8 +93,18 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
   })
 
-  const send = async () => {
-    const text = input.trim()
+  const clearChat = () => {
+    setMessages([])
+    setError(null)
+    try {
+      sessionStorage.removeItem(ssKey(projectId))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const send = async (preset?: string) => {
+    const text = (preset ?? input).trim()
     if (!text || pending) return
     setError(null)
     const next = [...messages, { role: 'user' as const, content: text }]
@@ -175,15 +192,44 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
     <section>
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
       <h2 className="sr-only">Urban-Agent</h2>
-      <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>
-        Stellen Sie Fragen zu diesem Projekt. Der Assistent antwortet ausschließlich auf Grundlage der für Sie sichtbaren Projektinhalte.
-      </p>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <p className="text-text" style={{ color: 'var(--project-ink)' }}>
+          Stellen Sie Fragen zu diesem Projekt. Der Assistent antwortet ausschließlich auf Grundlage der für Sie sichtbaren Projektinhalte.
+        </p>
+        {messages.length > 0 && (
+          <button
+            type="button"
+            onClick={clearChat}
+            disabled={pending}
+            className="flex items-center gap-1.5 shrink-0 text-small font-medium px-3 py-1.5 rounded-lg border transition-colors cursor-pointer hover:bg-[var(--project-light)] disabled:opacity-40"
+            style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}
+          >
+            <RotateCcw className="w-3.5 h-3.5" aria-hidden /> Verlauf löschen
+          </button>
+        )}
+      </div>
 
       <div ref={listRef} className="flex flex-col gap-3 mb-4 max-h-[55vh] overflow-y-auto">
         {messages.length === 0 ? (
-          <p className="text-text" style={{ color: 'var(--project-ink)' }}>
-            Noch keine Nachrichten. Fragen Sie zum Beispiel: „Welche Termine stehen an?“
-          </p>
+          <div>
+            <p className="text-text mb-3" style={{ color: 'var(--project-ink)' }}>
+              Noch keine Nachrichten. Fragen Sie zum Beispiel:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTED_PROMPTS.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => send(q)}
+                  disabled={pending}
+                  className="text-small px-3 py-1.5 rounded-full border transition-colors cursor-pointer hover:bg-[var(--project-light)] disabled:opacity-40"
+                  style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
         ) : messages.map((m, i) => (
           <div key={i} className={`rounded-xl border px-4 py-3 max-w-[85%] ${m.role === 'user' ? 'self-end' : 'self-start'}`}
             style={{
@@ -242,7 +288,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
           style={{ borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }}
         />
         <div className="flex justify-end mt-2">
-          <button type="button" onClick={send} disabled={pending || !input.trim()}
+          <button type="button" onClick={() => send()} disabled={pending || !input.trim()}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
             style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Send className="w-4 h-4" /> Senden
