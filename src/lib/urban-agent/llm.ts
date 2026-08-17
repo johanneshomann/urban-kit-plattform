@@ -4,7 +4,7 @@
 
 import 'server-only'
 
-import { generateText, type LanguageModel, type ModelMessage } from 'ai'
+import { generateText, stepCountIs, type LanguageModel, type ModelMessage, type ToolSet } from 'ai'
 import { anthropic, createAnthropic } from '@ai-sdk/anthropic'
 import { mistral, createMistral } from '@ai-sdk/mistral'
 import { createOpenAI, openai } from '@ai-sdk/openai'
@@ -30,7 +30,9 @@ export const DEFAULT_MODEL: Record<AgentProvider, string> = {
 /** Cost ceiling per reply; long answers are not this assistant's job. */
 const MAX_OUTPUT_TOKENS = 800
 /** A hanging provider must not hold the serverless invocation open. */
-const TIMEOUT_MS = 30_000
+const TIMEOUT_MS = 60_000
+/** Tool-loop budget: retrieval steps + the final answer. */
+const MAX_STEPS = 8
 
 function buildModel(provider: AgentProvider, modelId?: string, apiKey?: string): LanguageModel {
   const id = modelId || DEFAULT_MODEL[provider]
@@ -54,6 +56,7 @@ export async function chatComplete(
   settings: UrbanAgentSettings,
   system: string,
   messages: ChatMessage[],
+  tools?: ToolSet,
 ): Promise<{ provider: AgentProvider; text: string }> {
   if (!settings.configured || !settings.provider) throw new Error('NOT_CONFIGURED')
 
@@ -69,6 +72,8 @@ export async function chatComplete(
   const result = await generateText({
     model: buildModel(settings.provider, settings.model, settings.apiKey),
     messages: [systemMessage, ...messages],
+    tools,
+    stopWhen: stepCountIs(MAX_STEPS),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: AbortSignal.timeout(TIMEOUT_MS),
   })
