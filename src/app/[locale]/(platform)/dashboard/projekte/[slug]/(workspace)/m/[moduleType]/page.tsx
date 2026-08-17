@@ -20,7 +20,7 @@ import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLo
 import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 import { BoardView, type BoardRef } from '@/components/platform/board/BoardView'
 import { TeamFilterBar } from '@/components/platform/TeamFilterBar'
-import { TEAM_FILTER_ALL, matchesTeamFilter } from '@/lib/team-scope'
+import { matchesTeamFilter } from '@/lib/team-scope'
 import { cookies } from 'next/headers'
 
 /** Modules whose lists can be filtered by team audience via `?team=`. */
@@ -57,7 +57,7 @@ export default async function ModulePage({
   // members across their own teams. Invalid values fall back to "Alle".
   const filterTeams = viewerCtx.isPM ? (project.teams ?? []) : viewerCtx.teams
   const rawTeam = typeof sp.team === 'string' ? sp.team : null
-  const teamFilter = rawTeam && (rawTeam === TEAM_FILTER_ALL || filterTeams.includes(rawTeam)) ? rawTeam : null
+  const teamFilter = rawTeam && filterTeams.includes(rawTeam) ? rawTeam : null
   const showTeamFilter = TEAM_FILTERABLE.has(moduleType) && tier !== 'public' && filterTeams.length > 0
 
   const citizenPolls = moduleType === 'polls'

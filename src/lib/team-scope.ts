@@ -11,23 +11,19 @@
 
 export type ClampedVisibility = { visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'; visibilityTeams: string[] }
 
-/** `?team=` value meaning "content addressed to everyone" (non-TEAM docs). */
-export const TEAM_FILTER_ALL = '~alle'
-
 /**
  * Does a doc match the module pages' `?team=` filter?
- * No filter → everything; `~alle` → non-TEAM docs; a tag → TEAM docs
- * carrying that tag (legacy TEAM docs without tags match every tag).
+ * No filter → everything; a tag → TEAM docs carrying that tag (legacy TEAM
+ * docs without tags match every tag).
  */
 export function matchesTeamFilter(
   doc: { visibility?: string | null; visibilityTeams?: string[] | null },
   filter: string | null | undefined,
 ): boolean {
   if (!filter) return true
-  const isTeam = doc.visibility === 'TEAM'
-  if (filter === TEAM_FILTER_ALL) return !isTeam
+  if (doc.visibility !== 'TEAM') return false
   const tags = doc.visibilityTeams ?? []
-  return isTeam && (tags.length === 0 || tags.includes(filter))
+  return tags.length === 0 || tags.includes(filter)
 }
 
 /** Keep only tags that exist in the project's team catalog. */

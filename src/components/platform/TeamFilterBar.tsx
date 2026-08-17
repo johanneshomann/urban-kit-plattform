@@ -6,12 +6,11 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
-import { TEAM_FILTER_ALL } from '@/lib/team-scope'
 
 /**
  * Pill row filtering a module list by audience via the `?team=` search param
  * (server components read the param and filter — the URL stays shareable):
- * [Alle] [Für alle] [Team A] [Team B]…
+ * [Alle] [Team A] [Team B]…
  * Render only when the viewer has teams (PMs get the full catalog).
  */
 export function TeamFilterBar({ teams, active }: { teams: string[]; active: string | null }) {
@@ -30,7 +29,6 @@ export function TeamFilterBar({ teams, active }: { teams: string[]; active: stri
 
   const pills: { value: string | null; label: string }[] = [
     { value: null, label: 'Alle' },
-    { value: TEAM_FILTER_ALL, label: 'Für alle' },
     ...teams.map((t) => ({ value: t, label: t })),
   ]
 
