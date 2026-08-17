@@ -66,7 +66,7 @@ export default async function ModulePage({
           { label: tm(moduleType) },
         ]}
       />
-      <main className="p-6 md:p-8 max-w-4xl mx-auto w-full">
+      <main className="p-6 md:p-8 w-full">
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'calendar'

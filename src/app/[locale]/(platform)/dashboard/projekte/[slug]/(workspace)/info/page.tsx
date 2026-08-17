@@ -78,7 +78,7 @@ export default async function ProjectInfoPage({
           { label: tw('aboutProject') },
         ]}
       />
-      <main className="p-6 md:p-8 max-w-5xl mx-auto w-full">
+      <main className="p-6 md:p-8 w-full">
         {/* cover + short description — moved here from the old workspace hero */}
         <div className="mb-6">
           <img
