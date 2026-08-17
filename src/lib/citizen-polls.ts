@@ -20,6 +20,8 @@ export interface CitizenPoll {
   showResults: boolean
   canVote: boolean
   requiresLogin: boolean
+  visibility: string | null
+  visibilityTeams: string[]
   questions: VotingQuestion[]
   results: PollResults | null
 }
@@ -83,6 +85,8 @@ export async function loadCitizenPolls(payload: Payload, projectId: string, view
       showResults,
       canVote,
       requiresLogin,
+      visibility: p.visibility ?? null,
+      visibilityTeams: Array.isArray(p.visibilityTeams) ? p.visibilityTeams : [],
       questions,
       results: showResults ? await computeResults(payload, id) : null,
     })

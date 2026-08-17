@@ -7,9 +7,11 @@ import config from '@payload-config'
 import Link from 'next/link'
 import { ChevronRight, Newspaper } from 'lucide-react'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
+import { matchesTeamFilter } from '@/lib/team-scope'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 /** Citizen-facing list of visible, published news posts for a project. */
-export async function NewsFeed({ slug, locale, projectId, viewer }: { slug: string; locale: string; projectId: string; viewer: ViewerContext }) {
+export async function NewsFeed({ slug, locale, projectId, viewer, teamFilter }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; teamFilter?: string | null }) {
   const payload = await getPayload({ config })
   const now = new Date().toISOString()
   const res = await payload.find({
@@ -20,19 +22,20 @@ export async function NewsFeed({ slug, locale, projectId, viewer }: { slug: stri
     depth: 1,
     overrideAccess: true,
   })
+  const docs = res.docs.filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
 
   return (
     <div>
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
       <h1 className="sr-only">News</h1>
-      {res.docs.length === 0 ? (
+      {docs.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           <Newspaper className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Beiträge.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {res.docs.map((doc) => {
+          {docs.map((doc) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const p = doc as any
             const img = p.featuredImage && typeof p.featuredImage === 'object' ? p.featuredImage.url : null
@@ -42,7 +45,10 @@ export async function NewsFeed({ slug, locale, projectId, viewer }: { slug: stri
                 style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
                 {img && <img src={img} alt="" className="w-20 h-20 rounded-lg object-cover shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-display font-semibold leading-snug truncate" style={{ color: 'var(--project-accent)' }}>{p.title}</p>
+                  <p className="flex items-center gap-2 text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>
+                    <span className="truncate">{p.title}</span>
+                    <AudienceChip visibility={p.visibility} visibilityTeams={p.visibilityTeams} />
+                  </p>
                   {p.publishedAt && <p className="text-small mt-1" style={{ color: 'var(--project-ink)' }}>{new Date(p.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
                 </div>
                 <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />

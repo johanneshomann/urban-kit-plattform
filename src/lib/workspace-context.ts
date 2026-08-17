@@ -18,6 +18,8 @@ type WorkspaceProject = {
   coverImage?: { url?: string } | null
   colorScheme?: string | null
   modules?: string[]
+  /** Team catalog (tags the PM defined for this project). */
+  teams?: string[] | null
   projektphase?: string | null
   thema?: string[]
   gallery?: Array<{

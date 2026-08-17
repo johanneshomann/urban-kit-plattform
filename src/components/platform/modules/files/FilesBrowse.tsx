@@ -7,6 +7,8 @@ import config from '@payload-config'
 import { getTranslations } from 'next-intl/server'
 import { FileText, Folder, Download, Eye, FolderOpen } from 'lucide-react'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
+import { matchesTeamFilter } from '@/lib/team-scope'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 function fmtSize(b: number | null | undefined): string {
@@ -23,7 +25,7 @@ function fileExt(filename: string, mimeType: string | null): string {
   return sub ? sub.toUpperCase().slice(0, 5) : ''
 }
 
-interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null }
+interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null; visibility: string | null; visibilityTeams: string[] }
 
 function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | null; labels: { view: string; download: string } }) {
   const isImage = (f.mimeType ?? '').startsWith('image/')
@@ -43,7 +45,10 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-text font-bold truncate" style={{ color: 'var(--project-accent)' }}>{f.label || f.filename}</p>
+        <p className="flex items-center gap-2 text-text font-bold" style={{ color: 'var(--project-accent)' }}>
+          <span className="truncate">{f.label || f.filename}</span>
+          <AudienceChip visibility={f.visibility} visibilityTeams={f.visibilityTeams} />
+        </p>
         {meta && (
           <p className="text-small" style={{ color: 'var(--project-ink)' }}>{meta}</p>
         )}
@@ -87,7 +92,7 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
 }
 
 /** Read-only file library for citizens/public, gated to the viewer's tier. */
-export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { projectId: string; viewer: ViewerContext; hideTitle?: boolean }) {
+export async function FilesBrowse({ projectId, viewer, hideTitle = false, teamFilter }: { projectId: string; viewer: ViewerContext; hideTitle?: boolean; teamFilter?: string | null }) {
   const t = await getTranslations('filesBrowse')
   const payload = await getPayload({ config })
   const [foldersRes, filesRes] = await Promise.all([
@@ -99,7 +104,9 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { pr
   const folders = foldersRes.docs.map((d: any) => ({ id: String(d.id), name: d.name ?? '' }))
   const visibleFolderIds = new Set(folders.map((f) => f.id))
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const files: VFile[] = filesRes.docs.map((d: any) => ({ id: String(d.id), label: d.label ?? null, filename: d.filename ?? '', url: d.url ?? null, mimeType: d.mimeType ?? null, filesize: d.filesize ?? null, folderId: relId(d.folder) }))
+  const files: VFile[] = filesRes.docs
+    .filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
+    .map((d: any) => ({ id: String(d.id), label: d.label ?? null, filename: d.filename ?? '', url: d.url ?? null, mimeType: d.mimeType ?? null, filesize: d.filesize ?? null, folderId: relId(d.folder), visibility: d.visibility ?? null, visibilityTeams: Array.isArray(d.visibilityTeams) ? d.visibilityTeams : [] }))
 
   const folderNames = new Map(folders.map((f) => [f.id, f.name]))
   const labels = { view: t('view'), download: t('download') }

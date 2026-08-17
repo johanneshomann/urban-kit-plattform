@@ -19,14 +19,22 @@ import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLoader'
 import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 import { BoardView, type BoardRef } from '@/components/platform/board/BoardView'
+import { TeamFilterBar } from '@/components/platform/TeamFilterBar'
+import { TEAM_FILTER_ALL, matchesTeamFilter } from '@/lib/team-scope'
 import { cookies } from 'next/headers'
+
+/** Modules whose lists can be filtered by team audience via `?team=`. */
+const TEAM_FILTERABLE = new Set(['news', 'calendar', 'polls', 'forum', 'tasks', 'files'])
 
 export default async function ModulePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string; moduleType: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { locale, slug, moduleType } = await params
+  const sp = await searchParams
   const tm = await getTranslations({ locale, namespace: 'modules' })
   const payload = await getPayload({ config })
 
@@ -45,7 +53,16 @@ export default async function ModulePage({
     ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams }
     : null
 
-  const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, viewerCtx, userId) : []
+  // Team audience filter (`?team=`): PMs filter across the whole catalog,
+  // members across their own teams. Invalid values fall back to "Alle".
+  const filterTeams = viewerCtx.isPM ? (project.teams ?? []) : viewerCtx.teams
+  const rawTeam = typeof sp.team === 'string' ? sp.team : null
+  const teamFilter = rawTeam && (rawTeam === TEAM_FILTER_ALL || filterTeams.includes(rawTeam)) ? rawTeam : null
+  const showTeamFilter = TEAM_FILTERABLE.has(moduleType) && tier !== 'public' && filterTeams.length > 0
+
+  const citizenPolls = moduleType === 'polls'
+    ? (await loadCitizenPolls(payload, project.id, viewerCtx, userId)).filter((p) => matchesTeamFilter(p, teamFilter))
+    : []
 
   // Board needs the project's canvases + a WS token (the user's Payload JWT)
   let boardData: { boards: BoardRef[]; token: string; wsUrl: string; userName: string } | null = null
@@ -68,22 +85,23 @@ export default async function ModulePage({
       />
       {/* White content card under the light breadcrumb band — same pattern as manage */}
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
+        {showTeamFilter && <TeamFilterBar teams={filterTeams} active={teamFilter} />}
         {moduleType === 'news'
-          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} />
+          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} teamFilter={teamFilter} />
           : moduleType === 'calendar'
-          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} />
+          ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamFilter={teamFilter} />
           : moduleType === 'polls'
           ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} />
           : moduleType === 'forum'
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />
-              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} />)
+              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} teamFilter={teamFilter} />)
           : moduleType === 'files'
-          ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
+          ? <FilesBrowse projectId={project.id} viewer={viewerCtx} teamFilter={teamFilter} />
           : moduleType === 'tasks'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason="membership" />
-              : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} />)
+              : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} teamFilter={teamFilter} teamCatalog={project.teams ?? []} />)
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} reason="membership" />

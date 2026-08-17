@@ -6,12 +6,13 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { lexicalToHtml } from '@/lib/richtext'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
+import { matchesTeamFilter } from '@/lib/team-scope'
 import { CalendarConsumption, type ConsumptionEvent } from './CalendarConsumption'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 
 /** Loads visible events + attendance for a project and renders the citizen calendar. */
-export async function CalendarFeed({ slug, locale, projectId, viewer, userId }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; userId: string | null }) {
+export async function CalendarFeed({ slug, locale, projectId, viewer, userId, teamFilter }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; userId: string | null; teamFilter?: string | null }) {
   const payload = await getPayload({ config })
 
   const eventsRes = await payload.find({
@@ -22,7 +23,8 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId }: 
     depth: 0,
     overrideAccess: true,
   })
-  const eventIds = eventsRes.docs.map((e) => (e as { id: string | number }).id)
+  const visibleDocs = eventsRes.docs.filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
+  const eventIds = visibleDocs.map((e) => (e as { id: string | number }).id)
 
   const attendeesRes = eventIds.length
     ? await payload.find({ collection: 'event-attendees', where: { event: { in: eventIds } }, limit: 100000, depth: 0, overrideAccess: true })
@@ -37,7 +39,7 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId }: 
     if (userId && relId((a as { user?: unknown }).user) === userId) mine.add(ev)
   }
 
-  const events: ConsumptionEvent[] = eventsRes.docs.map((doc) => {
+  const events: ConsumptionEvent[] = visibleDocs.map((doc) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const e = doc as any
     const id = String(e.id)
@@ -50,6 +52,8 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId }: 
       location: e.location ?? null,
       category: e.category ?? null,
       bodyHtml: lexicalToHtml(e.content),
+      visibility: e.visibility ?? null,
+      visibilityTeams: Array.isArray(e.visibilityTeams) ? e.visibilityTeams : [],
       attendeeCount: countByEvent.get(id) ?? 0,
       attending: mine.has(id),
     }

@@ -8,6 +8,7 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { CalendarDays, List, MapPin, Tag, Check, Plus, Download, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { toggleEventAttendance } from '@/actions/event-attend'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 export interface ConsumptionEvent {
   id: string
@@ -18,6 +19,8 @@ export interface ConsumptionEvent {
   location?: string | null
   category?: string | null
   bodyHtml?: string | null
+  visibility?: string | null
+  visibilityTeams?: string[]
   attendeeCount: number
   attending: boolean
 }
@@ -52,7 +55,10 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
     <div className="rounded-xl border px-4 py-3" style={{ ...cardStyle, ...(muted ? { background: 'var(--project-light)' } : {}) }}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>{e.title}</p>
+          <p className="flex items-center gap-2 text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>
+            {e.title}
+            <AudienceChip visibility={e.visibility} visibilityTeams={e.visibilityTeams} />
+          </p>
           <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1" style={{ color: 'var(--project-ink)' }}>
             <span>{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ' · ganztägig' : ''}</span>
             {e.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{e.location}</span>}
@@ -147,7 +153,9 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
                 {c.day && <p className="text-small font-medium" style={{ color: 'var(--project-ink)' }}>{c.day}</p>}
                 <div className="flex flex-col gap-0.5 mt-0.5">
                   {c.events.map((e) => (
-                    <span key={e.id} title={e.title} className="text-[0.7rem] truncate px-1 py-0.5 rounded" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{e.title}</span>
+                    // Team events get the dark chip color so the audience is
+                    // readable in the grid too (matches the AudienceChip).
+                    <span key={e.id} title={e.visibility === 'TEAM' ? `${e.title} · Team: ${(e.visibilityTeams ?? []).join(', ')}` : e.title} className="text-[0.7rem] truncate px-1 py-0.5 rounded" style={e.visibility === 'TEAM' ? { background: 'var(--project-dark)', color: 'var(--project-black)' } : { background: 'var(--project-light)', color: 'var(--project-accent)' }}>{e.title}</span>
                   ))}
                 </div>
               </div>

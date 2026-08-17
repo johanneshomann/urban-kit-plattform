@@ -14,6 +14,7 @@ import { loadPostComments } from '@/lib/news'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { NewsComments } from '@/components/platform/modules/news/NewsComments'
 import { ForumThreadDetail } from '@/components/platform/modules/forum/ForumThreadDetail'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 export default async function ModuleItemPage({
   params,
@@ -93,7 +94,10 @@ export default async function ModuleItemPage({
     return (
       <>
         <article>
-          <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>{post.title}</h1>
+          <h1 className="flex flex-wrap items-center gap-2.5 text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>
+            {post.title}
+            <AudienceChip visibility={post.visibility} visibilityTeams={post.visibilityTeams} />
+          </h1>
           {post.publishedAt && <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>{new Date(post.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
           {img && <img src={img} alt="" className="w-full rounded-xl mb-6 object-cover" style={{ maxHeight: '24rem' }} />}
           {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}

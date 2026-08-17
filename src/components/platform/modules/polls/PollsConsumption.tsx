@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { BarChart2, Check, Send } from 'lucide-react'
 import { submitPollVote, type PollAnswer } from '@/actions/poll-vote'
 import { PollResultsView } from './PollResultsView'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 import type { CitizenPoll } from '@/lib/citizen-polls'
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
@@ -38,7 +39,10 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
   return (
     <div className="rounded-xl border p-5" style={cardStyle}>
       <div className="flex items-start justify-between gap-3 mb-1">
-        <h2 className="text-display font-bold leading-snug" style={{ color: 'var(--project-accent)' }}>{poll.title}</h2>
+        <h2 className="flex flex-wrap items-center gap-2 text-display font-bold leading-snug" style={{ color: 'var(--project-accent)' }}>
+          {poll.title}
+          <AudienceChip visibility={poll.visibility} visibilityTeams={poll.visibilityTeams} />
+        </h2>
         <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{meta.label}</span>
       </div>
       {poll.description && <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>{poll.description}</p>}
