@@ -9,6 +9,14 @@ import { useRouter } from 'next/navigation'
 import { CalendarDays, List, MapPin, Tag, Check, Plus, Download, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { toggleEventAttendance } from '@/actions/event-attend'
 import { AudienceChip } from '@/components/platform/AudienceChip'
+import { EventFormModal } from '@/components/platform/manage/CalendarManager'
+
+/** Authoring rights of the viewer on this calendar (PM or team lead). */
+export interface CalendarAuthor {
+  isPM: boolean
+  /** PM: full catalog; lead: their led teams. */
+  teamCatalog: string[]
+}
 
 export interface ConsumptionEvent {
   id: string
@@ -30,10 +38,11 @@ const fmt = (iso: string, allDay?: boolean | null) => new Date(iso).toLocaleStri
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 
-export function CalendarConsumption({ slug, locale, events, canAttend }: { slug: string; locale: string; events: ConsumptionEvent[]; canAttend: boolean }) {
+export function CalendarConsumption({ slug, locale, events, canAttend, author = null }: { slug: string; locale: string; events: ConsumptionEvent[]; canAttend: boolean; author?: CalendarAuthor | null }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
   const [view, setView] = useState<'list' | 'grid'>('list')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() } })
@@ -106,9 +115,14 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
 
   return (
     <div>
-      <div className="flex items-center justify-end mb-6">
+      <div className="flex items-center justify-end gap-2 mb-6">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
         <h1 className="sr-only">Kalender</h1>
+        {author && (
+          <button type="button" onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            <Plus className="w-4 h-4" /> Neuer Termin
+          </button>
+        )}
         <div className="flex items-center gap-1 rounded-lg border p-0.5" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}>
           {(['list', 'grid'] as const).map((v) => (
             <button key={v} type="button" onClick={() => setView(v)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-small font-medium"
@@ -120,6 +134,10 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
       </div>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+
+      {creating && author && (
+        <EventFormModal slug={slug} locale={locale} event={null} teamCatalog={author.teamCatalog} leadMode={!author.isPM} onClose={() => setCreating(false)} />
+      )}
 
       {view === 'list' ? (
         events.length === 0 ? (

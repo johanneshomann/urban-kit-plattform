@@ -7,12 +7,12 @@ import config from '@payload-config'
 import { lexicalToHtml } from '@/lib/richtext'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
-import { CalendarConsumption, type ConsumptionEvent } from './CalendarConsumption'
+import { CalendarConsumption, type ConsumptionEvent, type CalendarAuthor } from './CalendarConsumption'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 
 /** Loads visible events + attendance for a project and renders the citizen calendar. */
-export async function CalendarFeed({ slug, locale, projectId, viewer, userId, teamFilter }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; userId: string | null; teamFilter?: string | null }) {
+export async function CalendarFeed({ slug, locale, projectId, viewer, userId, teamFilter, author = null }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; userId: string | null; teamFilter?: string | null; author?: CalendarAuthor | null }) {
   const payload = await getPayload({ config })
 
   const eventsRes = await payload.find({
@@ -59,5 +59,5 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId, te
     }
   })
 
-  return <CalendarConsumption slug={slug} locale={locale} events={events} canAttend={viewer.tier !== 'public'} />
+  return <CalendarConsumption slug={slug} locale={locale} events={events} canAttend={viewer.tier !== 'public'} author={author} />
 }

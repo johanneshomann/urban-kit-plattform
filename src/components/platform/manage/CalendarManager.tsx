@@ -7,8 +7,9 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Plus, Trash2, Pencil, X, MapPin, Tag, Globe, Lock, Users as UsersIcon } from 'lucide-react'
+import { Plus, Trash2, Pencil, MapPin, Tag, Globe, Lock, Users as UsersIcon } from 'lucide-react'
 import { createProjectEvent, updateProjectEvent, deleteProjectEvent } from '@/actions/manage/calendar'
+import { FormModal } from '@/components/platform/FormModal'
 
 export interface EventItem {
   id: string
@@ -54,17 +55,126 @@ function toInput(iso: string | null | undefined, allDay: boolean): string {
 }
 
 /**
- * `leadMode` mounts the manager for a team lead (team page): no visibility
- * select (the server forces TEAM ∩ leadOf anyway), new events default to
- * TEAM, and rows the lead doesn't own (`canManage: false`) are read-only.
+ * Self-contained event create/edit popup. Mountable from the manage list,
+ * the member-facing calendar (create button) and the team page quick
+ * actions. `event: null` = create; `leadMode` hides the visibility select
+ * (the server forces TEAM ∩ leadOf anyway) and defaults new events to TEAM.
+ */
+export function EventFormModal({ slug, locale, event, teamCatalog, leadMode = false, onClose }: {
+  slug: string
+  locale: string
+  event: EventItem | null
+  teamCatalog: string[]
+  leadMode?: boolean
+  onClose: () => void
+}) {
+  const t = useTranslations('manage')
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [f, setF] = useState<EventItem>(() => {
+    if (!event) return blank(leadMode)
+    const allDay = !!event.allDay
+    return { ...event, allDay, startDate: toInput(event.startDate, allDay), endDate: toInput(event.endDate, allDay) }
+  })
+
+  const set = <K extends keyof EventItem>(k: K, v: EventItem[K]) => setF((s) => ({ ...s, [k]: v }))
+
+  const save = () => {
+    const input = {
+      title: f.title, startDate: f.startDate, endDate: f.endDate || undefined,
+      allDay: !!f.allDay, location: f.location || undefined, category: f.category || undefined,
+      visibility: f.visibility || 'PROJECT', visibilityTeams: f.visibilityTeams || [], body: f.body || '',
+    }
+    setError(null)
+    startTransition(async () => {
+      const res: Result = event?.id
+        ? await updateProjectEvent(slug, locale, event.id, input)
+        : await createProjectEvent(slug, locale, input)
+      if (res.error) { setError(res.error); return }
+      onClose()
+      router.refresh()
+    })
+  }
+
+  return (
+    <FormModal title={event?.id ? t('calendar.editEvent') : t('calendar.newEvent')} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+        <input type="text" autoFocus value={f.title} onChange={(e) => set('title', e.target.value)} placeholder={t('calendar.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
+        <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
+          <input type="checkbox" checked={!!f.allDay} onChange={(e) => set('allDay', e.target.checked)} /> {t('calendar.allDay')}
+        </label>
+        <div className="grid sm:grid-cols-2 gap-2">
+          <div>
+            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('calendar.startLabel')}</label>
+            <input type={f.allDay ? 'date' : 'datetime-local'} value={f.startDate} onChange={(e) => set('startDate', e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
+          </div>
+          <div>
+            <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('calendar.endLabel')}</label>
+            <input type={f.allDay ? 'date' : 'datetime-local'} value={f.endDate ?? ''} onChange={(e) => set('endDate', e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
+          </div>
+        </div>
+        <div className={`grid gap-2 ${leadMode ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
+          <input type="text" value={f.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder={t('calendar.locationPlaceholder')} className={inputCls} style={inputStyle} />
+          <input type="text" value={f.category ?? ''} onChange={(e) => set('category', e.target.value)} placeholder={t('calendar.categoryPlaceholder')} className={inputCls} style={inputStyle} />
+          {!leadMode && (
+            <select value={f.visibility ?? 'PROJECT'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
+              {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
+            </select>
+          )}
+        </div>
+        {f.visibility === 'TEAM' && teamCatalog.length > 0 && (
+          <div>
+            <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-accent)' }}>
+              {t('members.teamLabel')}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {teamCatalog.map((tag) => {
+                const active = (f.visibilityTeams ?? []).includes(tag)
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => set('visibilityTeams', active ? (f.visibilityTeams ?? []).filter((t: string) => t !== tag) : [...(f.visibilityTeams ?? []), tag])}
+                    className="text-small px-2.5 py-1 rounded-full border transition-colors"
+                    style={{
+                      background: active ? 'var(--project-dark)' : 'transparent',
+                      color: active ? 'var(--project-black)' : 'var(--project-accent)',
+                      borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
+                    }}
+                  >
+                    {tag}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+        <div>
+          <textarea value={f.body ?? ''} onChange={(e) => set('body', e.target.value)} rows={5} placeholder={t('calendar.bodyPlaceholder')} className={`${inputCls} w-full font-mono`} style={inputStyle} />
+        </div>
+        <div>
+          <button type="button" onClick={save} disabled={pending || !f.title.trim() || !f.startDate} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+            {event?.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {event?.id ? t('calendar.save') : t('calendar.createEvent')}
+          </button>
+        </div>
+      </div>
+    </FormModal>
+  )
+}
+
+/**
+ * `leadMode` mounts the manager for a team lead (team page): the popup form
+ * follows the same flag, and rows the lead doesn't own (`canManage: false`)
+ * are read-only.
  */
 export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = false }: { slug: string; locale: string; events: EventItem[]; teamCatalog: string[]; leadMode?: boolean }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [editing, setEditing] = useState<EventItem | null>(null)
-  const [f, setF] = useState<EventItem>(blank(leadMode))
+  const [editing, setEditing] = useState<EventItem | null>(null) // sentinel id '' = create
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const now = Date.now()
@@ -79,25 +189,6 @@ export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = 
       after?.()
       router.refresh()
     })
-  }
-
-  const set = <K extends keyof EventItem>(k: K, v: EventItem[K]) => setF((s) => ({ ...s, [k]: v }))
-  const openNew = () => { setEditing(blank(leadMode)); setF(blank(leadMode)) }
-  const openEdit = (e: EventItem) => {
-    const allDay = !!e.allDay
-    setEditing(e)
-    setF({ ...e, allDay, startDate: toInput(e.startDate, allDay), endDate: toInput(e.endDate, allDay) })
-  }
-  const close = () => setEditing(null)
-
-  const save = () => {
-    const input = {
-      title: f.title, startDate: f.startDate, endDate: f.endDate || undefined,
-      allDay: !!f.allDay, location: f.location || undefined, category: f.category || undefined,
-      visibility: f.visibility || 'PROJECT', visibilityTeams: f.visibilityTeams || [], body: f.body || '',
-    }
-    if (editing && editing.id) run(() => updateProjectEvent(slug, locale, editing.id, input), close)
-    else run(() => createProjectEvent(slug, locale, input), close)
   }
 
   const Row = ({ e, muted }: { e: EventItem; muted?: boolean }) => {
@@ -115,7 +206,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = 
         </div>
         {e.canManage !== false && (
         <div className="flex items-center gap-1.5 shrink-0">
-          <button type="button" onClick={() => openEdit(e)} disabled={pending} title={t('calendar.edit')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setEditing(e)} disabled={pending} title={t('calendar.edit')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-4 h-4" /></button>
           {confirmDelete === e.id ? (
             <>
               <button type="button" onClick={() => run(() => deleteProjectEvent(slug, locale, e.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('calendar.delete')}</button>
@@ -134,82 +225,22 @@ export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = 
     <div>
       <div className="flex items-center justify-end mb-1">
         <h1 className="sr-only">{t('calendar.title')}</h1>
-        {!editing && (
-          <button type="button" onClick={openNew} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-            <Plus className="w-4 h-4" /> {t('calendar.newEvent')}
-          </button>
-        )}
+        <button type="button" onClick={() => setEditing(blank(leadMode))} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+          <Plus className="w-4 h-4" /> {t('calendar.newEvent')}
+        </button>
       </div>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {editing && (
-        <div className={`${card} p-5 mb-6`} style={cardStyle}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>{editing.id ? t('calendar.editEvent') : t('calendar.newEvent')}</h2>
-            <button type="button" onClick={close} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
-          </div>
-          <div className="flex flex-col gap-3">
-            <input type="text" value={f.title} onChange={(e) => set('title', e.target.value)} placeholder={t('calendar.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
-            <label className="flex items-center gap-2 text-small cursor-pointer" style={{ color: 'var(--project-accent)' }}>
-              <input type="checkbox" checked={!!f.allDay} onChange={(e) => set('allDay', e.target.checked)} /> {t('calendar.allDay')}
-            </label>
-            <div className="grid sm:grid-cols-2 gap-2">
-              <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('calendar.startLabel')}</label>
-                <input type={f.allDay ? 'date' : 'datetime-local'} value={f.startDate} onChange={(e) => set('startDate', e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
-              </div>
-              <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('calendar.endLabel')}</label>
-                <input type={f.allDay ? 'date' : 'datetime-local'} value={f.endDate ?? ''} onChange={(e) => set('endDate', e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-2">
-              <input type="text" value={f.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder={t('calendar.locationPlaceholder')} className={inputCls} style={inputStyle} />
-              <input type="text" value={f.category ?? ''} onChange={(e) => set('category', e.target.value)} placeholder={t('calendar.categoryPlaceholder')} className={inputCls} style={inputStyle} />
-              {!leadMode && (
-                <select value={f.visibility ?? 'PROJECT'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
-                  {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
-                </select>
-              )}
-            </div>
-            {f.visibility === 'TEAM' && teamCatalog.length > 0 && (
-              <div>
-                <span className="text-small font-medium mb-1.5 block" style={{ color: 'var(--project-accent)' }}>
-                  {t('members.teamLabel')}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {teamCatalog.map((tag) => {
-                    const active = (f.visibilityTeams ?? []).includes(tag)
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => set('visibilityTeams', active ? (f.visibilityTeams ?? []).filter((t: string) => t !== tag) : [...(f.visibilityTeams ?? []), tag])}
-                        className="text-small px-2.5 py-1 rounded-full border transition-colors"
-                        style={{
-                          background: active ? 'var(--project-dark)' : 'transparent',
-                          color: active ? 'var(--project-black)' : 'var(--project-accent)',
-                          borderColor: active ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)',
-                        }}
-                      >
-                        {tag}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-            <div>
-              <textarea value={f.body ?? ''} onChange={(e) => set('body', e.target.value)} rows={5} placeholder={t('calendar.bodyPlaceholder')} className={`${inputCls} w-full font-mono`} style={inputStyle} />
-            </div>
-            <div>
-              <button type="button" onClick={save} disabled={pending || !f.title.trim() || !f.startDate} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-                {editing.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editing.id ? t('calendar.save') : t('calendar.createEvent')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <EventFormModal
+          slug={slug}
+          locale={locale}
+          event={editing.id ? editing : null}
+          teamCatalog={teamCatalog}
+          leadMode={leadMode}
+          onClose={() => setEditing(null)}
+        />
       )}
 
       <h2 className="text-small font-bold uppercase tracking-widest mt-2 mb-3" style={{ color: 'var(--project-ink)' }}>{t('calendar.upcoming', { count: upcoming.length })}</h2>
