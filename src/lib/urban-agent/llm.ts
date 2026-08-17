@@ -4,75 +4,78 @@
 
 import 'server-only'
 
+import { generateText, type LanguageModel, type ModelMessage } from 'ai'
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic'
+import { mistral, createMistral } from '@ai-sdk/mistral'
+import { createOpenAI, openai } from '@ai-sdk/openai'
+import type { AgentProvider, UrbanAgentSettings } from './settings'
+
 /**
- * Provider-agnostic chat completion via raw fetch (no SDK dependency).
- * Picks Anthropic → OpenAI → Ollama based on which env vars are present.
+ * One chat turn against the configured provider (Vercel AI SDK). Which
+ * provider runs is decided in settings.ts — deliberately no cross-provider
+ * failover (see there). Ollama has no first-party AI-SDK provider and is
+ * driven through its OpenAI-compatible endpoint, which also makes the output
+ * token cap apply there.
  */
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string }
-export type LlmProvider = 'anthropic' | 'openai' | 'ollama'
 
-export function resolveProvider(): LlmProvider | null {
-  if (process.env.ANTHROPIC_API_KEY) return 'anthropic'
-  if (process.env.OPENAI_API_KEY) return 'openai'
-  if (process.env.OLLAMA_BASE_URL) return 'ollama'
-  return null
+export const DEFAULT_MODEL: Record<AgentProvider, string> = {
+  anthropic: 'claude-haiku-4-5',
+  openai: 'gpt-4o-mini',
+  mistral: 'mistral-small-latest',
+  ollama: 'llama3',
 }
 
-const MAX_TOKENS = 1024
+/** Cost ceiling per reply; long answers are not this assistant's job. */
+const MAX_OUTPUT_TOKENS = 800
+/** A hanging provider must not hold the serverless invocation open. */
+const TIMEOUT_MS = 30_000
 
-async function callAnthropic(system: string, messages: ChatMessage[]): Promise<string> {
-  // Anthropic Messages API — https://api.anthropic.com/v1/messages
-  const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5'
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY as string,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ model, max_tokens: MAX_TOKENS, system, messages }),
+function buildModel(provider: AgentProvider, modelId?: string, apiKey?: string): LanguageModel {
+  const id = modelId || DEFAULT_MODEL[provider]
+  switch (provider) {
+    case 'openai':
+      return (apiKey ? createOpenAI({ apiKey }) : openai)(id)
+    case 'mistral':
+      return (apiKey ? createMistral({ apiKey }) : mistral)(id)
+    case 'ollama': {
+      const base = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/$/, '')
+      return createOpenAI({ baseURL: `${base}/v1`, apiKey: 'ollama' })(
+        modelId || process.env.OLLAMA_MODEL || DEFAULT_MODEL.ollama,
+      )
+    }
+    default:
+      return (apiKey ? createAnthropic({ apiKey }) : anthropic)(id)
+  }
+}
+
+export async function chatComplete(
+  settings: UrbanAgentSettings,
+  system: string,
+  messages: ChatMessage[],
+): Promise<{ provider: AgentProvider; text: string }> {
+  if (!settings.configured || !settings.provider) throw new Error('NOT_CONFIGURED')
+
+  const systemMessage: ModelMessage = { role: 'system', content: system }
+  if (settings.provider === 'anthropic') {
+    // The system prompt (rules + project context) repeats across a chat
+    // session — cache it. Other providers ignore this option.
+    systemMessage.providerOptions = {
+      anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+    }
+  }
+
+  const result = await generateText({
+    model: buildModel(settings.provider, settings.model, settings.apiKey),
+    messages: [systemMessage, ...messages],
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    abortSignal: AbortSignal.timeout(TIMEOUT_MS),
   })
-  if (!res.ok) throw new Error(`Anthropic ${res.status}: ${await res.text()}`)
-  const data = (await res.json()) as { content?: { type: string; text?: string }[] }
-  return (data.content ?? []).filter((b) => b.type === 'text').map((b) => b.text ?? '').join('').trim()
-}
 
-async function callOpenAI(system: string, messages: ChatMessage[]): Promise<string> {
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ model, max_tokens: MAX_TOKENS, messages: [{ role: 'system', content: system }, ...messages] }),
-  })
-  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`)
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] }
-  return (data.choices?.[0]?.message?.content ?? '').trim()
-}
+  // Count-only accounting (no content) — enough to notice runaway cost.
+  const { inputTokens, outputTokens } = result.usage
+  console.info(`[urban-agent] ${settings.provider} tokens in=${inputTokens ?? '?'} out=${outputTokens ?? '?'}`)
 
-async function callOllama(system: string, messages: ChatMessage[]): Promise<string> {
-  const base = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/$/, '')
-  const model = process.env.OLLAMA_MODEL || 'llama3'
-  const res = await fetch(`${base}/api/chat`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ model, stream: false, messages: [{ role: 'system', content: system }, ...messages] }),
-  })
-  if (!res.ok) throw new Error(`Ollama ${res.status}: ${await res.text()}`)
-  const data = (await res.json()) as { message?: { content?: string } }
-  return (data.message?.content ?? '').trim()
-}
-
-/** Run one chat turn against the configured provider. Returns the assistant text. */
-export async function chatComplete(system: string, messages: ChatMessage[]): Promise<{ provider: LlmProvider; text: string }> {
-  const provider = resolveProvider()
-  if (!provider) throw new Error('NOT_CONFIGURED')
-  const text =
-    provider === 'anthropic' ? await callAnthropic(system, messages)
-    : provider === 'openai' ? await callOpenAI(system, messages)
-    : await callOllama(system, messages)
-  return { provider, text }
+  return { provider: settings.provider, text: result.text.trim() }
 }
