@@ -117,7 +117,10 @@ export function DashboardTransition({ children }: { children: React.ReactNode })
 
   return (
     <ExitContext.Provider value={navigateWithExit}>
-      <div className="overflow-hidden flex-1 min-w-0">
+      {/* overflow-x-CLIP, not hidden: clip cuts off the horizontal slide
+          animations just the same but creates no scroll container, so sticky
+          descendants (project sidebar) keep sticking to the viewport. */}
+      <div className="overflow-x-clip flex-1 min-w-0">
         {/* The enter class is cleared once the animation finishes: its
             fill-mode keeps a transform on the wrapper, which would otherwise
             turn it into the containing block for position:fixed descendants
