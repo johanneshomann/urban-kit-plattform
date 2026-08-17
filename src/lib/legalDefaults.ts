@@ -91,8 +91,10 @@ export function barrierefreiheitDefault(locale: string, cityName: string) {
 // verified inventory: payload-token (src/actions/auth.ts, 7 days, parent-domain
 // scoped in production), pollvoted-<id> (src/actions/poll-vote.ts, 1 year,
 // anonymous poll dedup), NEXT_LOCALE (next-intl middleware, set on active
-// language switch), uk-a11y (src/lib/accessibility.ts) and
-// uk-cookie-notice-ack (src/components/public/CookieNotice.tsx).
+// language switch), uk-a11y (src/lib/accessibility.ts),
+// uk-cookie-notice-ack (src/components/public/CookieNotice.tsx),
+// uk-prototype-notice-ack (src/components/public/PrototypeNotice.tsx) and
+// uk-urban-agent-chat:<projekt> (UrbanAgentChat transcript, sessionStorage).
 export const cookiePolicyDe = doc([
   h('h2', 'Cookies & lokale Speicherung'),
   p(txt('Diese Plattform verwendet ausschließlich technisch notwendige bzw. funktionale Cookies und lokale Browser-Speicherung. Es findet kein Tracking statt, es werden keine Analyse- oder Marketing-Cookies gesetzt und keine Daten zu Werbezwecken an Dritte weitergegeben. Eine Einwilligung (Cookie-Banner) ist daher nicht erforderlich. Rechtsgrundlage ist § 25 Abs. 2 TDDDG i. V. m. Art. 6 Abs. 1 lit. f DSGVO.')),
@@ -107,6 +109,8 @@ export const cookiePolicyDe = doc([
   ul([
     [b('uk-a11y'), txt(' – Ihre Barrierefreiheit-Einstellungen (Schriftgröße, reduzierte Animationen, hoher Kontrast, unterstrichene Links). Funktional, bleibt bis zum Löschen erhalten.')],
     [b('uk-cookie-notice-ack'), txt(' – Merkt sich, dass Sie den Speicherhinweis geschlossen haben. Session Storage, wird beim Schließen des Tabs gelöscht.')],
+    [b('uk-prototype-notice-ack'), txt(' – Merkt sich, dass Sie den Prototyp-Hinweis geschlossen haben (nur sofern dieser aktiviert ist). Session Storage, wird beim Schließen des Tabs gelöscht.')],
+    [b('uk-urban-agent-chat-…'), txt(' – Ihr Gesprächsverlauf mit dem Urban-Agent-Assistenten je Projekt (nur für angemeldete Projektmitglieder, sofern das Modul aktiv ist), damit der Verlauf beim Navigieren nicht verloren geht. Liegt ausschließlich in Ihrem Browser, wird nicht auf dem Server gespeichert. Session Storage, wird beim Schließen des Tabs gelöscht.')],
   ]),
   h('h3', 'Ihre Kontrolle'),
   p(txt('Sie können Cookies und lokale Speicherung jederzeit über die Einstellungen Ihres Browsers löschen oder blockieren. Das Löschen der lokalen Speicherung entfernt Ihre Barrierefreiheit-Einstellungen; ohne das Sitzungs-Cookie ist eine Anmeldung nicht möglich, und die Funktionsfähigkeit der Plattform kann eingeschränkt sein.')),
@@ -125,6 +129,8 @@ export const cookiePolicyEn = doc([
   ul([
     [b('uk-a11y'), txt(' – Your accessibility settings (font size, reduced motion, high contrast, underlined links). Functional, kept until cleared.')],
     [b('uk-cookie-notice-ack'), txt(' – Remembers that you dismissed the storage notice. Session storage, deleted when the tab is closed.')],
+    [b('uk-prototype-notice-ack'), txt(' – Remembers that you dismissed the prototype notice (only while that notice is enabled). Session storage, deleted when the tab is closed.')],
+    [b('uk-urban-agent-chat-…'), txt(' – Your conversation history with the Urban Agent assistant per project (signed-in project members only, where the module is enabled), so the transcript survives navigation. Lives only in your browser and is never stored on the server. Session storage, deleted when the tab is closed.')],
   ]),
   h('h3', 'Your control'),
   p(txt('You can delete or block cookies and local storage at any time via your browser settings. Clearing local storage removes your accessibility settings; without the session cookie you cannot sign in, and parts of the platform may work with reduced functionality.')),
