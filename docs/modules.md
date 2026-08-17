@@ -33,7 +33,7 @@ folder + registry entry + option in `projects.modules` + entries in
 | `tasks` | tasks, task-columns, task-assignees | TEAM-only (Aufgaben board) |
 | `board` | board-canvases | Excalidraw + Yjs via Hocuspocus |
 | `files` | file-uploads, folders | has public content |
-| `urban-agent` | — | LLM chat (Vercel AI SDK, one selected provider — see `urban-agent-settings` global + `docs/env-reference.md`). Route enforces membership + module-enabled + per-user rate limit + daily ceiling |
+| `urban-agent` | — | Tool-calling LLM agent over this project's content (Vercel AI SDK, one selected provider — see `urban-agent-settings` global + `docs/env-reference.md`). Tools in `src/lib/urban-agent/tools.ts`: `list_items` / `search_project` / `get_item` / `show_items`, filtered to the project's enabled modules (tasks: team tier only), every doc gated by `canViewContent`, cards only via server-validated id allow-list. Route enforces membership + module-enabled + per-user rate limit + daily ceiling |
 
 ## Where modules surface
 

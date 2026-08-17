@@ -14,7 +14,7 @@ logged-in workspace.
 | Styling | Tailwind CSS 4 + CSS custom properties (design tokens) |
 | i18n | next-intl (`de`, `en`) — UI chrome only, see [i18n.md](./i18n.md) |
 | Realtime board | Hocuspocus sidecar (Yjs over WebSocket) + Excalidraw |
-| AI | Urban Agent module — Vercel AI SDK; one selected provider (Mistral / Anthropic / OpenAI / Ollama), admin-configurable, no silent failover |
+| AI | Urban Agent module — tool-calling agent (Vercel AI SDK) over the project's enabled modules; one selected provider (Mistral / Anthropic / OpenAI / Ollama), admin-configurable, no silent failover |
 | Language/runtime | TypeScript, ESM (`"type": "module"`), npm |
 
 ## Two domains, one deployment
