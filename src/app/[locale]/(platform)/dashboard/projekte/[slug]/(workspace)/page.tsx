@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 
 import { ModuleSection } from '@/components/platform/ModuleSection'
+import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { RecentActivityCard } from '@/components/platform/RecentActivityCard'
 import { JoinProjectButton } from '@/components/platform/JoinProjectButton'
 import { MODULE_ORDER, PARTICIPATE_MODULES, COLLABORATE_MODULES } from '@/lib/options/modules'
@@ -63,33 +64,39 @@ export default async function ProjectDashboardPage({
   const themaList = (project.thema ?? []).filter(Boolean)
 
   return (
-    <div className="flex-1 p-6 md:p-8 flex flex-col gap-6" style={{ background: P.light }}>
+    <div className="flex-1 flex flex-col" style={{ background: P.light }}>
+      {/* Same top pattern as the module pages: the breadcrumb names the page
+          (here: the project itself), the h1 stays sr-only (BITV). */}
+      <ProjectBreadcrumb items={[{ label: project.title }]} />
+      <h1 className="sr-only">{project.title}</h1>
+      <div className="flex-1 p-6 md:p-8 flex flex-col gap-6">
 
-      {/* top strip — replaces the old full-height hero */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="min-w-0 flex-1 flex flex-col gap-2">
-          {phaseLabel && (
-            <span
-              className="self-start text-small font-medium px-3 py-1 rounded-full"
-              style={{
-                color: P.accent,
-                background: `color-mix(in srgb, ${P.accent} 12%, transparent)`,
-                border: `1.5px solid color-mix(in srgb, ${P.accent} 30%, transparent)`,
-              }}
-            >
-              {phaseLabel}
-            </span>
+      {/* top strip — phase pill left, join button right (skipped when both are absent) */}
+      {(phaseLabel || ctx.canRequestJoin) && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="min-w-0 flex-1">
+            {phaseLabel && (
+              <span
+                className="inline-block text-small font-medium px-3 py-1 rounded-full"
+                style={{
+                  color: P.accent,
+                  background: `color-mix(in srgb, ${P.accent} 12%, transparent)`,
+                  border: `1.5px solid color-mix(in srgb, ${P.accent} 30%, transparent)`,
+                }}
+              >
+                {phaseLabel}
+              </span>
+            )}
+          </div>
+          {ctx.canRequestJoin && (
+            <JoinProjectButton
+              slug={slug}
+              locale={locale}
+              status={ctx.membershipStatus === 'requested' || ctx.membershipStatus === 'rejected' ? ctx.membershipStatus : null}
+            />
           )}
-          <h1 className="text-title font-bold leading-tight" style={{ color: P.accent }}>{project.title}</h1>
         </div>
-        {ctx.canRequestJoin && (
-          <JoinProjectButton
-            slug={slug}
-            locale={locale}
-            status={ctx.membershipStatus === 'requested' || ctx.membershipStatus === 'rejected' ? ctx.membershipStatus : null}
-          />
-        )}
-      </div>
+      )}
 
       {/* thema tags */}
       {themaList.length > 0 && (
@@ -128,6 +135,7 @@ export default async function ProjectDashboardPage({
         />
       )}
 
+      </div>
     </div>
   )
 }
