@@ -169,7 +169,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
       <h1 className="sr-only">{t('members.title')}</h1>
 
       {error && (
-        <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>
+        <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>
       )}
 
       {/* Invite — generate and copy a redeemable code */}
@@ -260,7 +260,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
                     onClick={() => run(() => removeMember(slug, locale, m.membershipId))}
                     disabled={pending}
                     className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40"
-                    style={{ background: '#b91c1c', color: 'white' }}
+                    style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}
                   >
                     {t('members.confirmRemove')}
                   </button>
@@ -281,7 +281,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
                   disabled={pending}
                   title={t('members.removeTitle')}
                   className="p-2 rounded-lg shrink-0 transition-colors disabled:opacity-40"
-                  style={{ color: '#b91c1c' }}
+                  style={{ color: 'var(--project-danger)' }}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

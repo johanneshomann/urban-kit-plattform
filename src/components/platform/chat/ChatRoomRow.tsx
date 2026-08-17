@@ -210,7 +210,7 @@ export function ChatRoomRow({
                 <button
                   type="button"
                   onClick={() => (confirmingDelete ? run(() => deleteRoom(room.id)) : setConfirmingDelete(true))}
-                  className={`${menuItem} text-red-700 font-medium`}
+                  className={`${menuItem} text-[var(--project-danger)] font-medium`}
                 >
                   {confirmingDelete ? t('confirmDelete') : t('deleteRoom')}
                 </button>
@@ -219,7 +219,7 @@ export function ChatRoomRow({
           )}
         </div>
       )}
-      {error && <p className="px-3 pb-1 text-small text-red-700">{error}</p>}
+      {error && <p className="px-3 pb-1 text-small text-[var(--project-danger)]">{error}</p>}
     </div>
   )
 }

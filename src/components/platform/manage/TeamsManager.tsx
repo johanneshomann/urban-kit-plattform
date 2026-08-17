@@ -115,7 +115,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           {saved ? <Check className="w-4 h-4" /> : null}
           {pending ? 'Speichern …' : saved ? 'Gespeichert' : 'Speichern'}
         </button>
-        {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+        {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
       </div>
     </div>
   )

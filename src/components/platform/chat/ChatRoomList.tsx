@@ -146,7 +146,7 @@ export function ChatRoomList({
         )}
       </div>
 
-      {error && <p className="shrink-0 px-4 pt-2 text-small text-red-700">{error}</p>}
+      {error && <p className="shrink-0 px-4 pt-2 text-small text-[var(--project-danger)]">{error}</p>}
 
       <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-4">
         {sections.length === 0 && (

@@ -11,6 +11,13 @@
   /* Height of the color melt at the bottom of full-vh sections (hero → content etc.).
      Sections fade via linear-gradient(... calc(100% - var(--section-fade-height)), <next color>). */
   --section-fade-height: 120px;
+
+  /* Semantic danger tokens — errors and destructive actions everywhere
+     (scheme-independent, but remapped by the high-contrast preset, which
+     inline hex values would escape). danger-on is the text on solid danger. */
+  --project-danger: #b91c1c;
+  --project-danger-surface: #fef2f2;
+  --project-danger-on: #ffffff;
 }
 
 @keyframes slide-left-enter {
@@ -425,6 +432,9 @@ html.a11y-high-contrast {
   --project-ink:            #000 !important;
   --project-accent:         #000 !important;
   --project-black:          #000 !important;
+  --project-danger:         #000 !important;
+  --project-danger-surface: #fff !important;
+  --project-danger-on:      #fff !important;
 }
 
 /*
@@ -492,6 +502,9 @@ html.a11y-high-contrast [data-project-theme] {
   --project-ink:     #000 !important;
   --project-accent:  #000 !important;
   --project-black:   #000 !important;
+  --project-danger:         #000 !important;
+  --project-danger-surface: #fff !important;
+  --project-danger-on:      #fff !important;
 }
 
 

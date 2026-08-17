@@ -98,7 +98,7 @@ export function DarstellungImages({
             </button>
             {coverUrl && (
               <button type="button" onClick={() => run(() => removeProjectCover(slug, locale))} disabled={pending}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta transition-colors disabled:opacity-40" style={{ color: '#b91c1c' }}>
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta transition-colors disabled:opacity-40" style={{ color: 'var(--project-danger)' }}>
                 <Trash2 className="w-4 h-4" /> {t('darstellung.remove')}
               </button>
             )}
@@ -138,7 +138,7 @@ export function DarstellungImages({
                 <div className="flex items-center gap-1 shrink-0" style={{ color: 'var(--project-accent)' }}>
                   <button type="button" onClick={() => move(i, -1)} disabled={pending || i === 0} className="p-1.5 rounded disabled:opacity-30"><ArrowUp className="w-4 h-4" /></button>
                   <button type="button" onClick={() => move(i, 1)} disabled={pending || i === rows.length - 1} className="p-1.5 rounded disabled:opacity-30"><ArrowDown className="w-4 h-4" /></button>
-                  <button type="button" onClick={() => removeRow(i)} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => removeRow(i)} disabled={pending} className="p-1.5 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             ))}
@@ -157,7 +157,7 @@ export function DarstellungImages({
         )}
       </div>
 
-      {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+      {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
     </div>
   )
 }

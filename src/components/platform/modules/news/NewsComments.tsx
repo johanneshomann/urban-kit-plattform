@@ -66,7 +66,7 @@ export function NewsComments({
               style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
               <Send className="w-4 h-4" /> Kommentieren
             </button>
-            {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
+            {error && <span className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</span>}
           </div>
         </div>
       ) : (
@@ -87,7 +87,7 @@ export function NewsComments({
               <span className="flex items-center gap-2">
                 <span className="text-small" style={{ color: 'var(--project-ink)' }}>{new Date(c.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 {c.canDelete && (
-                  <button type="button" onClick={() => remove(c.id)} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={() => remove(c.id)} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>
                 )}
               </span>
             </div>

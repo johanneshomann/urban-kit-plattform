@@ -31,27 +31,27 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
   const ext = fileExt(f.filename, f.mimeType)
   const meta = [ext, fmtSize(f.filesize)].filter(Boolean).join(' · ')
   return (
-    <div className="flex items-center gap-5 bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center gap-5 rounded-xl border p-6" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
       {isImage && f.url ? (
         <img src={f.url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
       ) : (
         <div
           className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: 'var(--plattform-light)' }}
+          style={{ background: 'var(--project-light)' }}
         >
-          <FileText className="w-5 h-5" style={{ color: 'var(--plattform-ink-accent)' }} />
+          <FileText className="w-5 h-5" style={{ color: 'var(--project-accent)' }} />
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-text font-bold truncate" style={{ color: 'var(--plattform-ink-accent)' }}>{f.label || f.filename}</p>
+        <p className="text-text font-bold truncate" style={{ color: 'var(--project-accent)' }}>{f.label || f.filename}</p>
         {meta && (
-          <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>{meta}</p>
+          <p className="text-small" style={{ color: 'var(--project-ink)' }}>{meta}</p>
         )}
       </div>
       {folderName && (
         <span
           className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-small shrink-0 max-w-[12rem]"
-          style={{ background: 'var(--plattform-light)', color: 'var(--plattform-ink)' }}
+          style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}
         >
           <Folder className="w-[1em] h-[1em] shrink-0" />
           <span className="truncate">{folderName}</span>
@@ -64,8 +64,8 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
           rel="noreferrer"
           title={labels.view}
           aria-label={labels.view}
-          className="p-2.5 rounded-lg shrink-0 transition-colors opacity-60 hover:opacity-100 hover:bg-[var(--plattform-light)]"
-          style={{ color: 'var(--plattform-ink)' }}
+          className="p-2.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--project-light)]"
+          style={{ color: 'var(--project-ink)' }}
         >
           <Eye className="w-4 h-4" />
         </a>
@@ -76,8 +76,8 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
           download
           title={labels.download}
           aria-label={labels.download}
-          className="p-2.5 rounded-lg shrink-0 transition-colors opacity-60 hover:opacity-100 hover:bg-[var(--plattform-light)]"
-          style={{ color: 'var(--plattform-ink)' }}
+          className="p-2.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--project-light)]"
+          style={{ color: 'var(--project-ink)' }}
         >
           <Download className="w-4 h-4" />
         </a>
@@ -112,9 +112,9 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { pr
       )}
 
       {files.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 bg-white rounded-xl py-12 shadow-sm">
-          <FolderOpen className="w-8 h-8" style={{ color: 'var(--plattform-ink)', opacity: 0.4 }} />
-          <p className="text-text" style={{ color: 'var(--plattform-ink)' }}>{t('empty')}</p>
+        <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
+          <FolderOpen className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
+          <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('empty')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

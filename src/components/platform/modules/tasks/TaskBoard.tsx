@@ -22,7 +22,7 @@ const COLUMNS = [
   { id: 'done', label: 'Erledigt' },
 ] as const
 
-const PRIORITY = { low: { label: 'Niedrig', bg: '#f3f4f6', fg: '#4b5563' }, medium: { label: 'Mittel', bg: '#fef9c3', fg: '#854d0e' }, high: { label: 'Hoch', bg: '#fee2e2', fg: '#b91c1c' } } as Record<string, { label: string; bg: string; fg: string }>
+const PRIORITY = { low: { label: 'Niedrig', bg: 'var(--project-light)', fg: 'var(--project-ink)' }, medium: { label: 'Mittel', bg: 'var(--project-general)', fg: 'var(--project-black)' }, high: { label: 'Hoch', bg: 'var(--project-danger-surface)', fg: 'var(--project-danger)' } } as Record<string, { label: string; bg: string; fg: string }>
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
@@ -52,7 +52,7 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
         {isPM && (
           <div className="flex flex-col gap-1 shrink-0">
             <button type="button" onClick={onEdit} disabled={pending} title="Bearbeiten" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-3.5 h-3.5" /></button>
-            <button type="button" onClick={onDelete} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-3.5 h-3.5" /></button>
+            <button type="button" onClick={onDelete} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>
           </div>
         )}
       </div>
@@ -125,7 +125,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
       </div>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Internes Aufgabenboard des Projektteams. Zugewiesene ziehen ihre Aufgaben zwischen den Spalten.</p>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {editing && (
         <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>

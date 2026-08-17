@@ -13,8 +13,8 @@ import type { CitizenPoll } from '@/lib/citizen-polls'
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
-  active: { label: 'Aktiv', bg: '#dcfce7', fg: '#166534' },
-  closed: { label: 'Geschlossen', bg: '#f3f4f6', fg: '#4b5563' },
+  active: { label: 'Aktiv', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
+  closed: { label: 'Geschlossen', bg: 'var(--project-light)', fg: 'var(--project-ink)' },
 }
 
 function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: string; poll: CitizenPoll; loginHref?: string }) {
@@ -95,7 +95,7 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
               <Send className="w-4 h-4" /> Abstimmen
             </button>
-            {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
+            {error && <span className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</span>}
           </div>
         </div>
       ) : poll.requiresLogin ? (

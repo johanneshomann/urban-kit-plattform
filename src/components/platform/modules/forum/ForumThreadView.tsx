@@ -53,7 +53,7 @@ export function ForumThreadView({ slug, locale, threadId, comments, locked, canP
               <span className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{c.authorName}</span>
               <span className="flex items-center gap-2">
                 <span className="text-small" style={{ color: 'var(--project-ink)' }}>{new Date(c.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                {c.canDelete && <button type="button" onClick={() => remove(c.id)} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-3.5 h-3.5" /></button>}
+                {c.canDelete && <button type="button" onClick={() => remove(c.id)} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>}
               </span>
             </div>
             {c.html ? <div className="prose-news text-text" style={{ color: 'var(--project-accent)', opacity: 0.9 }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
@@ -74,7 +74,7 @@ export function ForumThreadView({ slug, locale, threadId, comments, locked, canP
             <button type="button" onClick={submit} disabled={pending || !body.trim()} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
               <Send className="w-4 h-4" /> Antworten
             </button>
-            {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
+            {error && <span className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</span>}
           </div>
         </div>
       ) : null}

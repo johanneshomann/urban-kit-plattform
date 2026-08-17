@@ -145,19 +145,19 @@ export function EinstellungenForm({
             {saved && !dirty && !pending ? <Check className="w-4 h-4" /> : null}
             {pending ? t('einstellungen.saving') : dirty ? t('einstellungen.save') : t('einstellungen.saved')}
           </button>
-          {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+          {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
         </div>
       </div>
 
       {/* Danger zone */}
-      <div className="rounded-xl border p-5 mt-6" style={{ background: '#fef2f2', borderColor: '#fecaca' }}>
-        <h2 className="flex items-center gap-2 text-small font-bold uppercase tracking-widest mb-2" style={{ color: '#b91c1c' }}>
+      <div className="rounded-xl border p-5 mt-6" style={{ background: 'var(--project-danger-surface)', borderColor: 'color-mix(in srgb, var(--project-danger) 30%, transparent)' }}>
+        <h2 className="flex items-center gap-2 text-small font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--project-danger)' }}>
           <AlertTriangle className="w-4 h-4" /> {t('einstellungen.dangerZone')}
         </h2>
-        <p className="text-text" style={{ color: '#7f1d1d' }}>
+        <p className="text-text" style={{ color: 'var(--project-danger)' }}>
           {t('einstellungen.dangerText')}
         </p>
-        <p className="text-small mt-3 mb-1.5" style={{ color: '#7f1d1d' }}>
+        <p className="text-small mt-3 mb-1.5" style={{ color: 'var(--project-danger)' }}>
           {t.rich('einstellungen.confirmPrompt', {
             title: projectTitle,
             strong: (chunks) => <strong>{chunks}</strong>,
@@ -170,20 +170,20 @@ export function EinstellungenForm({
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={projectTitle}
             className="flex-1 px-3 py-2 rounded-lg border text-text outline-none"
-            style={{ borderColor: '#fecaca', color: '#7f1d1d', background: 'white' }}
+            style={{ borderColor: 'color-mix(in srgb, var(--project-danger) 30%, transparent)', color: 'var(--project-danger)', background: 'white' }}
           />
           <button
             type="button"
             onClick={remove}
             disabled={deletePending || confirmText.trim() !== projectTitle.trim()}
             className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40"
-            style={{ background: '#b91c1c', color: 'white' }}
+            style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}
           >
             <AlertTriangle className="w-4 h-4" />
             {deletePending ? t('einstellungen.deleting') : t('einstellungen.deleteProject')}
           </button>
         </div>
-        {deleteError && <p className="text-small mt-2" style={{ color: '#b91c1c' }}>{deleteError}</p>}
+        {deleteError && <p className="text-small mt-2" style={{ color: 'var(--project-danger)' }}>{deleteError}</p>}
       </div>
     </div>
   )

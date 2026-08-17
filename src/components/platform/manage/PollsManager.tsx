@@ -25,9 +25,9 @@ export interface PollItem {
 }
 
 const STATUS_META: Record<string, { labelKey: string; bg: string; fg: string }> = {
-  draft: { labelKey: 'polls.statusDraft', bg: '#fef9c3', fg: '#854d0e' },
-  active: { labelKey: 'polls.statusActive', bg: '#dcfce7', fg: '#166534' },
-  closed: { labelKey: 'polls.statusClosed', bg: '#f3f4f6', fg: '#4b5563' },
+  draft: { labelKey: 'polls.statusDraft', bg: 'var(--project-general)', fg: 'var(--project-black)' },
+  active: { labelKey: 'polls.statusActive', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
+  closed: { labelKey: 'polls.statusClosed', bg: 'var(--project-light)', fg: 'var(--project-ink)' },
 }
 const QUESTION_TYPES = [
   { value: 'single', labelKey: 'polls.typeSingle' },
@@ -135,7 +135,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
     <div>
       <h1 className="sr-only">{t('polls.title')}</h1>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       <button type="button" onClick={() => (showForm ? (setShowForm(false), setEditingId(null)) : openCreate())}
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-cta font-semibold mb-4" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
@@ -208,7 +208,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                   <select value={q.type} onChange={(e) => setQ(i, { type: e.target.value })} className={inputCls} style={inputStyle}>
                     {QUESTION_TYPES.map((qt) => <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>)}
                   </select>
-                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, idx) => idx !== i))} disabled={questions.length === 1} title={t('polls.removeQuestion')} className="p-2 rounded-lg disabled:opacity-30" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, idx) => idx !== i))} disabled={questions.length === 1} title={t('polls.removeQuestion')} className="p-2 rounded-lg disabled:opacity-30" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
                 </div>
                 {(q.type === 'single' || q.type === 'multiple') && (
                   <textarea value={q.optionsText} onChange={(e) => setQ(i, { optionsText: e.target.value })} rows={3} placeholder={t('polls.optionsPlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
@@ -267,11 +267,11 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                 )}
                 {confirmDelete === p.id ? (
                   <span className="flex items-center gap-1.5 ml-auto">
-                    <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('polls.delete')}</button>
+                    <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('polls.delete')}</button>
                     <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('polls.cancel')}</button>
                   </span>
                 ) : (
-                  <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('polls.delete')} className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('polls.delete')} className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
                 )}
               </div>
 

@@ -56,7 +56,7 @@ export function JoinProjectButton({ slug, locale, status }: { slug: string; loca
           <X className="w-[0.9em] h-[0.9em] shrink-0" />
           {t('joinWithdraw')}
         </button>
-        {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
+        {error && <span className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</span>}
       </>
     )
   }
@@ -73,7 +73,7 @@ export function JoinProjectButton({ slug, locale, status }: { slug: string; loca
         <UserPlus className="w-[0.9em] h-[0.9em] shrink-0" />
         {pending ? t('joinSending') : t('join')}
       </button>
-      {error && <span className="text-small" style={{ color: '#b91c1c' }}>{error}</span>}
+      {error && <span className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</span>}
     </>
   )
 }

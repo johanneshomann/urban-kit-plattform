@@ -63,7 +63,7 @@ export default function ProjectLoading() {
         {/* Module cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="border rounded-lg p-4 space-y-3" style={{ borderColor: 'color-mix(in srgb, var(--plattform-ink, #5f554a) 12%, transparent)' }}>
+            <div key={i} className="border rounded-lg p-4 space-y-3" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 bg-[color-mix(in_srgb,var(--project-general,#e4c9a0)_30%,transparent)] animate-pulse rounded" />
                 <div className="h-4 w-28 bg-[color-mix(in_srgb,var(--project-general,#e4c9a0)_30%,transparent)] animate-pulse rounded" />

@@ -25,7 +25,7 @@ export function BoardView({ boards, projectSlug, wsUrl, token, userId, userName 
 
   if (boards.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+      <div className="h-full flex flex-col items-center justify-center gap-2" style={{ color: 'var(--project-ink)' }}>
         <Kanban className="w-8 h-8" />
         <p className="text-small">Für dieses Projekt wurde noch kein Board angelegt.</p>
       </div>
@@ -33,15 +33,15 @@ export function BoardView({ boards, projectSlug, wsUrl, token, userId, userName 
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 border rounded-xl overflow-hidden bg-white" style={{ borderColor: '#e5e7eb' }}>
+    <div className="flex flex-col h-full min-h-0 border rounded-xl overflow-hidden" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
       {boards.length > 1 && (
-        <div className="shrink-0 flex gap-1 px-2 py-1.5 border-b overflow-x-auto" style={{ borderColor: '#e5e7eb' }}>
+        <div className="shrink-0 flex gap-1 px-2 py-1.5 border-b overflow-x-auto" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           {boards.map((b) => (
             <button key={b.id} type="button" onClick={() => setSelected(b.id)}
               className="px-3 py-1.5 rounded-lg text-small font-medium whitespace-nowrap"
               style={{
                 background: b.id === selected ? 'var(--plattform)' : 'transparent',
-                color: b.id === selected ? '#fff' : 'var(--plattform-ink)',
+                color: b.id === selected ? 'var(--project-white)' : 'var(--project-ink)',
               }}>
               {b.name}
             </button>

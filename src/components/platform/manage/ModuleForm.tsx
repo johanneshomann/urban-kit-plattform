@@ -121,7 +121,7 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
           {!dirty && !pending ? <Check className="w-4 h-4" /> : null}
           {pending ? t('moduleForm.saving') : dirty ? t('moduleForm.save') : t('moduleForm.saved')}
         </button>
-        {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+        {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
       </div>
     </div>
   )

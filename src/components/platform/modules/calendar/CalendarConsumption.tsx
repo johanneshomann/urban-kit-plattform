@@ -113,7 +113,7 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
         </div>
       </div>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {view === 'list' ? (
         events.length === 0 ? (

@@ -238,7 +238,7 @@ export function NewGroupDialog({
         ))}
         {q.trim().length >= 2 && results.length === 0 && <p className="text-small opacity-50 px-2 py-2">{t('noResults')}</p>}
       </div>
-      {error && <p className="text-small text-red-700 mb-2">{error}</p>}
+      {error && <p className="text-small text-[var(--project-danger)] mb-2">{error}</p>}
       <button
         type="button"
         onClick={create}

@@ -119,7 +119,7 @@ export function DarstellungForm({
             {!dirty && !pending ? <Check className="w-4 h-4" /> : null}
             {pending ? t('darstellung.saving') : dirty ? t('darstellung.save') : t('darstellung.saved')}
           </button>
-          {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+          {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
         </div>
       </div>
     </div>

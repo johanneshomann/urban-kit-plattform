@@ -208,7 +208,7 @@ export function AllgemeinForm({ slug, locale, initial, members }: { slug: string
             {saved ? <Check className="w-4 h-4" /> : null}
             {pending ? t('allgemein.saving') : saved ? t('allgemein.saved') : t('allgemein.save')}
           </button>
-          {error && <p className="text-small" style={{ color: '#b91c1c' }}>{error}</p>}
+          {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
         </div>
       </div>
     </div>

@@ -41,9 +41,9 @@ function statusOf(p: NewsItem): 'draft' | 'scheduled' | 'published' {
   return new Date(p.publishedAt).getTime() > Date.now() ? 'scheduled' : 'published'
 }
 const STATUS_META = {
-  draft: { labelKey: 'news.statusDraft', bg: '#fef9c3', fg: '#854d0e' },
-  scheduled: { labelKey: 'news.statusScheduled', bg: '#e0e7ff', fg: '#3730a3' },
-  published: { labelKey: 'news.statusPublished', bg: '#dcfce7', fg: '#166534' },
+  draft: { labelKey: 'news.statusDraft', bg: 'var(--project-general)', fg: 'var(--project-black)' },
+  scheduled: { labelKey: 'news.statusScheduled', bg: 'var(--project-light)', fg: 'var(--project-accent)' },
+  published: { labelKey: 'news.statusPublished', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
 }
 
 export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string; locale: string; posts: NewsItem[]; teamCatalog: string[] }) {
@@ -106,7 +106,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
         )}
       </div>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {/* Editor */}
       {editing && (
@@ -174,7 +174,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                 </button>
                 {editing.featuredImageUrl && (
                   <button type="button" onClick={() => run(() => removeNewsFeaturedImage(slug, locale, editing.id))} disabled={pending}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small disabled:opacity-40" style={{ color: '#b91c1c' }}>
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small disabled:opacity-40" style={{ color: 'var(--project-danger)' }}>
                     <Trash2 className="w-4 h-4" /> {t('news.removeImage')}
                   </button>
                 )}
@@ -248,12 +248,12 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                 {confirmDelete === p.id ? (
                   <span className="flex items-center gap-1.5">
                     <button type="button" onClick={() => run(() => deleteProjectNewsPost(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending}
-                      className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('news.delete')}</button>
+                      className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('news.delete')}</button>
                     <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('news.cancel')}</button>
                   </span>
                 ) : (
                   <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('news.delete')}
-                    className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                    className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
                 )}
               </div>
 

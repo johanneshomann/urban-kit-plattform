@@ -37,7 +37,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
       <h1 className="sr-only">{t('requests.title')}</h1>
 
       {error && (
-        <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>
+        <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>
       )}
 
       {requests.length === 0 ? (
@@ -78,7 +78,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
                 onClick={() => respond(r.membershipId, 'reject')}
                 disabled={pending}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-small font-semibold transition-opacity disabled:opacity-40"
-                style={{ color: '#b91c1c' }}
+                style={{ color: 'var(--project-danger)' }}
               >
                 <X className="w-4 h-4" /> {t('requests.reject')}
               </button>

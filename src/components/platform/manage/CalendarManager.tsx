@@ -110,11 +110,11 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
           <button type="button" onClick={() => openEdit(e)} disabled={pending} title={t('calendar.edit')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-4 h-4" /></button>
           {confirmDelete === e.id ? (
             <>
-              <button type="button" onClick={() => run(() => deleteProjectEvent(slug, locale, e.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: '#b91c1c', color: 'white' }}>{t('calendar.delete')}</button>
+              <button type="button" onClick={() => run(() => deleteProjectEvent(slug, locale, e.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('calendar.delete')}</button>
               <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('calendar.cancel')}</button>
             </>
           ) : (
-            <button type="button" onClick={() => setConfirmDelete(e.id)} disabled={pending} title={t('calendar.delete')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+            <button type="button" onClick={() => setConfirmDelete(e.id)} disabled={pending} title={t('calendar.delete')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
           )}
         </div>
       </div>
@@ -132,7 +132,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
         )}
       </div>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {editing && (
         <div className={`${card} p-5 mb-6`} style={cardStyle}>

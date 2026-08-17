@@ -83,11 +83,11 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
         {f.url && <a href={f.url} download title={t('files.download')} className="p-2 rounded-lg shrink-0" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>}
         {confirm === `f-${f.id}` ? (
           <span className="flex items-center gap-1">
-            <button type="button" onClick={() => run(() => deleteFile(slug, locale, f.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: '#b91c1c', color: 'white' }}>{t('files.delete')}</button>
+            <button type="button" onClick={() => run(() => deleteFile(slug, locale, f.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('files.delete')}</button>
             <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-ink)' }}>×</button>
           </span>
         ) : (
-          <button type="button" onClick={() => setConfirm(`f-${f.id}`)} disabled={pending} title={t('files.delete')} className="p-2 rounded-lg shrink-0" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setConfirm(`f-${f.id}`)} disabled={pending} title={t('files.delete')} className="p-2 rounded-lg shrink-0" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
         )}
       </div>
     )
@@ -99,7 +99,7 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
     <div>
       <h1 className="sr-only">{t('files.title')}</h1>
 
-      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
+      {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {/* Toolbar */}
       <div className="rounded-xl border p-4 mb-6 flex flex-wrap items-end gap-3" style={cardStyle}>
@@ -148,11 +148,11 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
               <VisSelect value={folder.visibility} onChange={(v) => run(() => setFolderVisibility(slug, locale, folder.id, v))} disabled={pending} />
               {confirm === `fo-${folder.id}` ? (
                 <span className="flex items-center gap-1 ml-auto">
-                  <button type="button" onClick={() => run(() => deleteFolder(slug, locale, folder.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: '#b91c1c', color: 'white' }}>{t('files.deleteFolderAndFiles')}</button>
+                  <button type="button" onClick={() => run(() => deleteFolder(slug, locale, folder.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('files.deleteFolderAndFiles')}</button>
                   <button type="button" onClick={() => setConfirm(null)} className="px-1.5 py-1 rounded text-small" style={{ color: 'var(--project-ink)' }}>×</button>
                 </span>
               ) : (
-                <button type="button" onClick={() => setConfirm(`fo-${folder.id}`)} disabled={pending} title={t('files.deleteFolder')} className="p-1.5 rounded ml-auto" style={{ color: '#b91c1c' }}><Trash2 className="w-4 h-4" /></button>
+                <button type="button" onClick={() => setConfirm(`fo-${folder.id}`)} disabled={pending} title={t('files.deleteFolder')} className="p-1.5 rounded ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
               )}
             </div>
             <div className="flex flex-col gap-2 pl-7">

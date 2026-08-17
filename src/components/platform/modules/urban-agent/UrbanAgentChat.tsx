@@ -229,7 +229,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         )}
       </div>
 
-      {error && <p className="text-small mb-3" style={{ color: '#b91c1c' }}>{error}</p>}
+      {error && <p className="text-small mb-3" style={{ color: 'var(--project-danger)' }}>{error}</p>}
 
       <div className="rounded-xl border p-3" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
         <textarea
