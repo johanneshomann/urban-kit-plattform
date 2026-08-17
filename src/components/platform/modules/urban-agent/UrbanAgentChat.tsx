@@ -179,22 +179,6 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         Stellen Sie Fragen zu diesem Projekt. Der Assistent antwortet ausschließlich auf Grundlage der für Sie sichtbaren Projektinhalte.
       </p>
 
-      <div className="flex items-start gap-2 mb-5 px-4 py-3 rounded-lg text-small" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
-        <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ opacity: 0.7 }} />
-        <span style={{ opacity: 0.8 }}>
-          Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
-          {/* New tab: the transcript lives in sessionStorage (this tab's browser session). */}
-          <a
-            href={`/${locale}/datenschutz`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:opacity-70 transition-opacity"
-          >
-            Mehr in der Datenschutzerklärung
-          </a>
-        </span>
-      </div>
-
       <div ref={listRef} className="flex flex-col gap-3 mb-4 max-h-[55vh] overflow-y-auto">
         {messages.length === 0 ? (
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>
@@ -264,6 +248,23 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
             <Send className="w-4 h-4" /> Senden
           </button>
         </div>
+      </div>
+
+      {/* Privacy note below the input, out of the way of the conversation */}
+      <div className="flex items-start gap-2 mt-4 px-4 py-3 rounded-lg text-small" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
+        <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ opacity: 0.7 }} />
+        <span style={{ opacity: 0.8 }}>
+          Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
+          {/* New tab: the transcript lives in sessionStorage (this tab's browser session). */}
+          <a
+            href={`/${locale}/datenschutz`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:opacity-70 transition-opacity"
+          >
+            Mehr in der Datenschutzerklärung
+          </a>
+        </span>
       </div>
     </section>
   )

@@ -77,7 +77,7 @@ export default async function ModuleItemPage({
           ...(itemTitle ? [{ label: itemTitle }] : []),
         ]}
       />
-      <main className="p-6 md:p-8 max-w-3xl mx-auto w-full">
+      <main className="p-6 md:p-8 w-full">
         {moduleType === 'forum'
           ? (tier === 'public'
               ? notFound()
