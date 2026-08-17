@@ -7,7 +7,8 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Plus, Trash2, Pencil, X, Upload, Globe, Lock, Users as UsersIcon, Send, CalendarClock, Undo2, ImagePlus } from 'lucide-react'
+import { Plus, Trash2, Pencil, Upload, Globe, Lock, Users as UsersIcon, Send, CalendarClock, Undo2, ImagePlus } from 'lucide-react'
+import { FormModal } from '@/components/platform/FormModal'
 import {
   createProjectNewsPost, updateProjectNewsPost, deleteProjectNewsPost,
   setNewsFeaturedImage, removeNewsFeaturedImage, setNewsPublish,
@@ -110,16 +111,10 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
 
       {/* Editor */}
       {editing && (
-        <div className={`${card} p-5 mb-6`} style={cardStyle}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>
-              {editing.id === '' ? t('news.newPost') : t('news.editPost')}
-            </h2>
-            <button type="button" onClick={closeEditor} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
-          </div>
-
+        <FormModal title={editing.id === '' ? t('news.newPost') : t('news.editPost')} size="xl" onClose={closeEditor}>
           <div className="flex flex-col gap-3">
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('news.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
+            {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+            <input type="text" autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('news.titlePlaceholder')} className={`${inputCls} w-full`} style={inputStyle} />
             <div>
               <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} placeholder={t('news.bodyPlaceholder')} className={`${inputCls} w-full font-mono`} style={inputStyle} />
               <p className="text-small mt-1" style={{ color: 'var(--project-ink)' }}>{t('news.markdownHint')}</p>
@@ -191,7 +186,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
               </button>
             </div>
           </div>
-        </div>
+        </FormModal>
       )}
 
       {/* List */}
