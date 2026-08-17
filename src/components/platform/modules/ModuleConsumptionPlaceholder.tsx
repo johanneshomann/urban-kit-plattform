@@ -11,8 +11,8 @@ export function ModuleConsumptionPlaceholder({ title }: { title: string }) {
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
       <h1 className="sr-only">{title}</h1>
       <div className="flex items-center gap-3 rounded-xl border px-5 py-4" style={{ background: 'var(--project-light)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)', color: 'var(--project-accent)' }}>
-        <Hammer className="w-5 h-5 shrink-0" style={{ opacity: 0.6 }} />
-        <p className="text-text" style={{ opacity: 0.7 }}>Dieser Bereich wird gerade gebaut.</p>
+        <Hammer className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />
+        <p className="text-text" style={{ color: 'var(--project-ink)' }}>Dieser Bereich wird gerade gebaut.</p>
       </div>
     </div>
   )

@@ -99,11 +99,11 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
           </div>
         </div>
       ) : poll.requiresLogin ? (
-        <p className="text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-accent)', opacity: 0.85 }}>
+        <p className="text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
           {loginHref ? <>Bitte <a href={loginHref} className="underline font-medium">melde dich an</a>, um abzustimmen.</> : 'Bitte melde dich an, um abzustimmen.'}
         </p>
       ) : (
-        <p className="flex items-center gap-2 text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-accent)', opacity: 0.85 }}>
+        <p className="flex items-center gap-2 text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
           <Check className="w-4 h-4" /> Danke fürs Abstimmen! Die Ergebnisse werden nach Abschluss angezeigt.
         </p>
       )}

@@ -90,7 +90,7 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
               <span className="flex-1 min-w-0">
                 <span className="flex items-center gap-2 font-semibold text-text" style={{ color: 'var(--project-accent)' }}>
                   {tModules(m)}
-                  {core && <Lock className="w-3.5 h-3.5" style={{ opacity: 0.5 }} />}
+                  {core && <Lock className="w-3.5 h-3.5" style={{ color: 'var(--project-ink)' }} />}
                 </span>
                 <span className="block text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
                   {MODULE_HINT_KEYS[m] ? t(`moduleForm.${MODULE_HINT_KEYS[m]}`) : ''}

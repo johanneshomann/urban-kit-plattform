@@ -238,7 +238,7 @@ function ContactRow({
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      style={{ textDecoration: 'none', opacity: 0.8 }}
+      style={{ textDecoration: 'none' }}
     >
       {inner}
     </a>

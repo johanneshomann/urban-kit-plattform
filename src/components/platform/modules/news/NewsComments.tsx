@@ -91,7 +91,7 @@ export function NewsComments({
                 )}
               </span>
             </div>
-            <p className="text-text whitespace-pre-wrap" style={{ color: 'var(--project-accent)', opacity: 0.85 }}>{c.body}</p>
+            <p className="text-text whitespace-pre-wrap" style={{ color: 'var(--project-accent)' }}>{c.body}</p>
           </div>
         ))}
       </div>

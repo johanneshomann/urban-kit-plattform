@@ -49,7 +49,7 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
   }
 
   const Item = ({ e, muted }: { e: ConsumptionEvent; muted?: boolean }) => (
-    <div className="rounded-xl border px-4 py-3" style={{ ...cardStyle, opacity: muted ? 0.65 : 1 }}>
+    <div className="rounded-xl border px-4 py-3" style={{ ...cardStyle, ...(muted ? { background: 'var(--project-light)' } : {}) }}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>{e.title}</p>

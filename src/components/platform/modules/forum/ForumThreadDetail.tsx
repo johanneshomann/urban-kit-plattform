@@ -47,7 +47,7 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
       </Link>
 
       <h1 className="flex items-center gap-2 text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>
-        {thread.locked && <Lock className="w-5 h-5 shrink-0" style={{ opacity: 0.5 }} />}
+        {thread.locked && <Lock className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />}
         {thread.title}
       </h1>
       <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>

@@ -252,8 +252,8 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
 
       {/* Privacy note below the input, out of the way of the conversation */}
       <div className="flex items-start gap-2 mt-4 px-4 py-3 rounded-lg text-small" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
-        <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ opacity: 0.7 }} />
-        <span style={{ opacity: 0.8 }}>
+        <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+        <span style={{ color: 'var(--project-ink)' }}>
           Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
           {/* New tab: the transcript lives in sessionStorage (this tab's browser session). */}
           <a

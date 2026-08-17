@@ -75,7 +75,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
                 <div className="flex-1 min-w-0">
                   <p className="flex items-center gap-1.5 text-display font-semibold leading-snug truncate" style={{ color: 'var(--project-accent)' }}>
                     {th.pinned && <Pin className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />}
-                    {th.locked && <Lock className="w-3.5 h-3.5 shrink-0" style={{ opacity: 0.5 }} />}
+                    {th.locked && <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--project-ink)' }} />}
                     {th.title}
                   </p>
                   <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
@@ -106,7 +106,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
                 {confirm === th.id ? (
                   <span className="flex items-center gap-1.5 ml-auto">
                     <button type="button" onClick={() => run(() => deleteThread(slug, locale, th.id), () => setConfirm(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('forum.deleteThread')}</button>
-                    <button type="button" onClick={() => setConfirm(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ opacity: 0.7 }}>{t('forum.cancel')}</button>
+                    <button type="button" onClick={() => setConfirm(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('forum.cancel')}</button>
                   </span>
                 ) : (
                   <button type="button" onClick={() => setConfirm(th.id)} disabled={pending} title={t('forum.deleteThread')} className="p-2 rounded-lg ml-auto disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
@@ -119,7 +119,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
                     <div key={c.id} className="flex items-start justify-between gap-3 rounded-lg px-3 py-2" style={{ background: 'var(--project-light)' }}>
                       <div className="min-w-0">
                         <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{c.authorName} <span className="font-normal" style={{ color: 'var(--project-ink)' }}>· {new Date(c.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span></p>
-                        {c.html ? <div className="prose-news text-small" style={{ color: 'var(--project-accent)', opacity: 0.85 }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
+                        {c.html ? <div className="prose-news text-small" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
                       </div>
                       <button type="button" onClick={() => run(() => deleteForumComment(slug, locale, c.id))} disabled={pending} title={t('forum.deleteReply')} className="p-1.5 rounded shrink-0 disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>

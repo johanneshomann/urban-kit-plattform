@@ -119,7 +119,8 @@ export function ChatLauncher() {
           {combinedUnread > 0 && (
             <span
               aria-hidden
-              className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-[0.7rem] font-bold flex items-center justify-center shadow-sm"
+              className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[0.7rem] font-bold flex items-center justify-center shadow-sm"
+              style={{ background: 'var(--project-accent, var(--app-accent))', color: 'var(--project-white, var(--app-white))' }}
             >
               {combinedUnread > 99 ? '99+' : combinedUnread}
             </span>

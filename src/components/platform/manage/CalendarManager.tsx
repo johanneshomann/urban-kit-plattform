@@ -96,7 +96,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
   const Row = ({ e, muted }: { e: EventItem; muted?: boolean }) => {
     const vm = VISIBILITY.find((v) => v.value === e.visibility); const VI = vm?.icon ?? Lock
     return (
-      <div className={`${card} px-4 py-3 flex items-center justify-between gap-3`} style={{ ...cardStyle, opacity: muted ? 0.6 : 1 }}>
+      <div className={`${card} px-4 py-3 flex items-center justify-between gap-3`} style={{ ...cardStyle, ...(muted ? { background: 'var(--project-light)' } : {}) }}>
         <div className="min-w-0">
           <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{e.title}</p>
           <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5" style={{ color: 'var(--project-ink)' }}>

@@ -83,7 +83,7 @@ function TeamPopover({
         {isPM && (
           <span
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-small font-medium"
-            style={{ background: 'var(--project-accent)', color: 'var(--project-white)', opacity: 0.8 }}
+            style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
             <Users className="w-3 h-3" />
             PM
@@ -226,7 +226,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
               <div className="flex-1 min-w-0">
                 <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>
                   {m.name}
-                  {m.isSelf && <span className="text-small font-normal ml-2" style={{ opacity: 0.5 }}>{t('members.you')}</span>}
+                  {m.isSelf && <span className="text-small font-normal ml-2" style={{ color: 'var(--project-ink)' }}>{t('members.you')}</span>}
                 </p>
                 <p className="text-small truncate" style={{ color: 'var(--project-ink)' }}>{m.email}</p>
               </div>

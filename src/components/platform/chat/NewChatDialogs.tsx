@@ -50,7 +50,7 @@ function Shell({ title, onClose, children }: { title: string; onClose: () => voi
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[color-mix(in_srgb,var(--app-black)_45%,transparent)] backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[color-mix(in_srgb,var(--project-black, var(--app-black))_45%,transparent)] backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -60,15 +60,15 @@ function Shell({ title, onClose, children }: { title: string; onClose: () => voi
         aria-modal="true"
         aria-label={title}
         className="popover-in w-full max-w-md rounded-xl p-6 shadow-xl max-h-[85vh] overflow-y-auto"
-        style={{ background: 'var(--app-white)', color: 'var(--app-ink)' }}
+        style={{ background: 'var(--project-white, var(--app-white))', color: 'var(--project-ink, var(--app-ink))' }}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
-          <h2 className="text-display font-bold" style={{ color: 'var(--app-ink-accent)' }}>{title}</h2>
+          <h2 className="text-display font-bold" style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label={t('close')}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_8%,var(--app-white))] cursor-pointer"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--project-ink, var(--app-ink))_8%,var(--project-white, var(--app-white)))] cursor-pointer"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -84,8 +84,8 @@ function SearchBox({ q, setQ }: { q: string; setQ: (v: string) => void }) {
   const t = useTranslations('chat')
   return (
     <div
-      className="flex items-center gap-2 px-4 h-10 rounded-lg text-small mb-3 shadow-sm transition-all duration-200 focus-within:shadow-md focus-within:ring-2 bg-[var(--app-light)]"
-      style={{ '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+      className="flex items-center gap-2 px-4 h-10 rounded-lg text-small mb-3 shadow-sm transition-all duration-200 focus-within:shadow-md focus-within:ring-2 bg-[var(--project-light, var(--app-light))]"
+      style={{ '--tw-ring-color': 'var(--project-accent, var(--app-accent))' } as React.CSSProperties}
     >
       <Search className="w-[1em] h-[1em] shrink-0 opacity-40" aria-hidden />
       <input
@@ -95,7 +95,7 @@ function SearchBox({ q, setQ }: { q: string; setQ: (v: string) => void }) {
         placeholder={t('searchPeople')}
         aria-label={t('searchPeople')}
         className="flex-1 outline-none bg-transparent placeholder:opacity-60"
-        style={{ color: 'var(--app-ink)' }}
+        style={{ color: 'var(--project-ink, var(--app-ink))' }}
       />
     </div>
   )
@@ -109,9 +109,9 @@ function PersonRow({ user, onClick, selected, disabled }: { user: PickerUser; on
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left cursor-pointer transition-colors hover:bg-[color-mix(in_srgb,var(--app-ink)_6%,transparent)] disabled:opacity-50"
+      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left cursor-pointer transition-colors hover:bg-[color-mix(in_srgb,var(--project-ink, var(--app-ink))_6%,transparent)] disabled:opacity-50"
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--app-light)' }}>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--project-light, var(--app-light))' }}>
         {user.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={user.avatarUrl} alt="" aria-hidden className="h-full w-full object-cover" />
@@ -120,20 +120,20 @@ function PersonRow({ user, onClick, selected, disabled }: { user: PickerUser; on
         )}
       </span>
       <span className="flex-1 min-w-0">
-        <span className="block text-small font-medium truncate" style={{ color: 'var(--app-ink-accent)' }}>
+        <span className="block text-small font-medium truncate" style={{ color: 'var(--project-accent, var(--app-ink-accent))' }}>
           {user.name ?? t('unknownUser')}
         </span>
         {(user.sharedProjects?.length ?? 0) > 0 && (
           <span className="flex flex-wrap gap-1 mt-0.5">
             {user.sharedProjects!.slice(0, 3).map((p) => (
-              <span key={p.id} className="text-[0.7rem] px-1.5 py-px rounded-full truncate max-w-32" style={{ background: p.light, color: 'var(--app-ink-accent)' }}>
+              <span key={p.id} className="text-[0.7rem] px-1.5 py-px rounded-full truncate max-w-32" style={{ background: p.light, color: 'var(--project-accent, var(--app-ink-accent))' }}>
                 {p.title}
               </span>
             ))}
           </span>
         )}
       </span>
-      {selected && <Check className="h-4 w-4 shrink-0" style={{ color: 'var(--app-accent)' }} aria-hidden />}
+      {selected && <Check className="h-4 w-4 shrink-0" style={{ color: 'var(--project-accent, var(--app-accent))' }} aria-hidden />}
     </button>
   )
 }
@@ -199,8 +199,8 @@ export function NewGroupDialog({
         onChange={(e) => setName(e.target.value)}
         placeholder={t('groupName')}
         aria-label={t('groupName')}
-        className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm mb-3 transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]"
-        style={{ color: 'var(--app-ink)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+        className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm mb-3 transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--project-light, var(--app-light))]"
+        style={{ color: 'var(--project-ink, var(--app-ink))', '--tw-ring-color': 'var(--project-accent, var(--app-accent))' } as React.CSSProperties}
       />
       {assignableProjects.length > 0 && (
         <div className="mb-3">
@@ -209,8 +209,8 @@ export function NewGroupDialog({
             id="group-project"
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
-            className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm cursor-pointer transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]"
-            style={{ color: 'var(--app-ink)', '--tw-ring-color': 'var(--app-accent)' } as React.CSSProperties}
+            className="w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm cursor-pointer transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--project-light, var(--app-light))]"
+            style={{ color: 'var(--project-ink, var(--app-ink))', '--tw-ring-color': 'var(--project-accent, var(--app-accent))' } as React.CSSProperties}
           >
             <option value="">{t('groupProjectNone')}</option>
             {assignableProjects.map((p) => (
@@ -222,7 +222,7 @@ export function NewGroupDialog({
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {selected.map((u) => (
-            <span key={u.id} className="flex items-center gap-1 text-small px-2 py-0.5 rounded-full" style={{ background: 'var(--app-light)', color: 'var(--app-ink)' }}>
+            <span key={u.id} className="flex items-center gap-1 text-small px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light, var(--app-light))', color: 'var(--project-ink, var(--app-ink))' }}>
               {u.name ?? t('unknownUser')}
               <button type="button" onClick={() => toggle(u)} aria-label={t('close')} className="cursor-pointer">
                 <X className="w-3 h-3" aria-hidden />
@@ -243,7 +243,7 @@ export function NewGroupDialog({
         type="button"
         onClick={create}
         disabled={busy || !name.trim()}
-        className="w-full h-11 rounded-lg text-small font-semibold disabled:opacity-40 cursor-pointer transition-colors bg-[var(--app-accent)] text-[var(--app-white)] hover:bg-[var(--app-ink-accent)]"
+        className="w-full h-11 rounded-lg text-small font-semibold disabled:opacity-40 cursor-pointer transition-colors bg-[var(--project-accent, var(--app-accent))] text-[var(--project-white, var(--app-white))] hover:bg-[var(--project-accent, var(--app-ink-accent))]"
       >
         {t('createGroup')}
       </button>

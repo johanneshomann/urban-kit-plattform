@@ -66,7 +66,7 @@ export function ForumList({ slug, locale, threads }: { slug: string; locale: str
               <Link href={`/${locale}/dashboard/projekte/${slug}/m/forum/${th.slug}`} className="flex-1 min-w-0">
                 <p className="flex items-center gap-1.5 text-display font-semibold leading-snug truncate" style={{ color: 'var(--project-accent)' }}>
                   {th.pinned && <Pin className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />}
-                  {th.locked && <Lock className="w-3.5 h-3.5 shrink-0" style={{ opacity: 0.5 }} />}
+                  {th.locked && <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--project-ink)' }} />}
                   {th.title}
                 </p>
                 <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>

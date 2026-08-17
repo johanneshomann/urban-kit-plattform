@@ -56,7 +56,7 @@ export function ForumThreadView({ slug, locale, threadId, comments, locked, canP
                 {c.canDelete && <button type="button" onClick={() => remove(c.id)} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>}
               </span>
             </div>
-            {c.html ? <div className="prose-news text-text" style={{ color: 'var(--project-accent)', opacity: 0.9 }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
+            {c.html ? <div className="prose-news text-text" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
           </div>
         ))}
       </div>
