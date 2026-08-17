@@ -17,6 +17,7 @@ import { Activity } from './collections/Activity'
 import { Notifications } from './collections/Notifications'
 import { PlatformSettings } from './globals/PlatformSettings'
 import { LegalSettings } from './globals/LegalSettings'
+import { UrbanAgentSettings } from './globals/UrbanAgentSettings'
 import { moduleRegistry } from './modules/registry'
 import './modules/index' // registers all module plugins
 
@@ -37,9 +38,9 @@ export default buildConfig({
     fallbackLanguage: 'de',
   },
   // Content localization. Only fields explicitly marked `localized: true` are
-  // stored per-locale — today that is ONLY the legal texts global
-  // (LegalSettings). All project content stays single-value and
-  // language-agnostic (no `localized` flag).
+  // stored per-locale — today that is the legal texts global (LegalSettings),
+  // single fields on PlatformSettings/UrbanAgentSettings. All project content
+  // stays single-value and language-agnostic (no `localized` flag).
   localization: {
     locales: [
       { label: 'Deutsch', code: 'de' },
@@ -56,7 +57,7 @@ export default buildConfig({
     Activity,
     Notifications,
   ],
-  globals: [PlatformSettings, LegalSettings],
+  globals: [PlatformSettings, LegalSettings, UrbanAgentSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? 'dev-secret-change-me',
   typescript: {
