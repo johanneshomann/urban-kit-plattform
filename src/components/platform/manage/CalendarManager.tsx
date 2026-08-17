@@ -21,6 +21,8 @@ export interface EventItem {
   visibility?: string | null
   visibilityTeams?: string[]
   body?: string
+  /** May the viewer edit/delete this event? (leads: only their OWN) */
+  canManage?: boolean
 }
 
 type Result = { error?: string; ok?: boolean }
@@ -36,7 +38,7 @@ const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(
 const inputCls = 'px-3 py-2 rounded-lg border text-text outline-none'
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
-const blank: EventItem = { id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: 'PROJECT', visibilityTeams: [], body: '' }
+const blank = (leadMode: boolean): EventItem => ({ id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: leadMode ? 'TEAM' : 'PROJECT', visibilityTeams: [], body: '' })
 
 function fmt(iso: string, allDay?: boolean | null): string {
   return new Date(iso).toLocaleString('de-DE', allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
@@ -51,13 +53,18 @@ function toInput(iso: string | null | undefined, allDay: boolean): string {
   return allDay ? date : `${date}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: string; locale: string; events: EventItem[]; teamCatalog: string[] }) {
+/**
+ * `leadMode` mounts the manager for a team lead (team page): no visibility
+ * select (the server forces TEAM ∩ leadOf anyway), new events default to
+ * TEAM, and rows the lead doesn't own (`canManage: false`) are read-only.
+ */
+export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = false }: { slug: string; locale: string; events: EventItem[]; teamCatalog: string[]; leadMode?: boolean }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<EventItem | null>(null)
-  const [f, setF] = useState<EventItem>(blank)
+  const [f, setF] = useState<EventItem>(blank(leadMode))
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const now = Date.now()
@@ -75,7 +82,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
   }
 
   const set = <K extends keyof EventItem>(k: K, v: EventItem[K]) => setF((s) => ({ ...s, [k]: v }))
-  const openNew = () => { setEditing(blank); setF(blank) }
+  const openNew = () => { setEditing(blank(leadMode)); setF(blank(leadMode)) }
   const openEdit = (e: EventItem) => {
     const allDay = !!e.allDay
     setEditing(e)
@@ -106,6 +113,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
             <span className="flex items-center gap-1"><VI className="w-3.5 h-3.5" />{vm ? t(vm.labelKey) : e.visibility}</span>
           </p>
         </div>
+        {e.canManage !== false && (
         <div className="flex items-center gap-1.5 shrink-0">
           <button type="button" onClick={() => openEdit(e)} disabled={pending} title={t('calendar.edit')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-4 h-4" /></button>
           {confirmDelete === e.id ? (
@@ -117,6 +125,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
             <button type="button" onClick={() => setConfirmDelete(e.id)} disabled={pending} title={t('calendar.delete')} className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
           )}
         </div>
+        )}
       </div>
     )
   }
@@ -158,9 +167,11 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
             <div className="grid sm:grid-cols-3 gap-2">
               <input type="text" value={f.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder={t('calendar.locationPlaceholder')} className={inputCls} style={inputStyle} />
               <input type="text" value={f.category ?? ''} onChange={(e) => set('category', e.target.value)} placeholder={t('calendar.categoryPlaceholder')} className={inputCls} style={inputStyle} />
-              <select value={f.visibility ?? 'PROJECT'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
-                {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
-              </select>
+              {!leadMode && (
+                <select value={f.visibility ?? 'PROJECT'} onChange={(e) => set('visibility', e.target.value)} className={inputCls} style={inputStyle}>
+                  {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{t(v.labelKey)}</option>)}
+                </select>
+              )}
             </div>
             {f.visibility === 'TEAM' && teamCatalog.length > 0 && (
               <div>

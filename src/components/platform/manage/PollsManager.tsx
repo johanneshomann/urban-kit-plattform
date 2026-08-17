@@ -22,6 +22,8 @@ export interface PollItem {
   questionCount: number
   voteCount: number
   closesAt?: string | null
+  /** May the viewer edit/activate/delete this poll? (leads: only their OWN) */
+  canManage?: boolean
 }
 
 const STATUS_META: Record<string, { labelKey: string; bg: string; fg: string }> = {
@@ -51,7 +53,13 @@ function isoToLocalInput(iso?: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: string; locale: string; polls: PollItem[]; teamCatalog: string[] }) {
+/**
+ * `leadMode` mounts the manager for a team lead (team page): the visibility
+ * select disappears (the server forces TEAM ∩ leadOf anyway), new polls
+ * default to TEAM, CSV export stays PM-only, and rows the lead doesn't own
+ * (`canManage: false`) are read-only.
+ */
+export function PollsManager({ slug, locale, polls, teamCatalog, leadMode = false }: { slug: string; locale: string; polls: PollItem[]; teamCatalog: string[]; leadMode?: boolean }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -63,7 +71,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [closesAt, setClosesAt] = useState('')
-  const [visibility, setVisibility] = useState('PROJECT')
+  const [visibility, setVisibility] = useState(leadMode ? 'TEAM' : 'PROJECT')
   const [visibilityTeams, setVisibilityTeams] = useState<string[]>([])
   const [allowAnonymous, setAllowAnonymous] = useState(false)
   const [showLiveResults, setShowLiveResults] = useState(false)
@@ -84,7 +92,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
   }
 
   const resetForm = () => {
-    setTitle(''); setDescription(''); setClosesAt(''); setVisibility('PROJECT'); setVisibilityTeams([])
+    setTitle(''); setDescription(''); setClosesAt(''); setVisibility(leadMode ? 'TEAM' : 'PROJECT'); setVisibilityTeams([])
     setAllowAnonymous(false); setShowLiveResults(false); setQuestions([emptyQuestion()])
   }
   const openCreate = () => { setEditingId(null); resetForm(); setShowForm(true) }
@@ -157,12 +165,14 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                 <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.closesAtLabel')}</label>
                 <input type="datetime-local" value={closesAt} onChange={(e) => setClosesAt(e.target.value)} className={`${inputCls} w-full`} style={inputStyle} />
               </div>
-              <div>
-                <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.visibilityLabel')}</label>
-                <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
-                  <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="PROJECT">{t('polls.visibilityProject')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
-                </select>
-              </div>
+              {!leadMode && (
+                <div>
+                  <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('polls.visibilityLabel')}</label>
+                  <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={`${inputCls} w-full`} style={inputStyle}>
+                    <option value="PUBLIC">{t('polls.visibilityPublic')}</option><option value="PROJECT">{t('polls.visibilityProject')}</option><option value="TEAM">{t('polls.visibilityTeam')}</option>
+                  </select>
+                </div>
+              )}
             </div>
             {visibility === 'TEAM' && teamCatalog.length > 0 && (
               <div>
@@ -248,13 +258,13 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                {p.status === 'draft' && (
+                {p.status === 'draft' && p.canManage !== false && (
                   <>
                     <button type="button" onClick={() => openEdit(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> {t('polls.edit')}</button>
                     <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> {t('polls.activate')}</button>
                   </>
                 )}
-                {p.status === 'active' && (
+                {p.status === 'active' && p.canManage !== false && (
                   <button type="button" onClick={() => run(() => setPollStatus(slug, locale, p.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> {t('polls.close')}</button>
                 )}
                 {p.status !== 'draft' && (
@@ -262,17 +272,19 @@ export function PollsManager({ slug, locale, polls, teamCatalog }: { slug: strin
                     <button type="button" onClick={() => toggleResults(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}>
                       <BarChart2 className="w-3.5 h-3.5" /> {open ? t('polls.hideResults') : t('polls.results')} {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
-                    <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> {t('polls.exportCsv')}</button>
+                    {!leadMode && (
+                      <button type="button" onClick={() => downloadCsv(p.id)} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Download className="w-3.5 h-3.5" /> {t('polls.exportCsv')}</button>
+                    )}
                   </>
                 )}
-                {confirmDelete === p.id ? (
+                {p.canManage !== false && (confirmDelete === p.id ? (
                   <span className="flex items-center gap-1.5 ml-auto">
                     <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, p.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('polls.delete')}</button>
                     <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>{t('polls.cancel')}</button>
                   </span>
                 ) : (
                   <button type="button" onClick={() => setConfirmDelete(p.id)} disabled={pending} title={t('polls.delete')} className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
-                )}
+                ))}
               </div>
 
               {open && results && (
