@@ -6,11 +6,32 @@
 
 import { useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
-import { Send, Sparkles, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
+import { Send, Sparkles, ShieldCheck, ExternalLink } from 'lucide-react'
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string }
+/** Card reference resolved server-side (ids validated against tool results). */
+type AgentItem = { module: string; id: string; title: string; slug?: string }
+type ChatMessage = { role: 'user' | 'assistant'; content: string; items?: AgentItem[] }
 
-export function UrbanAgentChat({ projectId }: { projectId: string }) {
+const MODULE_LABELS: Record<string, string> = {
+  news: 'Neuigkeiten',
+  calendar: 'Termine',
+  polls: 'Umfragen',
+  forum: 'Forum',
+  tasks: 'Aufgaben',
+  files: 'Dateien',
+}
+
+/** News and forum have item detail routes (by slug); everything else links to the module page. */
+const itemHref = (locale: string, projectSlug: string, item: AgentItem): string => {
+  const root = `/${locale}/dashboard/projekte/${projectSlug}/m`
+  if ((item.module === 'news' || item.module === 'forum') && item.slug) {
+    return `${root}/${item.module}/${item.slug}`
+  }
+  return `${root}/${item.module}`
+}
+
+export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; projectSlug: string }) {
   const locale = useLocale()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -35,7 +56,8 @@ export function UrbanAgentChat({ projectId }: { projectId: string }) {
       const res = await fetch('/api/urban-agent', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ projectId, messages: next }),
+        // Cards are display-only — the API expects bare role/content messages.
+        body: JSON.stringify({ projectId, messages: next.map(({ role, content }) => ({ role, content })) }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -49,7 +71,10 @@ export function UrbanAgentChat({ projectId }: { projectId: string }) {
         )
         return
       }
-      setMessages((m) => [...m, { role: 'assistant', content: data.reply ?? '' }])
+      setMessages((m) => [
+        ...m,
+        { role: 'assistant', content: data.reply ?? '', items: Array.isArray(data.items) ? data.items : undefined },
+      ])
       scrollDown()
     } catch {
       setError('Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.')
@@ -96,6 +121,31 @@ export function UrbanAgentChat({ projectId }: { projectId: string }) {
               borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)',
             }}>
             <p className="text-text whitespace-pre-wrap">{m.content}</p>
+            {m.items && m.items.length > 0 && (
+              <ul className="mt-3 flex flex-col gap-2">
+                {m.items.map((item) => (
+                  <li key={`${item.module}:${item.id}`}>
+                    <Link
+                      href={itemHref(locale, projectSlug, item)}
+                      className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-opacity hover:opacity-80"
+                      style={{
+                        background: 'var(--project-light)',
+                        borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)',
+                        color: 'var(--project-accent)',
+                      }}
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-small font-bold truncate">{item.title}</span>
+                        <span className="block text-small" style={{ color: 'var(--project-ink)' }}>
+                          {MODULE_LABELS[item.module] ?? item.module}
+                        </span>
+                      </span>
+                      <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
         {pending && (

@@ -86,7 +86,7 @@ export default async function ModulePage({
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} />
-              : <UrbanAgentChat projectId={project.id} />)
+              : <UrbanAgentChat projectId={project.id} projectSlug={project.slug} />)
           : moduleType === 'board'
           ? (!boardData
               ? <ModuleConsumptionPlaceholder title={tm('board')} />
