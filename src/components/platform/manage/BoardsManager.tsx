@@ -7,7 +7,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Kanban, Plus, Trash2, Pencil, Check, X } from 'lucide-react'
+import { Plus, Trash2, Pencil, Check, X } from 'lucide-react'
 import { createBoard, renameBoard, deleteBoard } from '@/modules/board/actions'
 
 export interface BoardItem {
@@ -34,9 +34,7 @@ export function BoardsManager({ slug, boards }: { slug: string; locale: string; 
 
   return (
     <section className="max-w-2xl">
-      <h1 className="flex items-center gap-2 text-display font-bold mb-1" style={{ color: 'var(--plattform-ink)' }}>
-        <Kanban className="w-5 h-5" /> {t('boards.title')}
-      </h1>
+      <h1 className="sr-only">{t('boards.title')}</h1>
       <p className="text-text mb-5" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
         {t('boards.intro')}
       </p>

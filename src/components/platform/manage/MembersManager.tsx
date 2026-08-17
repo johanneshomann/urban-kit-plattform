@@ -166,7 +166,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-title font-bold leading-tight mb-1" style={{ color: 'var(--project-accent)' }}>{t('members.title')}</h1>
+      <h1 className="sr-only">{t('members.title')}</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
         {t('members.count', { count: members.length })}
       </p>

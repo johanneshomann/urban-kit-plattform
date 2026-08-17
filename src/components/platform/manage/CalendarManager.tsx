@@ -123,8 +123,8 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
 
   return (
     <div className="max-w-3xl">
-      <div className="flex items-center justify-between mb-1">
-        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-accent)' }}>{t('calendar.title')}</h1>
+      <div className="flex items-center justify-end mb-1">
+        <h1 className="sr-only">{t('calendar.title')}</h1>
         {!editing && (
           <button type="button" onClick={openNew} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> {t('calendar.newEvent')}

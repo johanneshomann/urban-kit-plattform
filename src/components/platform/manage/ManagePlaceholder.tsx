@@ -10,7 +10,7 @@ export function ManagePlaceholder({ title, hint }: { title: string; hint?: strin
   const t = useTranslations('manage')
   return (
     <div className="max-w-2xl">
-      <h1 className="text-display font-bold mb-2" style={{ color: 'var(--project-accent)' }}>{title}</h1>
+      <h1 className="sr-only">{title}</h1>
       <div
         className="mt-6 flex items-center gap-3 rounded-xl px-5 py-4"
         style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}
