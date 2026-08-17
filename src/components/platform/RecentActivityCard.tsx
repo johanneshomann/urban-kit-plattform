@@ -8,6 +8,7 @@ import { Newspaper, CalendarDays, MessageSquare, FileText, CheckSquare, BarChart
 import type { LucideIcon } from 'lucide-react'
 import type { ActivityItem, ActivityType } from '@/lib/project-activity'
 import { relativeDay } from '@/lib/format-date'
+import { AudienceChip } from '@/components/platform/AudienceChip'
 
 const ICONS: Record<ActivityType, LucideIcon> = {
   news: Newspaper,
@@ -45,6 +46,7 @@ export async function RecentActivityCard({ items, locale, moreHref }: {
               <li key={i} className="flex items-center gap-2.5">
                 <Icon className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
                 <span className="min-w-0 flex-1 text-small font-medium line-clamp-1" style={{ color: 'var(--project-accent)' }}>{item.title}</span>
+                {item.visibility === 'TEAM' && <AudienceChip visibility={item.visibility} visibilityTeams={item.visibilityTeams} />}
                 <span className="text-small shrink-0" style={{ color: 'var(--project-ink)' }}>{relativeDay(item.date, locale)}</span>
               </li>
             )

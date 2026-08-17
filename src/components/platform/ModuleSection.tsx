@@ -23,6 +23,8 @@ export interface ModuleCardData {
   boardCount: number
   filesPreview: FileCardItem[]
   filesNewCount: number
+  /** Per-module count of TEAM docs addressed to the viewer's teams ("davon X für Ihre Teams"). */
+  teamCounts?: Record<string, number>
 }
 
 interface Props extends ModuleCardData {
@@ -38,7 +40,7 @@ export function ModuleSection({
   title, items, projectSlug, locale,
   newsPosts, newsNewCount, calEvents, featuredPoll,
   forumCount, forumNewCount, tasksPreview, tasksOpenCount,
-  boardCount, filesPreview, filesNewCount,
+  boardCount, filesPreview, filesNewCount, teamCounts,
 }: Props) {
   function renderCard(moduleId: string) {
     switch (moduleId) {
@@ -73,17 +75,23 @@ export function ModuleSection({
         {items.map((moduleId) => {
           const card = renderCard(moduleId)
           if (!card) return null
+          const teamCount = teamCounts?.[moduleId] ?? 0
           return (
             <div
               key={moduleId}
-              className="rounded-xl overflow-hidden min-h-36"
+              className="rounded-xl overflow-hidden min-h-36 flex flex-col"
               style={{
                 border: '1.5px solid var(--project-light)',
                 boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
                 background: 'var(--project-white)',
               }}
             >
-              {card}
+              <div className="flex-1">{card}</div>
+              {teamCount > 0 && (
+                <p className="text-small px-4 py-2 border-t" style={{ color: 'var(--project-ink)', borderColor: 'var(--project-light)' }}>
+                  davon {teamCount} für Ihre Teams
+                </p>
+              )}
             </div>
           )
         })}

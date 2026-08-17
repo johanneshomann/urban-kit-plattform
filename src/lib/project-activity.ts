@@ -11,6 +11,9 @@ export interface ActivityItem {
   type: ActivityType
   title: string
   date: string
+  /** Audience of the underlying doc (for the small team chip per row). */
+  visibility?: string | null
+  visibilityTeams?: string[]
 }
 
 type VisDoc = Record<string, unknown> & { visibility?: string | null; visibilityTeams?: string[] | null }
@@ -58,13 +61,14 @@ export async function loadProjectActivity(
     has('polls') ? grab('polls', '-createdAt', { status: { not_equals: 'draft' } }) : Promise.resolve([]),
   ])
 
+  const audience = (d: VisDoc) => ({ visibility: d.visibility ?? null, visibilityTeams: Array.isArray(d.visibilityTeams) ? d.visibilityTeams : [] })
   const items: ActivityItem[] = [
-    ...news.map((d) => ({ type: 'news' as const, title: String(d.title ?? ''), date: String(d.publishedAt ?? d.createdAt ?? '') })),
-    ...events.map((d) => ({ type: 'event' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? '') })),
-    ...forum.map((d) => ({ type: 'forum' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? '') })),
-    ...files.map((d) => ({ type: 'file' as const, title: String(d.label || d.filename || 'Datei'), date: String(d.createdAt ?? '') })),
-    ...tasks.map((d) => ({ type: 'task' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? '') })),
-    ...polls.map((d) => ({ type: 'poll' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? '') })),
+    ...news.map((d) => ({ type: 'news' as const, title: String(d.title ?? ''), date: String(d.publishedAt ?? d.createdAt ?? ''), ...audience(d) })),
+    ...events.map((d) => ({ type: 'event' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
+    ...forum.map((d) => ({ type: 'forum' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
+    ...files.map((d) => ({ type: 'file' as const, title: String(d.label || d.filename || 'Datei'), date: String(d.createdAt ?? ''), ...audience(d) })),
+    ...tasks.map((d) => ({ type: 'task' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
+    ...polls.map((d) => ({ type: 'poll' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
   ]
 
   return items

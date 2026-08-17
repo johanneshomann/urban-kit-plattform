@@ -54,6 +54,20 @@ export async function loadWorkspaceCards(
       .then((r) => (r.docs as VisDoc[]).filter((d) => canViewContent(membership, d)))
       .catch(() => [] as VisDoc[])
 
+  // "davon X für Ihre Teams" per card: TEAM docs the viewer's teams can see
+  // (PMs count all TEAM docs — they see every team's content).
+  const teamScoped = viewer.tier === 'team' && (viewer.isPM || viewer.teams.length > 0)
+  const teamWhere = (extra?: Record<string, unknown>) => ({
+    and: [
+      byProject,
+      { visibility: { equals: 'TEAM' } },
+      ...(viewer.isPM ? [] : [{ visibilityTeams: { in: viewer.teams } }]),
+      ...(extra ? [extra] : []),
+    ],
+  })
+  const teamCount = (collection: string, extra?: Record<string, unknown>) =>
+    teamScoped ? count(collection, teamWhere(extra)) : Promise.resolve(0)
+
   const [
     news, newsNew,
     events,
@@ -62,6 +76,7 @@ export async function loadWorkspaceCards(
     tasks, tasksOpenCount,
     boardCount,
     files, filesNewCount,
+    newsTeam, calTeam, pollsTeam, forumTeam, tasksTeam, filesTeam,
   ] = await Promise.all([
     has('news') ? list('news-posts', { sort: '-publishedAt', limit: 3, depth: 1, extra: [publishedNews] }) : Promise.resolve([]),
     has('news') ? count('news-posts', recent(publishedNews)) : Promise.resolve(0),
@@ -82,6 +97,13 @@ export async function loadWorkspaceCards(
 
     has('files') ? list('file-uploads', { sort: '-createdAt', limit: 3 }) : Promise.resolve([]),
     has('files') ? count('file-uploads', recent()) : Promise.resolve(0),
+
+    has('news') ? teamCount('news-posts', publishedNews) : Promise.resolve(0),
+    has('calendar') ? teamCount('calendar-events') : Promise.resolve(0),
+    has('polls') ? teamCount('polls', { status: { not_equals: 'draft' } }) : Promise.resolve(0),
+    has('forum') ? teamCount('forum-threads') : Promise.resolve(0),
+    has('tasks') ? teamCount('tasks') : Promise.resolve(0),
+    has('files') ? teamCount('file-uploads') : Promise.resolve(0),
   ])
 
   // Participants for the featured poll (approx: total votes cast)
@@ -111,5 +133,6 @@ export async function loadWorkspaceCards(
       id: String(f.id), name: String(f.label || f.filename || 'Datei'),
     })),
     filesNewCount,
+    teamCounts: { news: newsTeam, calendar: calTeam, polls: pollsTeam, forum: forumTeam, tasks: tasksTeam, files: filesTeam },
   }
 }
