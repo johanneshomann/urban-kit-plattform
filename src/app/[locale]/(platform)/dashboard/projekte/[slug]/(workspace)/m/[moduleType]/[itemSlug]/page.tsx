@@ -31,10 +31,7 @@ export default async function ModuleItemPage({
   if (!ctx || !ctx.modules.includes(moduleType)) notFound()
   const { project } = ctx
 
-  const [tm, tw] = await Promise.all([
-    getTranslations({ locale, namespace: 'modules' }),
-    getTranslations({ locale, namespace: 'projectWorkspace' }),
-  ])
+  const tm = await getTranslations({ locale, namespace: 'modules' })
 
   const user = await getUser()
   const userId = user ? String(user.id) : null
@@ -72,7 +69,7 @@ export default async function ModuleItemPage({
     <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
-          { label: tw('breadcrumbDashboard'), href: root },
+          { label: project.title, href: root },
           { label: tm(moduleType), href: `${root}/m/${moduleType}` },
           ...(itemTitle ? [{ label: itemTitle }] : []),
         ]}

@@ -27,10 +27,7 @@ export default async function ModulePage({
   params: Promise<{ locale: string; slug: string; moduleType: string }>
 }) {
   const { locale, slug, moduleType } = await params
-  const [tm, tw] = await Promise.all([
-    getTranslations({ locale, namespace: 'modules' }),
-    getTranslations({ locale, namespace: 'projectWorkspace' }),
-  ])
+  const tm = await getTranslations({ locale, namespace: 'modules' })
   const payload = await getPayload({ config })
 
   // Shared with the shell layout via React.cache — one fetch per request.
@@ -62,7 +59,7 @@ export default async function ModulePage({
     <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
-          { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
+          { label: project.title, href: `/${locale}/dashboard/projekte/${slug}` },
           { label: tm(moduleType) },
         ]}
       />

@@ -74,7 +74,7 @@ export default async function ProjectInfoPage({
     <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
-          { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
+          { label: project.title, href: `/${locale}/dashboard/projekte/${slug}` },
           { label: tw('aboutProject') },
         ]}
       />
