@@ -75,6 +75,8 @@ export default async function ProjectLayout({
             slug={slug}
             projectTitle={ctx.project.title}
             coverSrc={ctx.project.coverImage?.url ?? projectDefaults.coverImage}
+            isActiveMember={ctx.isActiveMember}
+            isTeamLead={ctx.viewer.leadOf.length > 0}
             participate={participate}
             collaborate={collaborate}
             manageModules={manageModules}
@@ -88,6 +90,8 @@ export default async function ProjectLayout({
       <ProjectTabBar
         locale={locale}
         slug={slug}
+        isActiveMember={ctx.isActiveMember}
+        isTeamLead={ctx.viewer.leadOf.length > 0}
         participate={participate}
         collaborate={collaborate}
         manageModules={manageModules}

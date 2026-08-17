@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl'
 import {
   ArrowLeft, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare,
   Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users,
-  UserPlus, Settings, Settings2, Shield,
+  UserPlus, Settings, Settings2, Shield, Crown,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -83,6 +83,10 @@ export interface ProjectSidebarProps {
   slug: string
   projectTitle: string
   coverSrc: string
+  /** Viewer is an active member — shows the Mitglieder workspace item. */
+  isActiveMember: boolean
+  /** Viewer leads at least one team — shows the Team workspace item. */
+  isTeamLead: boolean
   /** Enabled participation modules, in MODULE_ORDER. */
   participate: string[]
   /** Enabled collaboration modules — empty unless the viewer is an active member. */
@@ -102,7 +106,7 @@ export interface ProjectSidebarProps {
  * the manage layout guard and each module page's own checks.
  */
 export function ProjectSidebar({
-  locale, slug, projectTitle, coverSrc, participate, collaborate, manageModules, canManage, requestCount,
+  locale, slug, projectTitle, coverSrc, isActiveMember, isTeamLead, participate, collaborate, manageModules, canManage, requestCount,
 }: ProjectSidebarProps) {
   const tw = useTranslations('projectWorkspace')
   const tm = useTranslations('manage')
@@ -220,12 +224,18 @@ export function ProjectSidebar({
               <NavLink key={m} href={`${root}/m/${m}`} label={tModules(m)} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(`${root}/m/${m}`)} />
             ))}
 
-            {/* Über das Projekt sits last, set off by a divider */}
+            {/* People + about sit last, set off by a divider */}
             <div
               aria-hidden="true"
               className="my-2 border-t"
               style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
             />
+            {isActiveMember && (
+              <NavLink href={`${root}/mitglieder`} label={tw('membersNav')} icon={Users} active={isActive(`${root}/mitglieder`)} />
+            )}
+            {isTeamLead && (
+              <NavLink href={`${root}/team`} label={tw('teamNav')} icon={Crown} active={isActive(`${root}/team`)} />
+            )}
             <NavLink href={`${root}/info`} label={tw('aboutProject')} icon={Info} active={isActive(`${root}/info`)} />
           </>
         )}
