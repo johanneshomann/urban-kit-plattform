@@ -59,14 +59,15 @@ export default async function ModulePage({
   }
 
   return (
-    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
+    <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
           { label: tm(moduleType) },
         ]}
       />
-      <main className="p-6 md:p-8 w-full">
+      {/* White content card under the light breadcrumb band — same pattern as manage */}
+      <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {moduleType === 'news'
           ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'calendar'

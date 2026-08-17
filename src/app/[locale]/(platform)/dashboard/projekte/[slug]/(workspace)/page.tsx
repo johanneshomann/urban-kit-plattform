@@ -69,7 +69,8 @@ export default async function ProjectDashboardPage({
           (here: the project itself), the h1 stays sr-only (BITV). */}
       <ProjectBreadcrumb items={[{ label: project.title }]} />
       <h1 className="sr-only">{project.title}</h1>
-      <div className="flex-1 p-6 md:p-8 flex flex-col gap-6">
+      {/* White content card under the light breadcrumb band — same pattern as manage */}
+      <div className="card-in flex-1 mt-5 p-6 md:p-10 min-w-0 flex flex-col gap-6" style={{ background: 'var(--project-white)' }}>
 
       {/* top strip — phase pill left, join button right (skipped when both are absent) */}
       {(phaseLabel || ctx.canRequestJoin) && (

@@ -69,7 +69,7 @@ export default async function ModuleItemPage({
   const root = `/${locale}/dashboard/projekte/${slug}`
 
   return (
-    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
+    <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: root },
@@ -77,7 +77,8 @@ export default async function ModuleItemPage({
           ...(itemTitle ? [{ label: itemTitle }] : []),
         ]}
       />
-      <main className="p-6 md:p-8 w-full">
+      {/* White content card under the light breadcrumb band — same pattern as manage */}
+      <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {moduleType === 'forum'
           ? (tier === 'public'
               ? notFound()

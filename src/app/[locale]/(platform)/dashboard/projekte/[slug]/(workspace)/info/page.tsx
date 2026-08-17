@@ -71,14 +71,15 @@ export default async function ProjectInfoPage({
     : null
 
   return (
-    <div className="flex-1" style={{ background: 'var(--project-light)' }}>
+    <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: tw('breadcrumbDashboard'), href: `/${locale}/dashboard/projekte/${slug}` },
           { label: tw('aboutProject') },
         ]}
       />
-      <main className="p-6 md:p-8 w-full">
+      {/* White content card under the light breadcrumb band — same pattern as manage */}
+      <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {/* Page heading for screen readers — visually the breadcrumb carries it (BITV). */}
         <h1 className="sr-only">{tw('aboutProject')}</h1>
         {/* cover + short description — moved here from the old workspace hero */}
