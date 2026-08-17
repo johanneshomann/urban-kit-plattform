@@ -103,11 +103,17 @@ export function visibilityWhere(ctx: ViewerContext): Where {
 }
 
 /**
- * Resolve a user's viewer context for a project via their (active) membership.
- * Pass `userId: null` for logged-out visitors (→ public, no teams).
+ * Resolve a user's viewer context AND the underlying membership doc in one
+ * query. The membership is what `canViewContent` needs for per-document TEAM
+ * checks; `null` when there is no active membership.
  */
-export async function getViewerContext(payload: Payload, userId: string | null, projectId: string): Promise<ViewerContext> {
-  if (!userId) return { tier: 'public', teams: [], isPM: false, active: false }
+export async function getViewerState(
+  payload: Payload,
+  userId: string | null,
+  projectId: string,
+): Promise<{ ctx: ViewerContext; membership: ViewerMembership | null }> {
+  const publicState = { ctx: { tier: 'public' as ViewerTier, teams: [], isPM: false, active: false }, membership: null }
+  if (!userId) return publicState
   const res = await payload.find({
     collection: 'project-memberships',
     where: { and: [{ user: { equals: userId } }, { project: { equals: projectId } }] },
@@ -116,11 +122,19 @@ export async function getViewerContext(payload: Payload, userId: string | null, 
     overrideAccess: true,
   })
   const m = res.docs[0] as (ViewerMembership & { status?: string }) | undefined
-  if (!m || m.status !== 'active') return { tier: 'public', teams: [], isPM: false, active: false }
+  if (!m || m.status !== 'active') return publicState
   const isPM = m.role === 'PM'
   const teams = Array.isArray(m.teams) ? m.teams : []
   const tier: ViewerTier = isPM || teams.length > 0 ? 'team' : 'member'
-  return { tier, teams, isPM, active: true }
+  return { ctx: { tier, teams, isPM, active: true }, membership: m }
+}
+
+/**
+ * Resolve a user's viewer context for a project via their (active) membership.
+ * Pass `userId: null` for logged-out visitors (→ public, no teams).
+ */
+export async function getViewerContext(payload: Payload, userId: string | null, projectId: string): Promise<ViewerContext> {
+  return (await getViewerState(payload, userId, projectId)).ctx
 }
 
 /**
