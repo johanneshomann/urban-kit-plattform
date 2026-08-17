@@ -7,7 +7,7 @@ import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { payloadAs } from '@/lib/payload-client'
 import { buildProjectDigest, URBAN_AGENT_SYSTEM_PROMPT } from '@/lib/urban-agent/context'
-import { chatComplete, type ChatMessage } from '@/lib/urban-agent/llm'
+import { chatStream, type ChatMessage } from '@/lib/urban-agent/llm'
 import { buildAgentTools } from '@/lib/urban-agent/tools'
 import { loadUrbanAgentSettings } from '@/lib/urban-agent/settings'
 import { countDailyRequest, dailyLimitReached, rateLimit } from '@/lib/urban-agent/rate-limit'
@@ -28,8 +28,9 @@ const isChatMessage = (m: unknown): m is ChatMessage =>
 // Urban Agent chat endpoint — a tool-calling agent over THIS project's content.
 // The model holds no data; every fact comes from the tools in
 // src/lib/urban-agent/tools.ts, each scoped to the viewer (ADR-3) and this
-// project. Response: { reply, items } — items are the cards the model chose to
-// show via show_items (ids validated server-side, links built client-side).
+// project. Response: an NDJSON stream of text deltas followed by the cards the
+// model chose to show via show_items (ids validated server-side, links built
+// client-side).
 // Guard order: auth → configured → input caps → membership → budgets → module.
 export async function POST(req: NextRequest) {
   const payload = await getPayload({ config })
@@ -108,17 +109,40 @@ export async function POST(req: NextRequest) {
   const system = parts.join('\n\n')
 
   countDailyRequest()
-  try {
-    const { text } = await chatComplete(settings, system, history, tools)
-    return NextResponse.json({
-      reply: text || 'Dazu liegen mir keine Informationen vor.',
-      items: session.shown,
-    })
-  } catch (err) {
-    if (err instanceof Error && err.message === 'NOT_CONFIGURED') {
-      return NextResponse.json({ error: 'not_configured' }, { status: 503 })
-    }
-    console.error('[urban-agent] LLM call failed:', err)
-    return NextResponse.json({ error: 'llm_failed', message: 'Der Assistent ist momentan nicht erreichbar.' }, { status: 502 })
-  }
+
+  // Newline-delimited JSON stream: {t:'d',d} text deltas while the model
+  // writes, then {t:'items',items} with the show_items cards, {t:'done'}.
+  // LLM failures after the 200 has started surface as {t:'error'} events.
+  const result = chatStream(settings, system, history, tools)
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (obj: Record<string, unknown>) =>
+        controller.enqueue(encoder.encode(`${JSON.stringify(obj)}\n`))
+      let wroteText = false
+      try {
+        for await (const delta of result.textStream) {
+          if (delta) {
+            wroteText = true
+            send({ t: 'd', d: delta })
+          }
+        }
+        if (!wroteText) send({ t: 'd', d: 'Dazu liegen mir keine Informationen vor.' })
+        send({ t: 'items', items: session.shown })
+        send({ t: 'done' })
+        const usage = await result.usage
+        console.info(
+          `[urban-agent] ${settings.provider} tokens in=${usage.inputTokens ?? '?'} out=${usage.outputTokens ?? '?'}`,
+        )
+      } catch (err) {
+        console.error('[urban-agent] LLM stream failed:', err)
+        send({ t: 'error', message: 'Der Assistent ist momentan nicht erreichbar.' })
+      } finally {
+        controller.close()
+      }
+    },
+  })
+  return new Response(stream, {
+    headers: { 'content-type': 'application/x-ndjson; charset=utf-8', 'cache-control': 'no-store' },
+  })
 }

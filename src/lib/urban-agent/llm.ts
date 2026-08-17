@@ -4,7 +4,7 @@
 
 import 'server-only'
 
-import { generateText, stepCountIs, type LanguageModel, type SystemModelMessage, type ToolSet } from 'ai'
+import { streamText, stepCountIs, type LanguageModel, type SystemModelMessage, type ToolSet } from 'ai'
 import { anthropic, createAnthropic } from '@ai-sdk/anthropic'
 import { mistral, createMistral } from '@ai-sdk/mistral'
 import { createOpenAI, openai } from '@ai-sdk/openai'
@@ -52,24 +52,29 @@ function buildModel(provider: AgentProvider, modelId?: string, apiKey?: string):
   }
 }
 
-export async function chatComplete(
+/**
+ * One streamed chat turn (optionally tool-calling) against the configured
+ * provider. Returns the streamText result so the route can forward text
+ * deltas as they arrive; errors surface when iterating `textStream`.
+ */
+export function chatStream(
   settings: UrbanAgentSettings,
   system: string,
   messages: ChatMessage[],
   tools?: ToolSet,
-): Promise<{ provider: AgentProvider; text: string }> {
+): ReturnType<typeof streamText> {
   if (!settings.configured || !settings.provider) throw new Error('NOT_CONFIGURED')
 
   const systemMessage: SystemModelMessage = { role: 'system', content: system }
   if (settings.provider === 'anthropic') {
-    // The system prompt (rules + project context) repeats across a chat
+    // The system prompt (rules + project digest) repeats across a chat
     // session — cache it. Other providers ignore this option.
     systemMessage.providerOptions = {
       anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
     }
   }
 
-  const result = await generateText({
+  return streamText({
     model: buildModel(settings.provider, settings.model, settings.apiKey),
     // ai v7: system messages live in `instructions`, not in `messages`.
     instructions: systemMessage,
@@ -79,10 +84,5 @@ export async function chatComplete(
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: AbortSignal.timeout(TIMEOUT_MS),
   })
-
-  // Count-only accounting (no content) — enough to notice runaway cost.
-  const { inputTokens, outputTokens } = result.usage
-  console.info(`[urban-agent] ${settings.provider} tokens in=${inputTokens ?? '?'} out=${outputTokens ?? '?'}`)
-
-  return { provider: settings.provider, text: result.text.trim() }
 }
+
