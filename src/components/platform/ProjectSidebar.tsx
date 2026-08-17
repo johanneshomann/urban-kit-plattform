@@ -133,17 +133,33 @@ export function ProjectSidebar({
       {/* Project identity — title overlaid on the cover image (dark scrim keeps
           the white text readable on any cover) */}
       <div className="shrink-0 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-        <Link href={root} className="relative block">
-          <img src={coverSrc} alt="" className="h-28 w-full object-cover" />
-          <span
-            aria-hidden="true"
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.15) 55%, transparent)' }}
-          />
-          <span className="absolute inset-x-0 bottom-0 px-4 pb-2.5 font-semibold leading-snug line-clamp-2 text-white">
-            {projectTitle}
-          </span>
-        </Link>
+        <div className="relative">
+          <Link href={root} className="block">
+            <img src={coverSrc} alt="" className="h-28 w-full object-cover" />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.15) 55%, transparent)' }}
+            />
+            <span className="absolute inset-x-0 bottom-0 px-4 pb-2.5 text-white">
+              {manageMode && (
+                <span className="block text-[0.7rem] font-bold uppercase tracking-widest opacity-80">
+                  {tm('sidebar.title')}
+                </span>
+              )}
+              <span className="block font-semibold leading-snug line-clamp-2">{projectTitle}</span>
+            </span>
+          </Link>
+          {/* Back to the user's dashboard — sibling of the cover link (links must not nest) */}
+          <Link
+            href={`/${locale}/dashboard`}
+            aria-label={tw('backToDashboard')}
+            className="absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-opacity hover:opacity-80"
+            style={{ background: 'rgba(0,0,0,0.45)', color: '#fff' }}
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          </Link>
+        </div>
         {manageMode && (
           <Link
             href={root}

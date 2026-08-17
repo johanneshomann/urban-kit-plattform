@@ -1131,6 +1131,7 @@
     "activityMore": "View all activity",
     "activityEmpty": "No activity yet",
     "breadcrumbDashboard": "Overview",
+    "backToDashboard": "To dashboard",
     "teaserMore": "Learn more",
     "galleryAll": "View all images",
     "aboutProject": "About the project",
@@ -1330,6 +1331,7 @@
       "unknownName": "Unknown"
     },
     "sidebar": {
+      "title": "Administration",
       "overview": "Overview",
       "contentGroup": "Content",
       "projectGroup": "Project",

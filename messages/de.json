@@ -1131,6 +1131,7 @@
     "activityMore": "Alle Aktivitäten ansehen",
     "activityEmpty": "Noch keine Aktivität",
     "breadcrumbDashboard": "Übersicht",
+    "backToDashboard": "Zum Dashboard",
     "teaserMore": "Mehr erfahren",
     "galleryAll": "Alle Bilder anzeigen",
     "aboutProject": "Über das Projekt",
@@ -1330,6 +1331,7 @@
       "unknownName": "Unbekannt"
     },
     "sidebar": {
+      "title": "Verwaltung",
       "overview": "Übersicht",
       "contentGroup": "Inhalte",
       "projectGroup": "Projekt",
