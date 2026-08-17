@@ -42,7 +42,6 @@ export default async function ManageDarstellungPage({
   return (
     <div>
       <h1 className="sr-only">{t('darstellung.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('darstellung.subtitle')}</p>
 
       <DarstellungForm
         slug={slug}

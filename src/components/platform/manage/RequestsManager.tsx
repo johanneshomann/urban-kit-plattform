@@ -35,9 +35,6 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
   return (
     <div>
       <h1 className="sr-only">{t('requests.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
-        {t('requests.subtitle')}
-      </p>
 
       {error && (
         <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>

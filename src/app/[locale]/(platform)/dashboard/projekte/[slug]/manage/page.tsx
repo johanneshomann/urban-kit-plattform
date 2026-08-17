@@ -29,9 +29,6 @@ export default async function ManageOverviewPage({
     <div>
       {/* Breadcrumb carries the Verwalten label; heading stays for screen readers (BITV). */}
       <h1 className="sr-only">{ctx.project.title}</h1>
-      <p className="text-text mb-8" style={{ color: 'var(--project-ink)' }}>
-        {t('overview.subtitle')}
-      </p>
 
       <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>
         {t('overview.contentHeading')}

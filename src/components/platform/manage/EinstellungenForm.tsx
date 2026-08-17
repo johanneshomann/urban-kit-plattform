@@ -103,7 +103,6 @@ export function EinstellungenForm({
   return (
     <div>
       <h1 className="sr-only">{t('einstellungen.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('einstellungen.subtitle')}</p>
 
       {/* Visibility */}
       <div className="rounded-xl border p-5" style={cardStyle}>

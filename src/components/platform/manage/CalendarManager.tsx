@@ -131,7 +131,6 @@ export function CalendarManager({ slug, locale, events, teamCatalog }: { slug: s
           </button>
         )}
       </div>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('calendar.subtitle')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}
 

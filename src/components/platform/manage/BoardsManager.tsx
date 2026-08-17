@@ -35,9 +35,6 @@ export function BoardsManager({ slug, boards }: { slug: string; locale: string; 
   return (
     <section>
       <h1 className="sr-only">{t('boards.title')}</h1>
-      <p className="text-text mb-5" style={{ color: 'var(--plattform-ink)', opacity: 0.7 }}>
-        {t('boards.intro')}
-      </p>
 
       <div className="flex gap-2 mb-6">
         <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('boards.newBoardPlaceholder')}

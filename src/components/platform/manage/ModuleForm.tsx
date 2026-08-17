@@ -67,9 +67,6 @@ export function ModuleForm({ slug, locale, initialModules }: { slug: string; loc
   return (
     <div>
       <h1 className="sr-only">{t('moduleForm.title')}</h1>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
-        {t('moduleForm.subtitle')}
-      </p>
 
       <div className="grid sm:grid-cols-2 gap-3">
         {MODULE_ORDER.map((m) => {
