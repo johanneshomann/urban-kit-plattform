@@ -173,14 +173,14 @@ export default async function ManageInhaltePage({
     const folders: FolderItem[] = foldersRes.docs.map((d) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const f = d as any
-      return { id: String(f.id), name: f.name ?? '', visibility: f.visibility ?? 'INTERNAL' }
+      return { id: String(f.id), name: f.name ?? '', visibility: f.visibility ?? 'INTERNAL', visibilityTeams: Array.isArray(f.visibilityTeams) ? f.visibilityTeams : [] }
     })
     const files: FileItem[] = filesRes.docs.map((d) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const f = d as any
-      return { id: String(f.id), label: f.label ?? null, filename: f.filename ?? '', url: f.url ?? null, mimeType: f.mimeType ?? null, filesize: f.filesize ?? null, visibility: f.visibility ?? 'INTERNAL', folderId: relIdF(f.folder) }
+      return { id: String(f.id), label: f.label ?? null, filename: f.filename ?? '', url: f.url ?? null, mimeType: f.mimeType ?? null, filesize: f.filesize ?? null, visibility: f.visibility ?? 'INTERNAL', visibilityTeams: Array.isArray(f.visibilityTeams) ? f.visibilityTeams : [], folderId: relIdF(f.folder) }
     })
-    return <FilesManager slug={slug} locale={locale} folders={folders} files={files} />
+    return <FilesManager slug={slug} locale={locale} folders={folders} files={files} teamCatalog={teamCatalog} />
   }
 
 

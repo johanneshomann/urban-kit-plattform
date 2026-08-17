@@ -10,8 +10,8 @@ import { useTranslations } from 'next-intl'
 import { Upload, FolderPlus, Folder, Trash2, Download, Globe, Lock, Users as UsersIcon, FileText, X } from 'lucide-react'
 import { createFolder, deleteFolder, setFolderVisibility, uploadFile, deleteFile, setFileVisibility } from '@/actions/files'
 
-export interface FolderItem { id: string; name: string; visibility: string }
-export interface FileItem { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; visibility: string; folderId: string | null }
+export interface FolderItem { id: string; name: string; visibility: string; visibilityTeams: string[] }
+export interface FileItem { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; visibility: string; visibilityTeams: string[]; folderId: string | null }
 
 const VISIBILITY = [
   { value: 'PUBLIC', labelKey: 'files.visPublic', icon: Globe },
@@ -37,7 +37,24 @@ function VisSelect({ value, onChange, disabled }: { value: string; onChange: (v:
   )
 }
 
-export function FilesManager({ slug, locale, folders, files }: { slug: string; locale: string; folders: FolderItem[]; files: FileItem[] }) {
+/** Tag pills for TEAM visibility (empty selection = whole Projektteam). */
+function TeamPills({ catalog, value, onToggle, disabled }: { catalog: string[]; value: string[]; onToggle: (tag: string) => void; disabled?: boolean }) {
+  if (catalog.length === 0) return null
+  return (
+    <span className="flex flex-wrap items-center gap-1">
+      {catalog.map((tag) => {
+        const on = value.includes(tag)
+        return (
+          <button key={tag} type="button" onClick={() => onToggle(tag)} disabled={disabled} className="text-[0.7rem] px-2 py-0.5 rounded-full border transition-colors disabled:opacity-40" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+            {tag}
+          </button>
+        )
+      })}
+    </span>
+  )
+}
+
+export function FilesManager({ slug, locale, folders, files, teamCatalog = [] }: { slug: string; locale: string; folders: FolderItem[]; files: FileItem[]; teamCatalog?: string[] }) {
   const t = useTranslations('manage')
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -46,9 +63,11 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
 
   const [uploadFolder, setUploadFolder] = useState<string>('')
   const [uploadVis, setUploadVis] = useState('INTERNAL')
+  const [uploadTeams, setUploadTeams] = useState<string[]>([])
   const [showFolderForm, setShowFolderForm] = useState(false)
   const [folderName, setFolderName] = useState('')
   const [folderVis, setFolderVis] = useState('INTERNAL')
+  const [folderTeams, setFolderTeams] = useState<string[]>([])
   const [confirm, setConfirm] = useState<string | null>(null)
 
   const run = (fn: () => Promise<{ error?: string; ok?: boolean }>, after?: () => void) => {
@@ -67,6 +86,7 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
     fd.append('file', file)
     if (uploadFolder) fd.append('folderId', uploadFolder)
     fd.append('visibility', uploadVis)
+    if (uploadVis === 'TEAM') for (const tag of uploadTeams) fd.append('visibilityTeams', tag)
     run(() => uploadFile(slug, locale, fd))
   }
 
@@ -79,7 +99,13 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
           <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{f.label || f.filename}</p>
           <p className="text-small" style={{ color: 'var(--project-ink)' }}>{fmtSize(f.filesize)}{f.mimeType ? ` · ${f.mimeType}` : ''}</p>
         </div>
-        <VisSelect value={f.visibility} onChange={(v) => run(() => setFileVisibility(slug, locale, f.id, v))} disabled={pending} />
+        <span className="flex flex-col items-end gap-1">
+          <VisSelect value={f.visibility} onChange={(v) => run(() => setFileVisibility(slug, locale, f.id, v, f.visibilityTeams))} disabled={pending} />
+          {f.visibility === 'TEAM' && (
+            <TeamPills catalog={teamCatalog} value={f.visibilityTeams} disabled={pending}
+              onToggle={(tag) => run(() => setFileVisibility(slug, locale, f.id, 'TEAM', f.visibilityTeams.includes(tag) ? f.visibilityTeams.filter((x) => x !== tag) : [...f.visibilityTeams, tag]))} />
+          )}
+        </span>
         {f.url && <a href={f.url} download title={t('files.download')} className="p-2 rounded-lg shrink-0" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>}
         {confirm === `f-${f.id}` ? (
           <span className="flex items-center gap-1">
@@ -114,6 +140,10 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
           <label className="block text-small mb-1" style={{ color: 'var(--project-ink)' }}>{t('files.visibility')}</label>
           <VisSelect value={uploadVis} onChange={setUploadVis} disabled={pending} />
         </div>
+        {uploadVis === 'TEAM' && (
+          <TeamPills catalog={teamCatalog} value={uploadTeams} disabled={pending}
+            onToggle={(tag) => setUploadTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
+        )}
         <button type="button" onClick={() => fileInput.current?.click()} disabled={pending} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
           <Upload className="w-4 h-4" /> {t('files.uploadFile')}
         </button>
@@ -130,7 +160,11 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
             <input type="text" value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder={t('files.folderNamePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           </div>
           <VisSelect value={folderVis} onChange={setFolderVis} disabled={pending} />
-          <button type="button" onClick={() => run(() => createFolder(slug, locale, { name: folderName, visibility: folderVis }), () => { setFolderName(''); setShowFolderForm(false) })} disabled={pending || !folderName.trim()} className="px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>{t('files.create')}</button>
+          {folderVis === 'TEAM' && (
+            <TeamPills catalog={teamCatalog} value={folderTeams} disabled={pending}
+              onToggle={(tag) => setFolderTeams((s) => (s.includes(tag) ? s.filter((x) => x !== tag) : [...s, tag]))} />
+          )}
+          <button type="button" onClick={() => run(() => createFolder(slug, locale, { name: folderName, visibility: folderVis, visibilityTeams: folderVis === 'TEAM' ? folderTeams : [] }), () => { setFolderName(''); setFolderTeams([]); setShowFolderForm(false) })} disabled={pending || !folderName.trim()} className="px-4 py-2 rounded-lg text-cta font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>{t('files.create')}</button>
         </div>
       )}
 
@@ -145,7 +179,11 @@ export function FilesManager({ slug, locale, folders, files }: { slug: string; l
             <div className="flex items-center gap-2 mb-2">
               <Folder className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />
               <h2 className="text-display font-semibold" style={{ color: 'var(--project-accent)' }}>{folder.name}</h2>
-              <VisSelect value={folder.visibility} onChange={(v) => run(() => setFolderVisibility(slug, locale, folder.id, v))} disabled={pending} />
+              <VisSelect value={folder.visibility} onChange={(v) => run(() => setFolderVisibility(slug, locale, folder.id, v, folder.visibilityTeams))} disabled={pending} />
+              {folder.visibility === 'TEAM' && (
+                <TeamPills catalog={teamCatalog} value={folder.visibilityTeams} disabled={pending}
+                  onToggle={(tag) => run(() => setFolderVisibility(slug, locale, folder.id, 'TEAM', folder.visibilityTeams.includes(tag) ? folder.visibilityTeams.filter((x) => x !== tag) : [...folder.visibilityTeams, tag]))} />
+              )}
               {confirm === `fo-${folder.id}` ? (
                 <span className="flex items-center gap-1 ml-auto">
                   <button type="button" onClick={() => run(() => deleteFolder(slug, locale, folder.id), () => setConfirm(null))} disabled={pending} className="px-2 py-1 rounded text-small font-semibold" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>{t('files.deleteFolderAndFiles')}</button>
