@@ -7,9 +7,10 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare, Plus, X, Trash2 } from 'lucide-react'
+import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare, Plus, Trash2 } from 'lucide-react'
 import { toggleThreadVote, createThread, deleteThread } from '@/actions/forum'
 import { AudienceChip } from '@/components/platform/AudienceChip'
+import { FormModal } from '@/components/platform/FormModal'
 
 export interface ForumListItem {
   id: string
@@ -76,36 +77,35 @@ export function ForumList({ slug, locale, threads, isPM, leadOf }: { slug: strin
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {creating && (
-        <div className="rounded-xl border p-5 mb-6 flex flex-col gap-3" style={cardStyle}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-small font-bold uppercase tracking-widest" style={{ color: 'var(--project-ink)' }}>Neues Thema</h2>
-            <button type="button" onClick={() => setCreating(false)} className="p-1 rounded" style={{ color: 'var(--project-ink)' }}><X className="w-4 h-4" /></button>
-          </div>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Worum geht es? (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
-          {isPM ? (
-            <p className="text-small" style={{ color: 'var(--project-ink)' }}>Sichtbar für alle Projektmitglieder.</p>
-          ) : (
-            <div>
-              <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für Team</p>
-              <div className="flex flex-wrap gap-1.5">
-                {leadOf.map((tag) => {
-                  const on = teams.includes(tag)
-                  return (
-                    <button key={tag} type="button" onClick={() => setTeams((s) => (on ? s.filter((t) => t !== tag) : [...s, tag]))} className="text-small px-2.5 py-1 rounded-full border transition-colors" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
-                      {tag}
-                    </button>
-                  )
-                })}
+        <FormModal title="Neues Thema" onClose={() => setCreating(false)}>
+          <div className="flex flex-col gap-3">
+            {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
+            <input type="text" autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="Worum geht es? (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
+            {isPM ? (
+              <p className="text-small" style={{ color: 'var(--project-ink)' }}>Sichtbar für alle Projektmitglieder.</p>
+            ) : (
+              <div>
+                <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für Team</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {leadOf.map((tag) => {
+                    const on = teams.includes(tag)
+                    return (
+                      <button key={tag} type="button" onClick={() => setTeams((s) => (on ? s.filter((t) => t !== tag) : [...s, tag]))} className="text-small px-2.5 py-1 rounded-full border transition-colors" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+                        {tag}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+            )}
+            <div>
+              <button type="button" onClick={submit} disabled={pending || !title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+                <Plus className="w-4 h-4" /> Erstellen
+              </button>
             </div>
-          )}
-          <div>
-            <button type="button" onClick={submit} disabled={pending || !title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-              <Plus className="w-4 h-4" /> Erstellen
-            </button>
           </div>
-        </div>
+        </FormModal>
       )}
 
       {threads.length === 0 && !creating ? (
