@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { Task } from '@/payload-types'
 import { getProjectManagerContext, getProjectTeamContext, getProjectMemberContext } from '@/lib/auth/requireProjectManager'
+import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitNotification } from '@/lib/events'
 
@@ -32,6 +33,8 @@ export interface TaskInput {
   assigneeIds?: string[]
   /** 'PROJECT' = alle Mitglieder, 'TEAM' = nur Projektteam (PM-only choice). */
   visibility?: string
+  /** Specific team tags a TEAM task addresses (empty → whole Projektteam). */
+  visibilityTeams?: string[]
 }
 
 /**
@@ -40,10 +43,27 @@ export interface TaskInput {
  */
 async function taskActorCtx(slug: string) {
   const pm = await getProjectManagerContext(slug)
-  if (pm) return { user: pm.user, project: pm.project, isPM: true }
+  if (pm) return { user: pm.user, project: pm.project, isPM: true, actorTeams: [] as string[] }
   const team = await getProjectTeamContext(slug)
-  if (team) return { user: team.user, project: team.project, isPM: false }
-  return null
+  if (!team) return null
+  // Team-tier member: their team tags (∪ leadOf) bound the tags a task may target.
+  const mem = await team.payload.find({
+    collection: 'project-memberships',
+    where: { and: [{ user: { equals: team.user.id } }, { project: { equals: team.project.id } }, { status: { equals: 'active' } }] },
+    limit: 1, depth: 0, overrideAccess: true,
+  })
+  const m = mem.docs[0] as { teams?: string[] | null; leadOf?: string[] | null } | undefined
+  const actorTeams = [...new Set([...(Array.isArray(m?.teams) ? m.teams : []), ...(Array.isArray(m?.leadOf) ? m.leadOf : [])])]
+  return { user: team.user, project: team.project, isPM: false, actorTeams }
+}
+
+/** Clamp a task's team tags: PMs against the catalog, members against their own teams. */
+function taskTeams(ctx: { isPM: boolean; actorTeams: string[]; project: { teams?: string[] | null } }, input: TaskInput): string[] {
+  const wantsTeam = ctx.isPM ? input.visibility !== 'PROJECT' : true
+  if (!wantsTeam) return []
+  return ctx.isPM
+    ? clampTeamsToCatalog(input.visibilityTeams, ctx.project.teams)
+    : clampTeamsToCatalog(input.visibilityTeams, ctx.actorTeams)
 }
 
 function revalidateTasks(locale: string, slug: string) {
@@ -98,6 +118,7 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
         labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean),
         // Only PMs publish tasks to all members; team members stay TEAM.
         visibility: ctx.isPM ? visibility(input.visibility) : 'TEAM',
+        visibilityTeams: taskTeams(ctx, input),
         author: ctx.user.id, project: ctx.project.id,
       },
       overrideAccess: true,
@@ -134,8 +155,10 @@ export async function updateTask(slug: string, locale: string, taskId: string, i
       collection: 'tasks', id: taskId,
       data: {
         title, description, status: status(input.status), priority: priority(input.priority), deadline: input.deadline || null, labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean),
-        // Visibility is PM-curated; team members can't republish their tasks.
+        // Visibility is PM-curated; team members can't republish their tasks
+        // (their tag choice is still clamped to their own teams).
         ...(ctx.isPM ? { visibility: visibility(input.visibility) } : {}),
+        visibilityTeams: taskTeams(ctx, input),
       },
       overrideAccess: true,
     })
