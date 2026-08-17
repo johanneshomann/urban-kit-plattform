@@ -172,6 +172,11 @@ pair** — it tops out at 2.9:1, and that combination was the AA failure this
 structure replaced. The gate and the derivation live in
 `.claude/plan/project-color-tokens.md`.
 
+Semantic error/destructive styling uses the scheme-independent
+`--project-danger` / `--project-danger-surface` / `--project-danger-on`
+tokens (defined on `:root`, remapped by the high-contrast preset) — never
+raw `#b91c1c`-style hex, which the preset cannot touch.
+
 Two consequences worth remembering:
 
 - **Never dim project text with `opacity`.** A token that passes at full
