@@ -4,7 +4,7 @@
 
 import 'server-only'
 
-import { generateText, stepCountIs, type LanguageModel, type ModelMessage, type ToolSet } from 'ai'
+import { generateText, stepCountIs, type LanguageModel, type SystemModelMessage, type ToolSet } from 'ai'
 import { anthropic, createAnthropic } from '@ai-sdk/anthropic'
 import { mistral, createMistral } from '@ai-sdk/mistral'
 import { createOpenAI, openai } from '@ai-sdk/openai'
@@ -60,7 +60,7 @@ export async function chatComplete(
 ): Promise<{ provider: AgentProvider; text: string }> {
   if (!settings.configured || !settings.provider) throw new Error('NOT_CONFIGURED')
 
-  const systemMessage: ModelMessage = { role: 'system', content: system }
+  const systemMessage: SystemModelMessage = { role: 'system', content: system }
   if (settings.provider === 'anthropic') {
     // The system prompt (rules + project context) repeats across a chat
     // session — cache it. Other providers ignore this option.
@@ -71,7 +71,9 @@ export async function chatComplete(
 
   const result = await generateText({
     model: buildModel(settings.provider, settings.model, settings.apiKey),
-    messages: [systemMessage, ...messages],
+    // ai v7: system messages live in `instructions`, not in `messages`.
+    instructions: systemMessage,
+    messages,
     tools,
     stopWhen: stepCountIs(MAX_STEPS),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
