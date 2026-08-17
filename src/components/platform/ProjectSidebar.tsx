@@ -184,22 +184,20 @@ export function ProjectSidebar({
           </>
         ) : (
           <>
+            {/* Flat module list (no Mitmachen/Zusammenarbeiten groups) — the
+                concat keeps MODULE_ORDER since participate precedes collaborate. */}
             <NavLink href={root} label={tw('overview')} icon={LayoutGrid} active={isActive(root, true)} />
-            <NavLink href={`${root}/info`} label={tw('aboutProject')} icon={Info} active={isActive(`${root}/info`)} />
-
-            <GroupLabel>{tw('sectionParticipate')}</GroupLabel>
-            {participate.map((m) => (
+            {[...participate, ...collaborate].map((m) => (
               <NavLink key={m} href={`${root}/m/${m}`} label={tModules(m)} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(`${root}/m/${m}`)} />
             ))}
 
-            {collaborate.length > 0 && (
-              <>
-                <GroupLabel>{tw('sectionCollaborate')}</GroupLabel>
-                {collaborate.map((m) => (
-                  <NavLink key={m} href={`${root}/m/${m}`} label={tModules(m)} icon={MODULE_ICONS[m] ?? FolderOpen} active={isActive(`${root}/m/${m}`)} />
-                ))}
-              </>
-            )}
+            {/* Über das Projekt sits last, set off by a divider */}
+            <div
+              aria-hidden="true"
+              className="my-2 border-t"
+              style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
+            />
+            <NavLink href={`${root}/info`} label={tw('aboutProject')} icon={Info} active={isActive(`${root}/info`)} />
           </>
         )}
       </nav>
