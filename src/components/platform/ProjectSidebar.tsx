@@ -175,26 +175,17 @@ export function ProjectSidebar({
               <span className="block font-semibold leading-snug line-clamp-2">{projectTitle}</span>
             </span>
           </Link>
-          {/* Back to the user's dashboard — sibling of the cover link (links must not nest) */}
+          {/* One step back — to the project in manage mode, to the dashboard
+              otherwise. Sibling of the cover link (links must not nest). */}
           <Link
-            href={`/${locale}/dashboard`}
-            aria-label={tw('backToDashboard')}
+            href={manageMode ? root : `/${locale}/dashboard`}
+            aria-label={manageMode ? tm('sidebar.backToProject') : tw('backToDashboard')}
             className="absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-opacity hover:opacity-80"
             style={{ background: 'rgba(0,0,0,0.45)', color: '#fff' }}
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
-        {manageMode && (
-          <Link
-            href={root}
-            className="flex items-center gap-2 text-small font-semibold min-w-0 px-4 py-3"
-            style={{ color: 'var(--project-accent)' }}
-          >
-            <ArrowLeft aria-hidden="true" className="w-4 h-4 shrink-0" />
-            <span className="truncate">{tm('sidebar.backToProject')}</span>
-          </Link>
-        )}
       </div>
 
       <nav aria-label={tw('sidebarNavLabel')} className="flex-1 py-2 px-2 flex flex-col gap-0.5 overflow-y-auto">
