@@ -114,7 +114,8 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
 export function PollsConsumption({ slug, locale, polls, loginHref }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string }) {
   return (
     <div>
-      <h1 className="text-title font-bold leading-tight mb-6" style={{ color: 'var(--project-accent)' }}>Umfragen</h1>
+      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+      <h1 className="sr-only">Umfragen</h1>
       {polls.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <BarChart2 className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />

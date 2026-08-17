@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { Send, Sparkles, ShieldCheck, ExternalLink } from 'lucide-react'
+import { Send, ShieldCheck, ExternalLink } from 'lucide-react'
 
 /** Card reference resolved server-side (ids validated against tool results). */
 type AgentItem = { module: string; id: string; title: string; slug?: string }
@@ -173,9 +173,8 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
 
   return (
     <section>
-      <h2 className="flex items-center gap-2 text-display font-bold mb-2" style={{ color: 'var(--project-accent)' }}>
-        <Sparkles className="w-5 h-5" /> Urban-Agent
-      </h2>
+      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+      <h2 className="sr-only">Urban-Agent</h2>
       <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>
         Stellen Sie Fragen zu diesem Projekt. Der Assistent antwortet ausschließlich auf Grundlage der für Sie sichtbaren Projektinhalte.
       </p>

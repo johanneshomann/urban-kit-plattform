@@ -79,6 +79,8 @@ export default async function ProjectInfoPage({
         ]}
       />
       <main className="p-6 md:p-8 w-full">
+        {/* Page heading for screen readers — visually the breadcrumb carries it (BITV). */}
+        <h1 className="sr-only">{tw('aboutProject')}</h1>
         {/* cover + short description — moved here from the old workspace hero */}
         <div className="mb-6">
           <img

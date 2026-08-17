@@ -23,7 +23,8 @@ export async function NewsFeed({ slug, locale, projectId, viewer }: { slug: stri
 
   return (
     <div>
-      <h1 className="text-title font-bold leading-tight mb-6" style={{ color: 'var(--project-accent)' }}>News</h1>
+      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+      <h1 className="sr-only">News</h1>
       {res.docs.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
           <Newspaper className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />

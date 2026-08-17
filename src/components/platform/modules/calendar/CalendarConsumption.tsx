@@ -100,8 +100,9 @@ export function CalendarConsumption({ slug, locale, events, canAttend }: { slug:
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-accent)' }}>Kalender</h1>
+      <div className="flex items-center justify-end mb-6">
+        {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+        <h1 className="sr-only">Kalender</h1>
         <div className="flex items-center gap-1 rounded-lg border p-0.5" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}>
           {(['list', 'grid'] as const).map((v) => (
             <button key={v} type="button" onClick={() => setView(v)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-small font-medium"

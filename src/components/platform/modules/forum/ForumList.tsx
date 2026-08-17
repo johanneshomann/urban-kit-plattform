@@ -42,7 +42,8 @@ export function ForumList({ slug, locale, threads }: { slug: string; locale: str
 
   return (
     <div>
-      <h1 className="text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>Forum</h1>
+      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+      <h1 className="sr-only">Forum</h1>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Diskutiere mit, stimme für Themen ab und antworte.</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: '#b91c1c', background: '#fef2f2' }}>{error}</p>}

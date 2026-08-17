@@ -107,7 +107,8 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false }: { pr
   return (
     <div>
       {!hideTitle && (
-        <h1 className="text-title font-bold leading-tight mb-6" style={{ color: 'var(--project-accent)' }}>{t('title')}</h1>
+        // Visually redundant with the breadcrumb — kept for screen readers (BITV).
+        <h1 className="sr-only">{t('title')}</h1>
       )}
 
       {files.length === 0 ? (

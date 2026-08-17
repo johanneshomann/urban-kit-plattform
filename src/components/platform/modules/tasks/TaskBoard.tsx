@@ -114,8 +114,9 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
-        <h1 className="text-title font-bold leading-tight" style={{ color: 'var(--project-accent)' }}>Aufgaben</h1>
+      <div className="flex items-center justify-end mb-1">
+        {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
+        <h1 className="sr-only">Aufgaben</h1>
         {isPM && !editing && (
           <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> Neue Aufgabe
