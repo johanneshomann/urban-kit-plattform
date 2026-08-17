@@ -125,11 +125,36 @@ export function ProjectSidebar({
     return () => document.documentElement.classList.remove('has-project-sidebar')
   }, [])
 
+  // Manage mode inverts the sidebar with the EXISTING scheme tokens: the aside
+  // paints the original accent as background (captured into --mi-* before the
+  // swap), and inside it accent ↔ white trade places, so every child — nav
+  // links, active pill, badges, user bar — inverts using the already-gated
+  // contrast pairs (white on accent / accent on white). No new colors.
+  const manageInvert = manageMode
+    ? ({
+        '--mi-accent': 'var(--project-accent)',
+        '--mi-white': 'var(--project-white)',
+      } as React.CSSProperties)
+    : undefined
+  const manageSwap = manageMode
+    ? ({
+        '--project-accent': 'var(--mi-white)',
+        '--project-white': 'var(--mi-accent)',
+        // GroupLabel text: muted ink is not gated on the dark accent — use white.
+        '--project-ink': 'var(--mi-white)',
+      } as React.CSSProperties)
+    : undefined
+
   return (
     <aside
       className="hidden lg:flex w-[16.5rem] shrink-0 flex-col sticky top-0 h-svh border-r"
-      style={{ background: 'var(--project-light)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
+      style={{
+        background: manageMode ? 'var(--project-accent)' : 'var(--project-light)',
+        borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)',
+        ...manageInvert,
+      }}
     >
+    <div className="flex-1 min-h-0 flex flex-col" style={manageSwap}>
       {/* Project identity — title overlaid on the cover image (dark scrim keeps
           the white text readable on any cover) */}
       <div className="shrink-0 border-b" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
@@ -224,6 +249,7 @@ export function ProjectSidebar({
         )}
         <SidebarUserBar className="px-1" />
       </div>
+    </div>
     </aside>
   )
 }
