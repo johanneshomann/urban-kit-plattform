@@ -89,5 +89,20 @@ export const ProjectMemberships: CollectionConfig = {
         },
       },
     },
+    {
+      // Team leadership — tags (from the same catalog) this member LEADS.
+      // Leading implies belonging: viewer resolution unions teams ∪ leadOf.
+      // Multiple members may lead the same team; PMs may assign themselves.
+      name: 'leadOf',
+      type: 'text',
+      hasMany: true,
+      label: { en: 'Team lead of', de: 'Teamleitung von' },
+      admin: {
+        description: {
+          en: 'Teams this member leads: they manage the team roster and author team-scoped content (files, tasks, polls, calendar, forum).',
+          de: 'Teams, die diese Person leitet: Sie verwaltet die Team-Mitglieder und erstellt teambezogene Inhalte (Dateien, Aufgaben, Umfragen, Termine, Forum).',
+        },
+      },
+    },
   ],
 }

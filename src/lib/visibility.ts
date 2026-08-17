@@ -33,12 +33,17 @@ export interface ViewerMembership {
   status?: string | null
   role?: string | null
   teams?: string[] | null
+  /** Team tags this member LEADS (leading implies belonging). */
+  leadOf?: string[] | null
 }
 
 /** Resolved viewer context — tier + team tags for scoping decisions. */
 export interface ViewerContext {
   tier: ViewerTier
+  /** Teams the viewer belongs to — INCLUDING teams they lead. */
   teams: string[]
+  /** Teams the viewer leads (roster management + team-scoped authoring). */
+  leadOf: string[]
   isPM: boolean
   active: boolean
 }
@@ -77,7 +82,7 @@ export function canViewContent(
   if (v === 'PROJECT') return true
   // TEAM
   if (membership.role === 'PM') return true
-  const memberTeams = membership.teams ?? []
+  const memberTeams = [...new Set([...(membership.teams ?? []), ...(membership.leadOf ?? [])])]
   const docTeams = doc.visibilityTeams ?? []
   if (docTeams.length > 0) return docTeams.some((t) => memberTeams.includes(t))
   // Legacy fallback: TEAM without visibilityTeams → any team-tagged member
@@ -112,7 +117,7 @@ export async function getViewerState(
   userId: string | null,
   projectId: string,
 ): Promise<{ ctx: ViewerContext; membership: ViewerMembership | null }> {
-  const publicState = { ctx: { tier: 'public' as ViewerTier, teams: [], isPM: false, active: false }, membership: null }
+  const publicState = { ctx: { tier: 'public' as ViewerTier, teams: [], leadOf: [], isPM: false, active: false }, membership: null }
   if (!userId) return publicState
   const res = await payload.find({
     collection: 'project-memberships',
@@ -124,9 +129,11 @@ export async function getViewerState(
   const m = res.docs[0] as (ViewerMembership & { status?: string }) | undefined
   if (!m || m.status !== 'active') return publicState
   const isPM = m.role === 'PM'
-  const teams = Array.isArray(m.teams) ? m.teams : []
+  const leadOf = Array.isArray(m.leadOf) ? m.leadOf : []
+  // Leading implies belonging — leads always see their team's content.
+  const teams = [...new Set([...(Array.isArray(m.teams) ? m.teams : []), ...leadOf])]
   const tier: ViewerTier = isPM || teams.length > 0 ? 'team' : 'member'
-  return { ctx: { tier, teams, isPM, active: true }, membership: m }
+  return { ctx: { tier, teams, leadOf, isPM, active: true }, membership: { ...m, teams } }
 }
 
 /**

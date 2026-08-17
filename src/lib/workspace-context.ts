@@ -83,6 +83,7 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   let role: string | null = null
   let membershipStatus: string | null = null
   let teamTags: string[] = []
+  let leadOf: string[] = []
   let isLoggedIn = false
 
   let viewerIsAdmin = false
@@ -98,12 +99,14 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
         depth: 0,
         overrideAccess: true,
       })
-      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; teams?: string[] | null } | undefined
+      const membership = membershipResult.docs[0] as { id: string; role?: string; status?: string; teams?: string[] | null; leadOf?: string[] | null } | undefined
       if (membership) {
         membershipId = membership.id
         role = membership.role ?? null
         membershipStatus = membership.status ?? null
-        teamTags = Array.isArray(membership.teams) ? membership.teams : []
+        leadOf = Array.isArray(membership.leadOf) ? membership.leadOf : []
+        // Leading implies belonging — leads always see their team's content.
+        teamTags = [...new Set([...(Array.isArray(membership.teams) ? membership.teams : []), ...leadOf])]
       }
     }
   }
@@ -122,6 +125,7 @@ export const getWorkspaceContext = cache(async (slug: string): Promise<Workspace
   const viewer: ViewerContext = {
     tier: !isActiveMember ? 'public' : role === 'PM' || teamTags.length > 0 ? 'team' : 'member',
     teams: teamTags,
+    leadOf,
     isPM: role === 'PM',
     active: isActiveMember,
   }
