@@ -9,7 +9,8 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { CalendarEvent } from '@/payload-types'
-import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
+import { getContentAuthorContext } from '@/lib/auth/requireProjectManager'
+import { clampAuthorVisibility } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
@@ -18,23 +19,6 @@ export type CalendarActionState = { error?: string; ok?: boolean }
 
 const VISIBILITIES = new Set(['PUBLIC', 'PROJECT', 'TEAM'])
 const vis = (v: unknown): 'PUBLIC' | 'PROJECT' | 'TEAM' => (VISIBILITIES.has(v as string) ? (v as 'PUBLIC' | 'PROJECT' | 'TEAM') : 'PROJECT')
-
-
-/** Clamp an author's visibility choice: PMs keep theirs, leads are forced to
- * TEAM with tags intersected against the teams they lead (empty → all). */
-function clampAuthorVisibility(
-  ctx: { isPM: boolean; leadOf: string[] },
-  visibility: string | undefined,
-  visibilityTeams: string[] | undefined,
-): { visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'; visibilityTeams: string[] } {
-  if (ctx.isPM) {
-    const v = (visibility === 'PUBLIC' || visibility === 'TEAM' ? visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM'
-    return { visibility: v, visibilityTeams: v === 'TEAM' && Array.isArray(visibilityTeams) ? visibilityTeams : [] }
-  }
-  const teams = (Array.isArray(visibilityTeams) ? visibilityTeams : []).filter((t) => ctx.leadOf.includes(t))
-  return { visibility: 'TEAM', visibilityTeams: teams.length ? teams : ctx.leadOf }
-}
-
 
 const authorIdOf = (doc: unknown): string | null => {
   const a = (doc as { author?: unknown }).author
@@ -119,7 +103,7 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
-  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams))
+  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams, ctx.project.teams))
 
   try {
     const payload = await getPayload({ config })
@@ -148,7 +132,7 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
-  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams))
+  Object.assign(built.data, clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams, ctx.project.teams))
 
   try {
     const payload = await getPayload({ config })

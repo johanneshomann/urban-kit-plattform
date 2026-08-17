@@ -15,6 +15,8 @@ interface ManagedProject {
   slug: string
   modules?: string[] | null
   colorScheme?: string | null
+  /** Team catalog — the only valid values for `visibilityTeams`/membership tags. */
+  teams?: string[] | null
 }
 
 export interface ProjectManagerContext {

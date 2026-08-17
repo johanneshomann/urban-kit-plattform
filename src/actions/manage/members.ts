@@ -9,6 +9,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
+import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { emitNotification } from '@/lib/events'
 
 export type MembersActionState = { error?: string; ok?: boolean }
@@ -147,7 +148,8 @@ export async function setMemberTeams(
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
     if (!membership) return { error: 'Mitglied nicht gefunden.' }
 
-    const teamList = Array.isArray(teams) ? teams : []
+    // Only tags from the project's team catalog may be assigned.
+    const teamList = clampTeamsToCatalog(teams, ctx.project.teams)
     const data: Record<string, unknown> = { teams: teamList }
     if (Array.isArray(leadOf)) {
       // Leading implies belonging — leadOf must stay a subset of teams.

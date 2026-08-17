@@ -9,6 +9,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
+import { clampAuthorVisibility } from '@/lib/team-scope'
 import { closePoll } from '@/modules/polls/actions'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
@@ -103,20 +104,6 @@ const authorIdOf = (doc: unknown): string | null => {
   return a == null ? null : String(typeof a === 'object' ? (a as { id: unknown }).id : a)
 }
 
-/** PM keeps the choice; a team lead is forced to TEAM ∩ leadOf (empty → all led teams). */
-function clampPollVisibility(
-  ctx: { isPM: boolean; leadOf: string[] },
-  visibility: string | undefined,
-  visibilityTeams: string[] | undefined,
-): { visibility: 'PUBLIC' | 'PROJECT' | 'TEAM'; visibilityTeams: string[] } {
-  if (ctx.isPM) {
-    const v = (VISIBILITIES.has(visibility ?? '') ? visibility : 'PROJECT') as 'PUBLIC' | 'PROJECT' | 'TEAM'
-    return { visibility: v, visibilityTeams: v === 'TEAM' && Array.isArray(visibilityTeams) ? visibilityTeams : [] }
-  }
-  const teams = (Array.isArray(visibilityTeams) ? visibilityTeams : []).filter((t) => ctx.leadOf.includes(t))
-  return { visibility: 'TEAM', visibilityTeams: teams.length ? teams : ctx.leadOf }
-}
-
 /** Non-PM authors (team leads) may only touch their own polls. */
 const ownPollGuard = (ctx: { isPM: boolean; user: { id: unknown } }, poll: unknown): string | null =>
   !ctx.isPM && authorIdOf(poll) !== String(ctx.user.id) ? 'Nur eigene Umfragen können verwaltet werden.' : null
@@ -155,7 +142,7 @@ export async function createProjectPoll(
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        ...clampPollVisibility(ctx, input.visibility, input.visibilityTeams),
+        ...clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams, ctx.project.teams),
         author: ctx.user.id,
         project: ctx.project.id,
       },
@@ -274,7 +261,7 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
         allowAnonymous: !!input.allowAnonymous,
         showLiveResults: !!input.showLiveResults,
         closesAt,
-        ...clampPollVisibility(ctx, input.visibility, input.visibilityTeams),
+        ...clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams, ctx.project.teams),
       },
       overrideAccess: true,
     })

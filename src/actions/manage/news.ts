@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { NewsPost } from '@/payload-types'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
+import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
 import { emitActivity, emitNotifications } from '@/lib/events'
@@ -77,7 +78,7 @@ export async function createProjectNewsPost(
         slug: uniqueSlug(title, 'news'),
         content,
         visibility: vis(input.visibility),
-        visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
+        visibilityTeams: vis(input.visibility) === 'TEAM' ? clampTeamsToCatalog(input.visibilityTeams, ctx.project.teams) : [],
         author: ctx.user.id,
         project: ctx.project.id,
         // publishedAt left null → draft
@@ -112,7 +113,7 @@ export async function updateProjectNewsPost(
       title,
       content: typeof input.body === 'string' ? (input.body.trim() ? await markdownToLexical(input.body) : null) : undefined,
       visibility: vis(input.visibility),
-      visibilityTeams: Array.isArray(input.visibilityTeams) ? input.visibilityTeams : [],
+      visibilityTeams: vis(input.visibility) === 'TEAM' ? clampTeamsToCatalog(input.visibilityTeams, ctx.project.teams) : [],
     }
     await payload.update({ collection: 'news-posts', id: postId, data, overrideAccess: true })
   } catch {
