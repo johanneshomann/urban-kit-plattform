@@ -76,6 +76,22 @@ export interface ProjectTeamContext {
  * from the project catalog), or null. Used by team-only modules (Tasks).
  * Returns the payload instance too.
  */
+/** Any ACTIVE member of the project (member or team tier) — e.g. moving own tasks. */
+export async function getProjectMemberContext(slug: string): Promise<ProjectTeamContext | null> {
+  const user = await getUser()
+  if (!user) return null
+
+  const payload = await getPayload({ config })
+  const projectRes = await payload.find({ collection: 'projects', where: { slug: { equals: slug } }, limit: 1, depth: 0, overrideAccess: true })
+  const project = projectRes.docs[0] as ManagedProject | undefined
+  if (!project) return null
+
+  const ctx = await getViewerContext(payload, String(user.id), project.id)
+  if (ctx.tier === 'public') return null
+
+  return { user, project, payload }
+}
+
 export async function getProjectTeamContext(slug: string): Promise<ProjectTeamContext | null> {
   const user = await getUser()
   if (!user) return null

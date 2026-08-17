@@ -41,6 +41,9 @@ export default async function ModulePage({
   const userId = user ? String(user.id) : null
   const viewerCtx = ctx.viewer
   const tier = viewerCtx.tier
+  const membershipObj = ctx.membershipId
+    ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams }
+    : null
 
   const citizenPolls = moduleType === 'polls' ? await loadCitizenPolls(payload, project.id, viewerCtx, userId) : []
 
@@ -74,13 +77,13 @@ export default async function ModulePage({
           : moduleType === 'forum'
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />
-              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={ctx.membershipId ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams } : null} />)
+              : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} />)
           : moduleType === 'files'
           ? <FilesBrowse projectId={project.id} viewer={viewerCtx} />
           : moduleType === 'tasks'
-          ? (tier !== 'team' || !userId
-              ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason={tier === 'member' ? 'team' : 'membership'} />
-              : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} />)
+          ? (tier === 'public' || !userId
+              ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason="membership" />
+              : <TaskBoardLoader slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} />)
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} reason="membership" />

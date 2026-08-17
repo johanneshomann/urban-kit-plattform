@@ -13,7 +13,12 @@ import { createTask, updateTask, deleteTask, moveTask } from '@/actions/tasks'
 export interface TaskMember { id: string; name: string }
 export interface TaskCardData {
   id: string; title: string; description: string; status: string; priority: string
-  deadline: string | null; labels: string[]; assignees: TaskMember[]; canMove: boolean
+  deadline: string | null; labels: string[]; assignees: TaskMember[]
+  /** 'PROJECT' = alle Mitglieder sehen sie, 'TEAM' = nur Projektteam. */
+  visibility: 'PROJECT' | 'TEAM'
+  canMove: boolean
+  /** Edit/delete: PMs always, team members for their own tasks. */
+  canManage: boolean
 }
 
 const COLUMNS = [
@@ -26,9 +31,9 @@ const PRIORITY = { low: { label: 'Niedrig', bg: 'var(--project-light)', fg: 'var
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
-const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], canMove: true })
+const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], visibility: 'TEAM', canMove: true, canManage: true })
 
-function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; isPM: boolean; onEdit: () => void; onDelete: () => void; pending: boolean }) {
+function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit: () => void; onDelete: () => void; pending: boolean }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id, disabled: !task.canMove })
   const prio = PRIORITY[task.priority] ?? PRIORITY.medium
   return (
@@ -40,6 +45,9 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
           <p className="text-text font-medium leading-snug" style={{ color: 'var(--project-accent)' }}>{task.title}</p>
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
             <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
+            {task.visibility === 'TEAM' && (
+              <span title="Nur für das Projektteam sichtbar" className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}>Team</span>
+            )}
             {task.labels.map((l) => <span key={l} className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
           </div>
           {(task.assignees.length > 0 || task.deadline) && (
@@ -49,7 +57,7 @@ function Card({ task, isPM, onEdit, onDelete, pending }: { task: TaskCardData; i
             </p>
           )}
         </div>
-        {isPM && (
+        {task.canManage && (
           <div className="flex flex-col gap-1 shrink-0">
             <button type="button" onClick={onEdit} disabled={pending} title="Bearbeiten" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-3.5 h-3.5" /></button>
             <button type="button" onClick={onDelete} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>
@@ -70,7 +78,7 @@ function Column({ id, label, count, children }: { id: string; label: string; cou
   )
 }
 
-export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean }) {
+export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -104,7 +112,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
 
   const save = () => {
     if (!editing) return
-    const input = { title: editing.title, description: editing.description, status: editing.status, priority: editing.priority, deadline: editing.deadline, labels: editing.labels, assigneeIds: editing.assignees.map((a) => a.id) }
+    const input = { title: editing.title, description: editing.description, status: editing.status, priority: editing.priority, deadline: editing.deadline, labels: editing.labels, assigneeIds: editing.assignees.map((a) => a.id), visibility: editing.visibility }
     if (editing.id) run(() => updateTask(slug, locale, editing.id, input), () => setEditing(null))
     else run(() => createTask(slug, locale, input), () => setEditing(null))
   }
@@ -117,13 +125,17 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
       <div className="flex items-center justify-end mb-1">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
         <h1 className="sr-only">Aufgaben</h1>
-        {isPM && !editing && (
+        {canCreate && !editing && (
           <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
             <Plus className="w-4 h-4" /> Neue Aufgabe
           </button>
         )}
       </div>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Internes Aufgabenboard des Projektteams. Zugewiesene ziehen ihre Aufgaben zwischen den Spalten.</p>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
+        {canCreate
+          ? 'Aufgaben des Projekts. Aufgaben mit der Markierung „Team" sieht nur das Projektteam, alle anderen sehen alle Mitglieder. Zugewiesene verschieben ihre Aufgaben zwischen den Spalten.'
+          : 'Aufgaben des Projekts. Ihnen zugewiesene Aufgaben können Sie zwischen den Spalten verschieben.'}
+      </p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
@@ -146,6 +158,26 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
           </div>
           <input type="text" value={editing.labels.join(', ')} onChange={(e) => setF('labels', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder="Labels (kommagetrennt)" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           <div>
+            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für</p>
+            {isPM ? (
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { value: 'TEAM', label: 'Nur Projektteam' },
+                  { value: 'PROJECT', label: 'Alle Mitglieder' },
+                ] as const).map((opt) => {
+                  const on = editing.visibility === opt.value
+                  return (
+                    <button key={opt.value} type="button" onClick={() => setF('visibility', opt.value)} className="text-small px-3 py-1.5 rounded-full border" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-small" style={{ color: 'var(--project-ink)' }}>Nur Projektteam — allgemeine Aufgaben für alle Mitglieder legen Projektmanager:innen an.</p>
+            )}
+          </div>
+          <div>
             <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Zuständig</p>
             <div className="flex flex-wrap gap-2">
               {members.map((m) => {
@@ -163,19 +195,27 @@ export function TaskBoard({ slug, locale, tasks, members, isPM }: { slug: string
         </div>
       )}
 
-      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {COLUMNS.map((col) => {
-            const colTasks = local.filter((t) => t.status === col.id)
-            return (
-              <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
-                {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>
-                  : colTasks.map((t) => <Card key={t.id} task={t} isPM={isPM} pending={pending} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
-              </Column>
-            )
-          })}
+      {local.length === 0 && !editing ? (
+        <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
+          <p className="text-text" style={{ color: 'var(--project-ink)' }}>
+            {canCreate ? 'Noch keine Aufgaben. Erstellen Sie die erste über „Neue Aufgabe".' : 'Noch keine Aufgaben.'}
+          </p>
         </div>
-      </DndContext>
+      ) : (
+        <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {COLUMNS.map((col) => {
+              const colTasks = local.filter((t) => t.status === col.id)
+              return (
+                <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
+                  {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>
+                    : colTasks.map((t) => <Card key={t.id} task={t} pending={pending} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
+                </Column>
+              )
+            })}
+          </div>
+        </DndContext>
+      )}
     </div>
   )
 }

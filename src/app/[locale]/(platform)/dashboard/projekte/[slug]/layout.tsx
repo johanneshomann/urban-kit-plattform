@@ -43,13 +43,7 @@ export default async function ProjectLayout({
   const enabled = MODULE_ORDER.filter((m) => ctx.modules.includes(m))
   const participate = enabled.filter((m) => (PARTICIPATE_MODULES as readonly string[]).includes(m))
   const collaborate = ctx.isActiveMember
-    ? enabled.filter(
-        (m) =>
-          (COLLABORATE_MODULES as readonly string[]).includes(m) &&
-          // Aufgaben is a TEAM-only module — plain members without team tags
-          // would only hit the "team only" placeholder, so don't offer it.
-          (m !== 'tasks' || ctx.viewer.tier === 'team'),
-      )
+    ? enabled.filter((m) => (COLLABORATE_MODULES as readonly string[]).includes(m))
     : []
   const manageModules = ctx.canManage ? enabled.filter((m) => MANAGE_MODULES.has(m)) : []
 

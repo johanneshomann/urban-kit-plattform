@@ -95,12 +95,10 @@ const isLiveNews = (n: NewsPost): boolean =>
 
 export function resolveAgentModules(project: Project, viewer: ViewerContext): AgentModule[] {
   const enabled = (project.modules ?? []) as string[]
-  return AGENT_CONTENT_MODULES.filter((m) => {
-    if (!enabled.includes(m)) return false
-    // Aufgaben board is a TEAM-only module — hide the tool below that tier.
-    if (m === 'tasks' && viewer.tier !== 'team') return false
-    return true
-  })
+  // Every active member may query all enabled modules — per-document
+  // visibility (PROJECT vs TEAM tasks etc.) is enforced by canViewContent
+  // inside each tool.
+  return AGENT_CONTENT_MODULES.filter((m) => enabled.includes(m))
 }
 
 export function buildAgentTools(deps: ToolDeps): { tools: ToolSet; session: AgentToolSession; modules: AgentModule[] } {

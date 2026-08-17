@@ -9,7 +9,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { Task } from '@/payload-types'
-import { getProjectManagerContext, getProjectTeamContext } from '@/lib/auth/requireProjectManager'
+import { getProjectManagerContext, getProjectTeamContext, getProjectMemberContext } from '@/lib/auth/requireProjectManager'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitNotification } from '@/lib/events'
 
@@ -19,6 +19,7 @@ const STATUSES = new Set(['todo', 'in_progress', 'done'])
 const PRIORITIES = new Set(['low', 'medium', 'high'])
 const status = (v: unknown) => (STATUSES.has(v as string) ? (v as 'todo' | 'in_progress' | 'done') : 'todo')
 const priority = (v: unknown) => (PRIORITIES.has(v as string) ? (v as 'low' | 'medium' | 'high') : 'medium')
+const visibility = (v: unknown) => (v === 'PROJECT' ? 'PROJECT' : 'TEAM') as 'PROJECT' | 'TEAM'
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 
 export interface TaskInput {
@@ -29,6 +30,20 @@ export interface TaskInput {
   deadline?: string | null
   labels?: string[]
   assigneeIds?: string[]
+  /** 'PROJECT' = alle Mitglieder, 'TEAM' = nur Projektteam (PM-only choice). */
+  visibility?: string
+}
+
+/**
+ * Who may author tasks: PMs (any task, any visibility) and team-tier members
+ * (their own tasks, always TEAM visibility — the UI hides the choice for them).
+ */
+async function taskActorCtx(slug: string) {
+  const pm = await getProjectManagerContext(slug)
+  if (pm) return { user: pm.user, project: pm.project, isPM: true }
+  const team = await getProjectTeamContext(slug)
+  if (team) return { user: team.user, project: team.project, isPM: false }
+  return null
 }
 
 function revalidateTasks(locale: string, slug: string) {
@@ -67,8 +82,8 @@ async function syncAssignees(payload: Payload, projectId: string, taskId: string
 }
 
 export async function createTask(slug: string, locale: string, input: TaskInput): Promise<TasksActionState> {
-  const pm = await getProjectManagerContext(slug)
-  if (!pm) return { error: 'Nur Projektmanager:innen können Aufgaben erstellen.' }
+  const ctx = await taskActorCtx(slug)
+  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben erstellen.' }
   const title = input.title.trim()
   if (!title) return { error: 'Titel darf nicht leer sein.' }
 
@@ -81,12 +96,14 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
         title, description, status: status(input.status), priority: priority(input.priority),
         deadline: input.deadline || null,
         labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean),
-        visibility: 'TEAM', author: pm.user.id, project: pm.project.id,
+        // Only PMs publish tasks to all members; team members stay TEAM.
+        visibility: ctx.isPM ? visibility(input.visibility) : 'TEAM',
+        author: ctx.user.id, project: ctx.project.id,
       },
       overrideAccess: true,
     })
     if (input.assigneeIds?.length) {
-      const added = await syncAssignees(payload, pm.project.id, String(task.id), input.assigneeIds)
+      const added = await syncAssignees(payload, ctx.project.id, String(task.id), input.assigneeIds)
       for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: String(task.id) } })
     }
   } catch {
@@ -97,25 +114,34 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
 }
 
 export async function updateTask(slug: string, locale: string, taskId: string, input: TaskInput): Promise<TasksActionState> {
-  const pm = await getProjectManagerContext(slug)
-  if (!pm) return { error: 'Nur Projektmanager:innen können Aufgaben bearbeiten.' }
+  const ctx = await taskActorCtx(slug)
+  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben bearbeiten.' }
   const title = input.title.trim()
   if (!title) return { error: 'Titel darf nicht leer sein.' }
 
   try {
     const payload = await getPayload({ config })
-    if (!(await getProjectTask(payload, pm.project.id, taskId))) return { error: 'Aufgabe nicht gefunden.' }
+    const task = await getProjectTask(payload, ctx.project.id, taskId)
+    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    // Non-PM team members only edit their own tasks.
+    if (!ctx.isPM && relId((task as { author?: unknown }).author) !== String(ctx.user.id)) {
+      return { error: 'Nur eigene Aufgaben können bearbeitet werden.' }
+    }
     const description = typeof input.description === 'string'
       ? (input.description.trim() ? ((await markdownToLexical(input.description)) as Task['description']) : null)
       : undefined
     await payload.update({
       collection: 'tasks', id: taskId,
-      data: { title, description, status: status(input.status), priority: priority(input.priority), deadline: input.deadline || null, labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean) },
+      data: {
+        title, description, status: status(input.status), priority: priority(input.priority), deadline: input.deadline || null, labels: (input.labels ?? []).map((l) => l.trim()).filter(Boolean),
+        // Visibility is PM-curated; team members can't republish their tasks.
+        ...(ctx.isPM ? { visibility: visibility(input.visibility) } : {}),
+      },
       overrideAccess: true,
     })
     if (input.assigneeIds) {
       // Newly added assignees on an EDIT get notified too (not just on create).
-      const added = await syncAssignees(payload, pm.project.id, taskId, input.assigneeIds)
+      const added = await syncAssignees(payload, ctx.project.id, taskId, input.assigneeIds)
       for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: taskId } })
     }
   } catch {
@@ -126,11 +152,15 @@ export async function updateTask(slug: string, locale: string, taskId: string, i
 }
 
 export async function deleteTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
-  const pm = await getProjectManagerContext(slug)
-  if (!pm) return { error: 'Nur Projektmanager:innen können Aufgaben löschen.' }
+  const ctx = await taskActorCtx(slug)
+  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben löschen.' }
   try {
     const payload = await getPayload({ config })
-    if (!(await getProjectTask(payload, pm.project.id, taskId))) return { error: 'Aufgabe nicht gefunden.' }
+    const task = await getProjectTask(payload, ctx.project.id, taskId)
+    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    if (!ctx.isPM && relId((task as { author?: unknown }).author) !== String(ctx.user.id)) {
+      return { error: 'Nur eigene Aufgaben können gelöscht werden.' }
+    }
     await payload.delete({ collection: 'task-assignees', where: { task: { equals: taskId } }, overrideAccess: true })
     await payload.delete({ collection: 'tasks', id: taskId, overrideAccess: true })
   } catch {
@@ -140,10 +170,10 @@ export async function deleteTask(slug: string, locale: string, taskId: string): 
   return { ok: true }
 }
 
-/** Move a task to a new status column — PMs move any task, assignees move their own. */
+/** Move a task to a new status column — PMs move any task, assignees move their own (any active member can be assigned). */
 export async function moveTask(slug: string, locale: string, taskId: string, newStatus: string): Promise<TasksActionState> {
-  const team = await getProjectTeamContext(slug)
-  if (!team) return { error: 'Nur das Projektteam hat Zugriff.' }
+  const team = await getProjectMemberContext(slug)
+  if (!team) return { error: 'Nur Projektmitglieder haben Zugriff.' }
   try {
     const task = await getProjectTask(team.payload, team.project.id, taskId)
     if (!task) return { error: 'Aufgabe nicht gefunden.' }

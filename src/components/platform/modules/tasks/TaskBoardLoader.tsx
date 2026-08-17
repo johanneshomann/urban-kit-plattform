@@ -5,6 +5,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { lexicalToMarkdown } from '@/lib/richtext'
+import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
 import { TaskBoard, type TaskCardData, type TaskMember } from './TaskBoard'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -14,31 +15,50 @@ function personName(u: unknown): string {
   return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
 }
 
-/** Loads the project's tasks, assignees and members, then renders the kanban board. */
-export async function TaskBoardLoader({ slug, locale, projectId, userId }: { slug: string; locale: string; projectId: string; userId: string }) {
+/**
+ * Loads the project's tasks, assignees and members, then renders the kanban
+ * board. Every ACTIVE member sees the board: PROJECT tasks for everyone,
+ * TEAM tasks only for team-tier viewers (visibilityWhere + canViewContent).
+ * Authoring: PMs everything; team members create TEAM tasks and manage their
+ * own; assignees move their tasks.
+ */
+export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer, membership }: {
+  slug: string
+  locale: string
+  projectId: string
+  userId: string
+  viewer: ViewerContext
+  membership: ViewerMembership | null
+}) {
   const payload = await getPayload({ config })
 
   const [tasksRes, membersRes] = await Promise.all([
-    payload.find({ collection: 'tasks', where: { project: { equals: projectId } }, sort: '-createdAt', limit: 500, depth: 0, overrideAccess: true }),
+    payload.find({
+      collection: 'tasks',
+      where: { and: [{ project: { equals: projectId } }, visibilityWhere(viewer)] },
+      sort: '-createdAt', limit: 500, depth: 0, overrideAccess: true,
+    }),
     payload.find({ collection: 'project-memberships', where: { and: [{ project: { equals: projectId } }, { status: { equals: 'active' } }] }, depth: 1, limit: 200, overrideAccess: true }),
   ])
-  const taskIds = tasksRes.docs.map((t) => (t as { id: string | number }).id)
+  const visibleTasks = tasksRes.docs.filter((d) =>
+    canViewContent(membership, d as { visibility?: string | null; visibilityTeams?: string[] | null }),
+  )
+  const taskIds = visibleTasks.map((t) => (t as { id: string | number }).id)
   const assigneesRes = taskIds.length
     ? await payload.find({ collection: 'task-assignees', where: { task: { in: taskIds } }, depth: 1, limit: 100000, overrideAccess: true })
     : { docs: [] as unknown[] }
 
-  // members for the picker + current user's PM status
+  // members for the assignee picker
   const members: TaskMember[] = []
   const seen = new Set<string>()
-  let isPM = false
   for (const m of membersRes.docs) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mm = m as any
     const u = mm.user
     const uid = u && typeof u === 'object' ? String(u.id) : u ? String(u) : null
-    if (!uid) continue
-    if (uid === userId && mm.role === 'PM') isPM = true
-    if (!seen.has(uid)) { seen.add(uid); members.push({ id: uid, name: u && typeof u === 'object' ? personName(u) : uid }) }
+    if (!uid || seen.has(uid)) continue
+    seen.add(uid)
+    members.push({ id: uid, name: u && typeof u === 'object' ? personName(u) : uid })
   }
 
   // assignees per task
@@ -56,11 +76,15 @@ export async function TaskBoardLoader({ slug, locale, projectId, userId }: { slu
     if (uid === userId) myTasks.add(th)
   }
 
+  const isPM = viewer.isPM && viewer.active
+  const canCreate = isPM || viewer.tier === 'team'
+
   const tasks: TaskCardData[] = await Promise.all(
-    tasksRes.docs.map(async (doc) => {
+    visibleTasks.map(async (doc) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = doc as any
       const id = String(t.id)
+      const mine = relId(t.author) === userId
       return {
         id,
         title: t.title ?? '',
@@ -70,10 +94,12 @@ export async function TaskBoardLoader({ slug, locale, projectId, userId }: { slu
         deadline: t.deadline ? String(t.deadline).slice(0, 10) : null,
         labels: Array.isArray(t.labels) ? t.labels : [],
         assignees: assigneesByTask.get(id) ?? [],
+        visibility: t.visibility === 'PROJECT' ? 'PROJECT' : 'TEAM',
         canMove: isPM || myTasks.has(id),
+        canManage: isPM || (canCreate && mine),
       }
     }),
   )
 
-  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} />
+  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} canCreate={canCreate} />
 }
