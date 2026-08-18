@@ -25,9 +25,9 @@ export function TeamQuickActions({ slug, locale, leadOf, modules, folders }: {
   const [modal, setModal] = useState<'termin' | 'umfrage' | 'datei' | null>(null)
 
   const actions = [
-    { key: 'termin' as const, label: 'Neuer Termin', icon: CalendarPlus, enabled: modules.includes('calendar') },
-    { key: 'umfrage' as const, label: 'Neue Umfrage', icon: BarChart2, enabled: modules.includes('polls') },
-    { key: 'datei' as const, label: 'Neue Datei', icon: Upload, enabled: modules.includes('files') },
+    { key: 'termin' as const, label: 'Neuer Team-Termin', icon: CalendarPlus, enabled: modules.includes('calendar') },
+    { key: 'umfrage' as const, label: 'Neue Team-Umfrage', icon: BarChart2, enabled: modules.includes('polls') },
+    { key: 'datei' as const, label: 'Neue Team-Datei', icon: Upload, enabled: modules.includes('files') },
   ].filter((a) => a.enabled)
 
   if (actions.length === 0) return null
@@ -45,13 +45,13 @@ export function TeamQuickActions({ slug, locale, leadOf, modules, folders }: {
       </div>
 
       {modal === 'termin' && (
-        <EventFormModal slug={slug} locale={locale} event={null} teamCatalog={leadOf} leadMode onClose={() => setModal(null)} />
+        <EventFormModal slug={slug} locale={locale} event={null} teamCatalog={leadOf} leadMode defaultTeams={leadOf} onClose={() => setModal(null)} />
       )}
       {modal === 'umfrage' && (
-        <PollFormModal slug={slug} locale={locale} editing={null} teamCatalog={leadOf} leadMode onClose={() => setModal(null)} />
+        <PollFormModal slug={slug} locale={locale} editing={null} teamCatalog={leadOf} leadMode defaultTeams={leadOf} onClose={() => setModal(null)} />
       )}
       {modal === 'datei' && (
-        <FileUploadModal slug={slug} locale={locale} folders={folders} teamCatalog={leadOf} defaultVisibility="TEAM" onClose={() => setModal(null)} />
+        <FileUploadModal slug={slug} locale={locale} folders={folders} teamCatalog={leadOf} defaultVisibility="TEAM" defaultTeams={leadOf} onClose={() => setModal(null)} />
       )}
     </>
   )

@@ -38,12 +38,14 @@ function isoToLocalInput(iso?: string | null): string {
  * quick actions. `editing: null` = create; `leadMode` hides the visibility
  * select (server forces TEAM ∩ leadOf) and defaults new polls to TEAM.
  */
-export function PollFormModal({ slug, locale, editing, teamCatalog, leadMode = false, onClose }: {
+export function PollFormModal({ slug, locale, editing, teamCatalog, leadMode = false, defaultTeams = [], onClose }: {
   slug: string
   locale: string
   editing: { pollId: string; data: CreatePollInput } | null
   teamCatalog: string[]
   leadMode?: boolean
+  /** Preselected team tags for NEW polls (e.g. team page quick actions). */
+  defaultTeams?: string[]
   onClose: () => void
 }) {
   const t = useTranslations('manage')
@@ -56,7 +58,7 @@ export function PollFormModal({ slug, locale, editing, teamCatalog, leadMode = f
   const [description, setDescription] = useState(d?.description ?? '')
   const [closesAt, setClosesAt] = useState(isoToLocalInput(d?.closesAt))
   const [visibility, setVisibility] = useState(d?.visibility ?? (leadMode ? 'TEAM' : 'PROJECT'))
-  const [visibilityTeams, setVisibilityTeams] = useState<string[]>(Array.isArray(d?.visibilityTeams) ? d.visibilityTeams : [])
+  const [visibilityTeams, setVisibilityTeams] = useState<string[]>(Array.isArray(d?.visibilityTeams) ? d.visibilityTeams : defaultTeams)
   const [allowAnonymous, setAllowAnonymous] = useState(!!d?.allowAnonymous)
   const [showLiveResults, setShowLiveResults] = useState(!!d?.showLiveResults)
   const [questions, setQuestions] = useState<DraftQuestion[]>(

@@ -60,12 +60,14 @@ function TeamPills({ catalog, value, onToggle, disabled }: { catalog: string[]; 
  * visibility and team tags are set deliberately before uploading.
  * Mountable from the manager and the team page quick actions.
  */
-export function FileUploadModal({ slug, locale, folders, teamCatalog, defaultVisibility = 'INTERNAL', onClose }: {
+export function FileUploadModal({ slug, locale, folders, teamCatalog, defaultVisibility = 'INTERNAL', defaultTeams = [], onClose }: {
   slug: string
   locale: string
   folders: { id: string; name: string }[]
   teamCatalog: string[]
   defaultVisibility?: string
+  /** Preselected team tags (e.g. team page quick actions). */
+  defaultTeams?: string[]
   onClose: () => void
 }) {
   const t = useTranslations('manage')
@@ -74,7 +76,7 @@ export function FileUploadModal({ slug, locale, folders, teamCatalog, defaultVis
   const [error, setError] = useState<string | null>(null)
   const [folderId, setFolderId] = useState('')
   const [vis, setVis] = useState(defaultVisibility)
-  const [teams, setTeams] = useState<string[]>([])
+  const [teams, setTeams] = useState<string[]>(defaultTeams)
   const [file, setFile] = useState<File | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
 

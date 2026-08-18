@@ -60,12 +60,14 @@ function toInput(iso: string | null | undefined, allDay: boolean): string {
  * actions. `event: null` = create; `leadMode` hides the visibility select
  * (the server forces TEAM ∩ leadOf anyway) and defaults new events to TEAM.
  */
-export function EventFormModal({ slug, locale, event, teamCatalog, leadMode = false, onClose }: {
+export function EventFormModal({ slug, locale, event, teamCatalog, leadMode = false, defaultTeams = [], onClose }: {
   slug: string
   locale: string
   event: EventItem | null
   teamCatalog: string[]
   leadMode?: boolean
+  /** Preselected team tags for NEW events (e.g. team page quick actions). */
+  defaultTeams?: string[]
   onClose: () => void
 }) {
   const t = useTranslations('manage')
@@ -73,7 +75,7 @@ export function EventFormModal({ slug, locale, event, teamCatalog, leadMode = fa
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [f, setF] = useState<EventItem>(() => {
-    if (!event) return blank(leadMode)
+    if (!event) return { ...blank(leadMode), visibilityTeams: defaultTeams }
     const allDay = !!event.allDay
     return { ...event, allDay, startDate: toInput(event.startDate, allDay), endDate: toInput(event.endDate, allDay) }
   })
