@@ -4,7 +4,7 @@
 
 'use server'
 
-import { getPayload } from 'payload'
+import { getPayload, UnverifiedEmail } from 'payload'
 import config from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -55,7 +55,12 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
     })
     token = result.token
     isAdmin = result.user?.role === 'admin'
-  } catch {
+  } catch (err) {
+    // Correct credentials on a not-yet-activated account — say so instead of
+    // pretending the password is wrong.
+    if (err instanceof UnverifiedEmail) {
+      return { error: 'Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse — wir haben Ihnen bei der Registrierung einen Aktivierungslink geschickt. Keine Mail erhalten? Registrieren Sie sich einfach erneut.' }
+    }
     return { error: 'Ungültige Anmeldedaten' }
   }
 

@@ -62,6 +62,22 @@ services:
         limits:
           memory: 512m
 
+  # Dev mailcatcher: receives all transactional mail (activation links etc.)
+  # on :1025 and shows it at http://localhost:8025 — SMTP_HOST defaults
+  # target it. Production points SMTP_* at a real provider instead.
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    restart: unless-stopped
+    networks:
+      - urban_kit
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+
   mongo:
     image: mongo:7
     volumes:
