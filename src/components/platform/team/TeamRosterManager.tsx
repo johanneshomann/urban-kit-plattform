@@ -8,6 +8,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Crown, UserPlus, X } from 'lucide-react'
 import { addMemberToTeam, removeMemberFromTeam } from '@/actions/team-lead'
+import { TeamQuickActions } from './TeamQuickActions'
 
 export interface RosterMember { membershipId: string; name: string; isLead: boolean }
 export interface TeamRoster {
@@ -18,12 +19,17 @@ export interface TeamRoster {
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 
-/** Roster management for the teams the viewer leads — add/remove members per team. */
-export function TeamRosterManager({ slug, locale, teams, viewerIsPM }: {
+/**
+ * Roster management for the teams the viewer leads — add/remove members per
+ * team. When `quickActions` is set, each team section gets its own
+ * quick-create row scoped to that team.
+ */
+export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickActions }: {
   slug: string
   locale: string
   teams: TeamRoster[]
   viewerIsPM: boolean
+  quickActions?: { leadOf: string[]; modules: string[]; folders: { id: string; name: string }[] }
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -62,6 +68,12 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM }: {
               </button>
             )}
           </div>
+
+          {quickActions && (
+            <div className="mb-4">
+              <TeamQuickActions slug={slug} locale={locale} team={team} leadOf={quickActions.leadOf} modules={quickActions.modules} folders={quickActions.folders} />
+            </div>
+          )}
 
           {adding === team && (
             <div className="mb-4 rounded-lg p-3" style={{ background: 'var(--project-light)' }}>
