@@ -91,15 +91,42 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   if (password !== passwordConfirm) return { error: 'Die Passwörter stimmen nicht überein.' }
 
   const payload = await getPayload({ config })
+  const data = { email, password, firstName, lastName }
+
+  // Find an existing account for this address that was never verified.
+  // `_verified` is a hidden auth field — it only appears with showHiddenFields.
+  const findUnverified = async (): Promise<string | null> => {
+    try {
+      const res = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1, depth: 0, overrideAccess: true, showHiddenFields: true })
+      const doc = res.docs[0] as { id: string | number; _verified?: boolean | null } | undefined
+      return doc && doc._verified === false ? String(doc.id) : null
+    } catch {
+      return null
+    }
+  }
 
   try {
-    await payload.create({
-      collection: 'users',
-      data: { email, password, firstName, lastName },
-      overrideAccess: true,
-    })
-  } catch {
-    return { error: 'Registrierung fehlgeschlagen. E-Mail bereits vergeben?' }
+    await payload.create({ collection: 'users', data, overrideAccess: true })
+  } catch (err) {
+    // Payload rejects duplicate/invalid emails with a ValidationError. Any
+    // OTHER failure is typically the activation mail refusing to send AFTER
+    // the account was written — that must not masquerade as "email taken".
+    if ((err as Error)?.name !== 'ValidationError') {
+      // Roll back the half-created account so a retry starts clean.
+      const half = await findUnverified()
+      if (half) await payload.delete({ collection: 'users', id: half, overrideAccess: true }).catch(() => {})
+      return { error: 'Die Bestätigungs-E-Mail konnte nicht versendet werden. Bitte versuchen Sie es später erneut.' }
+    }
+    // A never-activated leftover doesn't block the address (its mail may
+    // simply never have arrived) — replace it and send a fresh activation.
+    const stale = await findUnverified()
+    if (!stale) return { error: 'Diese E-Mail-Adresse ist bereits registriert oder ungültig.' }
+    try {
+      await payload.delete({ collection: 'users', id: stale, overrideAccess: true })
+      await payload.create({ collection: 'users', data, overrideAccess: true })
+    } catch {
+      return { error: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es später erneut.' }
+    }
   }
 
   // With verification on, the account can't log in until the activation
