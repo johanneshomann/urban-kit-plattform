@@ -40,6 +40,21 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
           </p>
         )}
 
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="firstName" className={labelClass}>
+              {t('firstName')}
+            </label>
+            <input id="firstName" name="firstName" type="text" required autoComplete="given-name" className={inputBase} style={ringStyle} />
+          </div>
+          <div>
+            <label htmlFor="lastName" className={labelClass}>
+              {t('lastName')}
+            </label>
+            <input id="lastName" name="lastName" type="text" required autoComplete="family-name" className={inputBase} style={ringStyle} />
+          </div>
+        </div>
+
         <div>
           <label htmlFor="email" className={labelClass}>
             {t('email')}

@@ -27,6 +27,8 @@
   "auth": {
     "login": "Anmelden",
     "register": "Registrieren",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
     "email": "E-Mail",
     "password": "Passwort",
     "forgotPassword": "Passwort vergessen?",

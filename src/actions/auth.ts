@@ -83,13 +83,16 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
 export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
+  const firstName = String(formData.get('firstName') ?? '').trim()
+  const lastName = String(formData.get('lastName') ?? '').trim()
+  if (!firstName || !lastName) return { error: 'Bitte Vor- und Nachnamen angeben.' }
 
   const payload = await getPayload({ config })
 
   try {
     await payload.create({
       collection: 'users',
-      data: { email, password },
+      data: { email, password, firstName, lastName },
       overrideAccess: true,
     })
   } catch {

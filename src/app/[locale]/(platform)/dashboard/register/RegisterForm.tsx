@@ -25,6 +25,16 @@ export function RegisterForm() {
         {state?.error && (
           <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{state.error}</p>
         )}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="firstName" className="block text-sm font-medium mb-1">{t('firstName')}</label>
+            <Input id="firstName" name="firstName" type="text" required autoComplete="given-name" />
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium mb-1">{t('lastName')}</label>
+            <Input id="lastName" name="lastName" type="text" required autoComplete="family-name" />
+          </div>
+        </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">{t('email')}</label>
           <Input id="email" name="email" type="email" required autoComplete="email" />
