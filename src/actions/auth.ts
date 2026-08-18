@@ -9,8 +9,9 @@ import config from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
+import { emailVerificationEnabled } from '@/lib/email'
 
-export type AuthState = { error?: string; appUrl?: string } | null
+export type AuthState = { error?: string; appUrl?: string; verifySent?: boolean } | null
 
 const appDomain = () => process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'app.urbankit.de'
 
@@ -83,9 +84,11 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
 export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
+  const passwordConfirm = formData.get('passwordConfirm') as string
   const firstName = String(formData.get('firstName') ?? '').trim()
   const lastName = String(formData.get('lastName') ?? '').trim()
   if (!firstName || !lastName) return { error: 'Bitte Vor- und Nachnamen angeben.' }
+  if (password !== passwordConfirm) return { error: 'Die Passwörter stimmen nicht überein.' }
 
   const payload = await getPayload({ config })
 
@@ -98,6 +101,10 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   } catch {
     return { error: 'Registrierung fehlgeschlagen. E-Mail bereits vergeben?' }
   }
+
+  // With verification on, the account can't log in until the activation
+  // mail is clicked — show the "check your inbox" state instead.
+  if (emailVerificationEnabled) return { verifySent: true }
 
   // Auto-login after registration
   let token: string | undefined

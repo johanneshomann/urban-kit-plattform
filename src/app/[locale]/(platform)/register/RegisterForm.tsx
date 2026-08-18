@@ -8,7 +8,7 @@ import { useActionState } from 'react'
 import { useTranslations } from 'next-intl'
 import { registerAction } from '@/actions/auth'
 import Link from 'next/link'
-import { UserPlus } from 'lucide-react'
+import { UserPlus, MailCheck } from 'lucide-react'
 
 // Dashboard control rules: borderless grey inputs inside the white panel,
 // definition via shadow + accent focus ring (same as the login form).
@@ -21,6 +21,22 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
 
   const ringStyle = { '--tw-ring-color': 'var(--app-accent)', color: 'var(--app-ink)' } as React.CSSProperties
   const labelClass = 'block text-small font-medium mb-1.5'
+
+  // Activation mail sent — replace the form with the "check your inbox" state.
+  if (state?.verifySent) {
+    return (
+      <div className="w-full flex flex-col gap-4">
+        <MailCheck className="w-10 h-10" style={{ color: 'var(--app-accent)' }} aria-hidden />
+        <div>
+          <h1 className="text-display font-bold" style={{ color: 'var(--app-ink-accent)' }}>{t('verifySentTitle')}</h1>
+          <p className="text-small mt-1.5 opacity-70" style={{ color: 'var(--app-ink)' }}>{t('verifySentBody')}</p>
+        </div>
+        <Link href={loginHref} className="text-small transition-colors hover:underline" style={{ color: 'var(--app-accent)' }}>
+          {t('login')}
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full">
@@ -67,6 +83,13 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
             {t('password')}
           </label>
           <input id="password" name="password" type="password" required autoComplete="new-password" className={inputBase} style={ringStyle} />
+        </div>
+
+        <div>
+          <label htmlFor="passwordConfirm" className={labelClass}>
+            {t('passwordConfirm')}
+          </label>
+          <input id="passwordConfirm" name="passwordConfirm" type="password" required autoComplete="new-password" className={inputBase} style={ringStyle} />
         </div>
 
         <button

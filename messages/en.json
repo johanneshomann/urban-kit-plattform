@@ -31,6 +31,7 @@
     "lastName": "Last name",
     "email": "Email",
     "password": "Password",
+    "passwordConfirm": "Confirm password",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
@@ -46,7 +47,14 @@
     "registerButton": "Create account",
     "registerPending": "Registering …",
     "workspaceOpened": "Login successful. The workspace has been opened in a new tab.",
-    "workspaceOpenLink": "Open workspace"
+    "workspaceOpenLink": "Open workspace",
+    "verifySentTitle": "Almost there!",
+    "verifySentBody": "We have sent you an email. Please click the link inside to activate your account.",
+    "verifiedTitle": "Account activated",
+    "verifiedBody": "Your email address is confirmed. You can log in now.",
+    "verifiedLogin": "Go to login",
+    "verifyFailedTitle": "Activation failed",
+    "verifyFailedBody": "The link is invalid or has already been used. If your account is already activated, just log in."
   },
   "accessibility": {
     "open": "Open accessibility settings",

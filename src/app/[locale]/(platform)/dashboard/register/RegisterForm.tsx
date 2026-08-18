@@ -43,6 +43,13 @@ export function RegisterForm() {
           <label htmlFor="password" className="block text-sm font-medium mb-1">{t('password')}</label>
           <Input id="password" name="password" type="password" required autoComplete="new-password" />
         </div>
+        <div>
+          <label htmlFor="passwordConfirm" className="block text-sm font-medium mb-1">{t('passwordConfirm')}</label>
+          <Input id="passwordConfirm" name="passwordConfirm" type="password" required autoComplete="new-password" />
+        </div>
+        {state?.verifySent && (
+          <p className="text-sm text-green-700 bg-green-50 p-3 rounded-md">{t('verifySentBody')}</p>
+        )}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? t('registerPending') : t('register')}
         </Button>

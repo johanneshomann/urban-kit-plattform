@@ -31,6 +31,7 @@
     "lastName": "Nachname",
     "email": "E-Mail",
     "password": "Passwort",
+    "passwordConfirm": "Passwort wiederholen",
     "forgotPassword": "Passwort vergessen?",
     "noAccount": "Noch kein Konto?",
     "hasAccount": "Bereits ein Konto?",
@@ -46,7 +47,14 @@
     "registerButton": "Konto erstellen",
     "registerPending": "Registrieren …",
     "workspaceOpened": "Anmeldung erfolgreich. Der Arbeitsbereich wurde in einem neuen Tab geöffnet.",
-    "workspaceOpenLink": "Arbeitsbereich öffnen"
+    "workspaceOpenLink": "Arbeitsbereich öffnen",
+    "verifySentTitle": "Fast geschafft!",
+    "verifySentBody": "Wir haben Ihnen eine E-Mail geschickt. Bitte klicken Sie auf den Link darin, um Ihr Konto zu aktivieren.",
+    "verifiedTitle": "Konto aktiviert",
+    "verifiedBody": "Ihre E-Mail-Adresse ist bestätigt. Sie können sich jetzt anmelden.",
+    "verifiedLogin": "Zur Anmeldung",
+    "verifyFailedTitle": "Aktivierung fehlgeschlagen",
+    "verifyFailedBody": "Der Link ist ungültig oder wurde bereits verwendet. Falls Ihr Konto schon aktiviert ist, melden Sie sich einfach an."
   },
   "accessibility": {
     "open": "Barrierefreiheit-Einstellungen öffnen",
