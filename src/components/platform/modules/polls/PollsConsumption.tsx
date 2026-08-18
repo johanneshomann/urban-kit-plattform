@@ -6,8 +6,9 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart2, Check, Send, Plus } from 'lucide-react'
+import { BarChart2, Check, Send, Plus, Pencil, Play, Square, Trash2 } from 'lucide-react'
 import { submitPollVote, type PollAnswer } from '@/actions/poll-vote'
+import { setPollStatus, deleteProjectPoll, getPollEditData, type CreatePollInput } from '@/actions/manage/polls'
 import { PollFormModal } from '@/components/platform/manage/PollFormModal'
 import { PollResultsView } from './PollResultsView'
 import { AudienceChip } from '@/components/platform/AudienceChip'
@@ -15,15 +16,25 @@ import type { CitizenPoll } from '@/lib/citizen-polls'
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
+  draft: { label: 'Entwurf', bg: 'var(--project-general)', fg: 'var(--project-black)' },
   active: { label: 'Aktiv', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
   closed: { label: 'Geschlossen', bg: 'var(--project-light)', fg: 'var(--project-ink)' },
 }
 
-function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: string; poll: CitizenPoll; loginHref?: string }) {
+/** Authoring rights of the viewer on this polls page (PM or team lead). */
+export interface PollsAuthor {
+  isPM: boolean
+  /** PM: full catalog; lead: their led teams. */
+  teamCatalog: string[]
+}
+
+function PollCard({ slug, locale, poll, loginHref, author }: { slug: string; locale: string; poll: CitizenPoll; loginHref?: string; author?: PollsAuthor | null }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Record<string, PollAnswer>>({})
+  const [editData, setEditData] = useState<{ pollId: string; data: CreatePollInput } | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const meta = STATUS_META[poll.status] ?? STATUS_META.active
   const setAnswer = (qid: string, patch: Partial<PollAnswer>) => setAnswers((s) => ({ ...s, [qid]: { ...s[qid], ...patch, questionId: qid } }))
@@ -34,6 +45,25 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
       const res = await submitPollVote(slug, locale, poll.id, Object.values(answers))
       if (res.error) { setError(res.error); return }
       router.refresh()
+    })
+  }
+
+  const run = (fn: () => Promise<{ error?: string; ok?: boolean }>) => {
+    setError(null)
+    startTransition(async () => {
+      const res = await fn()
+      if (res.error) { setError(res.error); return }
+      setConfirmDelete(false)
+      router.refresh()
+    })
+  }
+
+  const openEdit = () => {
+    setError(null)
+    startTransition(async () => {
+      const res = await getPollEditData(slug, poll.id)
+      if ('error' in res) { setError(res.error); return }
+      setEditData({ pollId: poll.id, data: res.data })
     })
   }
 
@@ -48,7 +78,37 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
       </div>
       {poll.description && <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>{poll.description}</p>}
 
-      {poll.showResults && poll.results ? (
+      {poll.canManage && author && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-4">
+          {poll.status === 'draft' && (
+            <>
+              <button type="button" onClick={openEdit} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> Bearbeiten</button>
+              <button type="button" onClick={() => run(() => setPollStatus(slug, locale, poll.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> Aktivieren</button>
+            </>
+          )}
+          {poll.status === 'active' && (
+            <button type="button" onClick={() => run(() => setPollStatus(slug, locale, poll.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> Schließen</button>
+          )}
+          {confirmDelete ? (
+            <span className="flex items-center gap-1.5 ml-auto">
+              <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, poll.id))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>Löschen</button>
+              <button type="button" onClick={() => setConfirmDelete(false)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>Abbrechen</button>
+            </span>
+          ) : (
+            <button type="button" onClick={() => setConfirmDelete(true)} disabled={pending} title="Umfrage löschen" className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
+          )}
+        </div>
+      )}
+
+      {editData && author && (
+        <PollFormModal slug={slug} locale={locale} editing={editData} teamCatalog={author.teamCatalog} leadMode={!author.isPM} onClose={() => setEditData(null)} />
+      )}
+
+      {poll.status === 'draft' ? (
+        <p className="text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
+          Entwurf — für andere erst nach dem Aktivieren sichtbar.
+        </p>
+      ) : poll.showResults && poll.results ? (
         <PollResultsView results={poll.results} />
       ) : poll.canVote ? (
         <div className="flex flex-col gap-5 mt-3">
@@ -116,13 +176,6 @@ function PollCard({ slug, locale, poll, loginHref }: { slug: string; locale: str
   )
 }
 
-/** Authoring rights of the viewer on this polls page (PM or team lead). */
-export interface PollsAuthor {
-  isPM: boolean
-  /** PM: full catalog; lead: their led teams. */
-  teamCatalog: string[]
-}
-
 export function PollsConsumption({ slug, locale, polls, loginHref, author = null }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string; author?: PollsAuthor | null }) {
   const [creating, setCreating] = useState(false)
   return (
@@ -146,7 +199,7 @@ export function PollsConsumption({ slug, locale, polls, loginHref, author = null
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {polls.map((p) => <PollCard key={p.id} slug={slug} locale={locale} poll={p} loginHref={loginHref} />)}
+          {polls.map((p) => <PollCard key={p.id} slug={slug} locale={locale} poll={p} loginHref={loginHref} author={author} />)}
         </div>
       )}
     </div>

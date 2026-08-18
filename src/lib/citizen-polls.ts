@@ -22,6 +22,8 @@ export interface CitizenPoll {
   requiresLogin: boolean
   visibility: string | null
   visibilityTeams: string[]
+  /** May the viewer manage this poll here? (author or PM) */
+  canManage: boolean
   questions: VotingQuestion[]
   results: PollResults | null
 }
@@ -37,18 +39,45 @@ export async function loadCitizenPolls(payload: Payload, projectId: string, view
     depth: 0,
     overrideAccess: true,
   })
-  if (pollsRes.docs.length === 0) return []
+
+  // Authors see their drafts right on the polls page (PMs see all drafts) —
+  // without this, a freshly created poll would silently "disappear" until
+  // activated from a manage surface.
+  const canAuthor = !!userId && (viewer.isPM || viewer.leadOf.length > 0)
+  const draftsRes = canAuthor
+    ? await payload.find({
+        collection: 'polls',
+        where: {
+          and: [
+            { project: { equals: projectId } },
+            { status: { equals: 'draft' } },
+            ...(viewer.isPM ? [] : [{ author: { equals: userId } }]),
+          ],
+        },
+        sort: '-createdAt',
+        limit: 50,
+        depth: 0,
+        overrideAccess: true,
+      })
+    : { docs: [] as unknown[] }
+
+  const allDocs = [...draftsRes.docs, ...pollsRes.docs]
+  if (allDocs.length === 0) return []
 
   const cookieStore = await cookies()
   const out: CitizenPoll[] = []
 
-  for (const doc of pollsRes.docs) {
+  for (const doc of allDocs) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const p = doc as any
     const id = String(p.id)
+    const isDraft = p.status === 'draft'
+    const canManage = viewer.isPM || (!!userId && relId(p.author) === userId)
 
     let hasVoted: boolean
-    if (userId) {
+    if (isDraft) {
+      hasVoted = false
+    } else if (userId) {
       const v = await payload.find({ collection: 'poll-votes', where: { and: [{ poll: { equals: id } }, { user: { equals: userId } }] }, limit: 1, depth: 0, overrideAccess: true })
       hasVoted = v.totalDocs > 0
     } else {
@@ -87,6 +116,7 @@ export async function loadCitizenPolls(payload: Payload, projectId: string, view
       requiresLogin,
       visibility: p.visibility ?? null,
       visibilityTeams: Array.isArray(p.visibilityTeams) ? p.visibilityTeams : [],
+      canManage,
       questions,
       results: showResults ? await computeResults(payload, id) : null,
     })
