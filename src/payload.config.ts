@@ -69,6 +69,21 @@ export default buildConfig({
   }),
   plugins: moduleRegistry.plugins(),
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
+  // Migration: accounts created BEFORE email verification existed have no
+  // `_verified` field — but Payload's JWT strategy requires it to be truthy
+  // once auth.verify is on, which would silently log those users out on
+  // every request (login works, every page bounces). Grandfather them in.
+  // Idempotent: only touches docs where the field is missing.
+  onInit: async (payload) => {
+    try {
+      await payload.db.collections.users?.updateMany(
+        { _verified: { $exists: false } },
+        { $set: { _verified: true } },
+      )
+    } catch (err) {
+      payload.logger.error({ err, msg: 'Failed to grandfather pre-verification users' })
+    }
+  },
   // Transactional mail (account activation, password reset). Only wired when
   // SMTP is configured — without it Payload logs emails to the console and
   // email verification stays off (see Users.ts / src/lib/email.ts).
