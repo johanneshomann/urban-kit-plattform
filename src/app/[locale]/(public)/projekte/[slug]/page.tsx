@@ -487,7 +487,7 @@ export default async function PublicProjectPage({
                   <FolderOpen className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                   <h3 className="text-display font-black tracking-tight">{t('filesHeading')}</h3>
                 </div>
-                <FilesBrowse projectId={project.id} viewer={{ tier: 'public', teams: [], leadOf: [], isPM: false, active: false }} hideTitle />
+                <FilesBrowse slug={slug} locale={locale} projectId={project.id} viewer={{ tier: 'public', teams: [], leadOf: [], isPM: false, active: false }} hideTitle />
               </div>
             )}
           </div>

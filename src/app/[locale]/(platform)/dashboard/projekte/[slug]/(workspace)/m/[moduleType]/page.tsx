@@ -102,7 +102,7 @@ export default async function ModulePage({
               ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />
               : <ForumFeed slug={slug} locale={locale} projectId={project.id} userId={userId} viewer={viewerCtx} membership={membershipObj} teamFilter={teamFilter} />)
           : moduleType === 'files'
-          ? <FilesBrowse projectId={project.id} viewer={viewerCtx} teamFilter={teamFilter} />
+          ? <FilesBrowse slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamCatalog={viewerCtx.isPM ? (project.teams ?? []) : viewerCtx.teams} teamFilter={teamFilter} />
           : moduleType === 'tasks'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('tasks')} reason="membership" />

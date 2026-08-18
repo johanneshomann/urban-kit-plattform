@@ -9,6 +9,7 @@ import { FileText, Folder, Download, Eye, FolderOpen } from 'lucide-react'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
 import { AudienceChip } from '@/components/platform/AudienceChip'
+import { FilesUploadButton, FileDeleteButton } from './FilesBrowseActions'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 function fmtSize(b: number | null | undefined): string {
@@ -25,9 +26,9 @@ function fileExt(filename: string, mimeType: string | null): string {
   return sub ? sub.toUpperCase().slice(0, 5) : ''
 }
 
-interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null; visibility: string | null; visibilityTeams: string[] }
+interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null; visibility: string | null; visibilityTeams: string[]; canDelete: boolean }
 
-function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | null; labels: { view: string; download: string } }) {
+function FileRow({ f, folderName, labels, slug, locale }: { f: VFile; folderName: string | null; labels: { view: string; download: string }; slug: string; locale: string }) {
   const isImage = (f.mimeType ?? '').startsWith('image/')
   const isPdf = f.mimeType === 'application/pdf'
   const ext = fileExt(f.filename, f.mimeType)
@@ -87,12 +88,27 @@ function FileRow({ f, folderName, labels }: { f: VFile; folderName: string | nul
           <Download className="w-4 h-4" />
         </a>
       )}
+      {f.canDelete && <FileDeleteButton slug={slug} locale={locale} fileId={f.id} />}
     </div>
   )
 }
 
-/** Read-only file library for citizens/public, gated to the viewer's tier. */
-export async function FilesBrowse({ projectId, viewer, hideTitle = false, teamFilter }: { projectId: string; viewer: ViewerContext; hideTitle?: boolean; teamFilter?: string | null }) {
+/**
+ * File library for citizens/public, gated to the viewer's tier. Team-tier
+ * viewers additionally upload here ("Neue Datei" popup) and delete their own
+ * uploads (PMs any) — files management lives where the files are.
+ */
+export async function FilesBrowse({ slug, locale, projectId, viewer, userId = null, teamCatalog = [], hideTitle = false, teamFilter }: {
+  slug: string
+  locale: string
+  projectId: string
+  viewer: ViewerContext
+  userId?: string | null
+  /** PM: full project catalog; others: their own teams (for the upload popup). */
+  teamCatalog?: string[]
+  hideTitle?: boolean
+  teamFilter?: string | null
+}) {
   const t = await getTranslations('filesBrowse')
   const payload = await getPayload({ config })
   const [foldersRes, filesRes] = await Promise.all([
@@ -106,7 +122,7 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false, teamFi
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const files: VFile[] = filesRes.docs
     .filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
-    .map((d: any) => ({ id: String(d.id), label: d.label ?? null, filename: d.filename ?? '', url: d.url ?? null, mimeType: d.mimeType ?? null, filesize: d.filesize ?? null, folderId: relId(d.folder), visibility: d.visibility ?? null, visibilityTeams: Array.isArray(d.visibilityTeams) ? d.visibilityTeams : [] }))
+    .map((d: any) => ({ id: String(d.id), label: d.label ?? null, filename: d.filename ?? '', url: d.url ?? null, mimeType: d.mimeType ?? null, filesize: d.filesize ?? null, folderId: relId(d.folder), visibility: d.visibility ?? null, visibilityTeams: Array.isArray(d.visibilityTeams) ? d.visibilityTeams : [], canDelete: viewer.isPM || (!!userId && relId(d.uploadedBy) === userId) }))
 
   const folderNames = new Map(folders.map((f) => [f.id, f.name]))
   const labels = { view: t('view'), download: t('download') }
@@ -116,6 +132,10 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false, teamFi
       {!hideTitle && (
         // Visually redundant with the breadcrumb — kept for screen readers (BITV).
         <h1 className="sr-only">{t('title')}</h1>
+      )}
+
+      {viewer.tier === 'team' && (
+        <FilesUploadButton slug={slug} locale={locale} folders={folders} teamCatalog={teamCatalog} />
       )}
 
       {files.length === 0 ? (
@@ -131,6 +151,8 @@ export async function FilesBrowse({ projectId, viewer, hideTitle = false, teamFi
               f={f}
               folderName={(f.folderId && visibleFolderIds.has(f.folderId) && folderNames.get(f.folderId)) || null}
               labels={labels}
+              slug={slug}
+              locale={locale}
             />
           ))}
         </div>
