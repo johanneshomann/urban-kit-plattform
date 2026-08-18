@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { CollectionConfig } from 'payload'
+import { emailVerificationEnabled } from '@/lib/email'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -10,7 +11,35 @@ export const Users: CollectionConfig = {
     singular: { en: 'User', de: 'Benutzer:in' },
     plural: { en: 'Users', de: 'Benutzer:innen' },
   },
-  auth: true,
+  auth: {
+    // Activation mail: new accounts must confirm their address before they
+    // can log in. Coupled to SMTP being configured (src/lib/email.ts) so
+    // dev setups without a mailer keep instant registration.
+    verify: emailVerificationEnabled
+      ? {
+          generateEmailSubject: () => 'UrbanKIT – E-Mail-Adresse bestätigen',
+          generateEmailHTML: ({ token }) => {
+            const url = `${process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/de/verifizieren/${token}`
+            return `
+              <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+                <p style="font-size: 18px; font-weight: 700; margin: 0 0 24px;">Urban<span style="opacity: 0.6;">KIT</span></p>
+                <h1 style="font-size: 20px; margin: 0 0 12px;">E-Mail-Adresse bestätigen</h1>
+                <p style="font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+                  Willkommen! Bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr UrbanKIT-Konto zu aktivieren.
+                </p>
+                <p style="margin: 0 0 24px;">
+                  <a href="${url}" style="display: inline-block; padding: 12px 24px; background: #1a1a1a; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600;">Konto aktivieren</a>
+                </p>
+                <p style="font-size: 12px; line-height: 1.6; color: #6b6b6b; margin: 0;">
+                  Falls der Button nicht funktioniert, öffnen Sie diesen Link:<br />
+                  <a href="${url}" style="color: #6b6b6b;">${url}</a><br /><br />
+                  Sie haben sich nicht registriert? Dann können Sie diese E-Mail ignorieren.
+                </p>
+              </div>`
+          },
+        }
+      : false,
+  },
   admin: {
     useAsTitle: 'email',
   },

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { en } from '@payloadcms/translations/languages/en'
 import { de } from '@payloadcms/translations/languages/de'
@@ -68,4 +69,25 @@ export default buildConfig({
   }),
   plugins: moduleRegistry.plugins(),
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
+  // Transactional mail (account activation, password reset). Only wired when
+  // SMTP is configured — without it Payload logs emails to the console and
+  // email verification stays off (see Users.ts / src/lib/email.ts).
+  ...(process.env.SMTP_HOST
+    ? {
+        email: nodemailerAdapter({
+          defaultFromAddress: process.env.SMTP_FROM ?? 'noreply@urbankit.de',
+          defaultFromName: 'UrbanKIT',
+          // No boot-time transport probe — a sleeping dev mailcatcher would
+          // log an error on every request; send failures still surface.
+          skipVerify: true,
+          transportOptions: {
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT ?? 587),
+            ...(process.env.SMTP_USER
+              ? { auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } }
+              : {}),
+          },
+        }),
+      }
+    : {}),
 })

@@ -52,6 +52,11 @@ of the data processor.
 `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — passed to
 the container; defaults target a local dev mailcatcher (`localhost:1025`).
 
+Setting `SMTP_HOST` wires Payload's nodemailer adapter AND switches account
+**email verification on**: registration sends an activation mail (link →
+`/de/verifizieren/<token>`) and blocks login until confirmed. Leave it unset
+for instant registration without mail (dev without a mailcatcher).
+
 ## Vestigial (in `.env.example`, currently unused in code)
 
 `S3_*` (media lives on a Docker volume, not S3) and `REDIS_URL` — kept only

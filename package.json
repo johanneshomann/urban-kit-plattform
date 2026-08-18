@@ -37,6 +37,7 @@
     "@excalidraw/excalidraw": "^0.18.1",
     "@hocuspocus/provider": "^2.15.3",
     "@payloadcms/db-mongodb": "^3.85.0",
+    "@payloadcms/email-nodemailer": "^3.85.0",
     "@payloadcms/next": "^3.85.0",
     "@payloadcms/richtext-lexical": "^3.85.0",
     "@payloadcms/translations": "^3.85.0",
