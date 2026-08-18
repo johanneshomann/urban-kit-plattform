@@ -6,8 +6,9 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarDays, List, MapPin, Tag, Check, Plus, Download, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { CalendarDays, List, MapPin, Tag, Check, Plus, Download, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import { toggleEventAttendance } from '@/actions/event-attend'
+import { deleteProjectEvent } from '@/actions/manage/calendar'
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import { EventFormModal } from '@/components/platform/manage/CalendarManager'
 
@@ -27,8 +28,12 @@ export interface ConsumptionEvent {
   location?: string | null
   category?: string | null
   bodyHtml?: string | null
+  /** Markdown body for the edit popup — only set on manageable events. */
+  body?: string
   visibility?: string | null
   visibilityTeams?: string[]
+  /** May the viewer edit/delete this event? (author or PM) */
+  canManage?: boolean
   attendeeCount: number
   attending: boolean
 }
@@ -43,6 +48,8 @@ export function CalendarConsumption({ slug, locale, events, canAttend, author = 
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [editing, setEditing] = useState<ConsumptionEvent | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [view, setView] = useState<'list' | 'grid'>('list')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() } })
@@ -56,6 +63,16 @@ export function CalendarConsumption({ slug, locale, events, canAttend, author = 
     startTransition(async () => {
       const res = await toggleEventAttendance(slug, locale, id)
       if (res.error) { setError(res.error); return }
+      router.refresh()
+    })
+  }
+
+  const remove = (id: string) => {
+    setError(null)
+    startTransition(async () => {
+      const res = await deleteProjectEvent(slug, locale, id)
+      if (res.error) { setError(res.error); return }
+      setConfirmDelete(null)
       router.refresh()
     })
   }
@@ -74,7 +91,22 @@ export function CalendarConsumption({ slug, locale, events, canAttend, author = 
             {e.category && <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" />{e.category}</span>}
           </p>
         </div>
-        <a href={`/api/ics/event/${e.id}`} title="Zum Kalender hinzufügen" className="shrink-0 p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>
+        <div className="flex items-center gap-0.5 shrink-0">
+          {e.canManage && author && (
+            <>
+              <button type="button" onClick={() => setEditing(e)} disabled={pending} title="Termin bearbeiten" className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-4 h-4" /></button>
+              {confirmDelete === e.id ? (
+                <span className="flex items-center gap-1">
+                  <button type="button" onClick={() => remove(e.id)} disabled={pending} className="px-2.5 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>Löschen</button>
+                  <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>Abbrechen</button>
+                </span>
+              ) : (
+                <button type="button" onClick={() => setConfirmDelete(e.id)} disabled={pending} title="Termin löschen" className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
+              )}
+            </>
+          )}
+          <a href={`/api/ics/event/${e.id}`} title="Zum Kalender hinzufügen" className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mt-3">
@@ -137,6 +169,20 @@ export function CalendarConsumption({ slug, locale, events, canAttend, author = 
 
       {creating && author && (
         <EventFormModal slug={slug} locale={locale} event={null} teamCatalog={author.teamCatalog} leadMode={!author.isPM} onClose={() => setCreating(false)} />
+      )}
+      {editing && author && (
+        <EventFormModal
+          slug={slug}
+          locale={locale}
+          event={{
+            id: editing.id, title: editing.title, startDate: editing.startDate, endDate: editing.endDate,
+            allDay: editing.allDay, location: editing.location, category: editing.category,
+            visibility: editing.visibility, visibilityTeams: editing.visibilityTeams, body: editing.body,
+          }}
+          teamCatalog={author.teamCatalog}
+          leadMode={!author.isPM}
+          onClose={() => setEditing(null)}
+        />
       )}
 
       {view === 'list' ? (

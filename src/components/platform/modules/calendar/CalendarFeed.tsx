@@ -4,7 +4,7 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { lexicalToHtml } from '@/lib/richtext'
+import { lexicalToHtml, lexicalToMarkdown } from '@/lib/richtext'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
 import { CalendarConsumption, type ConsumptionEvent, type CalendarAuthor } from './CalendarConsumption'
@@ -39,10 +39,13 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId, te
     if (userId && relId((a as { user?: unknown }).user) === userId) mine.add(ev)
   }
 
-  const events: ConsumptionEvent[] = visibleDocs.map((doc) => {
+  const events: ConsumptionEvent[] = await Promise.all(visibleDocs.map(async (doc) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const e = doc as any
     const id = String(e.id)
+    // Authors manage their events right here (PMs manage all) — the edit
+    // popup prefills from markdown, so only manageable events pay for it.
+    const canManage = viewer.isPM || (!!userId && relId(e.author) === userId)
     return {
       id,
       title: e.title ?? '',
@@ -52,12 +55,14 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId, te
       location: e.location ?? null,
       category: e.category ?? null,
       bodyHtml: lexicalToHtml(e.content),
+      body: canManage ? await lexicalToMarkdown(e.content) : undefined,
       visibility: e.visibility ?? null,
       visibilityTeams: Array.isArray(e.visibilityTeams) ? e.visibilityTeams : [],
+      canManage,
       attendeeCount: countByEvent.get(id) ?? 0,
       attending: mine.has(id),
     }
-  })
+  }))
 
   return <CalendarConsumption slug={slug} locale={locale} events={events} canAttend={viewer.tier !== 'public'} author={author} />
 }
