@@ -16,6 +16,7 @@ import { Projects } from './collections/Projects'
 import { ProjectMemberships } from './collections/ProjectMemberships'
 import { Activity } from './collections/Activity'
 import { Notifications } from './collections/Notifications'
+import { SavedItems } from './collections/SavedItems'
 import { PlatformSettings } from './globals/PlatformSettings'
 import { LegalSettings } from './globals/LegalSettings'
 import { UrbanAgentSettings } from './globals/UrbanAgentSettings'
@@ -57,6 +58,7 @@ export default buildConfig({
     ProjectMemberships,
     Activity,
     Notifications,
+    SavedItems,
   ],
   globals: [PlatformSettings, LegalSettings, UrbanAgentSettings],
   editor: lexicalEditor(),

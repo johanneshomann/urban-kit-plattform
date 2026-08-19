@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl'
 import {
   ArrowLeft, Newspaper, CalendarDays, BarChart2, MessageSquare, CheckSquare,
   Kanban, FolderOpen, Bot, Info, Palette, LayoutGrid, Users,
-  UserPlus, Settings, Settings2, Shield, Crown,
+  UserPlus, Settings, Settings2, Shield, Crown, Bookmark,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -83,6 +83,8 @@ export interface ProjectSidebarProps {
   slug: string
   projectTitle: string
   coverSrc: string
+  /** Logged-in viewer — shows the personal Merkliste item. */
+  isLoggedIn: boolean
   /** Viewer is an active member — shows the Mitglieder workspace item. */
   isActiveMember: boolean
   /** Viewer leads at least one team — shows the Team workspace item. */
@@ -106,7 +108,7 @@ export interface ProjectSidebarProps {
  * the manage layout guard and each module page's own checks.
  */
 export function ProjectSidebar({
-  locale, slug, projectTitle, coverSrc, isActiveMember, isTeamLead, participate, collaborate, manageModules, canManage, requestCount,
+  locale, slug, projectTitle, coverSrc, isLoggedIn, isActiveMember, isTeamLead, participate, collaborate, manageModules, canManage, requestCount,
 }: ProjectSidebarProps) {
   const tw = useTranslations('projectWorkspace')
   const tm = useTranslations('manage')
@@ -230,6 +232,9 @@ export function ProjectSidebar({
               className="my-2 border-t"
               style={{ borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}
             />
+            {isLoggedIn && (
+              <NavLink href={`${root}/merkliste`} label={tw('savedNav')} icon={Bookmark} active={isActive(`${root}/merkliste`)} />
+            )}
             {isActiveMember && (
               <NavLink href={`${root}/mitglieder`} label={tw('membersNav')} icon={Users} active={isActive(`${root}/mitglieder`)} />
             )}

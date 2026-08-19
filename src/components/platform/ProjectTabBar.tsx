@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowLeft, LayoutGrid, MoreHorizontal, Info, Settings2, FolderOpen, X, Users, Crown } from 'lucide-react'
+import { ArrowLeft, LayoutGrid, MoreHorizontal, Info, Settings2, FolderOpen, X, Users, Crown, Bookmark } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { MODULE_ICONS, MANAGE_PROJECT_ITEMS } from '@/components/platform/ProjectSidebar'
 
@@ -32,9 +32,10 @@ interface SheetItem {
  * only — access is enforced server-side. The bar sits at z-30 below the sticky
  * header and the a11y FAB (z-40/z-50); the open sheet overlays both at z-50.
  */
-export function ProjectTabBar({ locale, slug, isActiveMember, isTeamLead, participate, collaborate, manageModules, canManage, requestCount }: {
+export function ProjectTabBar({ locale, slug, isLoggedIn, isActiveMember, isTeamLead, participate, collaborate, manageModules, canManage, requestCount }: {
   locale: string
   slug: string
+  isLoggedIn: boolean
   isActiveMember: boolean
   isTeamLead: boolean
   participate: string[]
@@ -76,6 +77,7 @@ export function ProjectTabBar({ locale, slug, isActiveMember, isTeamLead, partic
     : [
         ...participate.slice(DIRECT_TABS).map((m) => ({ href: moduleHref(m), label: tModules(m), icon: MODULE_ICONS[m] ?? FolderOpen })),
         ...collaborate.map((m) => ({ href: moduleHref(m), label: tModules(m), icon: MODULE_ICONS[m] ?? FolderOpen })),
+        ...(isLoggedIn ? [{ href: `${root}/merkliste`, label: tw('savedNav'), icon: Bookmark }] : []),
         ...(isActiveMember ? [{ href: `${root}/mitglieder`, label: tw('membersNav'), icon: Users }] : []),
         ...(isTeamLead ? [{ href: `${root}/team`, label: tw('teamNav'), icon: Crown }] : []),
         { href: `${root}/info`, label: tw('aboutProject'), icon: Info },

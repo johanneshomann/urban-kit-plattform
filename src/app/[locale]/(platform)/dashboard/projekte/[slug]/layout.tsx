@@ -14,6 +14,7 @@ import { MODULE_ORDER, PARTICIPATE_MODULES, COLLABORATE_MODULES, MANAGE_MODULES 
 import { ProjectThemeScope } from '@/components/platform/ProjectThemeScope'
 import { ProjectSidebar } from '@/components/platform/ProjectSidebar'
 import { ProjectTabBar } from '@/components/platform/ProjectTabBar'
+import { WorkspaceSearchScope } from '@/components/platform/WorkspaceSearchPalette'
 
 /**
  * Shell for the whole `[slug]` subtree — workspace AND manage area. Scopes the
@@ -75,6 +76,7 @@ export default async function ProjectLayout({
             slug={slug}
             projectTitle={ctx.project.title}
             coverSrc={ctx.project.coverImage?.url ?? projectDefaults.coverImage}
+            isLoggedIn={ctx.isLoggedIn}
             isActiveMember={ctx.isActiveMember}
             isTeamLead={ctx.viewer.leadOf.length > 0}
             participate={participate}
@@ -90,6 +92,7 @@ export default async function ProjectLayout({
       <ProjectTabBar
         locale={locale}
         slug={slug}
+        isLoggedIn={ctx.isLoggedIn}
         isActiveMember={ctx.isActiveMember}
         isTeamLead={ctx.viewer.leadOf.length > 0}
         participate={participate}
@@ -98,6 +101,8 @@ export default async function ProjectLayout({
         canManage={ctx.canManage}
         requestCount={requestCount}
       />
+      {/* Scopes the dashboard-level ⌘K palette to this project (removable chip) */}
+      <WorkspaceSearchScope slug={slug} title={ctx.project.title} />
     </div>
   )
 }
