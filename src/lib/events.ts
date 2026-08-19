@@ -13,7 +13,7 @@ export interface ActivityEvent {
 }
 
 export interface NotificationEvent {
-  type: 'invited' | 'task_assigned' | 'poll_closed' | 'join_request' | 'new_content' | 'member_joined' | 'forum_reply' | 'news_comment'
+  type: 'invited' | 'task_assigned' | 'poll_closed' | 'join_request' | 'new_content' | 'member_joined' | 'forum_reply' | 'news_comment' | 'content_reported'
   userId: string
   reference?: { collectionSlug: string; id: string }
 }

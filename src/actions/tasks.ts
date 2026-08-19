@@ -11,6 +11,7 @@ import type { Payload } from 'payload'
 import type { Task } from '@/payload-types'
 import { getProjectManagerContext, getProjectTeamContext, getProjectMemberContext } from '@/lib/auth/requireProjectManager'
 import { clampTeamsToCatalog } from '@/lib/team-scope'
+import { canViewContent, getViewerState } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitNotification } from '@/lib/events'
 
@@ -188,6 +189,37 @@ export async function deleteTask(slug: string, locale: string, taskId: string): 
     await payload.delete({ collection: 'tasks', id: taskId, overrideAccess: true })
   } catch {
     return { error: 'Aufgabe konnte nicht gelöscht werden.' }
+  }
+  revalidateTasks(locale, slug)
+  return { ok: true }
+}
+
+/**
+ * Toggle self-assignment: any active member may take (or drop) a task they
+ * can SEE — the visibility check keeps TEAM tasks inside their audience.
+ */
+export async function toggleSelfAssignTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
+  const member = await getProjectMemberContext(slug)
+  if (!member) return { error: 'Nur Projektmitglieder haben Zugriff.' }
+  try {
+    const task = await getProjectTask(member.payload, member.project.id, taskId)
+    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    const { membership } = await getViewerState(member.payload, String(member.user.id), member.project.id)
+    if (!canViewContent(membership, task as { visibility?: string | null; visibilityTeams?: string[] | null })) {
+      return { error: 'Aufgabe nicht gefunden.' }
+    }
+    const existing = await member.payload.find({
+      collection: 'task-assignees',
+      where: { and: [{ task: { equals: taskId } }, { user: { equals: member.user.id } }] },
+      limit: 1, depth: 0, overrideAccess: true,
+    })
+    if (existing.docs[0]) {
+      await member.payload.delete({ collection: 'task-assignees', id: existing.docs[0].id, overrideAccess: true })
+    } else {
+      await member.payload.create({ collection: 'task-assignees', data: { task: taskId, user: member.user.id }, overrideAccess: true })
+    }
+  } catch {
+    return { error: 'Zuweisung konnte nicht geändert werden.' }
   }
   revalidateTasks(locale, slug)
   return { ok: true }

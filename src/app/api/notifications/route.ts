@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
   type RefDoc = { id: string | number; title?: string | null; slug?: string | null; project?: unknown }
   const refByKey = new Map<string, RefDoc>()
-  const SUPPORTED = new Set(['projects', 'tasks', 'polls', 'news-posts', 'forum-threads'])
+  const SUPPORTED = new Set(['projects', 'tasks', 'polls', 'news-posts', 'forum-threads', 'calendar-events', 'file-uploads', 'folders'])
   for (const [slug, ids] of idsBySlug) {
     if (!SUPPORTED.has(slug)) continue
     const found = await payload
@@ -89,7 +89,9 @@ export async function GET(req: NextRequest) {
     let title: string | null = null
     let href: string | null = null
     if (ref) {
-      title = (ref.title as string | null) ?? null
+      // Files/folders name their docs differently
+      const r = ref as { title?: string | null; label?: string | null; filename?: string | null; name?: string | null }
+      title = r.title ?? r.label ?? r.filename ?? r.name ?? null
       if (refSlug === 'projects') {
         const slug = (ref as { slug?: string }).slug
         if (slug) {
@@ -108,6 +110,8 @@ export async function GET(req: NextRequest) {
             : refSlug === 'polls' ? `${base}/m/polls`
             : refSlug === 'news-posts' ? `${base}/m/news/${(ref as { slug?: string }).slug ?? ''}`
             : refSlug === 'forum-threads' ? `${base}/m/forum/${(ref as { slug?: string }).slug ?? ''}`
+            : refSlug === 'calendar-events' ? `${base}/m/calendar`
+            : refSlug === 'file-uploads' || refSlug === 'folders' ? `${base}/m/files`
             : base
         }
       }
