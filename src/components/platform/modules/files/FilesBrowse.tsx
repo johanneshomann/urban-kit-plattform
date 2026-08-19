@@ -10,6 +10,9 @@ import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import { FilesUploadButton, FileDeleteButton } from './FilesBrowseActions'
+import { SaveButton } from '@/components/platform/SaveButton'
+import { ContentItemMenu } from '@/components/platform/ContentItemMenu'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
 function fmtSize(b: number | null | undefined): string {
@@ -28,7 +31,7 @@ function fileExt(filename: string, mimeType: string | null): string {
 
 interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null; visibility: string | null; visibilityTeams: string[]; canDelete: boolean }
 
-function FileRow({ f, folderName, labels, slug, locale }: { f: VFile; folderName: string | null; labels: { view: string; download: string }; slug: string; locale: string }) {
+function FileRow({ f, folderName, labels, slug, locale, isLoggedIn, agentEnabled }: { f: VFile; folderName: string | null; labels: { view: string; download: string }; slug: string; locale: string; isLoggedIn: boolean; agentEnabled: boolean }) {
   const isImage = (f.mimeType ?? '').startsWith('image/')
   const isPdf = f.mimeType === 'application/pdf'
   const ext = fileExt(f.filename, f.mimeType)
@@ -88,6 +91,15 @@ function FileRow({ f, folderName, labels, slug, locale }: { f: VFile; folderName
           <Download className="w-4 h-4" />
         </a>
       )}
+      {isLoggedIn && <SaveButton slug={slug} module="files" itemId={f.id} />}
+      {isLoggedIn && (
+        <ContentItemMenu
+          slug={slug}
+          locale={locale}
+          agentEnabled={agentEnabled}
+          item={{ module: 'files', itemId: f.id, title: f.label || f.filename, href: '/m/files' }}
+        />
+      )}
       {f.canDelete && <FileDeleteButton slug={slug} locale={locale} fileId={f.id} />}
     </div>
   )
@@ -126,6 +138,7 @@ export async function FilesBrowse({ slug, locale, projectId, viewer, userId = nu
 
   const folderNames = new Map(folders.map((f) => [f.id, f.name]))
   const labels = { view: t('view'), download: t('download') }
+  const agentEnabled = ((await getWorkspaceContext(slug))?.modules ?? []).includes('urban-agent') && viewer.active
 
   return (
     <div>
@@ -153,6 +166,8 @@ export async function FilesBrowse({ slug, locale, projectId, viewer, userId = nu
               labels={labels}
               slug={slug}
               locale={locale}
+              isLoggedIn={!!userId}
+              agentEnabled={agentEnabled}
             />
           ))}
         </div>

@@ -7,6 +7,7 @@ import config from '@payload-config'
 import { lexicalToHtml, lexicalToMarkdown } from '@/lib/richtext'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 import { CalendarConsumption, type ConsumptionEvent, type CalendarAuthor } from './CalendarConsumption'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -64,5 +65,7 @@ export async function CalendarFeed({ slug, locale, projectId, viewer, userId, te
     }
   }))
 
-  return <CalendarConsumption slug={slug} locale={locale} events={events} canAttend={viewer.tier !== 'public'} author={author} />
+  const agentEnabled = ((await getWorkspaceContext(slug))?.modules ?? []).includes('urban-agent') && viewer.active
+
+  return <CalendarConsumption slug={slug} locale={locale} events={events} canAttend={viewer.tier !== 'public'} isLoggedIn={!!userId} agentEnabled={agentEnabled} author={author} />
 }

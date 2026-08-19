@@ -7,6 +7,7 @@ import config from '@payload-config'
 import { lexicalToMarkdown } from '@/lib/richtext'
 import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 import { TaskBoard, type TaskCardData, type TaskMember } from './TaskBoard'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -110,5 +111,7 @@ export async function TaskBoardLoader({ slug, locale, projectId, userId, viewer,
 
   // Tag options for the form: PMs pick from the whole catalog, members from their teams.
   const teamOptions = isPM ? teamCatalog : viewer.teams
-  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} canCreate={canCreate} teamOptions={teamOptions} />
+  const agentEnabled = ((await getWorkspaceContext(slug))?.modules ?? []).includes('urban-agent')
+
+  return <TaskBoard slug={slug} locale={locale} tasks={tasks} members={members} isPM={isPM} canCreate={canCreate} teamOptions={teamOptions} agentEnabled={agentEnabled} />
 }

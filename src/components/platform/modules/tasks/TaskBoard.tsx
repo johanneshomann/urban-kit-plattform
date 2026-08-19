@@ -7,10 +7,13 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core'
-import { Plus, Pencil, Trash2, Calendar, GripVertical } from 'lucide-react'
-import { createTask, updateTask, deleteTask, moveTask } from '@/actions/tasks'
+import { Plus, Pencil, Trash2, Calendar, GripVertical, UserMinus, UserPlus } from 'lucide-react'
+import { createTask, updateTask, deleteTask, moveTask, toggleSelfAssignTask } from '@/actions/tasks'
+import { SaveButton } from '@/components/platform/SaveButton'
+import { ContentItemMenu } from '@/components/platform/ContentItemMenu'
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import { FormModal } from '@/components/platform/FormModal'
+import { ManageMenu } from '@/components/platform/ManageMenu'
 
 export interface TaskMember { id: string; name: string }
 export interface TaskCardData {
@@ -39,7 +42,7 @@ const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%
 
 const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', status: 'todo', priority: 'medium', deadline: null, labels: [], assignees: [], visibility: 'TEAM', visibilityTeams: [], mine: false, canMove: true, canManage: true })
 
-function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit: () => void; onDelete: () => void; pending: boolean }) {
+function Card({ slug, locale, agentEnabled, task, onOpen, onSelfAssign, onEdit, onDelete, pending }: { slug: string; locale: string; agentEnabled: boolean; task: TaskCardData; onOpen: () => void; onSelfAssign: () => void; onEdit: () => void; onDelete: () => void; pending: boolean }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id, disabled: !task.canMove })
   const prio = PRIORITY[task.priority] ?? PRIORITY.medium
   return (
@@ -48,7 +51,8 @@ function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit:
       <div className="flex items-start gap-2">
         {task.canMove && <button type="button" {...listeners} {...attributes} className="mt-0.5 cursor-grab touch-none shrink-0" style={{ color: 'var(--project-ink)' }}><GripVertical className="w-4 h-4" /></button>}
         <div className="flex-1 min-w-0">
-          <p className="text-text font-medium leading-snug" style={{ color: 'var(--project-accent)' }}>{task.title}</p>
+          {/* Title opens the task popup */}
+          <button type="button" onClick={onOpen} className="text-text font-medium leading-snug text-left cursor-pointer hover:underline" style={{ color: 'var(--project-accent)' }}>{task.title}</button>
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
             <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
             <AudienceChip visibility={task.visibility} visibilityTeams={task.visibilityTeams} />
@@ -61,12 +65,28 @@ function Card({ task, onEdit, onDelete, pending }: { task: TaskCardData; onEdit:
             </p>
           )}
         </div>
-        {task.canManage && (
-          <div className="flex flex-col gap-1 shrink-0">
-            <button type="button" onClick={onEdit} disabled={pending} title="Bearbeiten" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-accent)' }}><Pencil className="w-3.5 h-3.5" /></button>
-            <button type="button" onClick={onDelete} disabled={pending} title="Löschen" className="p-1 rounded disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>
-          </div>
-        )}
+        {/* Tasks are member-only — every viewer is logged in, so the bookmark always shows */}
+        <div className="shrink-0 flex flex-col items-center">
+          <SaveButton slug={slug} module="tasks" itemId={task.id} />
+          <ContentItemMenu
+            slug={slug}
+            locale={locale}
+            agentEnabled={agentEnabled}
+            item={{ module: 'tasks', itemId: task.id, title: task.title, href: '/m/tasks' }}
+            disabled={pending}
+            extraItems={[
+              task.mine
+                ? { key: 'unassign', label: 'Nicht mehr zuständig', icon: UserMinus, onSelect: onSelfAssign }
+                : { key: 'assign', label: 'Mir zuweisen', icon: UserPlus, onSelect: onSelfAssign },
+              ...(task.canManage
+                ? [
+                    { key: 'edit', label: 'Bearbeiten', icon: Pencil, onSelect: onEdit },
+                    { key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: onDelete },
+                  ]
+                : []),
+            ]}
+          />
+        </div>
       </div>
     </div>
   )
@@ -82,12 +102,13 @@ function Column({ id, label, count, children }: { id: string; label: string; cou
   )
 }
 
-export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamOptions = [] }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean; teamOptions?: string[] }) {
+export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamOptions = [], agentEnabled = false }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean; teamOptions?: string[]; agentEnabled?: boolean }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [local, setLocal] = useState<TaskCardData[]>(tasks)
   const [editing, setEditing] = useState<TaskCardData | null>(null)
+  const [detailId, setDetailId] = useState<string | null>(null)
   const [mineOnly, setMineOnly] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
@@ -222,6 +243,39 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
         </FormModal>
       )}
 
+      {/* Task detail popup — derived from the board so refreshes flow in */}
+      {(() => {
+        const t = detailId ? local.find((x) => x.id === detailId) : undefined
+        if (!t) return null
+        const prio = PRIORITY[t.priority] ?? PRIORITY.medium
+        const col = COLUMNS.find((c) => c.id === t.status)
+        return (
+          <FormModal title={t.title} onClose={() => setDetailId(null)}>
+            <div className="flex flex-wrap items-center gap-1.5 -mt-2 mb-3">
+              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>{col?.label ?? t.status}</span>
+              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
+              <AudienceChip visibility={t.visibility} visibilityTeams={t.visibilityTeams} />
+              {t.labels.map((l) => <span key={l} className="text-small px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
+              <span className="ml-auto"><SaveButton slug={slug} module="tasks" itemId={t.id} /></span>
+            </div>
+            <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5" style={{ color: 'var(--project-ink)' }}>
+              {t.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />Fällig am {new Date(t.deadline).toLocaleDateString('de-DE', { dateStyle: 'medium' })}</span>}
+              {t.assignees.length > 0 && <span>Zuständig: {t.assignees.map((a) => a.name).join(', ')}</span>}
+            </p>
+            {t.description && (
+              <p className="text-text whitespace-pre-wrap mt-4 pt-4 border-t" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>{t.description}</p>
+            )}
+            {t.canManage && (
+              <div className="mt-5">
+                <button type="button" onClick={() => { setDetailId(null); setEditing(t) }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold cursor-pointer" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+                  <Pencil className="w-3.5 h-3.5" /> Bearbeiten
+                </button>
+              </div>
+            )}
+          </FormModal>
+        )
+      })()}
+
       {shown.length === 0 && !editing ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>
@@ -236,7 +290,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
               return (
                 <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
                   {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>
-                    : colTasks.map((t) => <Card key={t.id} task={t} pending={pending} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
+                    : colTasks.map((t) => <Card key={t.id} slug={slug} locale={locale} agentEnabled={agentEnabled} task={t} pending={pending} onOpen={() => setDetailId(t.id)} onSelfAssign={() => run(() => toggleSelfAssignTask(slug, locale, t.id))} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
                 </Column>
               )
             })}

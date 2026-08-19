@@ -19,7 +19,6 @@ import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import { TaskBoardLoader } from '@/components/platform/modules/tasks/TaskBoardLoader'
 import { UrbanAgentChat } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 import { BoardView, type BoardRef } from '@/components/platform/board/BoardView'
-import { TeamFilterBar } from '@/components/platform/TeamFilterBar'
 import { matchesTeamFilter } from '@/lib/team-scope'
 import { cookies } from 'next/headers'
 
@@ -58,7 +57,7 @@ export default async function ModulePage({
   const filterTeams = viewerCtx.isPM ? (project.teams ?? []) : viewerCtx.teams
   const rawTeam = typeof sp.team === 'string' ? sp.team : null
   const teamFilter = rawTeam && filterTeams.includes(rawTeam) ? rawTeam : null
-  const showTeamFilter = TEAM_FILTERABLE.has(moduleType) && tier !== 'public' && filterTeams.length > 0
+  void TEAM_FILTERABLE // filter UI temporarily unmounted (dropdown planned) — ?team= keeps working
 
   // Authoring rights for in-place create buttons (PM or team lead).
   const author = viewerCtx.isPM || viewerCtx.leadOf.length > 0
@@ -90,13 +89,15 @@ export default async function ModulePage({
       />
       {/* White content card under the light breadcrumb band — same pattern as manage */}
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
-        {showTeamFilter && <TeamFilterBar teams={filterTeams} active={teamFilter} />}
+        {/* Team filter bar removed for now — the ?team= filtering below stays
+            functional and will get a dropdown UI later (TeamFilterBar keeps
+            existing for that). */}
         {moduleType === 'news'
-          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} teamFilter={teamFilter} />
+          ? <NewsFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamFilter={teamFilter} />
           : moduleType === 'calendar'
           ? <CalendarFeed slug={slug} locale={locale} projectId={project.id} viewer={viewerCtx} userId={userId} teamFilter={teamFilter} author={author} />
           : moduleType === 'polls'
-          ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} author={author} />
+          ? <PollsConsumption slug={slug} locale={locale} polls={citizenPolls} loginHref={`/${locale}/login`} isLoggedIn={!!userId} agentEnabled={modules.includes('urban-agent') && viewerCtx.active} author={author} />
           : moduleType === 'forum'
           ? (tier === 'public'
               ? <ModuleConsumptionPlaceholder title={tm('forum')} reason="membership" />
@@ -110,7 +111,8 @@ export default async function ModulePage({
           : moduleType === 'urban-agent'
           ? (tier === 'public' || !userId
               ? <ModuleConsumptionPlaceholder title={tm('urban-agent')} reason="membership" />
-              : <UrbanAgentChat projectId={project.id} projectSlug={project.slug} />)
+              // Fixed viewport height (like board) so the input sits at the bottom of the screen
+              : <div className="h-[calc(100svh-14rem)] lg:h-[calc(100svh-11rem)] min-h-[24rem]"><UrbanAgentChat projectId={project.id} projectSlug={project.slug} /></div>)
           : moduleType === 'board'
           ? (!boardData
               ? <ModuleConsumptionPlaceholder title={tm('board')} reason="membership" />

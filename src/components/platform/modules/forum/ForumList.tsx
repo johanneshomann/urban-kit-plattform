@@ -8,9 +8,11 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare, Plus, Trash2 } from 'lucide-react'
-import { toggleThreadVote, createThread, deleteThread } from '@/actions/forum'
+import { toggleThreadVote, createThread, deleteThread, toggleThreadPin, toggleThreadLock } from '@/actions/forum'
+import { SaveButton } from '@/components/platform/SaveButton'
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import { FormModal } from '@/components/platform/FormModal'
+import { ContentItemMenu } from '@/components/platform/ContentItemMenu'
 
 export interface ForumListItem {
   id: string
@@ -31,7 +33,7 @@ export interface ForumListItem {
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
-export function ForumList({ slug, locale, threads, isPM, leadOf }: { slug: string; locale: string; threads: ForumListItem[]; isPM: boolean; leadOf: string[] }) {
+export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = false }: { slug: string; locale: string; threads: ForumListItem[]; isPM: boolean; leadOf: string[]; agentEnabled?: boolean }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +43,6 @@ export function ForumList({ slug, locale, threads, isPM, leadOf }: { slug: strin
   // Leads scope their thread to led teams (default: all of them). PMs open
   // project-wide threads — the server forces the split either way.
   const [teams, setTeams] = useState<string[]>(leadOf)
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const canCreate = isPM || leadOf.length > 0
 
@@ -136,18 +137,29 @@ export function ForumList({ slug, locale, threads, isPM, leadOf }: { slug: strin
                 </p>
               </Link>
 
-              {th.canDelete && (
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {confirmDelete === th.id ? (
-                    <>
-                      <button type="button" onClick={() => run(() => deleteThread(slug, locale, th.id), () => setConfirmDelete(null))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>Löschen</button>
-                      <button type="button" onClick={() => setConfirmDelete(null)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>Abbrechen</button>
-                    </>
-                  ) : (
-                    <button type="button" onClick={() => setConfirmDelete(th.id)} disabled={pending} title="Thema löschen" className="p-2 rounded-lg disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
-                  )}
-                </div>
-              )}
+              {/* Bookmark for every member; ⋯-menu with the common actions plus
+                  pin/lock for PMs and delete for the author or PMs. */}
+              <div className="shrink-0 flex items-center">
+                <SaveButton slug={slug} module="forum" itemId={th.id} />
+                <ContentItemMenu
+                  slug={slug}
+                  locale={locale}
+                  agentEnabled={agentEnabled}
+                  item={{ module: 'forum', itemId: th.id, title: th.title, href: `/m/forum/${th.slug}` }}
+                  disabled={pending}
+                  extraItems={[
+                    ...(isPM
+                      ? [
+                          { key: 'pin', label: th.pinned ? 'Nicht mehr anpinnen' : 'Anpinnen', icon: Pin, onSelect: () => run(() => toggleThreadPin(slug, locale, th.id, !th.pinned)) },
+                          { key: 'lock', label: th.locked ? 'Entsperren' : 'Sperren', icon: Lock, onSelect: () => run(() => toggleThreadLock(slug, locale, th.id, !th.locked)) },
+                        ]
+                      : []),
+                    ...(th.canDelete
+                      ? [{ key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: () => run(() => deleteThread(slug, locale, th.id)) }]
+                      : []),
+                  ]}
+                />
+              </div>
             </div>
           ))}
         </div>

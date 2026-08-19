@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { canViewContent, visibilityWhere, type ViewerContext, type ViewerMembership } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
+import { getWorkspaceContext } from '@/lib/workspace-context'
 import { ForumList, type ForumListItem } from './ForumList'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
@@ -83,5 +84,7 @@ export async function ForumFeed({ slug, locale, projectId, userId, viewer, membe
   // pinned first, then most recent activity
   items.sort((a, b) => Number(b.pinned) - Number(a.pinned) || ((b as ForumListItem & { _activity: number })._activity - (a as ForumListItem & { _activity: number })._activity))
 
-  return <ForumList slug={slug} locale={locale} threads={items} isPM={viewer.isPM} leadOf={viewer.leadOf} />
+  const agentEnabled = ((await getWorkspaceContext(slug))?.modules ?? []).includes('urban-agent') && viewer.active
+
+  return <ForumList slug={slug} locale={locale} threads={items} isPM={viewer.isPM} leadOf={viewer.leadOf} agentEnabled={agentEnabled} />
 }

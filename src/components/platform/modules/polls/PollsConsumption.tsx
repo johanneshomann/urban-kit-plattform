@@ -6,15 +6,20 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart2, Check, Send, Plus, Pencil, Play, Square, Trash2 } from 'lucide-react'
+import { BarChart2, Check, Send, Plus, Pencil, Play, Square, Trash2, Vote } from 'lucide-react'
 import { submitPollVote, type PollAnswer } from '@/actions/poll-vote'
 import { setPollStatus, deleteProjectPoll, getPollEditData, type CreatePollInput } from '@/actions/manage/polls'
 import { PollFormModal } from '@/components/platform/manage/PollFormModal'
 import { PollResultsView } from './PollResultsView'
 import { AudienceChip } from '@/components/platform/AudienceChip'
+import { FormModal } from '@/components/platform/FormModal'
+import { ManageMenu, type ManageMenuItem } from '@/components/platform/ManageMenu'
+import { SaveButton } from '@/components/platform/SaveButton'
+import { ContentItemMenu } from '@/components/platform/ContentItemMenu'
 import type { CitizenPoll } from '@/lib/citizen-polls'
 
-const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
+const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }
+const noticeStyle = { background: 'var(--project-light)', color: 'var(--project-ink)' }
 const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
   draft: { label: 'Entwurf', bg: 'var(--project-general)', fg: 'var(--project-black)' },
   active: { label: 'Aktiv', bg: 'var(--project-dark)', fg: 'var(--project-black)' },
@@ -28,13 +33,77 @@ export interface PollsAuthor {
   teamCatalog: string[]
 }
 
-function PollCard({ slug, locale, poll, loginHref, author }: { slug: string; locale: string; poll: CitizenPoll; loginHref?: string; author?: PollsAuthor | null }) {
+type PopupMode = 'vote' | 'results'
+
+/** Compact grid card — voting and results each open their own popup. */
+function PollSummary({ slug, locale, poll, isLoggedIn, agentEnabled, onOpen }: { slug: string; locale: string; poll: CitizenPoll; isLoggedIn: boolean; agentEnabled: boolean; onOpen: (mode: PopupMode) => void }) {
+  const meta = STATUS_META[poll.status] ?? STATUS_META.active
+  const isDraft = poll.status === 'draft'
+  return (
+    <div className="rounded-xl border p-5 flex flex-col" style={cardStyle}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="flex flex-wrap items-center gap-2 text-display font-bold leading-snug" style={{ color: 'var(--project-accent)' }}>
+          {poll.title}
+          <AudienceChip visibility={poll.visibility} visibilityTeams={poll.visibilityTeams} />
+        </p>
+        <span className="flex items-center gap-1 shrink-0">
+          <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: meta.bg, color: meta.fg }}>{meta.label}</span>
+          {isLoggedIn && <SaveButton slug={slug} module="polls" itemId={poll.id} />}
+          {isLoggedIn && (
+            <ContentItemMenu
+              slug={slug}
+              locale={locale}
+              agentEnabled={agentEnabled}
+              item={{ module: 'polls', itemId: poll.id, title: poll.title, href: '/m/polls' }}
+            />
+          )}
+        </span>
+      </div>
+      {poll.description && <p className="text-text mt-1 line-clamp-2" style={{ color: 'var(--project-ink)' }}>{poll.description}</p>}
+      <div className="flex flex-wrap items-center gap-2 mt-4 pt-1 mt-auto">
+        <button
+          type="button"
+          onClick={() => onOpen('vote')}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-small font-semibold cursor-pointer transition-opacity hover:opacity-85"
+          style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
+        >
+          {poll.hasVoted ? <Check className="w-3.5 h-3.5" /> : <Vote className="w-3.5 h-3.5" />}
+          {isDraft ? 'Vorschau' : poll.hasVoted ? 'Abgestimmt' : 'Abstimmen'}
+        </button>
+        {!isDraft && (
+          <button
+            type="button"
+            onClick={() => onOpen('results')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-small font-medium border cursor-pointer transition-colors hover:bg-[var(--project-light)]"
+            style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}
+          >
+            <BarChart2 className="w-3.5 h-3.5" /> Ergebnisse
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Poll popup — 'vote' carries the vote form (or the voted/login/closed state)
+ * plus the manage actions; 'results' carries the results (or the
+ * "please vote first" / "after close" state).
+ */
+function PollPopup({ slug, locale, poll, mode, loginHref, author, onClose }: {
+  slug: string
+  locale: string
+  poll: CitizenPoll
+  mode: PopupMode
+  loginHref?: string
+  author?: PollsAuthor | null
+  onClose: () => void
+}) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Record<string, PollAnswer>>({})
   const [editData, setEditData] = useState<{ pollId: string; data: CreatePollInput } | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const meta = STATUS_META[poll.status] ?? STATUS_META.active
   const setAnswer = (qid: string, patch: Partial<PollAnswer>) => setAnswers((s) => ({ ...s, [qid]: { ...s[qid], ...patch, questionId: qid } }))
@@ -53,7 +122,6 @@ function PollCard({ slug, locale, poll, loginHref, author }: { slug: string; loc
     startTransition(async () => {
       const res = await fn()
       if (res.error) { setError(res.error); return }
-      setConfirmDelete(false)
       router.refresh()
     })
   }
@@ -67,49 +135,58 @@ function PollCard({ slug, locale, poll, loginHref, author }: { slug: string; loc
     })
   }
 
-  return (
-    <div className="rounded-xl border p-5" style={cardStyle}>
-      <div className="flex items-start justify-between gap-3 mb-1">
-        <h2 className="flex flex-wrap items-center gap-2 text-display font-bold leading-snug" style={{ color: 'var(--project-accent)' }}>
-          {poll.title}
-          <AudienceChip visibility={poll.visibility} visibilityTeams={poll.visibilityTeams} />
-        </h2>
-        <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{meta.label}</span>
-      </div>
-      {poll.description && <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>{poll.description}</p>}
+  // Role-scoped manage actions behind the gear — callers only see what their
+  // rights and the poll status allow (draft: edit+activate, active: close).
+  const manageItems: ManageMenuItem[] = mode === 'vote' && poll.canManage && author
+    ? [
+        ...(poll.status === 'draft'
+          ? [
+              { key: 'edit', label: 'Bearbeiten', icon: Pencil, onSelect: openEdit },
+              { key: 'activate', label: 'Aktivieren', icon: Play, onSelect: () => run(() => setPollStatus(slug, locale, poll.id, 'active')) },
+            ]
+          : []),
+        ...(poll.status === 'active'
+          ? [{ key: 'close', label: 'Schließen', icon: Square, onSelect: () => run(() => setPollStatus(slug, locale, poll.id, 'closed')) }]
+          : []),
+        { key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: () => run(() => deleteProjectPoll(slug, locale, poll.id)) },
+      ]
+    : []
 
-      {poll.canManage && author && (
-        <div className="flex flex-wrap items-center gap-1.5 mb-4">
-          {poll.status === 'draft' && (
-            <>
-              <button type="button" onClick={openEdit} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}><Pencil className="w-3.5 h-3.5" /> Bearbeiten</button>
-              <button type="button" onClick={() => run(() => setPollStatus(slug, locale, poll.id, 'active'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}><Play className="w-3.5 h-3.5" /> Aktivieren</button>
-            </>
-          )}
-          {poll.status === 'active' && (
-            <button type="button" onClick={() => run(() => setPollStatus(slug, locale, poll.id, 'closed'))} disabled={pending} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}><Square className="w-3.5 h-3.5" /> Schließen</button>
-          )}
-          {confirmDelete ? (
-            <span className="flex items-center gap-1.5 ml-auto">
-              <button type="button" onClick={() => run(() => deleteProjectPoll(slug, locale, poll.id))} disabled={pending} className="px-3 py-1.5 rounded-lg text-small font-semibold disabled:opacity-40" style={{ background: 'var(--project-danger)', color: 'var(--project-danger-on)' }}>Löschen</button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="px-2 py-1.5 rounded-lg text-small" style={{ color: 'var(--project-ink)' }}>Abbrechen</button>
-            </span>
-          ) : (
-            <button type="button" onClick={() => setConfirmDelete(true)} disabled={pending} title="Umfrage löschen" className="p-2 rounded-lg disabled:opacity-40 ml-auto" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-4 h-4" /></button>
-          )}
-        </div>
-      )}
+  return (
+    <FormModal title={mode === 'results' ? `Ergebnisse – ${poll.title}` : poll.title} size="xl" onClose={onClose}>
+      <div className="flex flex-wrap items-center gap-2 mb-3 -mt-2">
+        <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: meta.bg, color: meta.fg }}>{meta.label}</span>
+        <AudienceChip visibility={poll.visibility} visibilityTeams={poll.visibilityTeams} />
+        <span className="ml-auto"><ManageMenu items={manageItems} disabled={pending} /></span>
+      </div>
+      {mode === 'vote' && poll.description && <p className="text-text mb-4" style={{ color: 'var(--project-ink)' }}>{poll.description}</p>}
 
       {editData && author && (
         <PollFormModal slug={slug} locale={locale} editing={editData} teamCatalog={author.teamCatalog} leadMode={!author.isPM} onClose={() => setEditData(null)} />
       )}
 
-      {poll.status === 'draft' ? (
-        <p className="text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
+      {mode === 'results' ? (
+        // ── Results popup ─────────────────────────────────────────────────
+        poll.showResults && poll.results ? (
+          <PollResultsView results={poll.results} />
+        ) : poll.status === 'active' && !poll.hasVoted ? (
+          <p className="text-small px-4 py-3 rounded-lg" style={noticeStyle}>
+            Bitte stimmen Sie zuerst ab — danach sehen Sie hier die Ergebnisse.
+          </p>
+        ) : (
+          <p className="text-small px-4 py-3 rounded-lg" style={noticeStyle}>
+            Die Ergebnisse werden nach Abschluss der Umfrage angezeigt.
+          </p>
+        )
+      ) : poll.status === 'draft' ? (
+        // ── Vote popup ────────────────────────────────────────────────────
+        <p className="text-small px-4 py-3 rounded-lg" style={noticeStyle}>
           Entwurf — für andere erst nach dem Aktivieren sichtbar.
         </p>
-      ) : poll.showResults && poll.results ? (
-        <PollResultsView results={poll.results} />
+      ) : poll.hasVoted ? (
+        <p className="flex items-center gap-2 text-small px-4 py-3 rounded-lg" style={noticeStyle}>
+          <Check className="w-4 h-4" /> Sie haben bereits abgestimmt. Danke!
+        </p>
       ) : poll.canVote ? (
         <div className="flex flex-col gap-5 mt-3">
           {poll.questions.map((q) => (
@@ -164,20 +241,26 @@ function PollCard({ slug, locale, poll, loginHref, author }: { slug: string; loc
           </div>
         </div>
       ) : poll.requiresLogin ? (
-        <p className="text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
+        <p className="text-small px-4 py-3 rounded-lg" style={noticeStyle}>
           {loginHref ? <>Bitte <a href={loginHref} className="underline font-medium">melde dich an</a>, um abzustimmen.</> : 'Bitte melde dich an, um abzustimmen.'}
         </p>
       ) : (
-        <p className="flex items-center gap-2 text-small px-4 py-3 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
-          <Check className="w-4 h-4" /> Danke fürs Abstimmen! Die Ergebnisse werden nach Abschluss angezeigt.
+        <p className="text-small px-4 py-3 rounded-lg" style={noticeStyle}>
+          Diese Umfrage ist geschlossen — Abstimmen ist nicht mehr möglich.
         </p>
       )}
-    </div>
+      {!poll.canVote && error && <p className="text-small mt-3" style={{ color: 'var(--project-danger)' }}>{error}</p>}
+    </FormModal>
   )
 }
 
-export function PollsConsumption({ slug, locale, polls, loginHref, author = null }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string; author?: PollsAuthor | null }) {
+export function PollsConsumption({ slug, locale, polls, loginHref, isLoggedIn = false, agentEnabled = false, author = null }: { slug: string; locale: string; polls: CitizenPoll[]; loginHref?: string; isLoggedIn?: boolean; agentEnabled?: boolean; author?: PollsAuthor | null }) {
   const [creating, setCreating] = useState(false)
+  const [open, setOpen] = useState<{ id: string; mode: PopupMode } | null>(null)
+  // Derived from props so a router.refresh (vote, status change) updates the
+  // open popup in place; a deleted poll simply closes it.
+  const openPoll = open ? polls.find((p) => p.id === open.id) : undefined
+
   return (
     <div>
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
@@ -198,9 +281,12 @@ export function PollsConsumption({ slug, locale, polls, loginHref, author = null
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>Derzeit keine Umfragen.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {polls.map((p) => <PollCard key={p.id} slug={slug} locale={locale} poll={p} loginHref={loginHref} author={author} />)}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+          {polls.map((p) => <PollSummary key={p.id} slug={slug} locale={locale} poll={p} isLoggedIn={isLoggedIn} agentEnabled={agentEnabled} onOpen={(mode) => setOpen({ id: p.id, mode })} />)}
         </div>
+      )}
+      {openPoll && open && (
+        <PollPopup slug={slug} locale={locale} poll={openPoll} mode={open.mode} loginHref={loginHref} author={author} onClose={() => setOpen(null)} />
       )}
     </div>
   )
