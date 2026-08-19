@@ -11,6 +11,7 @@ import { DashboardTopBar } from '@/components/platform/DashboardTopBar'
 import { DashboardFooter } from '@/components/platform/DashboardFooter'
 import { HideAccessibilityFab } from '@/components/accessibility/HideAccessibilityFab'
 import { ChatLauncher } from '@/components/platform/chat/ChatLauncher'
+import { WorkspaceSearchPalette } from '@/components/platform/WorkspaceSearchPalette'
 import { getAppVars } from '@/lib/app-theme'
 
 export default async function DashboardLayout({
@@ -52,6 +53,10 @@ export default async function DashboardLayout({
           survives dashboard ⇄ workspace navigation; inherits the chameleon
           via var(--project-*, var(--app-*)). Outside <main> (not page content). */}
       <ChatLauncher />
+      {/* ⌘K search — mounted ONCE here so it works dashboard-wide; inside a
+          project the (workspace) layout registers a removable project scope.
+          Chameleon like the chat: var(--project-*, var(--app-*)). */}
+      <WorkspaceSearchPalette locale={locale} />
     </div>
   )
 }

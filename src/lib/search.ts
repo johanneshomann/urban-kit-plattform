@@ -5,17 +5,8 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { User } from '@/payload-types'
-import { payloadAs } from './payload-client'
-
-// Searchable collections and the fields indexed for full-text search
-const SEARCHABLE_COLLECTIONS = [
-  { slug: 'news-posts', fields: ['title'] },
-  { slug: 'calendar-events', fields: ['title', 'location'] },
-  { slug: 'polls', fields: ['title', 'description'] },
-  { slug: 'forum-threads', fields: ['title'] },
-  { slug: 'tasks', fields: ['title'] },
-  { slug: 'pages', fields: ['title'] },
-] as const
+import { getViewerState } from '@/lib/visibility'
+import { searchWorkspace, SEARCH_MODULE_COLLECTIONS } from '@/lib/workspace-search'
 
 export interface SearchResult {
   collection: string
@@ -25,6 +16,12 @@ export interface SearchResult {
   score?: number
 }
 
+/**
+ * Project search on behalf of a user (urban-agent tool, /api/search). Thin
+ * collection-slug shim over {@link searchWorkspace}, which applies the full
+ * role/visibility model (visibilityWhere + canViewContent + per-module
+ * draft/publish rules) and only queries the project's enabled modules.
+ */
 export async function searchProject(
   user: User,
   projectId: string,
@@ -33,31 +30,27 @@ export async function searchProject(
   if (!query || query.trim().length < 2) return []
 
   const payload = await getPayload({ config })
-  const results: SearchResult[] = []
+  const project = (await payload
+    .findByID({ collection: 'projects', id: projectId, depth: 0, overrideAccess: true })
+    .catch(() => null)) as { modules?: string[]; isPublic?: boolean | null } | null
+  if (!project) return []
 
-  await Promise.all(
-    SEARCHABLE_COLLECTIONS.map(async ({ slug }) => {
-      try {
-        const result = await payload.find({
-          collection: slug as Parameters<typeof payload.find>[0]['collection'],
-          where: {
-            and: [
-              { 'project': { equals: projectId } },
-              { title: { like: query } },
-            ],
-          },
-          limit: 5,
-          ...payloadAs(user),
-        })
-        for (const doc of result.docs) {
-          const d = doc as unknown as { id: string; title?: string; slug?: string }
-          results.push({ collection: slug, id: String(d.id), title: d.title ?? '', slug: d.slug })
-        }
-      } catch {
-        // Collection may not be enabled for this project
-      }
-    }),
-  )
+  const { ctx, membership } = await getViewerState(payload, user ? String(user.id) : null, String(projectId))
+  // Private projects are invisible to non-members (same rule as the workspace 404)
+  if (project.isPublic === false && !ctx.active && (user as { role?: string })?.role !== 'admin') return []
 
-  return results
+  const results = await searchWorkspace(payload, {
+    projectId: String(projectId),
+    modules: project.modules ?? ['news', 'calendar'],
+    viewer: ctx,
+    membership,
+    query,
+  })
+
+  return results.map((r) => ({
+    collection: SEARCH_MODULE_COLLECTIONS[r.module] ?? r.module,
+    id: r.docId,
+    title: r.title,
+    slug: r.slug,
+  }))
 }
