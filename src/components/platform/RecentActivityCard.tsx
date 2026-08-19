@@ -4,7 +4,7 @@
 
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { Newspaper, CalendarDays, MessageSquare, FileText, CheckSquare, BarChart2, ArrowRight } from 'lucide-react'
+import { Newspaper, CalendarDays, MessageSquare, FileText, CheckSquare, BarChart2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { ActivityItem, ActivityType } from '@/lib/project-activity'
 import { relativeDay } from '@/lib/format-date'
@@ -19,12 +19,12 @@ const ICONS: Record<ActivityType, LucideIcon> = {
   poll: BarChart2,
 }
 
-/** "Aktivität zuletzt" card on the project overview. */
-export async function RecentActivityCard({ items, locale, moreHref }: {
+/** "Aktivität zuletzt" card on the project overview — every row deep-links. */
+export async function RecentActivityCard({ items, locale, base }: {
   items: ActivityItem[]
   locale: string
-  /** Omit when the target module is disabled — the link row is skipped. */
-  moreHref?: string
+  /** Absolute workspace prefix (`/{locale}/dashboard/projekte/{slug}`) for the row links. */
+  base: string
 }) {
   const t = await getTranslations({ locale, namespace: 'projectWorkspace' })
 
@@ -38,26 +38,25 @@ export async function RecentActivityCard({ items, locale, moreHref }: {
       {items.length === 0 ? (
         <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('activityEmpty')}</p>
       ) : (
-        <ul className="flex flex-col gap-2.5">
+        <ul className="flex flex-col gap-1">
           {items.map((item, i) => {
             // Fallback keeps the render alive if a new type ships without an icon.
             const Icon = ICONS[item.type] ?? FileText
             return (
-              <li key={i} className="flex items-center gap-2.5">
-                <Icon className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
-                <span className="min-w-0 flex-1 text-small font-medium line-clamp-1" style={{ color: 'var(--project-accent)' }}>{item.title}</span>
-                {item.visibility === 'TEAM' && <AudienceChip visibility={item.visibility} visibilityTeams={item.visibilityTeams} />}
-                <span className="text-small shrink-0" style={{ color: 'var(--project-ink)' }}>{relativeDay(item.date, locale)}</span>
+              <li key={i}>
+                <Link
+                  href={`${base}${item.href}`}
+                  className="group flex items-center gap-2.5 -mx-2 px-2 py-1.5 rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--project-general)_14%,transparent)]"
+                >
+                  <Icon aria-hidden="true" className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
+                  <span className="min-w-0 flex-1 text-small font-medium line-clamp-1 group-hover:underline" style={{ color: 'var(--project-accent)' }}>{item.title}</span>
+                  {item.visibility === 'TEAM' && <AudienceChip visibility={item.visibility} visibilityTeams={item.visibilityTeams} />}
+                  <span className="text-small shrink-0" style={{ color: 'var(--project-ink)' }}>{relativeDay(item.date, locale)}</span>
+                </Link>
               </li>
             )
           })}
         </ul>
-      )}
-
-      {moreHref && (
-        <Link href={moreHref} className="mt-3 inline-flex items-center gap-1 text-small font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--project-accent)' }}>
-          {t('activityMore')} <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
       )}
     </div>
   )

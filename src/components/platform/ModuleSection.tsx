@@ -28,7 +28,8 @@ export interface ModuleCardData {
 }
 
 interface Props extends ModuleCardData {
-  title: string
+  /** Optional section heading — omit for a plain, unsectioned grid. */
+  title?: string
   /** This section's module ids, in display order. */
   items: string[]
   projectSlug: string
@@ -68,9 +69,11 @@ export function ModuleSection({
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'var(--project-ink)' }}>
-        {title}
-      </h2>
+      {title && (
+        <h2 className="text-small font-semibold uppercase tracking-wide" style={{ color: 'var(--project-ink)' }}>
+          {title}
+        </h2>
+      )}
       <div className={`grid gap-4 ${colClass}`}>
         {items.map((moduleId) => {
           const card = renderCard(moduleId)

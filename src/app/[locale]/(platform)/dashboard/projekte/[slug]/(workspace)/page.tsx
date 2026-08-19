@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { UrbanAgentOverviewCard } from '@/components/platform/modules/urban-agent/UrbanAgentOverviewCard'
 
 import { ModuleSection } from '@/components/platform/ModuleSection'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
@@ -72,31 +73,27 @@ export default async function ProjectDashboardPage({
         </div>
       )}
 
+      {/* Urban Agent — pointer card on top with inline question input and the
+          chat's suggested prompts (module gating mirrors collaborate: members only) */}
+      {isActiveMember && modules.includes('urban-agent') && (
+        <UrbanAgentOverviewCard slug={slug} base={`/${locale}/dashboard/projekte/${slug}`} />
+      )}
+
       <RecentActivityCard
         items={activity}
         locale={locale}
-        moreHref={modules.includes('news') ? `/${locale}/dashboard/projekte/${slug}/m/news` : undefined}
+        base={`/${locale}/dashboard/projekte/${slug}`}
       />
 
-      {/* Mitmachen — always present (news + calendar guaranteed) */}
+      {/* All module cards in ONE plain grid (no Mitmachen/Zusammenarbeiten
+          sections); collaborate cards only for active members. The urban-agent
+          card is dropped here — it has its own pointer card on top. */}
       <ModuleSection
-        title={tw('sectionParticipate')}
-        items={participateItems}
+        items={[...participateItems, ...(isActiveMember ? collaborateItems.filter((m) => m !== 'urban-agent') : [])]}
         projectSlug={slug}
         locale={locale}
         {...cardData}
       />
-
-      {/* Zusammen arbeiten — only for active members, only if non-empty */}
-      {isActiveMember && collaborateItems.length > 0 && (
-        <ModuleSection
-          title={tw('sectionCollaborate')}
-          items={collaborateItems}
-          projectSlug={slug}
-          locale={locale}
-          {...cardData}
-        />
-      )}
 
       </div>
     </div>

@@ -11,6 +11,8 @@ export interface ActivityItem {
   type: ActivityType
   title: string
   date: string
+  /** Workspace-relative deep link (`/m/…`) — the card prefixes the project path. */
+  href: string
   /** Audience of the underlying doc (for the small team chip per row). */
   visibility?: string | null
   visibilityTeams?: string[]
@@ -62,13 +64,14 @@ export async function loadProjectActivity(
   ])
 
   const audience = (d: VisDoc) => ({ visibility: d.visibility ?? null, visibilityTeams: Array.isArray(d.visibilityTeams) ? d.visibilityTeams : [] })
+  // Deep link per row — detail page where one exists (news/forum), module list otherwise.
   const items: ActivityItem[] = [
-    ...news.map((d) => ({ type: 'news' as const, title: String(d.title ?? ''), date: String(d.publishedAt ?? d.createdAt ?? ''), ...audience(d) })),
-    ...events.map((d) => ({ type: 'event' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
-    ...forum.map((d) => ({ type: 'forum' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
-    ...files.map((d) => ({ type: 'file' as const, title: String(d.label || d.filename || 'Datei'), date: String(d.createdAt ?? ''), ...audience(d) })),
-    ...tasks.map((d) => ({ type: 'task' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
-    ...polls.map((d) => ({ type: 'poll' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), ...audience(d) })),
+    ...news.map((d) => ({ type: 'news' as const, title: String(d.title ?? ''), date: String(d.publishedAt ?? d.createdAt ?? ''), href: d.slug ? `/m/news/${d.slug}` : '/m/news', ...audience(d) })),
+    ...events.map((d) => ({ type: 'event' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), href: '/m/calendar', ...audience(d) })),
+    ...forum.map((d) => ({ type: 'forum' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), href: d.slug ? `/m/forum/${d.slug}` : '/m/forum', ...audience(d) })),
+    ...files.map((d) => ({ type: 'file' as const, title: String(d.label || d.filename || 'Datei'), date: String(d.createdAt ?? ''), href: '/m/files', ...audience(d) })),
+    ...tasks.map((d) => ({ type: 'task' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), href: '/m/tasks', ...audience(d) })),
+    ...polls.map((d) => ({ type: 'poll' as const, title: String(d.title ?? ''), date: String(d.createdAt ?? ''), href: '/m/polls', ...audience(d) })),
   ]
 
   return items
