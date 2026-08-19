@@ -16,8 +16,8 @@ import { X } from 'lucide-react'
  */
 export function FormModal({ title, size = 'lg', onClose, children }: {
   title: string
-  /** md = compact (schedule picker), lg = standard forms, xl = tall/wide forms. */
-  size?: 'md' | 'lg' | 'xl'
+  /** md = compact (schedule picker), lg = standard forms, xl = tall/wide forms, 2xl = two-column editors. */
+  size?: 'md' | 'lg' | 'xl' | '2xl'
   onClose: () => void
   children: React.ReactNode
 }) {
@@ -32,7 +32,7 @@ export function FormModal({ title, size = 'lg', onClose, children }: {
     return () => document.removeEventListener('keydown', onKeyDown, true)
   }, [onClose])
 
-  const maxW = size === 'md' ? 'max-w-md' : size === 'xl' ? 'max-w-3xl' : 'max-w-2xl'
+  const maxW = size === 'md' ? 'max-w-md' : size === 'xl' ? 'max-w-3xl' : size === '2xl' ? 'max-w-5xl' : 'max-w-2xl'
 
   return createPortal(
     <div

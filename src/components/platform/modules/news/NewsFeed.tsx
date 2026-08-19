@@ -4,14 +4,13 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import Link from 'next/link'
-import { ChevronRight, Newspaper } from 'lucide-react'
 import { visibilityWhere, type ViewerContext } from '@/lib/visibility'
 import { matchesTeamFilter } from '@/lib/team-scope'
-import { AudienceChip } from '@/components/platform/AudienceChip'
+import { getWorkspaceContext } from '@/lib/workspace-context'
+import { NewsList, type NewsListPost } from '@/components/platform/modules/news/NewsList'
 
 /** Citizen-facing list of visible, published news posts for a project. */
-export async function NewsFeed({ slug, locale, projectId, viewer, teamFilter }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; teamFilter?: string | null }) {
+export async function NewsFeed({ slug, locale, projectId, viewer, userId, teamFilter }: { slug: string; locale: string; projectId: string; viewer: ViewerContext; userId?: string | null; teamFilter?: string | null }) {
   const payload = await getPayload({ config })
   const now = new Date().toISOString()
   const res = await payload.find({
@@ -22,41 +21,36 @@ export async function NewsFeed({ slug, locale, projectId, viewer, teamFilter }: 
     depth: 1,
     overrideAccess: true,
   })
-  const docs = res.docs.filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
+  const posts: NewsListPost[] = res.docs
+    .filter((d) => matchesTeamFilter(d as { visibility?: string | null; visibilityTeams?: string[] | null }, teamFilter))
+    .map((doc) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const p = doc as any
+      const author = p.author && typeof p.author === 'object' ? p.author : null
+      const authorName = author
+        ? [author.firstName, author.lastName].filter(Boolean).join(' ') || null
+        : null
+      const authorId = p.author == null ? null : typeof p.author === 'object' ? String(p.author.id) : String(p.author)
+      // Mirrors the server guard: PMs manage every post, leads their own.
+      const canManage = viewer.isPM || (viewer.leadOf.length > 0 && !!userId && authorId === userId)
+      return {
+        id: String(p.id),
+        title: String(p.title ?? ''),
+        slug: String(p.slug ?? ''),
+        publishedAt: p.publishedAt ?? null,
+        visibility: p.visibility ?? null,
+        visibilityTeams: Array.isArray(p.visibilityTeams) ? p.visibilityTeams : [],
+        imageUrl: p.featuredImage && typeof p.featuredImage === 'object' ? (p.featuredImage.url ?? null) : null,
+        authorName,
+        canManage,
+      }
+    })
 
-  return (
-    <div>
-      {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-      <h1 className="sr-only">News</h1>
-      {docs.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-          <Newspaper className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
-          <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Beiträge.</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {docs.map((doc) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const p = doc as any
-            const img = p.featuredImage && typeof p.featuredImage === 'object' ? p.featuredImage.url : null
-            return (
-              <Link key={p.id} href={`/${locale}/dashboard/projekte/${slug}/m/news/${p.slug}`}
-                className="flex items-center gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md"
-                style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-                {img && <img src={img} alt="" className="w-20 h-20 rounded-lg object-cover shrink-0" />}
-                <div className="flex-1 min-w-0">
-                  <p className="flex items-center gap-2 text-display font-semibold leading-snug" style={{ color: 'var(--project-accent)' }}>
-                    <span className="truncate">{p.title}</span>
-                    <AudienceChip visibility={p.visibility} visibilityTeams={p.visibilityTeams} />
-                  </p>
-                  {p.publishedAt && <p className="text-small mt-1" style={{ color: 'var(--project-ink)' }}>{new Date(p.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
-                </div>
-                <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--project-ink)' }} />
-              </Link>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+  const ctx = await getWorkspaceContext(slug)
+  // Team catalog for the edit popup's visibility pills: PMs pick from the
+  // whole project catalog, leads only from the teams they lead.
+  const teamCatalog = viewer.isPM ? (ctx?.project.teams ?? []) : viewer.leadOf
+  const agentEnabled = (ctx?.modules ?? []).includes('urban-agent') && viewer.active
+
+  return <NewsList locale={locale} slug={slug} posts={posts} viewerTeams={viewer.teams} canCreate={viewer.isPM} isPM={viewer.isPM} isLoggedIn={!!userId} agentEnabled={agentEnabled} teamCatalog={teamCatalog} />
 }

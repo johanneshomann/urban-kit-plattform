@@ -9,8 +9,8 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import type { NewsPost } from '@/payload-types'
-import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
-import { clampTeamsToCatalog } from '@/lib/team-scope'
+import { getProjectManagerContext, getContentAuthorContext } from '@/lib/auth/requireProjectManager'
+import { clampTeamsToCatalog, clampAuthorVisibility } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
 import { emitActivity, emitNotifications } from '@/lib/events'
@@ -33,6 +33,56 @@ async function getProjectNewsPost(payload: Payload, projectId: string, postId: s
   if (!post) return null
   const pid = typeof post.project === 'object' ? (post.project as { id: unknown })?.id : post.project
   return String(pid) === String(projectId) ? post : null
+}
+
+type LexNode = { type?: string; children?: LexNode[]; [k: string]: unknown }
+
+/**
+ * Link nodes differ between vanilla Lexical (editor popup: `url` on the node)
+ * and Payload's LinkFeature (storage: `fields.url`). Convert recursively so
+ * states round-trip between the frontend editor and Payload validation.
+ */
+function mapLinkNodes(node: LexNode, dir: 'toPayload' | 'toVanilla'): LexNode {
+  const out: LexNode = { ...node }
+  if (node.type === 'link' || node.type === 'autolink') {
+    if (dir === 'toPayload' && typeof node.url === 'string') {
+      out.fields = { linkType: 'custom', url: node.url, newTab: false }
+      out.version = 3
+      delete out.url
+      delete out.rel
+      delete out.target
+      delete out.title
+    } else if (dir === 'toVanilla' && node.fields && typeof node.fields === 'object') {
+      const f = node.fields as { url?: string; newTab?: boolean }
+      out.url = f.url ?? ''
+      out.rel = null
+      out.target = f.newTab ? '_blank' : null
+      out.title = null
+      out.version = 1
+      delete out.fields
+    }
+  }
+  // The serialized state nests everything under `root` (not `children`)
+  if (node.root && typeof node.root === 'object') out.root = mapLinkNodes(node.root as LexNode, dir)
+  if (Array.isArray(node.children)) out.children = node.children.map((c) => mapLinkNodes(c, dir))
+  return out
+}
+
+/**
+ * PM-or-author context for ONE existing post: PMs manage every post, team
+ * leads only the posts they authored (their team-scoped news). Null when the
+ * caller has no rights on this post — callers answer 'Nicht berechtigt.'.
+ */
+async function getNewsManageContext(slug: string, postId: string) {
+  const ctx = await getContentAuthorContext(slug)
+  if (!ctx) return null
+  const post = await getProjectNewsPost(ctx.payload, ctx.project.id, postId)
+  if (!post) return null
+  if (!ctx.isPM) {
+    const authorId = typeof post.author === 'object' ? (post.author as { id?: unknown } | null)?.id : post.author
+    if (String(authorId) !== String(ctx.user.id)) return null
+  }
+  return { ...ctx, post }
 }
 
 /** Notify all active members (except the author) of newly published content. */
@@ -94,29 +144,95 @@ export async function createProjectNewsPost(
   return { ok: true }
 }
 
+export interface NewsEditData {
+  title: string
+  /** Serialized Lexical editor state (Payload's storage shape) — no markdown round-trip. */
+  content: string | null
+  visibility: string
+  visibilityTeams: string[]
+  featuredImageUrl: string | null
+  publishedAt: string | null
+}
+
+/** Edit payload for the news edit popup (body converted back to markdown). */
+export async function getNewsEditData(
+  slug: string,
+  postId: string,
+): Promise<{ data: NewsEditData } | { error: string }> {
+  const ctx = await getNewsManageContext(slug, postId)
+  if (!ctx) return { error: 'Nicht berechtigt.' }
+
+  try {
+    const { payload, post } = ctx
+    // Featured image is an id at depth 0 — resolve its URL separately
+    let featuredImageUrl: string | null = null
+    if (post.featuredImage) {
+      const mediaId = typeof post.featuredImage === 'object' ? (post.featuredImage as { id: unknown }).id : post.featuredImage
+      const media = await payload.findByID({ collection: 'media', id: String(mediaId), depth: 0, overrideAccess: true }).catch(() => null)
+      featuredImageUrl = (media as { url?: string } | null)?.url ?? null
+    }
+    return {
+      data: {
+        title: post.title ?? '',
+        content: post.content ? JSON.stringify(mapLinkNodes(post.content as unknown as LexNode, 'toVanilla')) : null,
+        visibility: vis(post.visibility),
+        visibilityTeams: Array.isArray(post.visibilityTeams) ? post.visibilityTeams : [],
+        featuredImageUrl,
+        publishedAt: post.publishedAt ?? null,
+      },
+    }
+  } catch {
+    return { error: 'Beitrag konnte nicht geladen werden.' }
+  }
+}
+
 export async function updateProjectNewsPost(
   slug: string,
   locale: string,
   postId: string,
-  input: { title: string; body?: string; visibility?: string; visibilityTeams?: string[] },
+  input: { title: string; body?: string; contentState?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const title = input.title.trim()
   if (!title) return { error: 'Titel darf nicht leer sein.' }
 
+  // Content: `contentState` = serialized Lexical state (popup editor);
+  // `body` = markdown (legacy manager textarea); neither = leave untouched.
+  let content: unknown
+  if (typeof input.contentState === 'string') {
+    if (!input.contentState.trim()) {
+      content = null
+    } else {
+      try {
+        const parsed: unknown = JSON.parse(input.contentState)
+        if (!parsed || typeof parsed !== 'object' || !(parsed as { root?: unknown }).root) return { error: 'Ungültiger Inhalt.' }
+        content = mapLinkNodes(parsed as LexNode, 'toPayload')
+      } catch {
+        return { error: 'Ungültiger Inhalt.' }
+      }
+    }
+  } else if (typeof input.body === 'string') {
+    content = input.body.trim() ? await markdownToLexical(input.body) : null
+  }
+
   try {
-    const payload = await getPayload({ config })
-    if (!(await getProjectNewsPost(payload, ctx.project.id, postId))) return { error: 'Beitrag nicht gefunden.' }
+    const { payload } = ctx
+    // PMs keep their visibility choice; leads are clamped to their led teams
+    const clamped = clampAuthorVisibility(ctx, input.visibility, input.visibilityTeams, ctx.project.teams)
     const data: Record<string, unknown> = {
       title,
-      content: typeof input.body === 'string' ? (input.body.trim() ? await markdownToLexical(input.body) : null) : undefined,
-      visibility: vis(input.visibility),
-      visibilityTeams: vis(input.visibility) === 'TEAM' ? clampTeamsToCatalog(input.visibilityTeams, ctx.project.teams) : [],
+      content,
+      visibility: clamped.visibility,
+      visibilityTeams: clamped.visibilityTeams,
     }
     await payload.update({ collection: 'news-posts', id: postId, data, overrideAccess: true })
-  } catch {
+  } catch (e) {
+    // Surface the real cause in the dev console — the user only sees the generic message.
+    console.error('[news] updateProjectNewsPost failed:', e)
+    const err = e as { data?: unknown }
+    if (err.data) console.error('[news] error data:', JSON.stringify(err.data))
     return { error: 'Beitrag konnte nicht gespeichert werden.' }
   }
 
@@ -125,15 +241,14 @@ export async function updateProjectNewsPost(
 }
 
 export async function setNewsFeaturedImage(slug: string, locale: string, postId: string, formData: FormData): Promise<NewsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   const parsed = await readImageFile(formData)
   if ('error' in parsed) return { error: parsed.error }
 
   try {
-    const payload = await getPayload({ config })
-    if (!(await getProjectNewsPost(payload, ctx.project.id, postId))) return { error: 'Beitrag nicht gefunden.' }
+    const { payload } = ctx
     const mediaId = await uploadProjectMedia(payload, { projectId: ctx.project.id, userId: String(ctx.user.id), alt: `News – ${ctx.project.title}` }, parsed.file)
     await payload.update({ collection: 'news-posts', id: postId, data: { featuredImage: mediaId }, overrideAccess: true })
   } catch {
@@ -145,12 +260,10 @@ export async function setNewsFeaturedImage(slug: string, locale: string, postId:
 }
 
 export async function removeNewsFeaturedImage(slug: string, locale: string, postId: string): Promise<NewsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   try {
-    const payload = await getPayload({ config })
-    if (!(await getProjectNewsPost(payload, ctx.project.id, postId))) return { error: 'Beitrag nicht gefunden.' }
-    await payload.update({ collection: 'news-posts', id: postId, data: { featuredImage: null }, overrideAccess: true })
+    await ctx.payload.update({ collection: 'news-posts', id: postId, data: { featuredImage: null }, overrideAccess: true })
   } catch {
     return { error: 'Bild konnte nicht entfernt werden.' }
   }
@@ -171,13 +284,11 @@ export async function setNewsPublish(
   mode: 'draft' | 'now' | 'schedule',
   scheduledAt?: string,
 ): Promise<NewsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   try {
-    const payload = await getPayload({ config })
-    const post = await getProjectNewsPost(payload, ctx.project.id, postId)
-    if (!post) return { error: 'Beitrag nicht gefunden.' }
+    const { payload, post } = ctx
 
     const prevPublishedAt = (post as { publishedAt?: string | null }).publishedAt ?? null
     const wasLive = !!prevPublishedAt && new Date(prevPublishedAt).getTime() <= Date.now()
@@ -210,13 +321,11 @@ export async function setNewsPublish(
 }
 
 export async function deleteProjectNewsPost(slug: string, locale: string, postId: string): Promise<NewsActionState> {
-  const ctx = await getProjectManagerContext(slug)
+  const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
   try {
-    const payload = await getPayload({ config })
-    if (!(await getProjectNewsPost(payload, ctx.project.id, postId))) return { error: 'Beitrag nicht gefunden.' }
-    await payload.delete({ collection: 'news-posts', id: postId, overrideAccess: true })
+    await ctx.payload.delete({ collection: 'news-posts', id: postId, overrideAccess: true })
   } catch {
     return { error: 'Beitrag konnte nicht gelöscht werden.' }
   }
