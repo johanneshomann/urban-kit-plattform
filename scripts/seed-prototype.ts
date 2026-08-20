@@ -35,6 +35,16 @@ const PASSWORD = 'demo1234'
 const COLOR_SCHEMES = ['Sandstein', 'Terrakotta', 'Feldgrau', 'Ozean', 'Kupfer']
 
 const payload = await getPayload({ config })
+
+// Payload's /admin first-user onboarding only appears while the users
+// collection is EMPTY — so the admin must exist BEFORE this seed runs.
+const anyUser = await payload.find({ collection: 'users', limit: 1, depth: 0, overrideAccess: true })
+const anyAdmin = await payload.find({ collection: 'users', where: { role: { equals: 'admin' } }, limit: 1, depth: 0, overrideAccess: true })
+if (anyUser.totalDocs === 0 || anyAdmin.totalDocs === 0) {
+  console.error('ABBRUCH: Erst den Admin anlegen (Onboarding unter /admin), dann seeden — sonst erscheint das Onboarding nie.')
+  process.exit(1)
+}
+
 const editorConfig: SanitizedServerEditorConfig = await editorConfigFactory.default({ config: payload.config })
 const md = (markdown: string) => convertMarkdownToLexical({ editorConfig, markdown }) as never
 
