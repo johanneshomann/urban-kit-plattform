@@ -121,6 +121,7 @@ description:
 
 legal:
   license: EUPL-1.2
+  repoOwner: "Johannes Homann"
 
 maintenance:
   type: internal
