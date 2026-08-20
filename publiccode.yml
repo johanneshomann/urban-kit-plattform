@@ -64,6 +64,8 @@ description:
       - Anbieterunabhängiger KI-Assistent (Anthropic, OpenAI oder Ollama)
       - Anpassbares Erscheinungsbild über Designtokens im Admin-Backend
       - Zweisprachige Oberfläche (Deutsch/Englisch)
+    screenshots:
+      - docs/assets/cover.png
   en:
     genericName: Civic participation platform
     shortDescription: >-
@@ -98,6 +100,8 @@ description:
       - Provider-agnostic AI assistant (Anthropic, OpenAI or Ollama)
       - Customizable branding via design tokens in the admin backend
       - Bilingual interface (German/English)
+    screenshots:
+      - docs/assets/cover.png
 
 legal:
   license: EUPL-1.2
