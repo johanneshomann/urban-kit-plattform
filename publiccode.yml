@@ -74,6 +74,10 @@ description:
       - Zweisprachige Oberfläche (Deutsch/Englisch)
     screenshots:
       - docs/assets/cover.png
+      - docs/assets/screenshot-workspace.png
+      - docs/assets/screenshot-area-collaboration.png
+      - docs/assets/screenshot-area-knowledge.png
+      - docs/assets/screenshot-area-projects.png
   en:
     genericName: Civic participation platform
     shortDescription: >-
@@ -110,6 +114,10 @@ description:
       - Bilingual interface (German/English)
     screenshots:
       - docs/assets/cover.png
+      - docs/assets/screenshot-workspace.png
+      - docs/assets/screenshot-area-collaboration.png
+      - docs/assets/screenshot-area-knowledge.png
+      - docs/assets/screenshot-area-projects.png
 
 legal:
   license: EUPL-1.2
