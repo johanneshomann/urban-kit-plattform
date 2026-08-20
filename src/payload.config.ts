@@ -72,6 +72,16 @@ export default buildConfig({
   }),
   plugins: moduleRegistry.plugins(),
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
+  // The app answers on TWO domains (public site + app.<domain>), but Payload's
+  // CSRF allowlist defaults to serverURL only — cookie-authenticated API
+  // requests from the other origin then 401 (header/JWT auth is unaffected,
+  // which is why server components never noticed). Trust both.
+  csrf: [
+    process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
+    // Same fallbacks as middleware.ts / actions/auth.ts
+    `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN ?? 'urbankit.de'}`,
+    `https://${process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'app.urbankit.de'}`,
+  ],
   // Migration: accounts created BEFORE email verification existed have no
   // `_verified` field — but Payload's JWT strategy requires it to be truthy
   // once auth.verify is on, which would silently log those users out on
