@@ -27,6 +27,7 @@ import { stadtdaten } from '../seed/content/stadtdaten'
 import { nudging } from '../seed/content/nudging'
 import { stadtkontaktMobil } from '../seed/content/stadtkontakt-mobil'
 import { mitmachWerkstatt } from '../seed/content/mitmach-werkstatt'
+import { GRUNDLAGEN_SEED } from '../seed/content/grundlagen'
 import type { SeedImage, SeedProject } from '../seed/content/types'
 
 const PROJECTS: SeedProject[] = [pushStattPull, mobilitaetXMulti, kulturTrifftDigital, stadtdaten, nudging, stadtkontaktMobil, mitmachWerkstatt]
@@ -381,6 +382,32 @@ if (((settings as { heroImages?: unknown[] } | null)?.heroImages ?? []).length =
   if (heroEntries.length) {
     await payload.updateGlobal({ slug: 'platform-settings', data: { heroImages: heroEntries } as never, overrideAccess: true })
     console.log(`hero    + ${heroEntries.length} cover(s) → platform-settings.heroImages`)
+  }
+}
+
+// ── Grundlagen global ───────────────────────────────────────────────────────
+// Sections for the public Grundlagen page — only when nothing is set yet.
+{
+  const g = await payload.findGlobal({ slug: 'grundlagen', depth: 0, overrideAccess: true }).catch(() => null) as
+    { projektplanung?: unknown[]; partizipation?: unknown[]; recht?: unknown[] } | null
+  const empty = !g || [g.projektplanung, g.partizipation, g.recht].every((a) => (a ?? []).length === 0)
+  if (empty) {
+    const toSections = (arr: { title: string; body: string }[]) =>
+      arr.map((s) => ({ sectionTitle: s.title, content: md(s.body) }))
+    for (const loc of ['de', 'en'] as const) {
+      const seed = GRUNDLAGEN_SEED[loc]
+      await payload.updateGlobal({
+        slug: 'grundlagen',
+        locale: loc,
+        data: {
+          projektplanung: toSections(seed.projektplanung),
+          partizipation: toSections(seed.partizipation),
+          recht: toSections(seed.recht),
+        } as never,
+        overrideAccess: true,
+      })
+      console.log(`grundlagen [${loc}] + ${seed.partizipation.length} partizipation, ${seed.recht.length} recht sections`)
+    }
   }
 }
 

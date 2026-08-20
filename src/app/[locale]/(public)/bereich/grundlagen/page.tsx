@@ -17,6 +17,9 @@ import { PartizipationAccordion } from './partizipation/PartizipationAccordion'
 import { ProjektplanungAccordion, type ProjektStep, type TodoItem, type MethodItem } from './projektplanung/ProjektplanungAccordion'
 import { getMethodTeasers, getPhaseMethodTeasers, methodImageUrl, getMethodenBaseUrl } from '@/lib/methodensammlung'
 import { CardSlider } from '@/components/public/CardSlider'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { lexicalToHtml } from '@/lib/richtext'
 
 export async function generateMetadata({
   params,
@@ -49,9 +52,6 @@ const richTags = {
   ),
 }
 
-const PARTIZIPATION_KEYS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11']
-const RECHT_KEYS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7']
-
 export default async function BereichGrundlagenPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const [t, tp, tpp, tr, tax, nav] = await Promise.all([
@@ -63,14 +63,33 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
     getTranslations({ locale, namespace: 'publicNav' }),
   ])
 
-  const partizipationSections = PARTIZIPATION_KEYS.map((k) => ({
-    title: tp(`${k}Title`),
-    content: tp.rich(`${k}Body`, richTags),
-  }))
-  const rechtSections = RECHT_KEYS.map((k) => ({
-    title: tr(`${k}Title`),
-    content: tr.rich(`${k}Body`, richTags),
-  }))
+  // CMS sections from the Grundlagen global (Methodensammlung-style
+  // title+richtext "add section" pattern) — the seed always provides them,
+  // there is no catalog fallback.
+  const payload = await getPayload({ config })
+  const grundlagenGlobal = (await payload
+    .findGlobal({ slug: 'grundlagen', depth: 0, locale: locale === 'en' ? 'en' : 'de', overrideAccess: true })
+    .catch(() => null)) as {
+    projektplanung?: { sectionTitle?: string; content?: unknown }[]
+    partizipation?: { sectionTitle?: string; content?: unknown }[]
+    recht?: { sectionTitle?: string; content?: unknown }[]
+  } | null
+  const cmsSections = (arr?: { sectionTitle?: string; content?: unknown }[]) =>
+    (arr ?? [])
+      .filter((s) => s.sectionTitle)
+      .map((s) => ({
+        title: s.sectionTitle!,
+        content: (
+          <div
+            className="flex flex-col gap-4 [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1 [&_ul]:pl-2 [&_blockquote]:border-l-4 [&_blockquote]:pl-5 [&_blockquote]:py-1 [&_blockquote]:italic [&_blockquote]:border-[var(--grundlagen)] [&_em]:not-italic [&_em]:opacity-80"
+            dangerouslySetInnerHTML={{ __html: lexicalToHtml(s.content) ?? '' }}
+          />
+        ),
+      }))
+
+  const partizipationSections = cmsSections(grundlagenGlobal?.partizipation)
+  const rechtSections = cmsSections(grundlagenGlobal?.recht)
+  const projektplanungCms = cmsSections(grundlagenGlobal?.projektplanung)
   const apiLocale = locale === 'en' ? 'en' as const : 'de' as const
   const [methodTeasers, phaseMethods, methodenUrl] = await Promise.all([
     getMethodTeasers(apiLocale, 6),
@@ -287,7 +306,10 @@ export default async function BereichGrundlagenPage({ params }: { params: Promis
           <p className="text-text leading-relaxed max-w-2xl mb-12" style={{ color: 'var(--plattform-ink)' }}>
             {tpp('heroBody')}
           </p>
-          <ProjektplanungAccordion steps={projektSteps} />
+          {/* CMS sections replace the built-in journey once entered */}
+          {projektplanungCms.length > 0
+            ? <PartizipationAccordion sections={projektplanungCms} />
+            : <ProjektplanungAccordion steps={projektSteps} />}
         </div>
       </section>
 

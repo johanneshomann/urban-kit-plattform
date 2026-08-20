@@ -20,6 +20,7 @@ import { SavedItems } from './collections/SavedItems'
 import { PlatformSettings } from './globals/PlatformSettings'
 import { LegalSettings } from './globals/LegalSettings'
 import { UrbanAgentSettings } from './globals/UrbanAgentSettings'
+import { Grundlagen } from './globals/Grundlagen'
 import { moduleRegistry } from './modules/registry'
 import './modules/index' // registers all module plugins
 
@@ -60,7 +61,7 @@ export default buildConfig({
     Notifications,
     SavedItems,
   ],
-  globals: [PlatformSettings, LegalSettings, UrbanAgentSettings],
+  globals: [PlatformSettings, LegalSettings, UrbanAgentSettings, Grundlagen],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? 'dev-secret-change-me',
   typescript: {
