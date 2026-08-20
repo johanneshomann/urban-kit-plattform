@@ -106,10 +106,6 @@ maintenance:
   type: internal
   contacts:
     - name: Johannes Homann
-      email: johannes.homann@th-owl.de
-    # Zweite, von der Hochschulzugehörigkeit unabhängige Adresse derselben
-    # Person — die Spec erlaubt je Kontakt nur eine E-Mail.
-    - name: Johannes Homann
       email: hi@johanneshomann.de
 
 localisation:
