@@ -345,8 +345,8 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                   agentEnabled={agentEnabled}
                   item={{
                     module: 'news', itemId: p.id, title: p.title, href: `/m/news/${p.slug}`,
-                    // PUBLIC posts have a public detail page — offer its link too
-                    publicHref: p.visibility === 'PUBLIC' ? `/${locale}/projekte/${slug}/news/${p.slug}` : undefined,
+                    // PUBLIC posts appear on the public project page (news popup there)
+                    publicHref: p.visibility === 'PUBLIC' ? `/${locale}/projekte/${slug}` : undefined,
                   }}
                   disabled={pending}
                   extraItems={p.canManage

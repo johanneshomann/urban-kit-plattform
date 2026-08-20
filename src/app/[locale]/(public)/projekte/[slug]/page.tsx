@@ -24,7 +24,9 @@ import { StarButton } from '@/components/public/StarButton'
 import { projectDefaults } from '@/lib/defaults/project'
 import { PROJEKTPHASEN, findProjektphase } from '@/lib/options/projektphasen'
 import { loadCitizenPolls } from '@/lib/citizen-polls'
-import { PollsConsumption } from '@/components/platform/modules/polls/PollsConsumption'
+import { PublicPollResults } from '@/components/public/PublicPollResults'
+import { IconTooltip } from '@/components/platform/IconTooltip'
+import { lexicalToHtml } from '@/lib/richtext'
 import { FilesBrowse } from '@/components/platform/modules/files/FilesBrowse'
 import {
   Home,
@@ -180,7 +182,7 @@ export default async function PublicProjectPage({
           },
           sort: '-publishedAt',
           limit: 100,
-          depth: 0,
+          depth: 1, // featuredImage url for the popup thumbnail
           overrideAccess: true,
         }).catch(() => ({ docs: [] }))
       : Promise.resolve({ docs: [] }),
@@ -217,13 +219,28 @@ export default async function PublicProjectPage({
         }).catch(() => ({ docs: [] }))
       : Promise.resolve({ docs: [] }),
   ])
-  const newsPosts = newsResult.docs as unknown as AktuellesNewsPost[]
-  const upcomingEvents = upcomingResult.docs as unknown as AktuellesCalEvent[]
-  const pastEvents = pastResult.docs as unknown as AktuellesCalEvent[]
+  // Map with rendered bodies for the quick-read popups (events have no subpage).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapPost = (d: any): AktuellesNewsPost => ({
+    id: String(d.id), title: d.title ?? '', slug: d.slug ?? '', publishedAt: d.publishedAt ?? null,
+    contentHtml: lexicalToHtml(d.content),
+    imageUrl: d.featuredImage && typeof d.featuredImage === 'object' ? (d.featuredImage.url ?? null) : null,
+  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapEvent = (d: any): AktuellesCalEvent => ({
+    id: String(d.id), title: d.title ?? '', startDate: d.startDate, endDate: d.endDate ?? null,
+    allDay: d.allDay ?? false, location: d.location ?? null, category: d.category ?? null,
+    contentHtml: lexicalToHtml(d.content),
+  })
+  const newsPosts = newsResult.docs.map(mapPost)
+  const upcomingEvents = upcomingResult.docs.map(mapEvent)
+  const pastEvents = pastResult.docs.map(mapEvent)
 
-  // Public polls — active/closed polls visible to the public tier (anonymous voting where allowed)
+  // Public poll results — the public page only shows CLOSED public polls with
+  // their outcome (voting happens in the workspace / logged-in views).
   const publicPolls = modules.includes('polls')
-    ? await loadCitizenPolls(payload, project.id, { tier: 'public', teams: [], leadOf: [], isPM: false, active: false }, null)
+    ? (await loadCitizenPolls(payload, project.id, { tier: 'public', teams: [], leadOf: [], isPM: false, active: false }, null))
+        .filter((p) => p.status === 'closed' && p.results)
     : []
 
   // Active member count — aggregate only, no names
@@ -275,12 +292,16 @@ export default async function PublicProjectPage({
 
   const joinEnabled = project.joinRequestsEnabled !== false
 
-  // PollsConsumption/FilesBrowse style via --project-* vars; on the public page
-  // they get neutral plattform colours — the scheme only appears as Steckbrief swatches.
+  // PollResultsView/FilesBrowse style via --project-* vars; on the public page
+  // they get neutral plattform colours — the scheme only appears as Steckbrief
+  // swatches. Cards render plattform-white like the Aktuelles news/event cards.
   const moduleThemeVars = {
     '--project-light': 'var(--plattform-light)',
     '--project-general': 'var(--plattform)',
     '--project-dark': 'var(--plattform-accent)',
+    '--project-white': 'var(--plattform-white)',
+    '--project-accent': 'var(--plattform-ink-accent)',
+    '--project-ink': 'var(--plattform-ink)',
   } as React.CSSProperties
 
   const galleryImages = (project.gallery ?? [])
@@ -469,14 +490,14 @@ export default async function PublicProjectPage({
               past={pastEvents}
             />
 
-            {/* Umfragen — public polls (themed for --project-* vars) */}
+            {/* Umfragen — results of closed public polls only */}
             {publicPolls.length > 0 && (
               <div className="mt-16" style={moduleThemeVars}>
                 <div className="flex items-center gap-2 mb-6">
                   <BarChart3 className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                   <h3 className="text-display font-black tracking-tight">{t('pollsHeading')}</h3>
                 </div>
-                <PollsConsumption slug={project.slug} locale={locale} polls={publicPolls} loginHref={`/${locale}/login`} />
+                <PublicPollResults polls={publicPolls} />
               </div>
             )}
 
@@ -487,7 +508,7 @@ export default async function PublicProjectPage({
                   <FolderOpen className="w-[1.2em] h-[1.2em] shrink-0" style={{ color: 'var(--plattform)' }} />
                   <h3 className="text-display font-black tracking-tight">{t('filesHeading')}</h3>
                 </div>
-                <FilesBrowse slug={slug} locale={locale} projectId={project.id} viewer={{ tier: 'public', teams: [], leadOf: [], isPM: false, active: false }} hideTitle />
+                <FilesBrowse slug={slug} locale={locale} projectId={project.id} viewer={{ tier: 'public', teams: [], leadOf: [], isPM: false, active: false }} hideTitle showAudience={false} />
               </div>
             )}
           </div>
@@ -503,65 +524,62 @@ export default async function PublicProjectPage({
           style={{ color: 'var(--plattform)' }}
         />
         <div className="relative z-10 w-full">
-          <EyebrowBadge label={t('participationChip')} />
+          <div className="flex items-center gap-2 mb-4">
+            <EyebrowBadge label={t('participationChip')} className="!mb-0" />
+            {/* The former intro paragraph, now as hoverable info — eyebrow-colored */}
+            <IconTooltip wrap label={t('participationBody')}>
+              <button type="button" aria-label={t('participationBody')} className="inline-flex cursor-help" style={{ color: 'var(--plattform-ink)' }}>
+                <Info className="w-5 h-5" aria-hidden />
+              </button>
+            </IconTooltip>
+          </div>
           <h2 className="text-title font-black tracking-tight mb-12">
             {t.rich('participationTitle', { project: project.title, accent })}
           </h2>
 
-          {/* Phasen-Stepper — numbered journey, done ✓, current highlighted + "Aktuell" pill */}
+          {/* Phasen-Stepper — circles centered above their labels; half line
+              segments before step 1 and after the last step keep everything
+              centered. A segment is filled once the step it leads to is reached. */}
           <ol className="hidden md:flex mb-12" aria-label={t('rowPhase')}>
-            {PROJEKTPHASEN.map((ph, i) => {
+            {PROJEKTPHASEN.map((ph) => {
               const isCurrent = phase ? ph.step === phase.step : false
               const isDone = phase ? ph.step < phase.step : false
-              const isLast = i === PROJEKTPHASEN.length - 1
+              const reached = isCurrent || isDone
+              const filled = 'var(--plattform)'
+              const light = 'var(--plattform-light)'
               return (
-                <li key={ph.value} className={isLast ? 'shrink-0' : 'flex-1'} aria-current={isCurrent ? 'step' : undefined}>
-                  <div className="flex items-center">
+                <li key={ph.value} className="flex-1 min-w-0" aria-current={isCurrent ? 'step' : undefined}>
+                  {/* Fixed row height — the larger current circle must not push
+                      its line segments and label lower than the others */}
+                  <div className="flex items-center h-9">
+                    <span className="flex-1 h-0.5 mr-1.5" style={{ background: reached ? filled : light }} aria-hidden />
                     <span
                       className="shrink-0 rounded-full inline-flex items-center justify-center text-small font-black leading-none"
                       style={{
                         width: isCurrent ? '2.25rem' : '2rem',
                         height: isCurrent ? '2.25rem' : '2rem',
-                        background: isCurrent || isDone ? 'var(--plattform)' : 'var(--plattform-light)',
-                        color: isCurrent || isDone ? 'var(--plattform-white)' : 'var(--plattform-ink)',
+                        background: reached ? filled : light,
+                        color: reached ? 'var(--plattform-white)' : 'var(--plattform-ink)',
                         boxShadow: isCurrent ? '0 0 0 4px color-mix(in srgb, var(--plattform) 20%, transparent)' : undefined,
                       }}
                       aria-hidden
                     >
                       {isDone ? <Check className="w-4 h-4" strokeWidth={3} /> : ph.step + 1}
                     </span>
-                    {!isLast && (
-                      <span
-                        className="flex-1 h-0.5 mx-3"
-                        style={{ background: isDone ? 'var(--plattform)' : 'var(--plattform-light)' }}
-                        aria-hidden
-                      />
-                    )}
+                    <span className="flex-1 h-0.5 ml-1.5" style={{ background: isDone ? filled : light }} aria-hidden />
                   </div>
-                  <p className="flex items-center gap-1.5 mt-3 pr-4" style={{ opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4 }}>
+                  <p className="mt-3 px-1 text-center" style={{ opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4 }}>
                     <span
-                      className={`text-small pr-0 ${isCurrent ? 'font-bold' : 'font-semibold'}`}
+                      className={`text-small ${isCurrent ? 'font-bold' : 'font-normal'}`}
                       style={{ color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)' }}
                     >
-                      {ph.step + 1}. {tax(`phase.${ph.value}`)}
+                      {tax(`phase.${ph.value}`)}
                     </span>
-                    {isCurrent && (
-                      <span
-                        className="text-small px-2 py-0.5 rounded-full font-semibold leading-none"
-                        style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
-                      >
-                        {t('currentPhase')}
-                      </span>
-                    )}
                   </p>
                 </li>
               )
             })}
           </ol>
-
-          <p className="text-text mb-12 max-w-2xl" style={{ color: 'var(--plattform-ink)' }}>
-            {t('participationBody')}
-          </p>
 
           {/* Mobile: vertical numbered stepper */}
           {phase && (
@@ -594,24 +612,16 @@ export default async function PublicProjectPage({
                         />
                       )}
                     </div>
-                    <p className="flex items-start justify-between gap-2 pt-1 pb-5 flex-1 min-w-0">
+                    <p className="pt-1 pb-5 flex-1 min-w-0">
                       <span
-                        className={`text-small ${isCurrent ? 'font-bold' : 'font-semibold'}`}
+                        className={`text-small ${isCurrent ? 'font-bold' : 'font-normal'}`}
                         style={{
                           color: isCurrent ? 'var(--plattform-ink-accent)' : 'var(--plattform-ink)',
                           opacity: isCurrent ? 1 : isDone ? 0.7 : 0.4,
                         }}
                       >
-                        {ph.step + 1}. {tax(`phase.${ph.value}`)}
+                        {tax(`phase.${ph.value}`)}
                       </span>
-                      {isCurrent && (
-                        <span
-                          className="text-small px-2 py-0.5 rounded-full font-semibold leading-none shrink-0 mt-0.5"
-                          style={{ background: 'var(--plattform)', color: 'var(--plattform-white)' }}
-                        >
-                          {t('currentPhase')}
-                        </span>
-                      )}
                     </p>
                   </li>
                 )

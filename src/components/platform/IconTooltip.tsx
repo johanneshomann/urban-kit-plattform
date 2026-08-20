@@ -14,7 +14,12 @@ import { createPortal } from 'react-dom'
  * with app-token fallbacks — a project scope (sidebar, tab bar) can re-tint
  * tooltips later by setting those two vars, without touching this component.
  */
-export function IconTooltip({ label, children }: { label: string; children: React.ReactNode }) {
+export function IconTooltip({ label, wrap = false, children }: {
+  label: string
+  /** Allow multi-line tooltips (longer info texts) instead of one nowrap line. */
+  wrap?: boolean
+  children: React.ReactNode
+}) {
   const ref = useRef<HTMLSpanElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
@@ -45,7 +50,7 @@ export function IconTooltip({ label, children }: { label: string; children: Reac
         createPortal(
           <span
             role="tooltip"
-            className="tooltip-in-down pointer-events-none fixed text-small whitespace-nowrap px-2.5 py-1 rounded-lg shadow-md"
+            className={`tooltip-in-down pointer-events-none fixed text-small px-2.5 py-1 rounded-lg shadow-md ${wrap ? 'w-max max-w-xs whitespace-normal text-left leading-snug py-2' : 'whitespace-nowrap'}`}
             style={{
               left: pos.x,
               top: pos.y + 8,

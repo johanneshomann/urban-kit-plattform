@@ -80,7 +80,7 @@ export function JoinRequestButton({
         onClick={() => (isLoggedIn ? setOpen(true) : router.push(`/${locale}/register`))}
         className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg transition-colors cursor-pointer text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
       >
-        {t('ctaJoinRequest')}
+        {isLoggedIn ? t('ctaJoinRequest') : t('ctaRegisterJoin')}
         <UserPlus className="w-[1em] h-[1em] shrink-0" />
       </button>
 

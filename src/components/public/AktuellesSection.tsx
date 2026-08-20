@@ -5,7 +5,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import {
   ArrowUpDown,
@@ -14,20 +13,30 @@ import {
   Download,
   MapPin,
   Newspaper,
+  Tag,
 } from 'lucide-react'
+import { PublicModal } from '@/components/public/PublicModal'
 
 export type AktuellesNewsPost = {
   id: string
   title: string
   slug: string
   publishedAt?: string | null
+  /** Rendered post body — the popup is the only public reading surface. */
+  contentHtml?: string | null
+  imageUrl?: string | null
 }
 
 export type AktuellesCalEvent = {
   id: string
   title: string
   startDate: string
+  endDate?: string | null
+  allDay?: boolean | null
   location?: string | null
+  category?: string | null
+  /** Rendered event body — only visible via the popup (events have no subpage). */
+  contentHtml?: string | null
 }
 
 type AktuellesSectionProps = {
@@ -69,6 +78,8 @@ export function AktuellesSection({
   const [eventsSort, setEventsSort] = useState<'upcoming' | 'past'>('upcoming')
   const [newsExpanded, setNewsExpanded] = useState(false)
   const [eventsExpanded, setEventsExpanded] = useState(false)
+  const [openPost, setOpenPost] = useState<AktuellesNewsPost | null>(null)
+  const [openEvent, setOpenEvent] = useState<AktuellesCalEvent | null>(null)
 
   const sortedPosts = useMemo(() => {
     if (newsSort === 'newest') return posts
@@ -165,19 +176,31 @@ export function AktuellesSection({
             >
               {visiblePosts.map((n, i) => (
                 <div key={n.id} className="card-in" style={{ animationDelay: `${i * 60}ms` }}>
-                  <Link
-                    href={`/${locale}/projekte/${slug}/news/${n.slug}`}
-                    className="group block bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
+                  {/* Quick-read popup; the canonical subpage stays linked from within */}
+                  <button
+                    type="button"
+                    onClick={() => setOpenPost(n)}
+                    className="group flex items-center gap-5 w-full text-left bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
                   >
-                    {n.publishedAt && (
-                      <p className="text-small mb-1.5" style={{ color: 'var(--plattform-ink)' }}>
-                        {formatDate(n.publishedAt)}
-                      </p>
+                    {/* Leading tile like the file cards: thumbnail or icon */}
+                    {n.imageUrl ? (
+                      <img src={n.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                    ) : (
+                      <span className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--plattform-light)' }}>
+                        <Newspaper aria-hidden className="w-5 h-5" style={{ color: 'var(--plattform)' }} />
+                      </span>
                     )}
-                    <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
-                      {n.title}
-                    </p>
-                  </Link>
+                    <span className="min-w-0 flex-1">
+                      {n.publishedAt && (
+                        <span className="block text-small mb-1.5" style={{ color: 'var(--plattform-ink)' }}>
+                          {formatDate(n.publishedAt)}
+                        </span>
+                      )}
+                      <span className="block text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
+                        {n.title}
+                      </span>
+                    </span>
+                  </button>
                 </div>
               ))}
             </div>
@@ -217,7 +240,7 @@ export function AktuellesSection({
                 return (
                   <div
                     key={ev.id}
-                    className="card-in flex items-center gap-5 bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm"
+                    className="card-in flex items-center gap-5 bg-[var(--plattform-white)] rounded-xl p-6 shadow-sm hover:shadow-md transition-all"
                     style={{ animationDelay: `${i * 60}ms` }}
                   >
                     <div
@@ -231,8 +254,9 @@ export function AktuellesSection({
                         {d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')}
                       </p>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-text font-bold" style={{ color: 'var(--plattform-ink-accent)' }}>
+                    {/* Details live in the popup — events have no subpage */}
+                    <button type="button" onClick={() => setOpenEvent(ev)} className="group min-w-0 flex-1 text-left cursor-pointer">
+                      <p className="text-text font-bold group-hover:underline" style={{ color: 'var(--plattform-ink-accent)' }}>
                         {ev.title}
                       </p>
                       <p className="text-small" style={{ color: 'var(--plattform-ink)' }}>
@@ -244,7 +268,7 @@ export function AktuellesSection({
                           {ev.location}
                         </p>
                       )}
-                    </div>
+                    </button>
                     {!isPast && (
                       <a
                         href={`/api/ics/event/${ev.id}`}
@@ -262,6 +286,67 @@ export function AktuellesSection({
             {renderReveal(eventsExpanded, () => setEventsExpanded((v) => !v), sortedEvents.length)}
           </div>
         </div>
+      )}
+
+      {/* News popup — the only public reading surface (wide + scrollable) */}
+      {openPost && (
+        <PublicModal
+          title={openPost.title}
+          size="xl"
+          leading={openPost.imageUrl
+            ? <img src={openPost.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+            : undefined}
+          onClose={() => setOpenPost(null)}
+        >
+          {openPost.publishedAt && (
+            <p className="text-small mb-4" style={{ color: 'var(--plattform-ink)' }}>{formatDate(openPost.publishedAt)}</p>
+          )}
+          {openPost.contentHtml && (
+            <div
+              className="prose text-text leading-relaxed max-w-none"
+              style={{ color: 'var(--plattform-ink)' }}
+              dangerouslySetInnerHTML={{ __html: openPost.contentHtml }}
+            />
+          )}
+        </PublicModal>
+      )}
+
+      {/* Event popup — the only public surface for event details */}
+      {openEvent && (
+        <PublicModal title={openEvent.title} onClose={() => setOpenEvent(null)}>
+          <div className="flex flex-col gap-1.5 text-small" style={{ color: 'var(--plattform-ink)' }}>
+            <p className="flex items-center gap-1.5">
+              <CalendarDays aria-hidden className="w-[1em] h-[1em] shrink-0" />
+              {new Date(openEvent.startDate).toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {!openEvent.allDay && (
+                <> · {new Date(openEvent.startDate).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                {openEvent.endDate && <>–{new Date(openEvent.endDate).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}</>} Uhr</>
+              )}
+            </p>
+            {openEvent.location && (
+              <p className="flex items-center gap-1.5"><MapPin aria-hidden className="w-[1em] h-[1em] shrink-0" />{openEvent.location}</p>
+            )}
+            {openEvent.category && (
+              <p className="flex items-center gap-1.5"><Tag aria-hidden className="w-[1em] h-[1em] shrink-0" />{openEvent.category}</p>
+            )}
+          </div>
+          {openEvent.contentHtml && (
+            <div
+              className="prose text-text leading-relaxed mt-4"
+              style={{ color: 'var(--plattform-ink)' }}
+              dangerouslySetInnerHTML={{ __html: openEvent.contentHtml }}
+            />
+          )}
+          {new Date(openEvent.startDate) >= new Date() && (
+            <a
+              href={`/api/ics/event/${openEvent.id}`}
+              className="mt-6 inline-flex items-center gap-1.5 text-small font-semibold hover:underline"
+              style={{ color: 'var(--plattform)' }}
+            >
+              <Download aria-hidden className="w-4 h-4" /> {t('addToCalendar')}
+            </a>
+          )}
+        </PublicModal>
       )}
     </div>
   )

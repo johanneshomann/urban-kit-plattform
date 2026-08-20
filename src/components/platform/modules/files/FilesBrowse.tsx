@@ -31,7 +31,7 @@ function fileExt(filename: string, mimeType: string | null): string {
 
 interface VFile { id: string; label: string | null; filename: string; url: string | null; mimeType: string | null; filesize: number | null; folderId: string | null; visibility: string | null; visibilityTeams: string[]; canDelete: boolean }
 
-function FileRow({ f, folderName, labels, slug, locale, isLoggedIn, agentEnabled }: { f: VFile; folderName: string | null; labels: { view: string; download: string }; slug: string; locale: string; isLoggedIn: boolean; agentEnabled: boolean }) {
+function FileRow({ f, folderName, labels, slug, locale, isLoggedIn, agentEnabled, showAudience }: { f: VFile; folderName: string | null; labels: { view: string; download: string }; slug: string; locale: string; isLoggedIn: boolean; agentEnabled: boolean; showAudience: boolean }) {
   const isImage = (f.mimeType ?? '').startsWith('image/')
   const isPdf = f.mimeType === 'application/pdf'
   const ext = fileExt(f.filename, f.mimeType)
@@ -51,7 +51,7 @@ function FileRow({ f, folderName, labels, slug, locale, isLoggedIn, agentEnabled
       <div className="flex-1 min-w-0">
         <p className="flex items-center gap-2 text-text font-bold" style={{ color: 'var(--project-accent)' }}>
           <span className="truncate">{f.label || f.filename}</span>
-          <AudienceChip visibility={f.visibility} visibilityTeams={f.visibilityTeams} />
+          {showAudience && <AudienceChip visibility={f.visibility} visibilityTeams={f.visibilityTeams} />}
         </p>
         {meta && (
           <p className="text-small" style={{ color: 'var(--project-ink)' }}>{meta}</p>
@@ -110,7 +110,7 @@ function FileRow({ f, folderName, labels, slug, locale, isLoggedIn, agentEnabled
  * viewers additionally upload here ("Neue Datei" popup) and delete their own
  * uploads (PMs any) — files management lives where the files are.
  */
-export async function FilesBrowse({ slug, locale, projectId, viewer, userId = null, teamCatalog = [], hideTitle = false, teamFilter }: {
+export async function FilesBrowse({ slug, locale, projectId, viewer, userId = null, teamCatalog = [], hideTitle = false, showAudience = true, teamFilter }: {
   slug: string
   locale: string
   projectId: string
@@ -119,6 +119,8 @@ export async function FilesBrowse({ slug, locale, projectId, viewer, userId = nu
   /** PM: full project catalog; others: their own teams (for the upload popup). */
   teamCatalog?: string[]
   hideTitle?: boolean
+  /** Hide the visibility chip (public page: everything shown IS public). */
+  showAudience?: boolean
   teamFilter?: string | null
 }) {
   const t = await getTranslations('filesBrowse')
@@ -168,6 +170,7 @@ export async function FilesBrowse({ slug, locale, projectId, viewer, userId = nu
               locale={locale}
               isLoggedIn={!!userId}
               agentEnabled={agentEnabled}
+              showAudience={showAudience}
             />
           ))}
         </div>
