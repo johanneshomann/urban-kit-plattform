@@ -1,0 +1,44 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 963 >>
+stream
+BT
+/F1 22 Tf 1 0 0 1 72 760 Tm (UrbanKIT) Tj
+/F1 13 Tf 1 0 0 1 72 730 Tm (Die digitale Beteiligungsplattform fuer Ihre Stadt) Tj
+/F1 11 Tf 1 0 0 1 72 690 Tm (UrbanKIT buendelt Buergerbeteiligung an einem Ort: Projekte informieren) Tj
+/F1 11 Tf 1 0 0 1 72 672 Tm (mit News und Terminen, sammeln Meinungen ueber Umfragen und Foren und) Tj
+/F1 11 Tf 1 0 0 1 72 654 Tm (arbeiten in Teams mit Aufgaben, Dateien und einem gemeinsamen Board.) Tj
+/F1 11 Tf 1 0 0 1 72 618 Tm (Inhalte lassen sich oeffentlich, fuer alle Projektmitglieder oder nur) Tj
+/F1 11 Tf 1 0 0 1 72 600 Tm (fuer einzelne Teams sichtbar machen. Der integrierte Urban Agent) Tj
+/F1 11 Tf 1 0 0 1 72 582 Tm (beantwortet Fragen zu den Projektinhalten - immer nur auf Basis dessen,) Tj
+/F1 11 Tf 1 0 0 1 72 564 Tm (was die fragende Person auch sehen darf.) Tj
+/F1 10 Tf 1 0 0 1 72 520 Tm (Dieses Dokument ist ein Beispiel-PDF der Prototyp-Umgebung.) Tj
+/F1 10 Tf 1 0 0 1 72 502 Tm (www.urbankit.de) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1325
+%%EOF
