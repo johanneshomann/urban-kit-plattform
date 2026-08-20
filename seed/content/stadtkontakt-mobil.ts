@@ -15,7 +15,9 @@ export const stadtkontaktMobil: SeedProject = {
   slug: 'stadtkontakt-mobil',
   title: 'Stadtkontakt Mobil',
   shortDescription: 'Das Rathaus kommt vorbei: Ein barrierefreier Anhänger bringt Verwaltungsservices und offene Ohren in alle 27 Ortsteile – mindestens einmal im Jahr, von April bis Oktober.',
-  projektphase: 'projektueberwachung',
+  // Real status: „abgeschlossen“ — the build project is done, the trailer
+  // continues as seasonal regular operations.
+  projektphase: 'projektabschluss',
   thema: ['stadtentwicklung', 'infrastruktur'],
   startYear: 2023,
   stadtbereich: ['gesamtstadt'],
