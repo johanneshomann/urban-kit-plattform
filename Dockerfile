@@ -35,14 +35,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
 COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
-COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
 RUN mkdir -p /app/media && chown -R nextjs:nodejs /app/media
-RUN chmod +x /app/start.sh
 
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["/app/start.sh"]
+# No start.sh / migrations (Mongo is schemaless) — same as the methodensammlung
+CMD ["./node_modules/.bin/next", "start"]
