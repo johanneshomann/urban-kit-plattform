@@ -41,7 +41,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/seed ./seed
 
-RUN mkdir -p /app/media && chown -R nextjs:nodejs /app/media
+# Both volume mount points need to exist nextjs-owned BEFORE the named volumes
+# are first mounted — otherwise Docker creates them root-owned and uploads
+# fail with EACCES (media_data:/app/media, uploads_data:/app/uploads).
+RUN mkdir -p /app/media /app/uploads/files && chown -R nextjs:nodejs /app/media /app/uploads
 
 USER nextjs
 EXPOSE 3000
