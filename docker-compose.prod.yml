@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2026 Johannes Homann
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+# Production override for docker-compose.yml — same pattern as the
+# urban-kit-methodensammlung stack.
+#
+# Deploy on the VPS with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Assumptions (chosen for this setup):
+#   - TLS is terminated by an EXTERNAL reverse proxy already running on the host
+#     (nginx/Caddy/Traefik). The base compose already binds web (127.0.0.1:3020)
+#     and the board websocket (127.0.0.1:1234) to loopback only — the proxy
+#     forwards urbankit.de/app.urbankit.de to :3020 and wss to :1234.
+#   - MongoDB runs in this stack with root authentication enabled.
+#   - Transactional mail goes to a real SMTP provider (SMTP_* in .env); the
+#     mailpit dev catcher is parked behind a compose profile and never starts.
+#
+# Reads its values from the project .env file (Compose auto-loads it).
+# Set at least: MONGO_ROOT_USER, MONGO_ROOT_PASSWORD (plus the base-compose
+# requirements PAYLOAD_SECRET, HOCUSPOCUS_SECRET, NEXT_PUBLIC_*).
+
+services:
+  web:
+    restart: always
+    environment:
+      # Same key as the base file — later files win, so this swaps the
+      # unauthenticated URI for the credentialed one.
+      - DATABASE_URI=mongodb://${MONGO_ROOT_USER:?set MONGO_ROOT_USER in .env}:${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}@mongo:27017/urban_kit?authSource=admin
+
+  hocuspocus:
+    restart: always
+
+  # Dev mailcatcher — parked behind a profile so it does not start in prod
+  # (profiles only run when explicitly requested).
+  mailpit:
+    profiles: ["dev-mail"]
+
+  mongo:
+    # Do not publish Mongo at all in prod; only services on the compose
+    # network talk to it.
+    ports: !reset []
+    restart: always
+    environment:
+      # First-boot creates this root user. NOTE: only applied on an EMPTY data
+      # volume — for an existing mongo_data volume create the user manually
+      # (see docs/deployment.md).
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:?set MONGO_ROOT_USER in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
