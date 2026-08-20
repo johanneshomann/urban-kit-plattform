@@ -52,3 +52,32 @@ path = "public/fonts/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Braille Institute of America, Inc."
 SPDX-License-Identifier = "OFL-1.1"
+
+# --- Seed-Fotos der sieben Prototyp-Projekte ---
+# Aufnahmen der Stadt Detmold (smartcity-detmold.de), mit freundlicher
+# Genehmigung verwendet. "Genehmigung" ist kein Standard-Lizenztext, daher
+# als LicenseRef deklariert — Details in seed/assets/ATTRIBUTION.md.
+[[annotations]]
+path = [
+  "seed/assets/push-statt-pull/**",
+  "seed/assets/mobilitaet-x-multi/**",
+  "seed/assets/kultur-trifft-digital/**",
+  "seed/assets/stadtdaten/**",
+  "seed/assets/nudging/**",
+  "seed/assets/stadtkontakt-mobil/**",
+  "seed/assets/mitmach-werkstatt/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Stadt Detmold"
+SPDX-License-Identifier = "LicenseRef-StadtDetmold-Permission"
+
+# --- Generierte Seed-Assets (Avatare, Mockup-PDF) und CI-Workflows ---
+[[annotations]]
+path = [
+  "seed/assets/avatare/**",
+  "seed/assets/dateien/**",
+  ".github/workflows/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Johannes Homann"
+SPDX-License-Identifier = "EUPL-1.2"

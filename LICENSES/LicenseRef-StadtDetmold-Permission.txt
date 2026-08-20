@@ -1,0 +1,10 @@
+LicenseRef-StadtDetmold-Permission
+
+Fotografien der Stadt Detmold (Quelle: smartcity-detmold.de), verwendet mit
+freundlicher Genehmigung der Stadt Detmold.
+
+Diese Dateien stehen NICHT unter der EUPL-1.2, unter der der übrige Inhalt
+dieses Repositorys lizenziert ist. Eine Weiterverwendung außerhalb dieses
+Projekts erfordert eine eigene Genehmigung der Stadt Detmold.
+
+Siehe seed/assets/ATTRIBUTION.md für die Zuordnung der einzelnen Dateien.
