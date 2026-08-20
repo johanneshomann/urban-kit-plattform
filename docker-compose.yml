@@ -18,6 +18,16 @@ services:
       - METHODEN_API_KEY=${METHODEN_API_KEY:-}
       # Password for the seeded prototype accounts (seed:prototype / rotate script)
       - SEED_USERS_PASSWORD=${SEED_USERS_PASSWORD:-}
+      # Urban Agent (AI) — provider selection + keys; all optional, the module
+      # shows "nicht konfiguriert" without any of them (see docs/env-reference.md)
+      - URBAN_AGENT_PROVIDER=${URBAN_AGENT_PROVIDER:-}
+      - URBAN_AGENT_MODEL=${URBAN_AGENT_MODEL:-}
+      - URBAN_AGENT_DAILY_MAX=${URBAN_AGENT_DAILY_MAX:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-}
     volumes:
       - media_data:/app/media
       # Project document uploads (file-uploads collection, staticDir uploads/files)
