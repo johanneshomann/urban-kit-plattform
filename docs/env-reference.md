@@ -57,7 +57,3 @@ Setting `SMTP_HOST` wires Payload's nodemailer adapter AND switches account
 `/de/verifizieren/<token>`) and blocks login until confirmed. Leave it unset
 for instant registration without mail (dev without a mailcatcher).
 
-## Vestigial (in `.env.example`, currently unused in code)
-
-`S3_*` (media lives on a Docker volume, not S3) and `REDIS_URL` — kept only
-as placeholders for planned features; safe to leave unset.

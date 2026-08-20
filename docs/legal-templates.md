@@ -46,7 +46,7 @@ before go-live:
 | Datenschutzbeauftragte:r | DPO contact — delete the paragraph if none is appointed |
 | Hosting-Anbieter, Ort/Land + Log-Speicherdauer | Hosting provider and log retention (§ 2) |
 | CDN/Proxy-Anbieter | Only if a CDN/proxy fronts the site — delete otherwise |
-| Speicher-Anbieter (S3/MinIO), Ort/Land | Where media uploads live (§ 6) |
+| Hosting-Anbieter (Server-Speicher), Ort/Land | Where media uploads live (§ 6) |
 | SMTP-Anbieter, Ort/Land | Transactional-mail provider (§ 7) |
 | KI-Anbieter | Urban-Agent backend per deployment: Anthropic / OpenAI / self-hosted Ollama; keep or delete the third-country sentence accordingly (§ 8) |
 | Aufsichtsbehörde | Competent supervisory authority (§ 10) |
