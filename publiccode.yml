@@ -1,79 +1,109 @@
 # SPDX-FileCopyrightText: 2026 Johannes Homann
 #
 # SPDX-License-Identifier: EUPL-1.2
+#
+# Metadata for the openCode software catalog (https://opencode.de).
+# Standard: https://yml.publiccode.tools/ — validated by openCode on harvesting.
+publiccodeYmlVersion: "0.4"
 
-# publiccode.yml — metadata for the openCode Softwareverzeichnis and other
-# public-software catalogues. Spec: https://yml.publiccode.tools
-# Validate at https://publiccode-editor.developers.italia.it or the openCode editor.
-
-publiccodeYmlVersion: "0.4.0"
-
-name: UrbanKIT – Plattform
-url: "https://github.com/johanneshomann/urban-kit-plattform" # TODO: confirm canonical repository URL once published
-landingURL: "https://urbankit.de" # TODO: confirm public landing page
-
+name: UrbanKIT Plattform
+url: "https://gitlab.opencode.de/stadt-detmold/urban-kit-plattform"
+releaseDate: "2026-08-20"
 softwareVersion: "1.0.0"
-releaseDate: "2026-08-15"
-
-developmentStatus: beta
-softwareType: standalone/web
 
 platforms:
   - web
 
 categories:
+  - digital-citizenship
   - collaboration
-  - communications
+  - online-community
+
+developmentStatus: beta
+softwareType: standalone/web
+
+logo: public/defaults/project-cover.jpg
 
 description:
   de:
+    genericName: Bürgerbeteiligungsplattform
     shortDescription: >-
-      Digitale Beteiligungsplattform für Städte: öffentliches Portal und
-      Projekt-Arbeitsräume mit modularen Beteiligungswerkzeugen.
+      Digitale Bürgerbeteiligungsplattform einer Stadt: öffentliches Portal
+      plus geschlossener Projekt-Arbeitsbereich mit modularen Werkzeugen.
     longDescription: >-
-      UrbanKIT ist die digitale Beteiligungsplattform einer Stadt. Ein
-      öffentliches Portal macht laufende und abgeschlossene
-      Beteiligungsprojekte für alle sichtbar; ein geschützter Arbeitsbereich
-      bietet pro Projekt zuschaltbare Feature-Module — Neuigkeiten, Kalender,
-      Umfragen, Forum, Aufgaben, Chat, kollaboratives Whiteboard, Dateien und
-      einen KI-Assistenten. Redaktion und Verwaltung erfolgen über ein
-      eingebettetes Payload-CMS; das Whiteboard synchronisiert in Echtzeit
-      über einen Hocuspocus/Yjs-Sidecar.
+      UrbanKIT ist die digitale Bürgerbeteiligungsplattform einer Kommune.
+      Ein öffentliches Portal macht laufende und abgeschlossene
+      Beteiligungsprojekte für alle Bürgerinnen und Bürger sichtbar —
+      inklusive Neuigkeiten, Terminen, Umfrageergebnissen und CMS-gepflegten
+      Inhaltsseiten. Ergänzend bietet ein geschützter Arbeitsbereich pro
+      Projekt die Zusammenarbeit von Projektteams und registrierten
+      Teilnehmenden über zuschaltbare Funktionsmodule: Neuigkeiten,
+      Kalender, Umfragen, Forum, Aufgaben, Chat, kollaboratives
+      Echtzeit-Whiteboard (Excalidraw über Hocuspocus/Yjs), Dateiablage
+      und einen anbieterunabhängigen KI-Assistenten (Urban Agent).
+
+      Die Sichtbarkeit jedes Inhalts ist dreistufig steuerbar
+      (öffentlich / Projektteilnehmende / Team), die Zugriffskontrolle
+      erfolgt serverseitig pro Projektrolle. Farben, Logos und
+      Projekt-Farbschemata sind vollständig über das Admin-Backend
+      anpassbar ("Chameleon"-Designtokens), sodass die Plattform ohne
+      Codeänderung an das Erscheinungsbild einer anderen Kommune angepasst
+      werden kann. Technisch ist UrbanKIT eine einzelne Next.js-15-Anwendung
+      (App Router, React 19) mit eingebettetem Payload CMS 3 auf MongoDB;
+      die Oberfläche ist deutschsprachig mit englischem Fallback.
+      Ein Seed-Skript mit sieben Prototyp-Projekten erlaubt die sofortige
+      Inbetriebnahme einer realistisch gefüllten Demo-Instanz.
     features:
-      - Öffentliches Portal mit Projektübersicht und -archiv
-      - Projekt-Arbeitsräume mit zuschaltbaren Modulen (News, Kalender, Umfragen, Forum, Aufgaben, Chat, Board, Dateien)
-      - Kollaboratives Echtzeit-Whiteboard (Excalidraw + Yjs)
-      - KI-Assistent (anbieterunabhängig: Anthropic, OpenAI oder Ollama)
-      - Rollen- und stufenbasierte Zugriffskontrolle je Projekt
+      - Öffentliches Portal mit Projektübersicht, Archiv und CMS-Seiten
+      - Projekt-Arbeitsbereiche mit zuschaltbaren Modulen (News, Kalender, Umfragen, Forum, Aufgaben, Chat, Whiteboard, Dateien, KI-Assistent)
+      - Kollaboratives Echtzeit-Whiteboard (Excalidraw + Hocuspocus/Yjs)
+      - Dreistufige Sichtbarkeit je Inhalt (öffentlich / Teilnehmende / Team)
+      - Anbieterunabhängiger KI-Assistent (Anthropic, OpenAI oder Ollama)
+      - Anpassbares Erscheinungsbild über Designtokens im Admin-Backend
+      - Zweisprachige Oberfläche (Deutsch/Englisch)
   en:
+    genericName: Civic participation platform
     shortDescription: >-
-      Digital civic-participation platform for cities: public portal and
-      per-project workspaces with modular participation tools.
+      Digital civic-participation platform for a city: public portal plus a
+      per-project collaboration workspace with modular tools.
     longDescription: >-
-      UrbanKIT is a city's digital civic-participation platform. A public
-      portal makes ongoing and completed participation projects visible to
-      everyone; a logged-in workspace provides per-project, toggleable feature
-      modules — news, calendar, polls, forum, tasks, chat, collaborative
-      whiteboard, files and an AI assistant. Editing and administration happen
-      in an embedded Payload CMS; the whiteboard syncs in realtime through a
-      Hocuspocus/Yjs sidecar.
+      UrbanKIT is the digital civic-participation platform of a municipality.
+      A public portal makes ongoing and completed participation projects
+      visible to all citizens — including news, events, poll results and
+      CMS-managed content pages. In addition, a protected per-project
+      workspace enables collaboration between project teams and registered
+      participants through toggleable feature modules: news, calendar,
+      polls, forum, tasks, chat, a collaborative realtime whiteboard
+      (Excalidraw over Hocuspocus/Yjs), file storage and a
+      provider-agnostic AI assistant (Urban Agent).
+
+      The visibility of every piece of content is controlled on three
+      levels (public / project participants / team), with access control
+      enforced server-side per project role. Colors, logos and project
+      color schemes are fully configurable from the admin backend
+      ("chameleon" design tokens), so the platform can be rebranded for
+      another municipality without code changes. Technically, UrbanKIT is
+      a single Next.js 15 application (App Router, React 19) with Payload
+      CMS 3 embedded on MongoDB; the interface is German-first with an
+      English fallback. A seed script with seven prototype projects allows
+      spinning up a realistically populated demo instance immediately.
     features:
-      - Public portal with project overview and archive
-      - Per-project workspaces with toggleable modules (news, calendar, polls, forum, tasks, chat, board, files)
-      - Collaborative realtime whiteboard (Excalidraw + Yjs)
-      - AI assistant (provider-agnostic: Anthropic, OpenAI or Ollama)
-      - Role- and tier-based access control per project
+      - Public portal with project overview, archive and CMS pages
+      - Project workspaces with toggleable modules (news, calendar, polls, forum, tasks, chat, whiteboard, files, AI assistant)
+      - Collaborative realtime whiteboard (Excalidraw + Hocuspocus/Yjs)
+      - Three-level visibility per content item (public / participants / team)
+      - Provider-agnostic AI assistant (Anthropic, OpenAI or Ollama)
+      - Customizable branding via design tokens in the admin backend
+      - Bilingual interface (German/English)
 
 legal:
   license: EUPL-1.2
-  mainCopyrightOwner: Johannes Homann
-  repoOwner: Johannes Homann
 
 maintenance:
   type: internal
   contacts:
     - name: Johannes Homann
-      email: "hi@johanneshomann.de"
+      email: johannes.homann@th-owl.de
 
 localisation:
   localisationReady: true
