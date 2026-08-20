@@ -341,8 +341,8 @@ export function AlleProjekteClient({ projects, locale }: { projects: Project[]; 
 
       {/* Library */}
       <div ref={libraryRef} style={{ background: 'var(--projekte-light)' }}>
-        {/* Sticky toolbar + collapsible filter panel */}
-        <div className="sticky top-14 z-20" style={{ background: 'var(--projekte-light)' }}>
+        {/* Toolbar + collapsible filter panel (scrolls with the page) */}
+        <div style={{ background: 'var(--projekte-light)' }}>
           <div className="px-6 md:px-16 lg:px-24 py-4 flex flex-col gap-2" ref={filterAreaRef}>
             <div className="flex flex-col sm:flex-row gap-2">
               <SearchPill value={search} onChange={setSearch} placeholder={t('searchPlaceholder')} />
