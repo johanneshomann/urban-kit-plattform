@@ -35,6 +35,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
 COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+# One-off maintenance/seed scripts + seed content/assets, run via
+# `docker compose exec web npm run seed:prototype` (same pattern as the
+# methodensammlung image shipping its seed.ts/scripts).
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/seed ./seed
 
 RUN mkdir -p /app/media && chown -R nextjs:nodejs /app/media
 
