@@ -8,16 +8,24 @@ publiccodeYmlVersion: "0.4"
 
 name: UrbanKIT Plattform
 url: "https://gitlab.opencode.de/stadt-detmold/urban-kit-plattform"
+landingURL: "https://urbankit.de"
 releaseDate: "2026-08-20"
 softwareVersion: "1.0.0"
 
 platforms:
   - web
 
+usedBy:
+  - Stadt Detmold
+
+# Nur Werte aus https://guide.opencode.de/assets/code/possible_categories.txt
 categories:
   - digital-citizenship
   - collaboration
   - online-community
+  - project-collaboration
+  - content-management
+  - survey
 
 developmentStatus: beta
 softwareType: standalone/web
@@ -117,3 +125,12 @@ localisation:
   availableLanguages:
     - de
     - en
+
+# scope: nur Werte aus https://yml.publiccode.tools/scope-list.html
+intendedAudience:
+  countries:
+    - "de"
+  scope:
+    - "local-authorities"
+    - "government"
+    - "society"
