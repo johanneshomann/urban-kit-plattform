@@ -22,8 +22,11 @@ import 'server-only'
 
 const WINDOW_MS = 5 * 60 * 1000
 const DEFAULT_MAX = 20
-/** Requests per calendar day across ALL users. Override via env. */
-const DAILY_MAX = Number(process.env.URBAN_AGENT_DAILY_MAX ?? 600)
+/** Requests per calendar day across ALL users. Override via env. Compose
+ * passes the var as an empty string when unset — Number('') is 0, which would
+ * mean "always exhausted", so anything non-positive falls back to the default. */
+const envDailyMax = Number(process.env.URBAN_AGENT_DAILY_MAX)
+const DAILY_MAX = Number.isFinite(envDailyMax) && envDailyMax > 0 ? envDailyMax : 600
 /** Drop user buckets that fell out of the window; runs at most this often. */
 const SWEEP_INTERVAL_MS = 10 * 60 * 1000
 
