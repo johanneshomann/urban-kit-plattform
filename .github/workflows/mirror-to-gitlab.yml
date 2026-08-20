@@ -1,0 +1,50 @@
+# Mirrors this repository (all branches + tags) to a GitLab counterpart.
+# GitHub is the source of truth — the GitLab side is force-updated and must be
+# treated as read-only; any commits made directly on GitLab will be overwritten.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   GITLAB_MIRROR_URL    e.g. https://gitlab.com/<group>/<project>.git
+#   GITLAB_MIRROR_TOKEN  GitLab project access token, scope: write_repository
+name: Mirror to GitLab
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  # Also allow manual runs, e.g. after fixing the token
+  workflow_dispatch:
+
+# The workflow only reads this repo; pushing happens against GitLab with its own token.
+permissions:
+  contents: read
+
+# Never run two mirror pushes at once (fast consecutive pushes would race).
+concurrency:
+  group: mirror-to-gitlab
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push all branches and tags to GitLab
+        env:
+          GITLAB_MIRROR_URL: ${{ secrets.GITLAB_MIRROR_URL }}
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Inject the token via a one-off credential helper so it never
+          # appears in the remote URL, process list, or logs.
+          git config --local credential.helper \
+            '!f() { echo "username=oauth2"; echo "password=${GITLAB_MIRROR_TOKEN}"; }; f'
+          git remote add gitlab "${GITLAB_MIRROR_URL}"
+          # Mirror every branch and tag; --prune deletes refs that were
+          # deleted on GitHub, "+" force-updates after rebases/amends.
+          git push --prune gitlab \
+            '+refs/remotes/origin/*:refs/heads/*' \
+            '+refs/tags/*:refs/tags/*'
