@@ -32,7 +32,10 @@ import type { SeedImage, SeedProject } from '../seed/content/types'
 
 const PROJECTS: SeedProject[] = [pushStattPull, mobilitaetXMulti, kulturTrifftDigital, stadtdaten, nudging, stadtkontaktMobil, mitmachWerkstatt]
 const ASSETS = path.resolve(process.cwd(), 'seed', 'assets')
-const PASSWORD = 'demo1234'
+// Roster password: secret via env in prod (the accounts incl. PM roles are
+// fully functional and the emails are public in this repo!), demo1234 in dev.
+const PASSWORD = process.env.SEED_USERS_PASSWORD || 'demo1234'
+if (!process.env.SEED_USERS_PASSWORD) console.log('NOTE: SEED_USERS_PASSWORD not set — seeding users with the public dev password demo1234.')
 const COLOR_SCHEMES = ['Sandstein', 'Terrakotta', 'Feldgrau', 'Ozean', 'Kupfer']
 
 const payload = await getPayload({ config })

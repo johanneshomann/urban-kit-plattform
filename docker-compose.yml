@@ -16,6 +16,8 @@ services:
       - SMTP_PORT=${SMTP_PORT:-1025}
       - METHODEN_URL=${METHODEN_URL:-https://methoden.urbankit.de}
       - METHODEN_API_KEY=${METHODEN_API_KEY:-}
+      # Password for the seeded prototype accounts (seed:prototype / rotate script)
+      - SEED_USERS_PASSWORD=${SEED_USERS_PASSWORD:-}
     volumes:
       - media_data:/app/media
       # Project document uploads (file-uploads collection, staticDir uploads/files)
