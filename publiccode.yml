@@ -22,7 +22,10 @@ categories:
 developmentStatus: beta
 softwareType: standalone/web
 
-logo: public/defaults/project-cover.jpg
+# Screenshot der Startseite, zugleich Cover in Katalogen. Die Spec erlaubt
+# hier nur SVG/SVGZ/PNG (kein JPG/WebP) — der bisherige Verweis auf das
+# generische project-cover.jpg war formal ungültig.
+logo: docs/assets/cover.png
 
 description:
   de:
