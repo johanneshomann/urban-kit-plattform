@@ -156,9 +156,7 @@ export async function PublicFooter({ locale, showSponsors = true }: PublicFooter
       {/* Partner logos — last band of the page */}
       {sponsors.length > 0 && (
         <section aria-label={t('partners')} className="border-t px-6 md:px-16 lg:px-24 py-10">
-          <p className="text-small text-center mb-6" style={{ color: 'var(--plattform-ink)', opacity: 0.85 }}>
-            {t('partners')}
-          </p>
+          {/* Logos only — the label stays as aria-label for screen readers */}
           <SponsorStrip sponsors={sponsors} />
         </section>
       )}
