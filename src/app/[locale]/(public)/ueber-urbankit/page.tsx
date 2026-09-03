@@ -212,7 +212,10 @@ export default async function UeberUrbanKITPage({ params }: { params: Promise<{ 
             <h2 className="text-title font-black tracking-tight mb-12 max-w-5xl">
               {t.rich('partnerTitle', { accent })}
             </h2>
-            <SponsorStrip sponsors={sponsors} />
+            {/* Extra breathing room above the logos so they don't sit tight under the heading */}
+            <div className="mt-8 md:mt-14">
+              <SponsorStrip sponsors={sponsors} />
+            </div>
           </div>
         </section>
       )}
