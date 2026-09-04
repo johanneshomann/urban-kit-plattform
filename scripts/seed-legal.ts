@@ -10,6 +10,7 @@
  *
  *   npm run seed:legal            # only fills texts that are still empty
  *   npm run seed:legal -- --force # OVERWRITES the stored texts with the defaults
+ *   npm run seed:legal -- --force --only=barrierefreiheit   # overwrite ONE field, leave the rest
  *
  * `--force` discards admin edits in those fields (both locales), so the
  * bracketed placeholders (privacy policy, accessibility statement) have to be
@@ -23,7 +24,10 @@ import config from '@payload-config'
 import { seedLegalTexts } from '../src/lib/legalDefaults'
 
 const payload = await getPayload({ config })
-await seedLegalTexts(payload, { force: process.argv.includes('--force') })
+// --only=barrierefreiheit,cookies → touch just those fields (others stay untouched even with --force)
+const onlyArg = process.argv.find((a) => a.startsWith('--only='))
+const only = onlyArg ? (onlyArg.slice(7).split(',') as Array<'datenschutz' | 'cookies' | 'barrierefreiheit'>) : undefined
+await seedLegalTexts(payload, { force: process.argv.includes('--force'), only })
 
 console.log('\n✓ Done. Remember to fill the [bracketed] placeholders in the admin.\n')
 process.exit(0)

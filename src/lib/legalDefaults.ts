@@ -231,7 +231,10 @@ export const datenschutzEn = doc([
  * seeded — there is no meaningful default for it. Shared by src/seed.ts and
  * scripts/seed-legal.ts.
  */
-export async function seedLegalTexts(payload: Payload, { force = false }: { force?: boolean } = {}): Promise<void> {
+export async function seedLegalTexts(
+  payload: Payload,
+  { force = false, only }: { force?: boolean; only?: Array<'datenschutz' | 'cookies' | 'barrierefreiheit'> } = {},
+): Promise<void> {
   // City name for the accessibility statement's scope sentence; falls back to
   // the same default getCitySettings uses on a fresh install.
   let cityName = 'Stadt Detmold'
@@ -252,6 +255,7 @@ export async function seedLegalTexts(payload: Payload, { force = false }: { forc
 
   console.log(`\n── Legal texts ${force ? '(FORCE: overwriting)' : '(only empty fields)'} ─────`)
   for (const field of fields) {
+    if (only && !only.includes(field.name)) continue
     if (!force && hasRichTextContent(legal?.[field.name]?.de)) {
       console.log(`  skip   legal-settings / ${field.name} (already set — use seed:legal --force to overwrite)`)
       continue
