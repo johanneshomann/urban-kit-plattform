@@ -46,9 +46,15 @@ export function barrierefreiheitDefault(locale: string, cityName: string) {
       h('h2', 'Accessibility Statement'),
       p(txt(`This accessibility statement applies to the UrbanKIT participation platform of ${cityName}. We strive to make this website accessible in accordance with the German Barrier-Free Information Technology Ordinance (BITV 2.0).`)),
       h('h3', 'Compliance status'),
-      p(txt('This website is [compliant / partially compliant — set the status after completing the self-evaluation] with BITV 2.0 (WCAG 2.1, conformance level AA). This assessment is based on a self-evaluation carried out on [add date of self-evaluation].')),
+      p(txt('This platform is partially compliant with BITV 2.0 (WCAG 2.1, conformance level AA) because of the exceptions listed below. This assessment is based on a self-evaluation carried out on [add date of self-evaluation].')),
       h('h3', 'Non-accessible content'),
-      p(txt('We are currently not aware of any non-accessible content. Should you nevertheless encounter a barrier, we appreciate your feedback.')),
+      p(txt('The content listed below is not fully accessible:')),
+      ul([
+        [b('Collaborative whiteboard (“Board” module). '), txt('The whiteboard is a drawing canvas provided by a third-party component (Excalidraw). Its graphical content cannot be read by screen readers, and drawing is only partially possible using the keyboard. Project teams are asked to make results additionally available as text, e.g. in the news or files module. Reason: disproportionate burden — an accessible alternative for a free-form drawing canvas is not available.')],
+        [b('Content created by participants. '), txt('Images, uploaded documents (e.g. PDF) and texts published by project members are not checked for accessibility by us. Alternative texts for images are optional for authors. Reason: third-party content that is neither financed, developed nor controlled by us (Section 4 BITV 2.0).')],
+        [b('Poll results. '), txt('Results are shown as bar charts; the underlying percentages are also available as text.')],
+      ]),
+      p(txt('Should you encounter further barriers, we appreciate your feedback.')),
       h('h3', 'Accessibility features of this website'),
       p(txt('Via the accessibility icon you can adjust font size, high contrast, underlined links and reduced animations; the settings are kept locally in your browser. The website is fully keyboard-operable and offers a “skip to content” link.')),
       h('h3', 'Preparation of this statement'),
@@ -60,7 +66,7 @@ export function barrierefreiheitDefault(locale: string, cityName: string) {
         txt(' or write to [add email address]. We aim to respond to enquiries within two weeks.'),
       ),
       h('h3', 'Enforcement procedure'),
-      p(txt('If you believe that our response to your feedback is not satisfactory, you can contact the responsible enforcement/ombudsman body: [add responsible body with contact details — for public bodies of the state of North Rhine-Westphalia this is the Ombudsstelle für barrierefreie Informationstechnik des Landes Nordrhein-Westfalen].')),
+      p(txt('If you believe that our response to your feedback is not satisfactory, you can contact the responsible enforcement/ombudsman body. For public bodies of the state of North Rhine-Westphalia this is the Ombudsstelle für barrierefreie Informationstechnik des Landes Nordrhein-Westfalen, email: ombudsstelle-barrierefreie-it@mags.nrw.de [add postal address if required — verify the current details at mags.nrw].')),
     ])
   }
 
@@ -68,9 +74,15 @@ export function barrierefreiheitDefault(locale: string, cityName: string) {
     h('h2', 'Erklärung zur Barrierefreiheit'),
     p(txt(`Diese Erklärung zur Barrierefreiheit gilt für die UrbanKIT-Beteiligungsplattform der Stadt ${cityName}. Wir sind bemüht, diese Website im Einklang mit der Barrierefreie-Informationstechnik-Verordnung (BITV 2.0) barrierefrei zugänglich zu machen.`)),
     h('h3', 'Stand der Vereinbarkeit mit den Anforderungen'),
-    p(txt('Diese Website ist mit der BITV 2.0 (WCAG 2.1, Konformitätsstufe AA) [vereinbar / teilweise vereinbar — Status bitte nach durchgeführter Selbstbewertung festlegen]. Grundlage dieser Einschätzung ist eine am [Datum der Selbstbewertung ergänzen] durchgeführte Selbstbewertung.')),
+    p(txt('Diese Plattform ist mit der BITV 2.0 (WCAG 2.1, Konformitätsstufe AA) wegen der nachfolgend aufgeführten Ausnahmen teilweise vereinbar. Grundlage dieser Einschätzung ist eine am [Datum der Selbstbewertung ergänzen] durchgeführte Selbstbewertung.')),
     h('h3', 'Nicht barrierefreie Inhalte'),
-    p(txt('Derzeit sind uns keine nicht barrierefreien Inhalte bekannt. Sollten Sie dennoch auf eine Barriere stoßen, freuen wir uns über Ihre Rückmeldung.')),
+    p(txt('Die nachstehend aufgeführten Inhalte sind nicht vollständig barrierefrei:')),
+    ul([
+      [b('Kollaboratives Whiteboard (Modul „Board“). '), txt('Das Whiteboard ist eine Zeichenfläche einer Drittkomponente (Excalidraw). Ihre grafischen Inhalte sind für Screenreader nicht auslesbar, und das Zeichnen ist per Tastatur nur eingeschränkt möglich. Projektteams sind gebeten, Ergebnisse zusätzlich in Textform bereitzustellen, z. B. im Modul Neuigkeiten oder Dateien. Begründung: unverhältnismäßige Belastung — eine barrierefreie Alternative für eine freie Zeichenfläche ist nicht verfügbar.')],
+      [b('Von Teilnehmenden erstellte Inhalte. '), txt('Bilder, hochgeladene Dokumente (z. B. PDF) und Texte, die Projektmitglieder veröffentlichen, werden von uns nicht auf Barrierefreiheit geprüft. Alternativtexte für Bilder sind für Autor:innen optional. Begründung: Inhalte Dritter, die weder von uns finanziert noch entwickelt werden noch unserer Kontrolle unterliegen (§ 4 BITV 2.0).')],
+      [b('Umfrage-Ergebnisse. '), txt('Ergebnisse werden als Balkendiagramme dargestellt; die zugrunde liegenden Prozentwerte stehen zusätzlich als Text zur Verfügung.')],
+    ]),
+    p(txt('Sollten Sie auf weitere Barrieren stoßen, freuen wir uns über Ihre Rückmeldung.')),
     h('h3', 'Barrierefreiheitsfunktionen dieser Website'),
     p(txt('Über das Barrierefreiheit-Symbol lassen sich Schriftgröße, hoher Kontrast, unterstrichene Links und reduzierte Animationen einstellen; die Einstellungen bleiben lokal im Browser gespeichert. Die Website ist vollständig per Tastatur bedienbar und bietet einen „Zum Inhalt springen“-Link.')),
     h('h3', 'Erstellung dieser Erklärung'),
@@ -82,7 +94,7 @@ export function barrierefreiheitDefault(locale: string, cityName: string) {
       txt(' oder schreiben Sie an [E-Mail-Adresse ergänzen]. Wir bemühen uns, Anfragen innerhalb von zwei Wochen zu beantworten.'),
     ),
     h('h3', 'Durchsetzungsverfahren'),
-    p(txt('Wenn Sie der Ansicht sind, dass unsere Antwort auf Ihre Rückmeldung nicht zufriedenstellend ist, können Sie sich an die zuständige Durchsetzungs- bzw. Ombudsstelle wenden: [Zuständige Stelle mit Kontaktdaten ergänzen — für öffentliche Stellen des Landes NRW ist dies die Ombudsstelle für barrierefreie Informationstechnik des Landes Nordrhein-Westfalen].')),
+    p(txt('Wenn Sie der Ansicht sind, dass unsere Antwort auf Ihre Rückmeldung nicht zufriedenstellend ist, können Sie sich an die zuständige Durchsetzungs- bzw. Ombudsstelle wenden. Für öffentliche Stellen des Landes Nordrhein-Westfalen ist dies die Ombudsstelle für barrierefreie Informationstechnik des Landes Nordrhein-Westfalen, E-Mail: ombudsstelle-barrierefreie-it@mags.nrw.de [ggf. Postanschrift ergänzen — aktuelle Angaben unter mags.nrw prüfen].')),
   ])
 }
 
