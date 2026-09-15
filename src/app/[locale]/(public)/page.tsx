@@ -39,6 +39,7 @@ export async function generateMetadata({
       description,
       url: `${base}/${locale}`,
       type: 'website',
+      siteName: 'UrbanKIT',
     },
   }
 }
@@ -134,8 +135,35 @@ export default async function PublicHomePage({
     { id: 'mitmachen', label: t('joinEyebrow'), icon: 'HandHeart' },
   ]
 
+  const base = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://urbankit.de'
+  // Structured data: Google derives the displayed site name in search results
+  // from WebSite JSON-LD on the homepage (+ og:site_name). Keeping it dynamic
+  // means a city change propagates here on the next crawl instead of sticking.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${base}/#website`,
+        url: base,
+        name: 'UrbanKIT',
+        alternateName: t('metaTitle', { city: cityName }),
+        inLanguage: locale,
+        publisher: { '@id': `${base}/#organization` },
+      },
+      {
+        '@type': 'Organization',
+        '@id': `${base}/#organization`,
+        name: cityName,
+        url: base,
+        ...(cityLogoUrl ? { logo: cityLogoUrl.startsWith('http') ? cityLogoUrl : `${base}${cityLogoUrl}` } : {}),
+      },
+    ],
+  }
+
   return (
     <div className="min-h-svh flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PublicNavServer locale={locale} />
       <SectionDotsNav items={navSections} label={t('heroEyebrow', { city: cityName })} appearAfterId="hero" />
       <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col">
