@@ -43,8 +43,17 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
   },
+  // Payload's default access lets ANY logged-in user read/update/delete ANY
+  // user via REST — restrict to self-or-admin. Demo accounts (isDemo) may not
+  // even update themselves (shared read-only credentials). Server code uses
+  // overrideAccess / payloadAs at depth 0, so nothing populates user docs
+  // through these rules.
   access: {
     admin: ({ req: { user } }) => user?.role === 'admin',
+    read: ({ req: { user }, id }) => user?.role === 'admin' || (!!user && String(user.id) === String(id)),
+    update: ({ req: { user }, id }) =>
+      user?.role === 'admin' || (!!user && !(user as { isDemo?: boolean }).isDemo && String(user.id) === String(id)),
+    delete: ({ req: { user } }) => user?.role === 'admin',
   },
   fields: [
     { name: 'firstName', type: 'text', label: { en: 'First name', de: 'Vorname' } },
@@ -79,6 +88,22 @@ export const Users: CollectionConfig = {
         { label: { en: 'Admin', de: 'Admin' }, value: 'admin' },
         { label: { en: 'User', de: 'User' }, value: 'user' },
       ],
+    },
+    {
+      // Public prototype test accounts: every mutating server action and API
+      // route refuses writes for these (src/lib/auth/demo.ts), the board is
+      // read-only, and the credentials may be shown on the login page.
+      name: 'isDemo',
+      type: 'checkbox',
+      defaultValue: false,
+      label: { en: 'Demo account (read-only)', de: 'Demo-Zugang (nur lesen)' },
+      access: { update: ({ req: { user } }) => user?.role === 'admin' },
+      admin: {
+        description: {
+          en: 'Shared public test account: can browse everything its memberships allow but saves nothing (no content, no profile/password changes, no uploads).',
+          de: 'Geteilter öffentlicher Testzugang: sieht alles, was seine Mitgliedschaften erlauben, speichert aber nichts (keine Inhalte, keine Profil-/Passwortänderung, keine Uploads).',
+        },
+      },
     },
     // Voluntary demographic details — self-service via the profile page, used
     // to evaluate how representative participation is. All optional.
