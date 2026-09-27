@@ -19,7 +19,12 @@ export async function POST(req: NextRequest) {
   const locale = (routing.locales as readonly string[]).includes(sp.get('locale') ?? '') ? sp.get('locale')! : routing.defaultLocale
   const target = sp.get('to') === 'login' ? `/${locale}/login` : `/${locale}`
 
-  const res = NextResponse.redirect(new URL(target, req.nextUrl.origin), 303)
+  // Behind the reverse proxy req.nextUrl.origin is the container's internal
+  // address (localhost:3000) — rebuild the public origin from the proxy headers
+  // so the user lands on the host they logged out from (portal or app domain).
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? req.nextUrl.host
+  const proto = req.headers.get('x-forwarded-proto') ?? (process.env.NODE_ENV === 'production' ? 'https' : req.nextUrl.protocol.replace(':', ''))
+  const res = NextResponse.redirect(`${proto}://${host}${target}`, 303)
   for (const header of clearSessionCookieHeaders()) res.headers.append('Set-Cookie', header)
   return res
 }
