@@ -14,6 +14,7 @@ import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { canViewContent, getViewerState } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitNotification } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type TasksActionState = { error?: string; ok?: boolean }
 
@@ -103,6 +104,7 @@ async function syncAssignees(payload: Payload, projectId: string, taskId: string
 }
 
 export async function createTask(slug: string, locale: string, input: TaskInput): Promise<TasksActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await taskActorCtx(slug)
   if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben erstellen.' }
   const title = input.title.trim()
@@ -136,6 +138,7 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
 }
 
 export async function updateTask(slug: string, locale: string, taskId: string, input: TaskInput): Promise<TasksActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await taskActorCtx(slug)
   if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben bearbeiten.' }
   const title = input.title.trim()
@@ -176,6 +179,7 @@ export async function updateTask(slug: string, locale: string, taskId: string, i
 }
 
 export async function deleteTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await taskActorCtx(slug)
   if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben löschen.' }
   try {
@@ -199,6 +203,7 @@ export async function deleteTask(slug: string, locale: string, taskId: string): 
  * can SEE — the visibility check keeps TEAM tasks inside their audience.
  */
 export async function toggleSelfAssignTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const member = await getProjectMemberContext(slug)
   if (!member) return { error: 'Nur Projektmitglieder haben Zugriff.' }
   try {
@@ -227,6 +232,7 @@ export async function toggleSelfAssignTask(slug: string, locale: string, taskId:
 
 /** Move a task to a new status column — PMs move any task, assignees move their own (any active member can be assigned). */
 export async function moveTask(slug: string, locale: string, taskId: string, newStatus: string): Promise<TasksActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const team = await getProjectMemberContext(slug)
   if (!team) return { error: 'Nur Projektmitglieder haben Zugriff.' }
   try {

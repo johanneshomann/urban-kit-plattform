@@ -17,6 +17,7 @@ import { markdownToLexical } from '@/lib/richtext'
 import { emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { emitActivity } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type ForumActionState = { error?: string; ok?: boolean }
 
@@ -46,6 +47,7 @@ async function memberCtx(slug: string) {
 
 /** Threads are PM-authored (from the manage moderation surface). */
 export async function createThread(slug: string, locale: string, input: { title: string; body?: string; visibilityTeams?: string[] }): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const pm = await getContentAuthorContext(slug)
   if (!pm) return { error: 'Nur Projektleitung und Teamleitungen können Themen erstellen.' }
   const title = input.title.trim()
@@ -79,6 +81,7 @@ async function getThread(payload: Payload, projectId: string, threadId: string) 
 }
 
 export async function deleteThread(slug: string, locale: string, threadId: string): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
@@ -121,13 +124,16 @@ async function getThreadSlug(payload: Payload, threadId: string): Promise<string
 }
 
 export async function toggleThreadPin(slug: string, locale: string, threadId: string, pinned: boolean): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   return setThreadFlag(slug, locale, threadId, 'pinned', pinned)
 }
 export async function toggleThreadLock(slug: string, locale: string, threadId: string, locked: boolean): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   return setThreadFlag(slug, locale, threadId, 'locked', locked)
 }
 
 export async function postForumComment(slug: string, locale: string, threadId: string, body: string): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   const text = body.trim()
@@ -170,6 +176,7 @@ export async function postForumComment(slug: string, locale: string, threadId: s
 }
 
 export async function deleteForumComment(slug: string, locale: string, commentId: string): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
@@ -190,6 +197,7 @@ export async function deleteForumComment(slug: string, locale: string, commentId
 }
 
 export async function toggleThreadVote(slug: string, locale: string, threadId: string): Promise<ForumActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {

@@ -10,6 +10,8 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { emailVerificationEnabled } from '@/lib/email'
+import { getDemoAccounts } from '@/lib/prototype-notice'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type AuthState = { error?: string; appUrl?: string; verifySent?: boolean } | null
 
@@ -64,6 +66,11 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
     return { error: 'Ungültige Anmeldedaten' }
   }
 
+  return finishLogin(token, isAdmin)
+}
+
+/** Shared tail of every login flow: set the session cookie, then route to admin / workspace. */
+async function finishLogin(token: string | undefined, isAdmin: boolean): Promise<AuthState> {
   if (token) {
     await setTokenCookie(token)
   }
@@ -84,6 +91,28 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   }
 
   redirect(`/${locale}/dashboard`)
+}
+
+/**
+ * One-click login into a public prototype demo account. Only accounts listed
+ * in platform-settings AND flagged isDemo are eligible (getDemoAccounts
+ * validates both), so this can never log anyone into a real account.
+ */
+export async function demoLoginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get('email') ?? '').toLowerCase()
+  const locale = await getLocale()
+  const account = (await getDemoAccounts(locale)).find((a) => a.email.toLowerCase() === email)
+  if (!account) return { error: 'Dieser Testzugang ist derzeit nicht verfügbar.' }
+
+  const payload = await getPayload({ config })
+  let token: string | undefined
+  try {
+    const result = await payload.login({ collection: 'users', data: { email: account.email, password: account.password } })
+    token = result.token
+  } catch {
+    return { error: 'Der Testzugang konnte nicht angemeldet werden — bitte die Zugangsdaten im Admin prüfen.' }
+  }
+  return finishLogin(token, false)
 }
 
 export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -161,6 +190,7 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
 }
 
 export async function updateProfileAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const firstName = formData.get('firstName') as string
   const lastName = formData.get('lastName') as string
   const newPassword = formData.get('newPassword') as string
@@ -319,6 +349,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
  * and redirects to the login page on success.
  */
 export async function deleteAccountAction(): Promise<{ error?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
   if (!token) return { error: 'Nicht eingeloggt' }

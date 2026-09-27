@@ -14,6 +14,7 @@ import { closePoll } from '@/modules/polls/actions'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { computeResults } from '@/lib/poll-results'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type PollsActionState = { error?: string; ok?: boolean }
 
@@ -113,6 +114,7 @@ export async function createProjectPoll(
   locale: string,
   input: CreatePollInput,
 ): Promise<PollsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -172,6 +174,7 @@ export async function setPollStatus(
   pollId: string,
   status: 'active' | 'closed',
 ): Promise<PollsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -207,6 +210,7 @@ export async function deleteProjectPoll(
   locale: string,
   pollId: string,
 ): Promise<PollsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -229,6 +233,7 @@ export async function deleteProjectPoll(
 
 /** Edit a poll while it is still a draft. Replaces questions/options wholesale. */
 export async function editPollDraft(slug: string, locale: string, pollId: string, input: CreatePollInput): Promise<PollsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type AttendState = { error?: string; attending?: boolean }
 
@@ -22,6 +23,7 @@ async function projectBySlug(payload: Payload, slug: string) {
 
 /** Toggle the current member's attendance for an event ("Ich nehme teil"). */
 export async function toggleEventAttendance(slug: string, locale: string, eventId: string): Promise<AttendState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Bitte melde dich an.' }
 

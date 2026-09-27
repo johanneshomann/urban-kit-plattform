@@ -15,6 +15,7 @@ import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
 import { emitActivity, emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type NewsActionState = { error?: string; ok?: boolean }
 
@@ -110,6 +111,7 @@ export async function createProjectNewsPost(
   locale: string,
   input: { title: string; body?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -192,6 +194,7 @@ export async function updateProjectNewsPost(
   postId: string,
   input: { title: string; body?: string; contentState?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -241,6 +244,7 @@ export async function updateProjectNewsPost(
 }
 
 export async function setNewsFeaturedImage(slug: string, locale: string, postId: string, formData: FormData): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -260,6 +264,7 @@ export async function setNewsFeaturedImage(slug: string, locale: string, postId:
 }
 
 export async function removeNewsFeaturedImage(slug: string, locale: string, postId: string): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   try {
@@ -284,6 +289,7 @@ export async function setNewsPublish(
   mode: 'draft' | 'now' | 'schedule',
   scheduledAt?: string,
 ): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -321,6 +327,7 @@ export async function setNewsPublish(
 }
 
 export async function deleteProjectNewsPost(slug: string, locale: string, postId: string): Promise<NewsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getNewsManageContext(slug, postId)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

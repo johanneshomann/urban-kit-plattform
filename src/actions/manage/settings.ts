@@ -10,12 +10,14 @@ import { redirect } from 'next/navigation'
 import type { Payload } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { cascadeDeleteProject } from '@/lib/project-delete'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 export type SettingsActionState = { error?: string; ok?: boolean }
 export async function updateProjectVisibility(
   slug: string,
   locale: string,
   input: { isPublic: boolean; joinRequestsEnabled: boolean; chatGroupAssignmentEnabled?: boolean },
 ): Promise<SettingsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   try {
@@ -42,6 +44,7 @@ export async function updateProjectVisibility(
  * assignees), then removes the project itself and redirects to the dashboard.
  */
 export async function deleteProject(slug: string, locale: string, confirmTitle: string): Promise<SettingsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   if (confirmTitle.trim() !== ctx.project.title.trim()) {
@@ -111,6 +114,7 @@ export async function updateProjectTeams(
   teams: string[],
   renames?: { from: string; to: string }[],
 ): Promise<SettingsActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

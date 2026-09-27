@@ -6,12 +6,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authRoom } from '@/lib/chat/route-auth'
 import { relId } from '@/lib/chat/access'
 import type { ChatMessage } from '@/payload-types'
+import { demoDeniedResponse } from '@/lib/auth/demo'
 
 // POST { messageId, emoji } — toggle the caller's reaction on a message in this room.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await params
   const a = await authRoom(req, roomId)
   if ('error' in a) return a.error
+  if (a.readOnly) return demoDeniedResponse()
   const { payload, userId } = a
 
   const body = await req.json().catch(() => ({}))

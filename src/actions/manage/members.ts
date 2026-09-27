@@ -11,6 +11,7 @@ import type { Payload } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { emitNotification } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type MembersActionState = { error?: string; ok?: boolean }
 
@@ -68,6 +69,7 @@ export async function updateMemberRole(
   membershipId: string,
   role: string,
 ): Promise<MembersActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   if (!ROLES.has(role)) return { error: 'Unbekannte Rolle.' }
@@ -107,6 +109,7 @@ export async function generateInvite(
   slug: string,
   locale: string,
 ): Promise<{ error?: string; ok?: boolean; code?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -140,6 +143,7 @@ export async function setMemberTeams(
   teams: string[],
   leadOf?: string[],
 ): Promise<MembersActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -169,6 +173,7 @@ export async function removeMember(
   locale: string,
   membershipId: string,
 ): Promise<MembersActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -196,6 +201,7 @@ export async function respondToJoinRequest(
   membershipId: string,
   decision: 'approve' | 'reject',
 ): Promise<MembersActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 const SETTING_KEYS = ['hideActivityFeed', 'hideAllProjects', 'hidePeopleSearch', 'profileVisible'] as const
 export type ProfileSettingKey = (typeof SETTING_KEYS)[number]
@@ -21,6 +22,7 @@ export async function updateProfileSetting(
   key: ProfileSettingKey,
   value: boolean,
 ): Promise<{ ok?: boolean; error?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
   if (!SETTING_KEYS.includes(key)) return { error: 'Ungültige Einstellung.' }
@@ -56,6 +58,7 @@ export async function updateProfileSetting(
  * default (membership creation order).
  */
 export async function resetProjectOrder(): Promise<{ ok?: boolean; error?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

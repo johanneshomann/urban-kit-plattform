@@ -20,7 +20,7 @@ const internalHeaders = {
 const server = Server.configure({
   port: PORT,
 
-  async onAuthenticate({ token, documentName }) {
+  async onAuthenticate({ token, documentName, connection }) {
     const res = await fetch(`${PAYLOAD_INTERNAL_URL}/api/internal/authorize-room`, {
       method: 'POST',
       headers: internalHeaders,
@@ -32,6 +32,10 @@ const server = Server.configure({
     if (!data.authorized) {
       throw new Error('Unauthorized')
     }
+
+    // Read-only demo accounts: Hocuspocus drops their incoming Yjs updates,
+    // so they can draw locally but never persist or broadcast anything.
+    if (data.readOnly) connection.readOnly = true
 
     return { userId: data.userId }
   },

@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { emitNotification } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type InviteActionState = { error?: string; ok?: boolean }
 
@@ -20,6 +21,7 @@ export type InviteActionState = { error?: string; ok?: boolean }
  * role → Citizen) and reassigns it to the redeeming user.
  */
 export async function redeemInvite(code: string, locale: string): Promise<InviteActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Bitte melde dich an, um einen Einladungscode einzulösen.' }
 
@@ -82,6 +84,7 @@ export async function redeemInvite(code: string, locale: string): Promise<Invite
 
 /** Withdraw a pending invitation (PM only). */
 export async function revokeInvite(slug: string, locale: string, inviteCode: string): Promise<InviteActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Keine Berechtigung.' }
 

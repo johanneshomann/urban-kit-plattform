@@ -7,6 +7,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { cookies } from 'next/headers'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 /**
  * Toggle the starred flag on a project membership. Creates a star-only
@@ -18,6 +19,7 @@ export async function toggleProjectStar(
   projectId: string,
   currentStarred: boolean,
 ): Promise<{ ok?: boolean; error?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
   if (!token) return { error: 'Bitte melde dich an.' }

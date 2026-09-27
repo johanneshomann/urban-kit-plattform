@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { getViewerTier } from '@/lib/visibility'
+import { isDemoUser } from '@/lib/auth/demo'
 
 // ADR-1: Hocuspocus calls this server-to-server to authorize a WebSocket room.
 // roomName format: "<moduleType>:<projectSlug>:<resourceId>" — currently only "board".
@@ -41,7 +42,8 @@ export async function POST(req: NextRequest) {
     const tier = await getViewerTier(payload, String(user.id), String(project.id))
     if (tier === 'public') return deny()
 
-    return NextResponse.json({ authorized: true, userId: user.id })
+    // Demo accounts get a read-only Yjs connection (sidecar sets connection.readOnly).
+    return NextResponse.json({ authorized: true, userId: user.id, readOnly: isDemoUser(user) })
   } catch {
     return deny()
   }

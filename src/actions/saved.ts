@@ -10,6 +10,7 @@ import { getUser } from '@/lib/auth/getUser'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 import { canViewContent } from '@/lib/visibility'
 import { SAVEABLE_MODULE_COLLECTIONS } from '@/lib/workspace-search'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 /**
  * Toggle a Merkliste bookmark on one piece of project content. Open to every
@@ -20,6 +21,7 @@ export async function toggleSavedItem(
   slug: string,
   input: { module: string; itemId: string },
 ): Promise<{ ok: true; saved: boolean } | { error: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

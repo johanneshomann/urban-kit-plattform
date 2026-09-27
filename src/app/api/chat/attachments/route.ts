@@ -5,11 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authUser } from '@/lib/chat/route-auth'
 import { readImageFile } from '@/lib/upload-media'
+import { demoDeniedResponse } from '@/lib/auth/demo'
 
 // POST (multipart) — upload a chat image attachment → media doc. Returns its id + url.
 export async function POST(req: NextRequest) {
   const a = await authUser(req)
   if ('error' in a) return a.error
+  if (a.readOnly) return demoDeniedResponse()
   const { payload, userId } = a
 
   const formData = await req.formData().catch(() => null)

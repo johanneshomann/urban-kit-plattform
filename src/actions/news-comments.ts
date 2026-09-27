@@ -11,6 +11,7 @@ import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
 import { emitNotification } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type CommentActionState = { error?: string; ok?: boolean }
 
@@ -27,6 +28,7 @@ function revalidateComments(locale: string, slug: string, newsSlug?: string) {
 }
 
 export async function postNewsComment(slug: string, locale: string, postId: string, body: string): Promise<CommentActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const text = body.trim()
   if (!text) return { error: 'Kommentar darf nicht leer sein.' }
   if (text.length > 2000) return { error: 'Kommentar ist zu lang.' }
@@ -74,6 +76,7 @@ export async function postNewsComment(slug: string, locale: string, postId: stri
 
 /** Delete a comment — allowed for its author or a PM of the project. */
 export async function deleteNewsComment(slug: string, locale: string, commentId: string): Promise<CommentActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

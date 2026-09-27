@@ -7,11 +7,13 @@ import { authUser } from '@/lib/chat/route-auth'
 import { relId, getRoomMembership } from '@/lib/chat/access'
 import { canDirectMessage } from '@/lib/chat/reachability'
 import type { ChatRoomMember } from '@/payload-types'
+import { demoDeniedResponse } from '@/lib/auth/demo'
 
 // POST { userId } — find or create the 1:1 DM room between the caller and userId.
 export async function POST(req: NextRequest) {
   const a = await authUser(req)
   if ('error' in a) return a.error
+  if (a.readOnly) return demoDeniedResponse()
   const { payload, userId } = a
 
   const body = await req.json().catch(() => ({}))

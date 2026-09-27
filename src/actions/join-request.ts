@@ -9,6 +9,7 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { emitNotification } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type JoinActionState = { error?: string; ok?: boolean }
 
@@ -61,6 +62,7 @@ async function notifyProjectManagers(projectId: string) {
  * re-submitted; an existing active membership or open request is an error.
  */
 export async function requestToJoinProject(slug: string, locale: string): Promise<JoinActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Bitte melde dich an, um mitzumachen.' }
 
@@ -118,6 +120,7 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
 
 /** Withdraw one's own open join request. */
 export async function cancelJoinRequest(slug: string, locale: string): Promise<JoinActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

@@ -16,6 +16,7 @@ import { MODULE_ORDER } from '@/lib/options/modules'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type ManageActionState = { error?: string; ok?: boolean }
 
@@ -63,6 +64,7 @@ export async function updateProjectSettings(
   locale: string,
   input: ProjectSettingsInput,
 ): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -123,6 +125,7 @@ export async function updateProjectSettings(
 // ─── Cover image ──────────────────────────────────────────────────────────────
 
 export async function updateProjectCover(slug: string, locale: string, formData: FormData): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -143,6 +146,7 @@ export async function updateProjectCover(slug: string, locale: string, formData:
 }
 
 export async function removeProjectCover(slug: string, locale: string): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
   try {
@@ -159,6 +163,7 @@ export async function removeProjectCover(slug: string, locale: string): Promise<
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 
 export async function addGalleryImage(slug: string, locale: string, formData: FormData): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -190,6 +195,7 @@ export async function saveProjectGallery(
   locale: string,
   rows: Array<{ image: string; caption?: string }>,
 ): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -219,6 +225,7 @@ export async function setProjectModules(
   locale: string,
   modules: string[],
 ): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -244,6 +251,7 @@ export async function updateProjectAppearance(
   locale: string,
   input: { colorScheme: string },
 ): Promise<ManageActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getProjectManagerContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

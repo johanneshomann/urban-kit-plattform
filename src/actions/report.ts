@@ -11,6 +11,7 @@ import { getWorkspaceContext } from '@/lib/workspace-context'
 import { canViewContent } from '@/lib/visibility'
 import { SAVEABLE_MODULE_COLLECTIONS } from '@/lib/workspace-search'
 import { emitNotifications } from '@/lib/events'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 /**
  * Report one piece of project content to the project's PMs (notification with
@@ -21,6 +22,7 @@ export async function reportContent(
   slug: string,
   input: { module: string; itemId: string },
 ): Promise<{ ok: true } | { error: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

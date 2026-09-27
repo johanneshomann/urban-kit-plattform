@@ -8,8 +8,9 @@ import config from '@payload-config'
 import { NextResponse } from 'next/server'
 import type { Payload } from 'payload'
 import { requireRoomMember, type RoomContext } from '@/lib/chat/access'
+import { isDemoUser } from '@/lib/auth/demo'
 
-type AuthOk = { payload: Payload; userId: string }
+type AuthOk = { payload: Payload; userId: string; /** demo account — mutating routes must refuse */ readOnly: boolean }
 type AuthErr = { error: NextResponse }
 
 /** Authenticate a chat route request. */
@@ -19,7 +20,7 @@ export async function authUser(req: Request): Promise<AuthOk | AuthErr> {
   if (!user) {
     return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
   }
-  return { payload, userId: String(user.id) }
+  return { payload, userId: String(user.id), readOnly: isDemoUser(user) }
 }
 
 /** Authenticate + require the caller be an active member of `roomId`. */

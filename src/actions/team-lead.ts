@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type TeamLeadActionState = { error?: string; ok?: boolean }
 
@@ -49,6 +50,7 @@ function revalidateTeam(locale: string, slug: string) {
 
 /** Add an active member to the lead's team (tag on their membership). */
 export async function addMemberToTeam(slug: string, locale: string, team: string, membershipId: string): Promise<TeamLeadActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getLeadContext(slug, team)
   if (!ctx) return { error: 'Nur die Teamleitung kann Mitglieder aufnehmen.' }
   try {
@@ -71,6 +73,7 @@ export async function addMemberToTeam(slug: string, locale: string, team: string
  * removed by a PM (leads must not demote each other).
  */
 export async function removeMemberFromTeam(slug: string, locale: string, team: string, membershipId: string): Promise<TeamLeadActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getLeadContext(slug, team)
   if (!ctx) return { error: 'Nur die Teamleitung kann Mitglieder entfernen.' }
   try {

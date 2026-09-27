@@ -11,6 +11,7 @@ import { cookies } from 'next/headers'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type VoteState = { error?: string; ok?: boolean }
 
@@ -30,6 +31,7 @@ async function projectBySlug(payload: Payload, slug: string) {
 }
 
 export async function submitPollVote(slug: string, locale: string, pollId: string, answers: PollAnswer[]): Promise<VoteState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   try {
     const payload = await getPayload({ config })
     const project = await projectBySlug(payload, slug)

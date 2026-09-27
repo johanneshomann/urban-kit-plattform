@@ -6,6 +6,7 @@ import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import type { Notification } from '@/payload-types'
+import { isDemoUser, demoDeniedResponse } from '@/lib/auth/demo'
 
 /** Wire shape for one notification — reference resolved to title + app href. */
 export interface NotificationItem {
@@ -136,6 +137,7 @@ export async function POST(req: NextRequest) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: req.headers })
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (isDemoUser(user)) return demoDeniedResponse()
 
   const body = await req.json().catch(() => ({}))
   const where: Where | null =
@@ -155,6 +157,7 @@ export async function DELETE(req: NextRequest) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: req.headers })
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (isDemoUser(user)) return demoDeniedResponse()
 
   const body = await req.json().catch(() => ({}))
   const where: Where | null =

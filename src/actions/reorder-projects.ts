@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 /**
  * Persist the user's custom order for their dashboard project pills.
@@ -17,6 +18,7 @@ import { getUser } from '@/lib/auth/getUser'
 export async function reorderProjects(
   orderedMembershipIds: string[],
 ): Promise<{ ok?: boolean; error?: string }> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const user = await getUser()
   if (!user) return { error: 'Nicht angemeldet.' }
 

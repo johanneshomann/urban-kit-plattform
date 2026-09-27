@@ -14,6 +14,7 @@ import { clampAuthorVisibility } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type CalendarActionState = { error?: string; ok?: boolean }
 
@@ -97,6 +98,7 @@ async function buildData(input: EventInput): Promise<{ data: EventData } | { err
 }
 
 export async function createProjectEvent(slug: string, locale: string, input: EventInput): Promise<CalendarActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   // PMs and team leads may create; leads are clamped to their teams below.
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
@@ -127,6 +129,7 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
 }
 
 export async function updateProjectEvent(slug: string, locale: string, eventId: string, input: EventInput): Promise<CalendarActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 
@@ -155,6 +158,7 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
 }
 
 export async function deleteProjectEvent(slug: string, locale: string, eventId: string): Promise<CalendarActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await getContentAuthorContext(slug)
   if (!ctx) return { error: 'Nicht berechtigt.' }
 

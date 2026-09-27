@@ -11,6 +11,7 @@ import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier } from '@/lib/visibility'
 import { clampTeamsToCatalog } from '@/lib/team-scope'
+import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type FilesActionState = { error?: string; ok?: boolean }
 
@@ -50,6 +51,7 @@ function revalidateFiles(locale: string, slug: string) {
 // ─── Folders ──────────────────────────────────────────────────────────────────
 
 export async function createFolder(slug: string, locale: string, input: { name: string; visibility?: string; visibilityTeams?: string[] }): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   const name = input.name.trim()
@@ -64,6 +66,7 @@ export async function createFolder(slug: string, locale: string, input: { name: 
 }
 
 export async function setFolderVisibility(slug: string, locale: string, folderId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
@@ -78,6 +81,7 @@ export async function setFolderVisibility(slug: string, locale: string, folderId
 }
 
 export async function deleteFolder(slug: string, locale: string, folderId: string): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
@@ -95,6 +99,7 @@ export async function deleteFolder(slug: string, locale: string, folderId: strin
 // ─── Files ────────────────────────────────────────────────────────────────────
 
 export async function uploadFile(slug: string, locale: string, formData: FormData): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
 
@@ -128,6 +133,7 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
 }
 
 export async function setFileVisibility(slug: string, locale: string, fileId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
@@ -142,6 +148,7 @@ export async function setFileVisibility(slug: string, locale: string, fileId: st
 }
 
 export async function deleteFile(slug: string, locale: string, fileId: string): Promise<FilesActionState> {
+  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {

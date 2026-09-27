@@ -10,6 +10,7 @@ import { relId } from '@/lib/chat/access'
 import { resolveMention, type Mentionable } from '@/lib/chat/mentionables'
 import { serializeMessage, personName } from '@/lib/chat/serialize'
 import type { ChatMessage, ChatRoomMember } from '@/payload-types'
+import { demoDeniedResponse } from '@/lib/auth/demo'
 
 const TYPING_WINDOW_MS = 6000
 
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
   const { roomId } = await params
   const a = await authRoom(req, roomId)
   if ('error' in a) return a.error
+  if (a.readOnly) return demoDeniedResponse()
   const { payload, userId } = a
 
   const body = await req.json().catch(() => ({}))
