@@ -15,7 +15,8 @@
     "seed": "npx tsx --env-file=.env.local src/seed.ts",
     "seed:legal": "npx tsx --env-file=.env.local scripts/seed-legal.ts",
     "seed:prototype": "npx payload run scripts/seed-prototype.ts",
-    "seed:rotate-passwords": "npx payload run scripts/rotate-seed-passwords.ts"
+    "seed:rotate-passwords": "npx payload run scripts/rotate-seed-passwords.ts",
+    "seed:demo": "npx payload run scripts/seed-demo-accounts.ts"
   },
   "repository": {
     "type": "git",
