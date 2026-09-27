@@ -9,7 +9,6 @@ import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { User, Globe, HandHeart, LayoutDashboard, LogOut, Search } from 'lucide-react'
-import { logoutAction } from '@/actions/auth'
 import { openWorkspaceSearch } from '@/components/platform/WorkspaceSearchPalette'
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu'
 import { IconTooltip } from '@/components/platform/IconTooltip'
@@ -176,7 +175,7 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
               >
                 {tc('cancel')}
               </button>
-              <form action={logoutAction} className="contents">
+              <form action={`/api/auth/logout?locale=${locale}&to=login`} method="post" className="contents">
                 <button
                   ref={confirmRef}
                   type="submit"

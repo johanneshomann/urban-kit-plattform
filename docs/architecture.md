@@ -31,7 +31,9 @@ The same Next.js app serves two hosts; `src/middleware.ts` enforces the split
 The session cookie (`payload-token`) is scoped to the parent domain
 (`.urbankit.de`) in production so one login is valid on both hosts. After
 login on the portal, the workspace opens on the app domain in a new tab
-(`src/actions/auth.ts` → `LoginForm`).
+(`src/actions/auth.ts` → `LoginForm`). Logout posts to `/api/auth/logout`, which clears both
+cookie variants (parent-domain + host-only) — a server action cannot, its cookie
+store is keyed by name (`src/lib/auth/session-cookie.ts`).
 
 ## Repository map
 

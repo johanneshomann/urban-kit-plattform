@@ -11,7 +11,6 @@ import { useTranslations } from 'next-intl'
 import { LayoutDashboard, LogIn, LogOut, UserCircle, UserPlus, ChevronRight, Menu, X, Home, Folders, Flag, Mail, Info, Users, BookOpen, FolderOpen } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/public/LanguageSwitcher'
-import { logoutPortalAction } from '@/actions/auth'
 import { PROFILE_BADGE_ICONS, PROFILE_BADGE_VALUES, type ProfileBadge } from '@/lib/profile-badges'
 
 interface PublicNavProps {
@@ -440,7 +439,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
                         {t('userMenuProfile')}
                       </a>
                       <span aria-hidden className="h-px my-2" style={{ background: 'color-mix(in srgb, var(--plattform-ink) 15%, transparent)' }} />
-                      <form action={logoutPortalAction} className="contents">
+                      <form action={`/api/auth/logout?locale=${locale}&to=portal`} method="post" className="contents">
                         <button
                           type="submit"
                           role="menuitem"
@@ -593,7 +592,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
                       {userName ?? t('loggedIn')}
                     </span>
                   </a>
-                  <form action={logoutPortalAction} className="flex-1 flex">
+                  <form action={`/api/auth/logout?locale=${locale}&to=portal`} method="post" className="flex-1 flex">
                     <button
                       type="submit"
                       className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal cursor-pointer transition-colors text-[var(--plattform-ink-accent)] bg-[var(--plattform-light)] hover:bg-[var(--plattform-accent)] hover:text-[var(--plattform-white)]"

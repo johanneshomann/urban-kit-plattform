@@ -11,27 +11,22 @@ import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { emailVerificationEnabled } from '@/lib/email'
 import { getDemoAccounts } from '@/lib/prototype-notice'
+import { SESSION_COOKIE, appDomain, sessionCookieDomain } from '@/lib/auth/session-cookie'
 import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 
 export type AuthState = { error?: string; appUrl?: string; verifySent?: boolean } | null
 
-const appDomain = () => process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'app.urbankit.de'
-
 // Session must be valid on both urbankit.de and app.urbankit.de, so the cookie
 // is scoped to the parent domain in production (host-only on localhost).
-function cookieDomain(): string | undefined {
-  if (process.env.NODE_ENV !== 'production') return undefined
-  return `.${appDomain().replace(/^app\./, '')}`
-}
-
+// Clearing lives in /api/auth/logout — see src/lib/auth/session-cookie.ts.
 async function setTokenCookie(token: string) {
   const cookieStore = await cookies()
-  cookieStore.set('payload-token', token, {
+  cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
-    domain: cookieDomain(),
+    domain: sessionCookieDomain(),
   })
 }
 
@@ -394,29 +389,9 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
     await payload.delete({ collection: 'media', id: mediaId, overrideAccess: true }).catch(() => {})
   }
 
-  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
-  cookieStore.delete('payload-token')
-  const locale = await getLocale()
-  redirect(`/${locale}/login`)
-}
-
-/**
- * Log out from the public portal: clears the session but stays on the portal
- * (home page) instead of bouncing into the app's login screen.
- */
-export async function logoutPortalAction(): Promise<void> {
-  const cookieStore = await cookies()
-  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
-  cookieStore.delete('payload-token')
-  const locale = await getLocale()
-  redirect(`/${locale}`)
-}
-
-export async function logoutAction(): Promise<void> {
-  const cookieStore = await cookies()
-  // Clear both the parent-domain cookie and any legacy host-only cookie
-  cookieStore.delete({ name: 'payload-token', domain: cookieDomain(), path: '/' })
-  cookieStore.delete('payload-token')
+  // The user doc is gone, so any remaining cookie is a dead token; clear the
+  // primary (domain) variant here, the login page copes with stale ones.
+  cookieStore.delete({ name: SESSION_COOKIE, domain: sessionCookieDomain(), path: '/' })
   const locale = await getLocale()
   redirect(`/${locale}/login`)
 }

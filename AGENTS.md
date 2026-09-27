@@ -169,6 +169,12 @@ and their collections: [docs/modules.md](docs/modules.md).
    (`.urbankit.de`) in production so one login is valid on both hosts; on
    localhost it stays host-only. Logout clears both the parent-domain and the
    legacy host-only cookie.
+   Logout goes through the route handler `/api/auth/logout` (plain `<form
+   method="post">`), never a server action: Next's `cookies()` response store
+   is keyed by cookie NAME, so two `delete()` calls for `payload-token`
+   overwrite each other and the parent-domain cookie survives — the route
+   appends one Set-Cookie per variant (`clearSessionCookieHeaders()` in
+   `src/lib/auth/session-cookie.ts`).
 4. **Module registry.** Each module lives in `src/modules/<id>/` with a
    `manifest.ts` (id, name, icon, hasPublicContent) and a `plugin.ts` (Payload
    plugin registering the module's collections). Modules self-register via
