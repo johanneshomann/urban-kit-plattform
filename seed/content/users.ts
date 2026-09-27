@@ -74,7 +74,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     cityInfo: { organization: 'Stadtverwaltung', fachbereich: 'Kultur', position: 'Projektleitung Kultur trifft Digital' },
     avatar: avatar('clara-hoffmann'),
     memberships: [
-      { project: 'kultur-trifft-digital', role: 'PM' },
       { project: 'mitmach-werkstatt', role: 'Citizen' },
     ],
   },
@@ -115,7 +114,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     avatar: avatar('lea-winkler'),
     memberships: [
       { project: 'mitmach-werkstatt', role: 'Citizen', teams: ['Werkstatt-Team'], leadOf: ['Werkstatt-Team'] },
-      { project: 'kultur-trifft-digital', role: 'Citizen', teams: ['Technik-Team'] },
     ],
   },
   {
@@ -166,7 +164,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     bio: 'Freie Illustratorin. Interessiert sich für alles, was Kultur und digitale Räume zusammenbringt.',
     avatar: avatar('sofia-ricci'),
     memberships: [
-      { project: 'kultur-trifft-digital', role: 'Citizen' },
       { project: 'mitmach-werkstatt', role: 'Citizen' },
     ],
   },
@@ -207,7 +204,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     bio: 'Betreibt ein Café am Marktplatz und stellt für Kulturaktionen gern seine Fensterfront zur Verfügung.',
     avatar: avatar('kemal-aydin'),
     memberships: [
-      { project: 'kultur-trifft-digital', role: 'Citizen' },
       { project: 'mobilitaet-x-multi', role: 'Citizen' },
     ],
   },
@@ -256,7 +252,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     memberships: [
       { project: 'stadtkontakt-mobil', role: 'Citizen', teams: ['Tourenteam'] },
       { project: 'push-statt-pull', role: 'Citizen' },
-      { project: 'kultur-trifft-digital', role: 'Citizen' },
     ],
   },
   {
@@ -265,7 +260,6 @@ export const SEED_USERS: SeedUserWithMemberships[] = [
     bio: 'Medienproduktion-Student. Filmt Kulturformate und schneidet die Aftermovies der Werkstatt-Events.',
     avatar: avatar('leon-brinkmann'),
     memberships: [
-      { project: 'kultur-trifft-digital', role: 'Citizen', teams: ['Technik-Team'] },
       { project: 'mitmach-werkstatt', role: 'Citizen' },
       { project: 'mobilitaet-x-multi', role: 'Citizen' },
     ],

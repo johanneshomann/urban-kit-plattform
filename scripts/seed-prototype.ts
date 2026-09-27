@@ -22,7 +22,6 @@ import path from 'node:path'
 import { SEED_USERS } from '../seed/content/users'
 import { pushStattPull } from '../seed/content/push-statt-pull'
 import { mobilitaetXMulti } from '../seed/content/mobilitaet-x-multi'
-import { kulturTrifftDigital } from '../seed/content/kultur-trifft-digital'
 import { stadtdaten } from '../seed/content/stadtdaten'
 import { nudging } from '../seed/content/nudging'
 import { stadtkontaktMobil } from '../seed/content/stadtkontakt-mobil'
@@ -30,7 +29,7 @@ import { mitmachWerkstatt } from '../seed/content/mitmach-werkstatt'
 import { GRUNDLAGEN_SEED } from '../seed/content/grundlagen'
 import type { SeedImage, SeedProject } from '../seed/content/types'
 
-const PROJECTS: SeedProject[] = [pushStattPull, mobilitaetXMulti, kulturTrifftDigital, stadtdaten, nudging, stadtkontaktMobil, mitmachWerkstatt]
+const PROJECTS: SeedProject[] = [pushStattPull, mobilitaetXMulti, stadtdaten, nudging, stadtkontaktMobil, mitmachWerkstatt]
 const ASSETS = path.resolve(process.cwd(), 'seed', 'assets')
 // Roster password: secret via env in prod (the accounts incl. PM roles are
 // fully functional and the emails are public in this repo!), demo1234 in dev.
