@@ -57,3 +57,11 @@ Setting `SMTP_HOST` wires Payload's nodemailer adapter AND switches account
 `/de/verifizieren/<token>`) and blocks login until confirmed. Leave it unset
 for instant registration without mail (dev without a mailcatcher).
 
+## Demo accounts (script-only — `npm run seed:demo`)
+
+| Variable | Default | Description |
+|---|---|---|
+| `DEMO_PROJECT_SLUG` | `push-statt-pull` | Project both test accounts join (citizen + PM). |
+| `DEMO_CITIZEN_EMAIL` | `demo-buerger@urbankit.de` | Citizen test login. |
+| `DEMO_PM_EMAIL` | `demo-projektleitung@urbankit.de` | Project-lead test login. |
+| `DEMO_PASSWORD` | `urbankit-demo` | Shared password — **public by design** (shown on `/login`); the accounts are read-only. |

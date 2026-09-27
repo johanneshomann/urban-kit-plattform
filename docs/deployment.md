@@ -120,3 +120,17 @@ git pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build web hocuspocus
 ```
 
+## Demo accounts (public prototype logins)
+
+Two read-only test accounts (citizen + project lead) can be shown on the login
+page while the prototype notice is on:
+
+```bash
+docker compose exec web npm run seed:demo          # defaults, see script header
+DEMO_PROJECT_SLUG=… DEMO_PASSWORD=… docker compose exec -e DEMO_PROJECT_SLUG -e DEMO_PASSWORD web npm run seed:demo
+```
+
+The script flags the users `isDemo`, puts them into the project and fills
+`platform-settings.prototypeDemoAccounts` (only if empty). Writes from these
+accounts are refused platform-wide; the board is read-only (the `hocuspocus`
+image must be rebuilt after updating — it sets `connection.readOnly`).

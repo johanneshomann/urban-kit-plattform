@@ -143,6 +143,15 @@ and their collections: [docs/modules.md](docs/modules.md).
    provider, media/mail processing), so any change to what the platform
    stores in the browser or transmits must update the templates **and**
    [docs/legal-templates.md](docs/legal-templates.md) together.
+8. **Demo accounts are read-only** — users flagged `isDemo` are public
+   prototype test logins with shared, publicly displayed credentials. Every
+   mutating server action starts with
+   `if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }` and every
+   mutating API route checks `isDemoUser(user)` / `a.readOnly`
+   (`src/lib/auth/demo.ts`); the board gets a read-only Yjs connection. New
+   actions/routes must follow suit — Payload hooks can't cover this because
+   actions write with `overrideAccess` and no request user. Reads and the
+   Urban Agent stay open.
 
 ---
 

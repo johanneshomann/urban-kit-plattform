@@ -107,7 +107,7 @@ Globals (`src/globals/`):
 
 | Global | Slug | Purpose |
 |---|---|---|
-| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the prototype notice (`prototypeNoticeEnabled` + optional localized `prototypeNoticeText` — a once-per-session dismissible dialog rendered by `PrototypeNotice` in the locale layout; `CookieNotice` defers until it is dismissed so the two never stack), the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), the eight project color schemes (`schemes` — fixed names, tunable role colors, merged over the code defaults by `getColorSchemes()`), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Prototyp-Hinweis / Über / Partner / Projektfarben / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
+| PlatformSettings | `platform-settings` | City identity (name/logo), hero slideshow, joinRequest flag, the prototype notice (`prototypeNoticeEnabled` + optional localized `prototypeNoticeText` — a once-per-session dismissible dialog rendered by `PrototypeNotice` in the locale layout; `CookieNotice` defers until it is dismissed so the two never stack) and the public demo logins (`prototypeDemoAccounts`: label/email/password/description, shown on `/login`), the localized `ueber` rich text (Über-UrbanKIT page body), the `sponsors` partner-logo array (logo/name/url + per-logo height/padding; rendered by `SponsorStrip` in the `PublicFooter` band on every public page except Über-UrbanKIT, which has its own partner section), the eight project color schemes (`schemes` — fixed names, tunable role colors, merged over the code defaults by `getColorSchemes()`), all platform color tokens (`--plattform-*`, `--projekte-*`, …) — tabbed admin (Stadt / Allgemein / Prototyp-Hinweis / Über / Partner / Projektfarben / Farben) with native color-picker fields + reset-to-defaults; homepage copy stays i18n-hardcoded |
 | LegalSettings | `legal-settings` | Tabbed legal + contact: impressum, datenschutz, cookies (localized) + contact details |
 | UrbanAgentSettings | `urban-agent-settings` | Urban Agent config: enabled, provider select (Mistral/Anthropic/OpenAI/Ollama), API key, model, localized operator instructions, per-user rate limit. **Admin-only `read`** (unlike the public-read globals) so the stored key never leaks via REST — server code reads it via `loadUrbanAgentSettings` (30 s cache, precedence global → env → default) |
 
@@ -118,6 +118,16 @@ chat-room role) collapse into a 3-tier visibility model (`PUBLIC` /
 `INTERNAL` / `TEAM`). Collection-level Payload access is intentionally coarse;
 real enforcement lives in server actions and route guards. See
 [access-control.md](./access-control.md).
+
+`users` itself is locked down (read/update self-or-admin, delete admin — Payload's
+default would let any logged-in user edit any user via REST). **Demo accounts**
+(`users.isDemo`) are the public prototype test logins: every mutating server
+action and API route refuses their writes (`src/lib/auth/demo.ts`, hard rule 8 in
+AGENTS.md), the Hocuspocus connection is read-only, the Urban Agent stays usable.
+Their credentials live in `platform-settings.prototypeDemoAccounts` and are shown
+on `/login` (one-click login via `demoLoginAction`) plus referenced by the
+prototype notice — only while the prototype notice is enabled and only for
+entries whose user really is flagged `isDemo`. Seed: `npm run seed:demo`.
 
 ## Modules
 
