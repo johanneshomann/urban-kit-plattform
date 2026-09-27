@@ -11,9 +11,10 @@ import { demoLoginAction } from '@/actions/auth'
 import type { DemoAccount } from '@/lib/prototype-notice'
 
 /**
- * Prototype test accounts above the login form: one-click login per account
- * plus the plain credentials for people who prefer to type them. Rendered only
- * while the prototype notice is on and validated demo users exist.
+ * Prototype test accounts above the login form: title, one-line intro and a
+ * one-click login button per account — nothing else, the panel must stay
+ * short. Rendered only while the prototype notice is on and validated demo
+ * users exist.
  */
 export function DemoLoginPanel({ accounts }: { accounts: DemoAccount[] }) {
   const [state, action, pending] = useActionState(demoLoginAction, null)
@@ -52,22 +53,21 @@ export function DemoLoginPanel({ accounts }: { accounts: DemoAccount[] }) {
 
       <ul className="flex flex-col gap-2">
         {accounts.map((a) => (
-          <li key={a.email} className="rounded-lg p-3 flex flex-col gap-2" style={{ background: 'var(--app-white)' }}>
+          <li key={a.email}>
+            {/* Just the button — the account description rides along as tooltip,
+                credentials stay out of the panel (one-click covers the login). */}
             <form action={action}>
               <input type="hidden" name="email" value={a.email} />
               <button
                 type="submit"
                 disabled={pending}
+                title={a.description ?? undefined}
                 className="w-full flex items-center justify-between px-3 h-10 rounded-lg text-small font-semibold transition-colors disabled:opacity-50 cursor-pointer bg-[var(--app-accent)] text-[var(--app-white)] hover:bg-[var(--app-ink-accent)]"
               >
                 {pending ? t('demoPending') : t('demoLoginAs', { label: a.label })}
                 <LogIn className="w-[1em] h-[1em] shrink-0" aria-hidden />
               </button>
             </form>
-            {a.description && <p className="text-small">{a.description}</p>}
-            <p className="text-small font-mono break-all" style={{ color: 'var(--app-ink)' }}>
-              {t('demoCredentials', { email: a.email, password: a.password })}
-            </p>
           </li>
         ))}
       </ul>
