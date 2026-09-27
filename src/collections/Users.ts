@@ -50,7 +50,8 @@ export const Users: CollectionConfig = {
   // through these rules.
   access: {
     admin: ({ req: { user } }) => user?.role === 'admin',
-    read: ({ req: { user }, id }) => user?.role === 'admin' || (!!user && String(user.id) === String(id)),
+    // Where-clause instead of a boolean so list queries also resolve to "self".
+    read: ({ req: { user } }) => (user?.role === 'admin' ? true : user ? { id: { equals: user.id } } : false),
     update: ({ req: { user }, id }) =>
       user?.role === 'admin' || (!!user && !(user as { isDemo?: boolean }).isDemo && String(user.id) === String(id)),
     delete: ({ req: { user } }) => user?.role === 'admin',
