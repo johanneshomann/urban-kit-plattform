@@ -21,10 +21,10 @@ export async function getCitySettings(): Promise<CitySettings> {
       cityLogoUrl = logo.url
     }
     return {
-      cityName: settings.cityName ?? 'Stadt Detmold',
+      cityName: settings.cityName ?? 'Detmold',
       cityLogoUrl,
     }
   } catch {
-    return { cityName: 'Stadt Detmold', cityLogoUrl: null }
+    return { cityName: 'Detmold', cityLogoUrl: null }
   }
 }

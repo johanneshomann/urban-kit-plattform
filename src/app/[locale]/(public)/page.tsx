@@ -154,7 +154,8 @@ export default async function PublicHomePage({
       {
         '@type': 'Organization',
         '@id': `${base}/#organization`,
-        name: cityName,
+        // Organization = the municipality; tolerate legacy values that already carry the prefix.
+        name: cityName.startsWith('Stadt ') ? cityName : `Stadt ${cityName}`,
         url: base,
         ...(cityLogoUrl ? { logo: cityLogoUrl.startsWith('http') ? cityLogoUrl : `${base}${cityLogoUrl}` } : {}),
       },

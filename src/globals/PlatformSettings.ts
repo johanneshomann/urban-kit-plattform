@@ -84,8 +84,13 @@ export const PlatformSettings: GlobalConfig = {
               type: 'text',
               label: { en: 'City name', de: 'Stadtname' },
               required: true,
-              defaultValue: 'Stadt Detmold',
-              admin: { description: { en: 'Name of the city, e.g. “Stadt Detmold”.', de: 'Name der Stadt, z. B. „Stadt Detmold".' } },
+              defaultValue: 'Detmold',
+              admin: {
+                description: {
+                  en: 'Bare place name WITHOUT “Stadt”, e.g. “Detmold” — the texts add “Stadt …”, “in …”, “für …” themselves.',
+                  de: 'Nur der Ortsname OHNE „Stadt", z. B. „Detmold" — die Texte ergänzen „Stadt …", „in …", „für …" selbst.',
+                },
+              },
             },
             {
               name: 'cityLogo',

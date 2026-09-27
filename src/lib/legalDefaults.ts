@@ -237,7 +237,7 @@ export async function seedLegalTexts(
 ): Promise<void> {
   // City name for the accessibility statement's scope sentence; falls back to
   // the same default getCitySettings uses on a fresh install.
-  let cityName = 'Stadt Detmold'
+  let cityName = 'Detmold'
   try {
     const ps = (await payload.findGlobal({ slug: 'platform-settings', depth: 0, overrideAccess: true })) as { cityName?: string | null }
     if (ps?.cityName) cityName = ps.cityName
