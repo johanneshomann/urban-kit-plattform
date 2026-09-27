@@ -47,7 +47,14 @@ for (const a of ACCOUNTS) {
     userId = existing.docs[0].id
     await payload.update({ collection: 'users', id: userId, data: { password: PASSWORD, isDemo: true, firstName: a.firstName, lastName: a.lastName, role: 'user' }, overrideAccess: true })
   } else {
-    const created = await payload.create({ collection: 'users', data: { email: a.email, password: PASSWORD, role: 'user', isDemo: true, firstName: a.firstName, lastName: a.lastName }, overrideAccess: true })
+    // Same as seed-prototype: no verification mail — the accounts are ours, and
+    // an unreachable SMTP host would abort the whole seed.
+    const created = await payload.create({
+      collection: 'users',
+      data: { email: a.email, password: PASSWORD, role: 'user', isDemo: true, firstName: a.firstName, lastName: a.lastName, _verified: true } as never,
+      disableVerificationEmail: true,
+      overrideAccess: true,
+    })
     userId = created.id
   }
   await payload.update({ collection: 'users', id: userId, data: { _verified: true } as never, overrideAccess: true }).catch(() => {})
