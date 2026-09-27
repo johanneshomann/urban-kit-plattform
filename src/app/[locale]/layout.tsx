@@ -5,6 +5,7 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { routing } from '@/i18n/routing'
 import { getPlatformColors, colorsToCssVars } from '@/lib/theme'
 import { AccessibilityProvider } from '@/components/accessibility/AccessibilityProvider'
@@ -38,6 +39,9 @@ export default async function LocaleLayout({
     getPrototypeNotice(locale),
   ])
   const cssVars = colorsToCssVars(colors)
+  // Demo-login CTA in the prototype notice only makes sense for visitors
+  // without a session (cookie presence is enough — no auth round-trip here).
+  const loggedIn = Boolean((await cookies()).get('payload-token')?.value)
 
   return (
     <html lang={locale} style={cssVars as React.CSSProperties} suppressHydrationWarning>
@@ -51,7 +55,12 @@ export default async function LocaleLayout({
           <AccessibilityProvider>
             {children}
             <AccessibilityButton />
-            {prototypeNotice.enabled && <PrototypeNotice text={prototypeNotice.text} />}
+            {prototypeNotice.enabled && (
+              <PrototypeNotice
+                text={prototypeNotice.text}
+                loginHref={prototypeNotice.hasDemoAccounts && !loggedIn ? `/${locale}/login` : null}
+              />
+            )}
             <CookieNotice waitForPrototypeNotice={prototypeNotice.enabled} />
           </AccessibilityProvider>
         </NextIntlClientProvider>

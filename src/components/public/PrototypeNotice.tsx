@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { FlaskConical, X } from 'lucide-react'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 
@@ -29,7 +30,7 @@ const emitDone = () => {
   window.dispatchEvent(new CustomEvent(PROTOTYPE_NOTICE_DONE_EVENT))
 }
 
-export default function PrototypeNotice({ text }: { text: string | null }) {
+export default function PrototypeNotice({ text, loginHref }: { text: string | null; /** set when demo accounts exist and the visitor is logged out */ loginHref?: string | null }) {
   const t = useTranslations('prototypeNotice')
   const [visible, setVisible] = useState(false)
   const visibleRef = useRef(false)
@@ -147,7 +148,8 @@ export default function PrototypeNotice({ text }: { text: string | null }) {
           <div className="pr-4">
             <p className="text-text font-bold mb-1" style={{ color: 'var(--plattform-ink-accent)' }}>{t('title')}</p>
             <p className="text-small leading-relaxed whitespace-pre-line">{text ?? t('text')}</p>
-            <div className="mt-4 flex items-center gap-4">
+            {loginHref && <p className="text-small leading-relaxed mt-2">{t('demoHint')}</p>}
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <button
                 onClick={dismiss}
                 data-autofocus
@@ -158,6 +160,16 @@ export default function PrototypeNotice({ text }: { text: string | null }) {
               >
                 {t('dismiss')}
               </button>
+              {loginHref && (
+                <Link
+                  href={loginHref}
+                  onClick={dismiss}
+                  className="text-small font-bold px-4 py-2 rounded-xl border transition-colors hover:opacity-80"
+                  style={{ color: 'var(--plattform-accent)', borderColor: 'var(--plattform-accent)' }}
+                >
+                  {t('demoCta')}
+                </Link>
+              )}
             </div>
           </div>
         </div>

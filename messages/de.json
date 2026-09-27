@@ -61,7 +61,12 @@
     "verifiedBody": "Ihre E-Mail-Adresse ist bestätigt. Sie können sich jetzt anmelden.",
     "verifiedLogin": "Zur Anmeldung",
     "verifyFailedTitle": "Aktivierung fehlgeschlagen",
-    "verifyFailedBody": "Der Link ist ungültig oder wurde bereits verwendet. Falls Ihr Konto schon aktiviert ist, melden Sie sich einfach an."
+    "verifyFailedBody": "Der Link ist ungültig oder wurde bereits verwendet. Falls Ihr Konto schon aktiviert ist, melden Sie sich einfach an.",
+    "demoTitle": "Prototyp: Testzugänge",
+    "demoIntro": "Zum Ausprobieren ohne Registrierung. Im Testzugang werden Änderungen nicht gespeichert.",
+    "demoLoginAs": "Als {label} anmelden",
+    "demoPending": "Anmeldung …",
+    "demoCredentials": "E-Mail: {email} · Passwort: {password}"
   },
   "accessibility": {
     "open": "Barrierefreiheit-Einstellungen öffnen",
@@ -295,7 +300,9 @@
     "title": "Prototyp-Hinweis",
     "text": "UrbanKIT befindet sich derzeit in der Erprobung: Die gesamte Plattform ist ein Prototyp. Alle dargestellten Projekte sind Mockups, die realen Projekten nachempfunden sind, und dienen nur der Veranschaulichung.",
     "dismiss": "Verstanden",
-    "close": "Schließen"
+    "close": "Schließen",
+    "demoHint": "Zum Ausprobieren stehen Testzugänge bereit (Bürger:in und Projektleitung) – ohne Registrierung. Im Testzugang werden Änderungen nicht gespeichert.",
+    "demoCta": "Testzugänge ansehen"
   },
   "taxonomy": {
     "status": {

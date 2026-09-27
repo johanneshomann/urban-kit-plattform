@@ -183,6 +183,28 @@ export const PlatformSettings: GlobalConfig = {
                 },
               },
             },
+            {
+              // Public test accounts for the prototype. Displayed on the login page
+              // (one-click login + credentials) and referenced by the prototype
+              // notice. Each entry must match a user flagged isDemo — otherwise it
+              // is silently skipped (src/lib/prototype-notice.ts validates).
+              name: 'prototypeDemoAccounts',
+              type: 'array',
+              label: { en: 'Demo accounts on the login page', de: 'Testzugänge auf der Login-Seite' },
+              admin: {
+                condition: (data) => Boolean(data?.prototypeNoticeEnabled),
+                description: {
+                  en: 'Publicly visible credentials. The accounts must exist in Users and be flagged “Demo account (read-only)” — entries without such a user are not shown.',
+                  de: 'Öffentlich sichtbare Zugangsdaten. Die Konten müssen unter Benutzer:innen existieren und als „Demo-Zugang (nur lesen)" markiert sein — Einträge ohne solches Konto werden nicht angezeigt.',
+                },
+              },
+              fields: [
+                { name: 'label', type: 'text', required: true, localized: true, label: { en: 'Label', de: 'Bezeichnung' }, admin: { placeholder: 'Bürger:in' } },
+                { name: 'email', type: 'email', required: true, label: { en: 'Login e-mail', de: 'Login-E-Mail' } },
+                { name: 'password', type: 'text', required: true, label: { en: 'Password (shown publicly)', de: 'Passwort (öffentlich sichtbar)' } },
+                { name: 'description', type: 'textarea', localized: true, label: { en: 'What this account can do (optional)', de: 'Was dieser Zugang kann (optional)' } },
+              ],
+            },
           ],
         },
         {
