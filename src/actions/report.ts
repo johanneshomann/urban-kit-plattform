@@ -11,7 +11,8 @@ import { getWorkspaceContext } from '@/lib/workspace-context'
 import { canViewContent } from '@/lib/visibility'
 import { SAVEABLE_MODULE_COLLECTIONS } from '@/lib/workspace-search'
 import { emitNotifications } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 /**
  * Report one piece of project content to the project's PMs (notification with
@@ -22,29 +23,29 @@ export async function reportContent(
   slug: string,
   input: { module: string; itemId: string },
 ): Promise<{ ok: true } | { error: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   const collection = SAVEABLE_MODULE_COLLECTIONS[input.module]
-  if (!collection || typeof input.itemId !== 'string' || input.itemId.length > 64) return { error: 'Ungültiger Eintrag.' }
+  if (!collection || typeof input.itemId !== 'string' || input.itemId.length > 64) return actionError('invalidItem')
 
   const ctx = await getWorkspaceContext(slug)
-  if (!ctx) return { error: 'Projekt nicht gefunden.' }
+  if (!ctx) return actionError('projectNotFound')
 
   try {
     const payload = await getPayload({ config })
     const doc = (await payload
       .findByID({ collection: collection as never, id: input.itemId, depth: 0, overrideAccess: true })
       .catch(() => null)) as Record<string, unknown> | null
-    if (!doc) return { error: 'Eintrag nicht gefunden.' }
+    if (!doc) return actionError('itemNotFound')
     const projectId = doc.project == null ? null : typeof doc.project === 'object' ? String((doc.project as { id: unknown }).id) : String(doc.project)
-    if (projectId !== String(ctx.project.id)) return { error: 'Eintrag nicht gefunden.' }
+    if (projectId !== String(ctx.project.id)) return actionError('itemNotFound')
     const membership = ctx.membershipId
       ? { id: ctx.membershipId, status: ctx.membershipStatus, role: ctx.role, teams: ctx.teams, leadOf: ctx.viewer.leadOf }
       : null
     if (!canViewContent(membership, doc as { visibility?: string | null; visibilityTeams?: string[] | null })) {
-      return { error: 'Eintrag nicht gefunden.' }
+      return actionError('itemNotFound')
     }
 
     const pms = await payload.find({
@@ -67,6 +68,6 @@ export async function reportContent(
     })))
     return { ok: true }
   } catch {
-    return { error: 'Melden fehlgeschlagen.' }
+    return actionError('reportFailed')
   }
 }

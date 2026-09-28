@@ -15,7 +15,8 @@ import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
 import { emitActivity, emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type NewsActionState = { error?: string; ok?: boolean }
 
@@ -111,12 +112,12 @@ export async function createProjectNewsPost(
   locale: string,
   input: { title: string; body?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   try {
     const payload = await getPayload({ config })
@@ -139,7 +140,7 @@ export async function createProjectNewsPost(
     })
     await emitActivity({ type: 'news.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collectionSlug: 'news-posts', id: String(post.id) } })
   } catch {
-    return { error: 'Beitrag konnte nicht erstellt werden.' }
+    return actionError('postCreateFailed')
   }
 
   revalidateNews(locale, slug)
@@ -162,7 +163,7 @@ export async function getNewsEditData(
   postId: string,
 ): Promise<{ data: NewsEditData } | { error: string }> {
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const { payload, post } = ctx
@@ -184,7 +185,7 @@ export async function getNewsEditData(
       },
     }
   } catch {
-    return { error: 'Beitrag konnte nicht geladen werden.' }
+    return actionError('postLoadFailed')
   }
 }
 
@@ -194,12 +195,12 @@ export async function updateProjectNewsPost(
   postId: string,
   input: { title: string; body?: string; contentState?: string; visibility?: string; visibilityTeams?: string[] },
 ): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   // Content: `contentState` = serialized Lexical state (popup editor);
   // `body` = markdown (legacy manager textarea); neither = leave untouched.
@@ -210,10 +211,10 @@ export async function updateProjectNewsPost(
     } else {
       try {
         const parsed: unknown = JSON.parse(input.contentState)
-        if (!parsed || typeof parsed !== 'object' || !(parsed as { root?: unknown }).root) return { error: 'Ungültiger Inhalt.' }
+        if (!parsed || typeof parsed !== 'object' || !(parsed as { root?: unknown }).root) return actionError('invalidContent')
         content = mapLinkNodes(parsed as LexNode, 'toPayload')
       } catch {
-        return { error: 'Ungültiger Inhalt.' }
+        return actionError('invalidContent')
       }
     }
   } else if (typeof input.body === 'string') {
@@ -236,7 +237,7 @@ export async function updateProjectNewsPost(
     console.error('[news] updateProjectNewsPost failed:', e)
     const err = e as { data?: unknown }
     if (err.data) console.error('[news] error data:', JSON.stringify(err.data))
-    return { error: 'Beitrag konnte nicht gespeichert werden.' }
+    return actionError('postSaveFailed')
   }
 
   revalidateNews(locale, slug)
@@ -244,9 +245,9 @@ export async function updateProjectNewsPost(
 }
 
 export async function setNewsFeaturedImage(slug: string, locale: string, postId: string, formData: FormData): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const parsed = await readImageFile(formData)
   if ('error' in parsed) return { error: parsed.error }
@@ -256,7 +257,7 @@ export async function setNewsFeaturedImage(slug: string, locale: string, postId:
     const mediaId = await uploadProjectMedia(payload, { projectId: ctx.project.id, userId: String(ctx.user.id), alt: `News – ${ctx.project.title}` }, parsed.file)
     await payload.update({ collection: 'news-posts', id: postId, data: { featuredImage: mediaId }, overrideAccess: true })
   } catch {
-    return { error: 'Bild konnte nicht hochgeladen werden.' }
+    return actionError('imageUploadFailed')
   }
 
   revalidateNews(locale, slug)
@@ -264,13 +265,13 @@ export async function setNewsFeaturedImage(slug: string, locale: string, postId:
 }
 
 export async function removeNewsFeaturedImage(slug: string, locale: string, postId: string): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   try {
     await ctx.payload.update({ collection: 'news-posts', id: postId, data: { featuredImage: null }, overrideAccess: true })
   } catch {
-    return { error: 'Bild konnte nicht entfernt werden.' }
+    return actionError('imageRemoveFailed')
   }
   revalidateNews(locale, slug)
   return { ok: true }
@@ -289,9 +290,9 @@ export async function setNewsPublish(
   mode: 'draft' | 'now' | 'schedule',
   scheduledAt?: string,
 ): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const { payload, post } = ctx
@@ -305,10 +306,10 @@ export async function setNewsPublish(
     } else if (mode === 'now') {
       publishedAt = new Date().toISOString()
     } else {
-      if (!scheduledAt) return { error: 'Bitte ein Datum wählen.' }
+      if (!scheduledAt) return actionError('dateRequired')
       const d = new Date(scheduledAt)
-      if (Number.isNaN(d.getTime())) return { error: 'Ungültiges Datum.' }
-      if (d.getTime() <= Date.now()) return { error: 'Der Zeitpunkt muss in der Zukunft liegen.' }
+      if (Number.isNaN(d.getTime())) return actionError('invalidDate')
+      if (d.getTime() <= Date.now()) return actionError('dateMustBeFuture')
       publishedAt = d.toISOString()
     }
 
@@ -319,7 +320,7 @@ export async function setNewsPublish(
       await notifyMembers(payload, ctx.project.id, String(ctx.user.id), { collectionSlug: 'news-posts', id: postId })
     }
   } catch {
-    return { error: 'Status konnte nicht geändert werden.' }
+    return actionError('statusChangeFailed')
   }
 
   revalidateNews(locale, slug)
@@ -327,14 +328,14 @@ export async function setNewsPublish(
 }
 
 export async function deleteProjectNewsPost(slug: string, locale: string, postId: string): Promise<NewsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getNewsManageContext(slug, postId)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     await ctx.payload.delete({ collection: 'news-posts', id: postId, overrideAccess: true })
   } catch {
-    return { error: 'Beitrag konnte nicht gelöscht werden.' }
+    return actionError('postDeleteFailed')
   }
 
   revalidateNews(locale, slug)

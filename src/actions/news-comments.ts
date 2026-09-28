@@ -11,7 +11,8 @@ import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
 import { emitNotification } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type CommentActionState = { error?: string; ok?: boolean }
 
@@ -28,28 +29,28 @@ function revalidateComments(locale: string, slug: string, newsSlug?: string) {
 }
 
 export async function postNewsComment(slug: string, locale: string, postId: string, body: string): Promise<CommentActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const text = body.trim()
-  if (!text) return { error: 'Kommentar darf nicht leer sein.' }
-  if (text.length > 2000) return { error: 'Kommentar ist zu lang.' }
+  if (!text) return actionError('commentRequired')
+  if (text.length > 2000) return actionError('commentTooLong')
 
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an, um zu kommentieren.' }
+  if (!user) return actionError('loginToComment')
 
   try {
     const payload = await getPayload({ config })
     const project = await projectBySlug(payload, slug)
-    if (!project) return { error: 'Projekt nicht gefunden.' }
+    if (!project) return actionError('projectNotFound')
 
     const tier = await getViewerTier(payload, String(user.id), project.id)
-    if (tier === 'public') return { error: 'Nur Projektmitglieder können kommentieren.' }
+    if (tier === 'public') return actionError('membersOnlyComment')
 
     const post = await payload.findByID({ collection: 'news-posts', id: postId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!post || relId((post as { project?: unknown }).project) !== String(project.id)) return { error: 'Beitrag nicht gefunden.' }
+    if (!post || relId((post as { project?: unknown }).project) !== String(project.id)) return actionError('postNotFound')
 
     const pub = (post as { publishedAt?: string | null }).publishedAt
     const isLive = !!pub && new Date(pub).getTime() <= Date.now()
-    if (!isLive || !canView(tier, (post as { visibility?: Visibility }).visibility)) return { error: 'Beitrag nicht verfügbar.' }
+    if (!isLive || !canView(tier, (post as { visibility?: Visibility }).visibility)) return actionError('postUnavailable')
 
     await payload.create({
       collection: 'news-comments',
@@ -68,7 +69,7 @@ export async function postNewsComment(slug: string, locale: string, postId: stri
 
     revalidateComments(locale, slug, (post as { slug?: string }).slug)
   } catch {
-    return { error: 'Kommentar konnte nicht gespeichert werden.' }
+    return actionError('commentSaveFailed')
   }
 
   return { ok: true }
@@ -76,17 +77,17 @@ export async function postNewsComment(slug: string, locale: string, postId: stri
 
 /** Delete a comment — allowed for its author or a PM of the project. */
 export async function deleteNewsComment(slug: string, locale: string, commentId: string): Promise<CommentActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   try {
     const payload = await getPayload({ config })
     const project = await projectBySlug(payload, slug)
-    if (!project) return { error: 'Projekt nicht gefunden.' }
+    if (!project) return actionError('projectNotFound')
 
     const comment = await payload.findByID({ collection: 'news-comments', id: commentId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!comment || relId((comment as { project?: unknown }).project) !== String(project.id)) return { error: 'Kommentar nicht gefunden.' }
+    if (!comment || relId((comment as { project?: unknown }).project) !== String(project.id)) return actionError('commentNotFound')
 
     const isAuthor = relId((comment as { author?: unknown }).author) === String(user.id)
     let allowed = isAuthor
@@ -98,7 +99,7 @@ export async function deleteNewsComment(slug: string, locale: string, commentId:
       })
       allowed = mem.totalDocs > 0
     }
-    if (!allowed) return { error: 'Keine Berechtigung.' }
+    if (!allowed) return actionError('noPermission')
 
     const postId = relId((comment as { post?: unknown }).post)
     let newsSlug: string | undefined
@@ -110,7 +111,7 @@ export async function deleteNewsComment(slug: string, locale: string, commentId:
     await payload.delete({ collection: 'news-comments', id: commentId, overrideAccess: true })
     revalidateComments(locale, slug, newsSlug)
   } catch {
-    return { error: 'Kommentar konnte nicht gelöscht werden.' }
+    return actionError('commentDeleteFailed')
   }
 
   return { ok: true }

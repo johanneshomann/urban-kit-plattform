@@ -9,7 +9,8 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { emitNotification } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type JoinActionState = { error?: string; ok?: boolean }
 
@@ -62,9 +63,9 @@ async function notifyProjectManagers(projectId: string) {
  * re-submitted; an existing active membership or open request is an error.
  */
 export async function requestToJoinProject(slug: string, locale: string): Promise<JoinActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an, um mitzumachen.' }
+  if (!user) return actionError('loginToJoin')
 
   try {
     const payload = await getPayload({ config })
@@ -77,8 +78,8 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
       overrideAccess: true,
     })
     const project = projectRes.docs[0] as { id: string; joinRequestsEnabled?: boolean | null } | undefined
-    if (!project) return { error: 'Projekt nicht gefunden.' }
-    if (project.joinRequestsEnabled === false) return { error: 'Dieses Projekt nimmt derzeit keine Anfragen an.' }
+    if (!project) return actionError('projectNotFound')
+    if (project.joinRequestsEnabled === false) return actionError('requestsClosed')
 
     const existingRes = await payload.find({
       collection: 'project-memberships',
@@ -89,8 +90,8 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
     })
     const existing = existingRes.docs[0] as MembershipRow | undefined
 
-    if (existing?.status === 'active') return { error: 'Du bist bereits Mitglied dieses Projekts.' }
-    if (existing?.status === 'requested') return { error: 'Deine Anfrage ist bereits eingegangen.' }
+    if (existing?.status === 'active') return actionError('alreadyMember')
+    if (existing?.status === 'requested') return actionError('requestAlreadySent')
 
     if (existing) {
       // previously rejected or star-only ('none') — allow requesting
@@ -111,7 +112,7 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
 
     await notifyProjectManagers(String(project.id))
   } catch {
-    return { error: 'Anfrage konnte nicht gesendet werden. Bitte versuche es erneut.' }
+    return actionError('requestSendFailed')
   }
 
   revalidateJoin(locale, slug)
@@ -120,9 +121,9 @@ export async function requestToJoinProject(slug: string, locale: string): Promis
 
 /** Withdraw one's own open join request. */
 export async function cancelJoinRequest(slug: string, locale: string): Promise<JoinActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   try {
     const payload = await getPayload({ config })
@@ -135,7 +136,7 @@ export async function cancelJoinRequest(slug: string, locale: string): Promise<J
       overrideAccess: true,
     })
     const project = projectRes.docs[0] as { id: string } | undefined
-    if (!project) return { error: 'Projekt nicht gefunden.' }
+    if (!project) return actionError('projectNotFound')
 
     const existingRes = await payload.find({
       collection: 'project-memberships',
@@ -151,7 +152,7 @@ export async function cancelJoinRequest(slug: string, locale: string): Promise<J
       overrideAccess: true,
     })
     const existing = existingRes.docs[0] as (MembershipRow & { starred?: boolean }) | undefined
-    if (!existing) return { error: 'Keine offene Anfrage gefunden.' }
+    if (!existing) return actionError('noOpenRequest')
 
     if (existing.starred) {
       // The user also starred the project — keep the star, drop the request.
@@ -160,7 +161,7 @@ export async function cancelJoinRequest(slug: string, locale: string): Promise<J
       await payload.delete({ collection: 'project-memberships', id: existing.id, overrideAccess: true })
     }
   } catch {
-    return { error: 'Anfrage konnte nicht zurückgezogen werden.' }
+    return actionError('requestWithdrawFailed')
   }
 
   revalidateJoin(locale, slug)

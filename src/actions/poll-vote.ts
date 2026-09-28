@@ -11,7 +11,8 @@ import { cookies } from 'next/headers'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type VoteState = { error?: string; ok?: boolean }
 
@@ -31,30 +32,30 @@ async function projectBySlug(payload: Payload, slug: string) {
 }
 
 export async function submitPollVote(slug: string, locale: string, pollId: string, answers: PollAnswer[]): Promise<VoteState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   try {
     const payload = await getPayload({ config })
     const project = await projectBySlug(payload, slug)
-    if (!project) return { error: 'Projekt nicht gefunden.' }
+    if (!project) return actionError('projectNotFound')
 
     const poll = await payload.findByID({ collection: 'polls', id: pollId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!poll || relId((poll as { project?: unknown }).project) !== String(project.id)) return { error: 'Umfrage nicht gefunden.' }
+    if (!poll || relId((poll as { project?: unknown }).project) !== String(project.id)) return actionError('pollNotFound')
     const pl = poll as { status?: string; visibility?: Visibility; allowAnonymous?: boolean }
-    if (pl.status !== 'active') return { error: 'Diese Umfrage ist nicht aktiv.' }
+    if (pl.status !== 'active') return actionError('pollNotActive')
 
     const user = await getUser()
     const tier = await getViewerTier(payload, user ? String(user.id) : null, project.id)
-    if (!canView(tier, pl.visibility)) return { error: 'Umfrage nicht verfügbar.' }
-    if (!user && !pl.allowAnonymous) return { error: 'Bitte melde dich an, um abzustimmen.' }
+    if (!canView(tier, pl.visibility)) return actionError('pollUnavailable')
+    if (!user && !pl.allowAnonymous) return actionError('loginToVote')
 
     const cookieStore = await cookies()
 
     // Dedup
     if (user) {
       const existing = await payload.find({ collection: 'poll-votes', where: { and: [{ poll: { equals: pollId } }, { user: { equals: user.id } }] }, limit: 1, depth: 0, overrideAccess: true })
-      if (existing.totalDocs > 0) return { error: 'Du hast bereits abgestimmt.' }
+      if (existing.totalDocs > 0) return actionError('alreadyVoted')
     } else if (cookieStore.get(cookieKey(pollId))?.value) {
-      return { error: 'Du hast bereits abgestimmt.' }
+      return actionError('alreadyVoted')
     }
 
     // Load questions to validate answers
@@ -77,7 +78,7 @@ export async function submitPollVote(slug: string, locale: string, pollId: strin
         rows.push({ ...base, scaleAnswer: a.scaleAnswer })
       }
     }
-    if (rows.length === 0) return { error: 'Bitte beantworte mindestens eine Frage.' }
+    if (rows.length === 0) return actionError('answerRequired')
 
     for (const data of rows) {
       await payload.create({ collection: 'poll-votes', data, overrideAccess: true })
@@ -91,6 +92,6 @@ export async function submitPollVote(slug: string, locale: string, pollId: strin
     revalidatePath(`/${locale}/projekte/${slug}`)
     return { ok: true }
   } catch {
-    return { error: 'Abstimmung fehlgeschlagen.' }
+    return actionError('voteFailed')
   }
 }

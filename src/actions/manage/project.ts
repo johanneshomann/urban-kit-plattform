@@ -16,7 +16,8 @@ import { MODULE_ORDER } from '@/lib/options/modules'
 import { defaultColorSchemes } from '@/lib/defaults/colorSchemes'
 import { markdownToLexical } from '@/lib/richtext'
 import { readImageFile, uploadProjectMedia } from '@/lib/upload-media'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type ManageActionState = { error?: string; ok?: boolean }
 
@@ -64,12 +65,12 @@ export async function updateProjectSettings(
   locale: string,
   input: ProjectSettingsInput,
 ): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const title = cleanStr(input.title)
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   const year = input.startYear
   const startYear = typeof year === 'number' && Number.isFinite(year) ? Math.trunc(year) : null
@@ -115,7 +116,7 @@ export async function updateProjectSettings(
 
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Änderungen konnten nicht gespeichert werden.' }
+    return actionError('changesSaveFailed')
   }
 
   revalidateProject(locale, slug)
@@ -125,9 +126,9 @@ export async function updateProjectSettings(
 // ─── Cover image ──────────────────────────────────────────────────────────────
 
 export async function updateProjectCover(slug: string, locale: string, formData: FormData): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const parsed = await readImage(formData)
   if ('error' in parsed) return { error: parsed.error }
@@ -138,7 +139,7 @@ export async function updateProjectCover(slug: string, locale: string, formData:
     const data: Record<string, unknown> = { coverImage: mediaId }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Titelbild konnte nicht hochgeladen werden.' }
+    return actionError('coverUploadFailed')
   }
 
   revalidateProject(locale, slug)
@@ -146,15 +147,15 @@ export async function updateProjectCover(slug: string, locale: string, formData:
 }
 
 export async function removeProjectCover(slug: string, locale: string): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   try {
     const payload = await getPayload({ config })
     const data: Record<string, unknown> = { coverImage: null }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Titelbild konnte nicht entfernt werden.' }
+    return actionError('coverRemoveFailed')
   }
   revalidateProject(locale, slug)
   return { ok: true }
@@ -163,9 +164,9 @@ export async function removeProjectCover(slug: string, locale: string): Promise<
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 
 export async function addGalleryImage(slug: string, locale: string, formData: FormData): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const parsed = await readImage(formData)
   if ('error' in parsed) return { error: parsed.error }
@@ -182,7 +183,7 @@ export async function addGalleryImage(slug: string, locale: string, formData: Fo
     const data: Record<string, unknown> = { gallery: [...existing, { image: mediaId, caption: '' }] }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Bild konnte nicht hinzugefügt werden.' }
+    return actionError('imageAddFailed')
   }
 
   revalidateProject(locale, slug)
@@ -195,9 +196,9 @@ export async function saveProjectGallery(
   locale: string,
   rows: Array<{ image: string; caption?: string }>,
 ): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const gallery = (Array.isArray(rows) ? rows : [])
     .filter((r) => r && typeof r.image === 'string' && r.image.length > 0)
@@ -208,7 +209,7 @@ export async function saveProjectGallery(
     const data: Record<string, unknown> = { gallery }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Galerie konnte nicht gespeichert werden.' }
+    return actionError('gallerySaveFailed')
   }
 
   revalidateProject(locale, slug)
@@ -225,9 +226,9 @@ export async function setProjectModules(
   locale: string,
   modules: string[],
 ): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const selected = filterAllowed(modules, MODULE_VALUES)
   // Core modules cannot be disabled — the dashboard assumes they exist.
@@ -238,7 +239,7 @@ export async function setProjectModules(
     const data: Record<string, unknown> = { modules: withCore }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Module konnten nicht gespeichert werden.' }
+    return actionError('modulesSaveFailed')
   }
 
   revalidateProject(locale, slug)
@@ -251,18 +252,18 @@ export async function updateProjectAppearance(
   locale: string,
   input: { colorScheme: string },
 ): Promise<ManageActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
-  if (!SCHEME_NAMES.has(input.colorScheme)) return { error: 'Unbekanntes Farbschema.' }
+  if (!SCHEME_NAMES.has(input.colorScheme)) return actionError('unknownColorScheme')
 
   try {
     const payload = await getPayload({ config })
     const data: Record<string, unknown> = { colorScheme: input.colorScheme }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Farbschema konnte nicht gespeichert werden.' }
+    return actionError('colorSchemeSaveFailed')
   }
 
   revalidateProject(locale, slug)

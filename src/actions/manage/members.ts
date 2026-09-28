@@ -11,7 +11,8 @@ import type { Payload } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { emitNotification } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type MembersActionState = { error?: string; ok?: boolean }
 
@@ -69,25 +70,25 @@ export async function updateMemberRole(
   membershipId: string,
   role: string,
 ): Promise<MembersActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
-  if (!ROLES.has(role)) return { error: 'Unbekannte Rolle.' }
+  if (!ctx) return actionError('forbidden')
+  if (!ROLES.has(role)) return actionError('unknownRole')
 
   try {
     const payload = await getPayload({ config })
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
-    if (!membership) return { error: 'Mitglied nicht gefunden.' }
+    if (!membership) return actionError('memberNotFound')
     if (membership.role === role) return { ok: true }
 
     if (role !== 'PM' && (await isLastActivePM(payload, ctx.project.id, membership))) {
-      return { error: 'Das Projekt braucht mindestens eine:n Projektmanager:in.' }
+      return actionError('lastPm')
     }
 
     const data: Record<string, unknown> = { role }
     await payload.update({ collection: 'project-memberships', id: membershipId, data, overrideAccess: true })
   } catch {
-    return { error: 'Rolle konnte nicht geändert werden.' }
+    return actionError('roleChangeFailed')
   }
 
   revalidateMembers(locale, slug)
@@ -109,9 +110,9 @@ export async function generateInvite(
   slug: string,
   locale: string,
 ): Promise<{ error?: string; ok?: boolean; code?: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
@@ -132,7 +133,7 @@ export async function generateInvite(
     const code = (doc as { inviteCode?: string }).inviteCode
     return { ok: true, code }
   } catch {
-    return { error: 'Einladung konnte nicht erstellt werden.' }
+    return actionError('inviteCreateFailed')
   }
 }
 
@@ -143,14 +144,14 @@ export async function setMemberTeams(
   teams: string[],
   leadOf?: string[],
 ): Promise<MembersActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
-    if (!membership) return { error: 'Mitglied nicht gefunden.' }
+    if (!membership) return actionError('memberNotFound')
 
     // Only tags from the project's team catalog may be assigned.
     const teamList = clampTeamsToCatalog(teams, ctx.project.teams)
@@ -161,7 +162,7 @@ export async function setMemberTeams(
     }
     await payload.update({ collection: 'project-memberships', id: membershipId, data, overrideAccess: true })
   } catch {
-    return { error: 'Team-Status konnte nicht geändert werden.' }
+    return actionError('teamStatusChangeFailed')
   }
 
   revalidateMembers(locale, slug)
@@ -173,22 +174,22 @@ export async function removeMember(
   locale: string,
   membershipId: string,
 ): Promise<MembersActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
-    if (!membership) return { error: 'Mitglied nicht gefunden.' }
+    if (!membership) return actionError('memberNotFound')
 
     if (await isLastActivePM(payload, ctx.project.id, membership)) {
-      return { error: 'Das Projekt braucht mindestens eine:n Projektmanager:in.' }
+      return actionError('lastPm')
     }
 
     await payload.delete({ collection: 'project-memberships', id: membershipId, overrideAccess: true })
   } catch {
-    return { error: 'Mitglied konnte nicht entfernt werden.' }
+    return actionError('memberRemoveFailed')
   }
 
   revalidateMembers(locale, slug)
@@ -201,15 +202,15 @@ export async function respondToJoinRequest(
   membershipId: string,
   decision: 'approve' | 'reject',
 ): Promise<MembersActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const membership = await getProjectMembership(payload, ctx.project.id, membershipId)
-    if (!membership) return { error: 'Anfrage nicht gefunden.' }
-    if (membership.status !== 'requested') return { error: 'Anfrage wurde bereits beantwortet.' }
+    if (!membership) return actionError('requestNotFound')
+    if (membership.status !== 'requested') return actionError('requestAlreadyAnswered')
 
     const data: Record<string, unknown> =
       decision === 'approve'
@@ -228,7 +229,7 @@ export async function respondToJoinRequest(
       }
     }
   } catch {
-    return { error: 'Anfrage konnte nicht bearbeitet werden.' }
+    return actionError('requestProcessFailed')
   }
 
   revalidateMembers(locale, slug)

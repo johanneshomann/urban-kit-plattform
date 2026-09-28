@@ -4,6 +4,7 @@
 
 import 'server-only'
 import type { Payload } from 'payload'
+import { actionError } from '@/lib/action-errors'
 
 /** Shared image-upload helpers for manage actions (cover, gallery, news image, …). */
 
@@ -22,9 +23,9 @@ export async function readImageFile(
   key = 'file',
 ): Promise<{ file: PayloadFile } | { error: string }> {
   const f = formData.get(key)
-  if (!(f instanceof File) || f.size === 0) return { error: 'Keine Datei ausgewählt.' }
-  if (!f.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
-  if (f.size > MAX_IMAGE_BYTES) return { error: 'Bild ist zu groß (max. 12 MB).' }
+  if (!(f instanceof File) || f.size === 0) return actionError('noFileSelected')
+  if (!f.type.startsWith('image/')) return actionError('imagesOnly')
+  if (f.size > MAX_IMAGE_BYTES) return actionError('imageTooLarge12')
   const data = Buffer.from(await f.arrayBuffer())
   return { file: { data, mimetype: f.type, name: f.name, size: f.size } }
 }

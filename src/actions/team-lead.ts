@@ -8,7 +8,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type TeamLeadActionState = { error?: string; ok?: boolean }
 
@@ -50,19 +51,19 @@ function revalidateTeam(locale: string, slug: string) {
 
 /** Add an active member to the lead's team (tag on their membership). */
 export async function addMemberToTeam(slug: string, locale: string, team: string, membershipId: string): Promise<TeamLeadActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getLeadContext(slug, team)
-  if (!ctx) return { error: 'Nur die Teamleitung kann Mitglieder aufnehmen.' }
+  if (!ctx) return actionError('leadOnlyAdd')
   try {
     const mem = await ctx.payload.findByID({ collection: 'project-memberships', id: membershipId, depth: 0, overrideAccess: true }).catch(() => null)
     if (!mem || relId((mem as { project?: unknown }).project) !== ctx.projectId || (mem as { status?: string }).status !== 'active') {
-      return { error: 'Mitglied nicht gefunden.' }
+      return actionError('memberNotFound')
     }
     const teams = new Set(Array.isArray((mem as { teams?: string[] }).teams) ? (mem as { teams?: string[] }).teams : [])
     teams.add(team)
     await ctx.payload.update({ collection: 'project-memberships', id: membershipId, data: { teams: [...teams] }, overrideAccess: true })
   } catch {
-    return { error: 'Mitglied konnte nicht aufgenommen werden.' }
+    return actionError('memberAddFailed')
   }
   revalidateTeam(locale, slug)
   return { ok: true }
@@ -73,19 +74,19 @@ export async function addMemberToTeam(slug: string, locale: string, team: string
  * removed by a PM (leads must not demote each other).
  */
 export async function removeMemberFromTeam(slug: string, locale: string, team: string, membershipId: string): Promise<TeamLeadActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getLeadContext(slug, team)
-  if (!ctx) return { error: 'Nur die Teamleitung kann Mitglieder entfernen.' }
+  if (!ctx) return actionError('leadOnlyRemove')
   try {
     const mem = await ctx.payload.findByID({ collection: 'project-memberships', id: membershipId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!mem || relId((mem as { project?: unknown }).project) !== ctx.projectId) return { error: 'Mitglied nicht gefunden.' }
+    if (!mem || relId((mem as { project?: unknown }).project) !== ctx.projectId) return actionError('memberNotFound')
     const memLeads = Array.isArray((mem as { leadOf?: string[] }).leadOf) ? ((mem as { leadOf?: string[] }).leadOf as string[]) : []
-    if (memLeads.includes(team) && !ctx.isPM) return { error: 'Teamleitungen entfernt nur die Projektleitung.' }
+    if (memLeads.includes(team) && !ctx.isPM) return actionError('leadRemoveOnlyPm')
     const teams = (Array.isArray((mem as { teams?: string[] }).teams) ? ((mem as { teams?: string[] }).teams as string[]) : []).filter((t) => t !== team)
     const leadOf = memLeads.filter((t) => t !== team)
     await ctx.payload.update({ collection: 'project-memberships', id: membershipId, data: { teams, leadOf }, overrideAccess: true })
   } catch {
-    return { error: 'Mitglied konnte nicht entfernt werden.' }
+    return actionError('memberRemoveFailed')
   }
   revalidateTeam(locale, slug)
   return { ok: true }

@@ -10,16 +10,17 @@ import { redirect } from 'next/navigation'
 import type { Payload } from 'payload'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { cascadeDeleteProject } from '@/lib/project-delete'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 export type SettingsActionState = { error?: string; ok?: boolean }
 export async function updateProjectVisibility(
   slug: string,
   locale: string,
   input: { isPublic: boolean; joinRequestsEnabled: boolean; chatGroupAssignmentEnabled?: boolean },
 ): Promise<SettingsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   try {
     const payload = await getPayload({ config })
     const data: Record<string, unknown> = {
@@ -31,7 +32,7 @@ export async function updateProjectVisibility(
     }
     await payload.update({ collection: 'projects', id: ctx.project.id, data, overrideAccess: true })
   } catch {
-    return { error: 'Einstellungen konnten nicht gespeichert werden.' }
+    return actionError('settingsSaveFailed')
   }
   revalidatePath(`/${locale}/dashboard/projekte/${slug}`)
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/einstellungen`)
@@ -44,18 +45,18 @@ export async function updateProjectVisibility(
  * assignees), then removes the project itself and redirects to the dashboard.
  */
 export async function deleteProject(slug: string, locale: string, confirmTitle: string): Promise<SettingsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   if (confirmTitle.trim() !== ctx.project.title.trim()) {
-    return { error: 'Der eingegebene Projektname stimmt nicht überein.' }
+    return actionError('projectNameMismatch')
   }
   const id = ctx.project.id
   try {
     const payload = await getPayload({ config })
     await cascadeDeleteProject(payload, id)
   } catch {
-    return { error: 'Projekt konnte nicht gelöscht werden.' }
+    return actionError('projectDeleteFailed')
   }
   revalidatePath(`/${locale}/dashboard`)
   redirect(`/${locale}/dashboard`)
@@ -114,16 +115,16 @@ export async function updateProjectTeams(
   teams: string[],
   renames?: { from: string; to: string }[],
 ): Promise<SettingsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const sanitized = (Array.isArray(teams) ? teams : [])
     .map((t) => String(t).trim())
     .filter((t) => t.length > 0)
 
   if (new Set(sanitized).size !== sanitized.length) {
-    return { error: 'Team-Namen dürfen nicht doppelt vorkommen.' }
+    return actionError('teamNamesDuplicate')
   }
 
   const oldCatalog = Array.isArray(ctx.project.teams) ? ctx.project.teams : []
@@ -146,7 +147,7 @@ export async function updateProjectTeams(
     })
     await cascadeTeamChanges(payload, ctx.project.id, renameMap, removed)
   } catch {
-    return { error: 'Team-Katalog konnte nicht gespeichert werden.' }
+    return actionError('teamCatalogSaveFailed')
   }
 
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/allgemein`)

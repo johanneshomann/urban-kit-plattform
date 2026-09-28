@@ -14,7 +14,8 @@ import { clampTeamsToCatalog } from '@/lib/team-scope'
 import { canViewContent, getViewerState } from '@/lib/visibility'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitNotification } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type TasksActionState = { error?: string; ok?: boolean }
 
@@ -104,11 +105,11 @@ async function syncAssignees(payload: Payload, projectId: string, taskId: string
 }
 
 export async function createTask(slug: string, locale: string, input: TaskInput): Promise<TasksActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await taskActorCtx(slug)
-  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben erstellen.' }
+  if (!ctx) return actionError('teamOnlyTaskCreate')
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   try {
     const payload = await getPayload({ config })
@@ -131,26 +132,26 @@ export async function createTask(slug: string, locale: string, input: TaskInput)
       for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: String(task.id) } })
     }
   } catch {
-    return { error: 'Aufgabe konnte nicht erstellt werden.' }
+    return actionError('taskCreateFailed')
   }
   revalidateTasks(locale, slug)
   return { ok: true }
 }
 
 export async function updateTask(slug: string, locale: string, taskId: string, input: TaskInput): Promise<TasksActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await taskActorCtx(slug)
-  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben bearbeiten.' }
+  if (!ctx) return actionError('teamOnlyTaskEdit')
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   try {
     const payload = await getPayload({ config })
     const task = await getProjectTask(payload, ctx.project.id, taskId)
-    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    if (!task) return actionError('taskNotFound')
     // Non-PM team members only edit their own tasks.
     if (!ctx.isPM && relId((task as { author?: unknown }).author) !== String(ctx.user.id)) {
-      return { error: 'Nur eigene Aufgaben können bearbeitet werden.' }
+      return actionError('taskEditOwnOnly')
     }
     const description = typeof input.description === 'string'
       ? (input.description.trim() ? ((await markdownToLexical(input.description)) as Task['description']) : null)
@@ -172,27 +173,27 @@ export async function updateTask(slug: string, locale: string, taskId: string, i
       for (const uid of added) await emitNotification({ type: 'task_assigned', userId: uid, reference: { collectionSlug: 'tasks', id: taskId } })
     }
   } catch {
-    return { error: 'Aufgabe konnte nicht gespeichert werden.' }
+    return actionError('taskSaveFailed')
   }
   revalidateTasks(locale, slug)
   return { ok: true }
 }
 
 export async function deleteTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await taskActorCtx(slug)
-  if (!ctx) return { error: 'Nur das Projektteam kann Aufgaben löschen.' }
+  if (!ctx) return actionError('teamOnlyTaskDelete')
   try {
     const payload = await getPayload({ config })
     const task = await getProjectTask(payload, ctx.project.id, taskId)
-    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    if (!task) return actionError('taskNotFound')
     if (!ctx.isPM && relId((task as { author?: unknown }).author) !== String(ctx.user.id)) {
-      return { error: 'Nur eigene Aufgaben können gelöscht werden.' }
+      return actionError('taskDeleteOwnOnly')
     }
     await payload.delete({ collection: 'task-assignees', where: { task: { equals: taskId } }, overrideAccess: true })
     await payload.delete({ collection: 'tasks', id: taskId, overrideAccess: true })
   } catch {
-    return { error: 'Aufgabe konnte nicht gelöscht werden.' }
+    return actionError('taskDeleteFailed')
   }
   revalidateTasks(locale, slug)
   return { ok: true }
@@ -203,15 +204,15 @@ export async function deleteTask(slug: string, locale: string, taskId: string): 
  * can SEE — the visibility check keeps TEAM tasks inside their audience.
  */
 export async function toggleSelfAssignTask(slug: string, locale: string, taskId: string): Promise<TasksActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const member = await getProjectMemberContext(slug)
-  if (!member) return { error: 'Nur Projektmitglieder haben Zugriff.' }
+  if (!member) return actionError('membersOnly')
   try {
     const task = await getProjectTask(member.payload, member.project.id, taskId)
-    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    if (!task) return actionError('taskNotFound')
     const { membership } = await getViewerState(member.payload, String(member.user.id), member.project.id)
     if (!canViewContent(membership, task as { visibility?: string | null; visibilityTeams?: string[] | null })) {
-      return { error: 'Aufgabe nicht gefunden.' }
+      return actionError('taskNotFound')
     }
     const existing = await member.payload.find({
       collection: 'task-assignees',
@@ -224,7 +225,7 @@ export async function toggleSelfAssignTask(slug: string, locale: string, taskId:
       await member.payload.create({ collection: 'task-assignees', data: { task: taskId, user: member.user.id }, overrideAccess: true })
     }
   } catch {
-    return { error: 'Zuweisung konnte nicht geändert werden.' }
+    return actionError('assignmentChangeFailed')
   }
   revalidateTasks(locale, slug)
   return { ok: true }
@@ -232,23 +233,23 @@ export async function toggleSelfAssignTask(slug: string, locale: string, taskId:
 
 /** Move a task to a new status column — PMs move any task, assignees move their own (any active member can be assigned). */
 export async function moveTask(slug: string, locale: string, taskId: string, newStatus: string): Promise<TasksActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const team = await getProjectMemberContext(slug)
-  if (!team) return { error: 'Nur Projektmitglieder haben Zugriff.' }
+  if (!team) return actionError('membersOnly')
   try {
     const task = await getProjectTask(team.payload, team.project.id, taskId)
-    if (!task) return { error: 'Aufgabe nicht gefunden.' }
+    if (!task) return actionError('taskNotFound')
 
     const mem = await team.payload.find({ collection: 'project-memberships', where: { and: [{ user: { equals: team.user.id } }, { project: { equals: team.project.id } }, { status: { equals: 'active' } }] }, limit: 1, depth: 0, overrideAccess: true })
     const isPM = (mem.docs[0] as { role?: string } | undefined)?.role === 'PM'
     if (!isPM) {
       const assigned = await team.payload.find({ collection: 'task-assignees', where: { and: [{ task: { equals: taskId } }, { user: { equals: team.user.id } }] }, limit: 1, depth: 0, overrideAccess: true })
-      if (assigned.totalDocs === 0) return { error: 'Nur zugewiesene Personen oder PMs können diese Aufgabe verschieben.' }
+      if (assigned.totalDocs === 0) return actionError('taskMoveForbidden')
     }
 
     await team.payload.update({ collection: 'tasks', id: taskId, data: { status: status(newStatus) }, overrideAccess: true })
   } catch {
-    return { error: 'Aufgabe konnte nicht verschoben werden.' }
+    return actionError('taskMoveFailed')
   }
   revalidateTasks(locale, slug)
   return { ok: true }

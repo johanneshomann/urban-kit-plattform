@@ -14,7 +14,8 @@ import { closePoll } from '@/modules/polls/actions'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { computeResults } from '@/lib/poll-results'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type PollsActionState = { error?: string; ok?: boolean }
 
@@ -54,7 +55,7 @@ async function getProjectPoll(payload: Payload, projectId: string, pollId: strin
 interface CleanQuestion { text: string; type: string; options: string[] }
 
 /** Validate + normalize question inputs. Returns the cleaned list or an error. */
-function validateQuestions(input: PollQuestionInput[]): { questions: CleanQuestion[] } | { error: string } {
+async function validateQuestions(input: PollQuestionInput[]): Promise<{ questions: CleanQuestion[] } | { error: string }> {
   const questions = (input ?? [])
     .map((q) => ({
       text: q.text.trim(),
@@ -63,10 +64,10 @@ function validateQuestions(input: PollQuestionInput[]): { questions: CleanQuesti
     }))
     .filter((q) => q.text.length > 0)
 
-  if (questions.length === 0) return { error: 'Mindestens eine Frage angeben.' }
+  if (questions.length === 0) return actionError('questionRequired')
   for (const q of questions) {
     if ((q.type === 'single' || q.type === 'multiple') && q.options.length < 2) {
-      return { error: `Frage „${q.text}" braucht mindestens zwei Antwortoptionen.` }
+      return actionError('questionNeedsOptions', { question: q.text })
     }
   }
   return { questions }
@@ -106,28 +107,28 @@ const authorIdOf = (doc: unknown): string | null => {
 }
 
 /** Non-PM authors (team leads) may only touch their own polls. */
-const ownPollGuard = (ctx: { isPM: boolean; user: { id: unknown } }, poll: unknown): string | null =>
-  !ctx.isPM && authorIdOf(poll) !== String(ctx.user.id) ? 'Nur eigene Umfragen können verwaltet werden.' : null
+const ownsPoll = (ctx: { isPM: boolean; user: { id: unknown } }, poll: unknown): boolean =>
+  ctx.isPM || authorIdOf(poll) === String(ctx.user.id)
 
 export async function createProjectPoll(
   slug: string,
   locale: string,
   input: CreatePollInput,
 ): Promise<PollsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
-  const validated = validateQuestions(input.questions)
+  const validated = await validateQuestions(input.questions)
   if ('error' in validated) return { error: validated.error }
 
   let closesAt: string | undefined
   if (input.closesAt) {
     const d = new Date(input.closesAt)
-    if (Number.isNaN(d.getTime())) return { error: 'Ungültiges Enddatum.' }
+    if (Number.isNaN(d.getTime())) return actionError('invalidEndDate')
     closesAt = d.toISOString()
   }
 
@@ -160,7 +161,7 @@ export async function createProjectPoll(
       reference: { collectionSlug: 'polls', id: String(poll.id) },
     })
   } catch {
-    return { error: 'Umfrage konnte nicht erstellt werden.' }
+    return actionError('pollCreateFailed')
   }
 
   revalidatePolls(locale, slug)
@@ -174,16 +175,15 @@ export async function setPollStatus(
   pollId: string,
   status: 'active' | 'closed',
 ): Promise<PollsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
-    if (!poll) return { error: 'Umfrage nicht gefunden.' }
-    const ownErr = ownPollGuard(ctx, poll)
-    if (ownErr) return { error: ownErr }
+    if (!poll) return actionError('pollNotFound')
+    if (!ownsPoll(ctx, poll)) return actionError('pollManageOwnOnly')
 
     if (status === 'closed') {
       await closePoll(ctx.user, pollId, ctx.project.id)
@@ -197,7 +197,7 @@ export async function setPollStatus(
       })
     }
   } catch {
-    return { error: 'Status konnte nicht geändert werden.' }
+    return actionError('statusChangeFailed')
   }
 
   revalidatePolls(locale, slug)
@@ -210,21 +210,20 @@ export async function deleteProjectPoll(
   locale: string,
   pollId: string,
 ): Promise<PollsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
-    if (!poll) return { error: 'Umfrage nicht gefunden.' }
-    const ownErr = ownPollGuard(ctx, poll)
-    if (ownErr) return { error: ownErr }
+    if (!poll) return actionError('pollNotFound')
+    if (!ownsPoll(ctx, poll)) return actionError('pollManageOwnOnly')
 
     await deleteQuestionTree(payload, pollId)
     await payload.delete({ collection: 'polls', id: pollId, overrideAccess: true })
   } catch {
-    return { error: 'Umfrage konnte nicht gelöscht werden.' }
+    return actionError('pollDeleteFailed')
   }
 
   revalidatePolls(locale, slug)
@@ -233,29 +232,28 @@ export async function deleteProjectPoll(
 
 /** Edit a poll while it is still a draft. Replaces questions/options wholesale. */
 export async function editPollDraft(slug: string, locale: string, pollId: string, input: CreatePollInput): Promise<PollsActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
-  const validated = validateQuestions(input.questions)
+  if (!title) return actionError('titleRequired')
+  const validated = await validateQuestions(input.questions)
   if ('error' in validated) return { error: validated.error }
 
   let closesAt: string | null = null
   if (input.closesAt) {
     const d = new Date(input.closesAt)
-    if (Number.isNaN(d.getTime())) return { error: 'Ungültiges Enddatum.' }
+    if (Number.isNaN(d.getTime())) return actionError('invalidEndDate')
     closesAt = d.toISOString()
   }
 
   try {
     const payload = await getPayload({ config })
     const poll = await getProjectPoll(payload, ctx.project.id, pollId)
-    if (!poll) return { error: 'Umfrage nicht gefunden.' }
-    const ownErr = ownPollGuard(ctx, poll)
-    if (ownErr) return { error: ownErr }
-    if ((poll as { status?: string }).status !== 'draft') return { error: 'Nur Entwürfe können bearbeitet werden.' }
+    if (!poll) return actionError('pollNotFound')
+    if (!ownsPoll(ctx, poll)) return actionError('pollManageOwnOnly')
+    if ((poll as { status?: string }).status !== 'draft') return actionError('draftsOnlyEdit')
 
     await payload.update({
       collection: 'polls',
@@ -274,7 +272,7 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
     await deleteQuestionTree(payload, pollId)
     await writeQuestions(payload, pollId, validated.questions)
   } catch {
-    return { error: 'Umfrage konnte nicht gespeichert werden.' }
+    return actionError('pollSaveFailed')
   }
 
   revalidatePolls(locale, slug)
@@ -284,12 +282,11 @@ export async function editPollDraft(slug: string, locale: string, pollId: string
 /** Full draft data for prefilling the edit form. */
 export async function getPollEditData(slug: string, pollId: string): Promise<{ error: string } | { data: CreatePollInput }> {
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   const payload = await getPayload({ config })
   const poll = await getProjectPoll(payload, ctx.project.id, pollId)
-  if (!poll) return { error: 'Umfrage nicht gefunden.' }
-  const ownErr = ownPollGuard(ctx, poll)
-  if (ownErr) return { error: ownErr }
+  if (!poll) return actionError('pollNotFound')
+  if (!ownsPoll(ctx, poll)) return actionError('pollManageOwnOnly')
 
   const p = poll as { title?: string; description?: string; closesAt?: string | null; visibility?: string; visibilityTeams?: string[] | null; allowAnonymous?: boolean; showLiveResults?: boolean }
   const [questionsRes, optionsRes] = await Promise.all([
@@ -324,9 +321,9 @@ export async function getPollEditData(slug: string, pollId: string): Promise<{ e
 
 export async function getPollResults(slug: string, pollId: string): Promise<{ error: string } | { results: import('@/lib/poll-results').PollResults }> {
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   const payload = await getPayload({ config })
-  if (!(await getProjectPoll(payload, ctx.project.id, pollId))) return { error: 'Umfrage nicht gefunden.' }
+  if (!(await getProjectPoll(payload, ctx.project.id, pollId))) return actionError('pollNotFound')
   return { results: await computeResults(payload, pollId) }
 }
 
@@ -338,10 +335,10 @@ function csvCell(v: string | number): string {
 /** Long-format CSV: Frage, Typ, Antwort, Anzahl. */
 export async function exportPollCsv(slug: string, pollId: string): Promise<{ error: string } | { filename: string; csv: string }> {
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
   const payload = await getPayload({ config })
   const poll = await getProjectPoll(payload, ctx.project.id, pollId)
-  if (!poll) return { error: 'Umfrage nicht gefunden.' }
+  if (!poll) return actionError('pollNotFound')
 
   const results = await computeResults(payload, pollId)
   const rows: string[] = [['Frage', 'Typ', 'Antwort', 'Anzahl'].join(';')]

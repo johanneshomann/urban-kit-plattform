@@ -6,6 +6,7 @@
 
 import { getUser } from '@/lib/auth/getUser'
 import { findPeople, type Person } from '@/lib/people-search'
+import { actionError } from '@/lib/action-errors'
 
 const AFFILIATIONS = ['citizen', 'student', 'cityEmployee', 'academia', 'other'] as const
 
@@ -20,7 +21,7 @@ export async function searchPeople(params: {
   affiliation?: string
 }): Promise<{ people: Person[] } | { error: string }> {
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   const affiliation = (AFFILIATIONS as readonly string[]).includes(params.affiliation ?? '')
     ? params.affiliation
@@ -34,6 +35,6 @@ export async function searchPeople(params: {
     })
     return { people }
   } catch {
-    return { error: 'Suche fehlgeschlagen.' }
+    return actionError('searchFailed')
   }
 }

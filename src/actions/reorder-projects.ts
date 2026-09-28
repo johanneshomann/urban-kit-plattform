@@ -8,7 +8,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 /**
  * Persist the user's custom order for their dashboard project pills.
@@ -18,9 +19,9 @@ import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
 export async function reorderProjects(
   orderedMembershipIds: string[],
 ): Promise<{ ok?: boolean; error?: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   try {
     const payload = await getPayload({ config })
@@ -56,7 +57,7 @@ export async function reorderProjects(
       })
     }
   } catch {
-    return { error: 'Reihenfolge konnte nicht gespeichert werden.' }
+    return actionError('orderSaveFailed')
   }
 
   revalidatePath('/[locale]/dashboard', 'page')

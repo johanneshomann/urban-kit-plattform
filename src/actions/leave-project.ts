@@ -9,7 +9,8 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { relId } from '@/lib/chat/access'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type LeaveProjectState = { ok?: true; error?: string }
 
@@ -18,16 +19,16 @@ export type LeaveProjectState = { ok?: true; error?: string }
  * they would orphan the project; they must hand over or be removed via manage.
  */
 export async function leaveProject(membershipId: string): Promise<LeaveProjectState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   const payload = await getPayload({ config })
   const membership = await payload
     .findByID({ collection: 'project-memberships', id: membershipId, depth: 0, overrideAccess: true })
     .catch(() => null)
-  if (!membership || relId(membership.user) !== String(user.id)) return { error: 'Mitgliedschaft nicht gefunden.' }
-  if (membership.role === 'PM') return { error: 'Projektmanager:innen können das Projekt nicht selbst verlassen.' }
+  if (!membership || relId(membership.user) !== String(user.id)) return actionError('membershipNotFound')
+  if (membership.role === 'PM') return actionError('pmCannotLeave')
 
   try {
     if (membership.status === 'requested' && membership.starred) {
@@ -37,7 +38,7 @@ export async function leaveProject(membershipId: string): Promise<LeaveProjectSt
       await payload.delete({ collection: 'project-memberships', id: membershipId, overrideAccess: true })
     }
   } catch {
-    return { error: 'Verlassen fehlgeschlagen.' }
+    return actionError('leaveFailed')
   }
 
   revalidatePath('/[locale]/dashboard', 'page')

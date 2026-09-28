@@ -10,7 +10,8 @@ import { revalidatePath } from 'next/cache'
 import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier, canView, type Visibility } from '@/lib/visibility'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type AttendState = { error?: string; attending?: boolean }
 
@@ -23,21 +24,21 @@ async function projectBySlug(payload: Payload, slug: string) {
 
 /** Toggle the current member's attendance for an event ("Ich nehme teil"). */
 export async function toggleEventAttendance(slug: string, locale: string, eventId: string): Promise<AttendState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an.' }
+  if (!user) return actionError('pleaseLogin')
 
   try {
     const payload = await getPayload({ config })
     const project = await projectBySlug(payload, slug)
-    if (!project) return { error: 'Projekt nicht gefunden.' }
+    if (!project) return actionError('projectNotFound')
 
     const tier = await getViewerTier(payload, String(user.id), project.id)
-    if (tier === 'public') return { error: 'Nur Projektmitglieder können teilnehmen.' }
+    if (tier === 'public') return actionError('membersOnlyAttend')
 
     const event = await payload.findByID({ collection: 'calendar-events', id: eventId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!event || relId((event as { project?: unknown }).project) !== String(project.id)) return { error: 'Termin nicht gefunden.' }
-    if (!canView(tier, (event as { visibility?: Visibility }).visibility)) return { error: 'Termin nicht verfügbar.' }
+    if (!event || relId((event as { project?: unknown }).project) !== String(project.id)) return actionError('eventNotFound')
+    if (!canView(tier, (event as { visibility?: Visibility }).visibility)) return actionError('eventUnavailable')
 
     const existing = await payload.find({
       collection: 'event-attendees',
@@ -57,6 +58,6 @@ export async function toggleEventAttendance(slug: string, locale: string, eventI
     revalidatePath(`/${locale}/dashboard/projekte/${slug}/m/calendar`)
     return { attending }
   } catch {
-    return { error: 'Aktion fehlgeschlagen.' }
+    return actionError('actionFailed')
   }
 }

@@ -11,7 +11,8 @@ import type { Payload } from 'payload'
 import { getUser } from '@/lib/auth/getUser'
 import { getViewerTier } from '@/lib/visibility'
 import { clampTeamsToCatalog } from '@/lib/team-scope'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type FilesActionState = { error?: string; ok?: boolean }
 
@@ -33,12 +34,12 @@ function teamTags(visibility: string, tags: string[] | null | undefined, catalog
 /** Team context — files are managed by PMs + team-flagged members (tier 'team'). */
 async function teamCtx(slug: string) {
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an.' as const }
+  if (!user) return actionError('pleaseLogin')
   const payload = await getPayload({ config })
   const project = await projectBySlug(payload, slug)
-  if (!project) return { error: 'Projekt nicht gefunden.' as const }
+  if (!project) return actionError('projectNotFound')
   const tier = await getViewerTier(payload, String(user.id), project.id)
-  if (tier !== 'team') return { error: 'Nur das Projektteam kann Dateien verwalten.' as const }
+  if (tier !== 'team') return actionError('teamOnlyFiles')
   return { payload, user, project }
 }
 
@@ -51,46 +52,46 @@ function revalidateFiles(locale: string, slug: string) {
 // ─── Folders ──────────────────────────────────────────────────────────────────
 
 export async function createFolder(slug: string, locale: string, input: { name: string; visibility?: string; visibilityTeams?: string[] }): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   const name = input.name.trim()
-  if (!name) return { error: 'Name darf nicht leer sein.' }
+  if (!name) return actionError('nameRequired')
   try {
     await ctx.payload.create({ collection: 'folders', data: { name, visibility: vis(input.visibility), visibilityTeams: teamTags(input.visibility ?? '', input.visibilityTeams, ctx.project.teams), project: ctx.project.id }, overrideAccess: true })
   } catch {
-    return { error: 'Ordner konnte nicht erstellt werden.' }
+    return actionError('folderCreateFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }
 }
 
 export async function setFolderVisibility(slug: string, locale: string, folderId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const folder = await ctx.payload.findByID({ collection: 'folders', id: folderId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Ordner nicht gefunden.' }
+    if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return actionError('folderNotFound')
     await ctx.payload.update({ collection: 'folders', id: folderId, data: { visibility: vis(visibility), visibilityTeams: teamTags(visibility, visibilityTeams, ctx.project.teams) }, overrideAccess: true })
   } catch {
-    return { error: 'Aktion fehlgeschlagen.' }
+    return actionError('actionFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }
 }
 
 export async function deleteFolder(slug: string, locale: string, folderId: string): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const folder = await ctx.payload.findByID({ collection: 'folders', id: folderId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Ordner nicht gefunden.' }
+    if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return actionError('folderNotFound')
     await ctx.payload.delete({ collection: 'file-uploads', where: { folder: { equals: folderId } }, overrideAccess: true })
     await ctx.payload.delete({ collection: 'folders', id: folderId, overrideAccess: true })
   } catch {
-    return { error: 'Ordner konnte nicht gelöscht werden.' }
+    return actionError('folderDeleteFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }
@@ -99,13 +100,13 @@ export async function deleteFolder(slug: string, locale: string, folderId: strin
 // ─── Files ────────────────────────────────────────────────────────────────────
 
 export async function uploadFile(slug: string, locale: string, formData: FormData): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
 
   const f = formData.get('file')
-  if (!(f instanceof File) || f.size === 0) return { error: 'Keine Datei ausgewählt.' }
-  if (f.size > MAX_BYTES) return { error: 'Datei ist zu groß (max. 50 MB).' }
+  if (!(f instanceof File) || f.size === 0) return actionError('noFileSelected')
+  if (f.size > MAX_BYTES) return actionError('fileTooLarge50')
 
   const folderId = (formData.get('folderId') as string) || null
   const visibility = (formData.get('visibility') as string) || 'PROJECT'
@@ -116,7 +117,7 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
     // Validate folder belongs to project (if given)
     if (folderId) {
       const folder = await ctx.payload.findByID({ collection: 'folders', id: folderId, depth: 0, overrideAccess: true }).catch(() => null)
-      if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Ordner nicht gefunden.' }
+      if (!folder || relId((folder as { project?: unknown }).project) !== String(ctx.project.id)) return actionError('folderNotFound')
     }
     const data = Buffer.from(await f.arrayBuffer())
     await ctx.payload.create({
@@ -126,37 +127,37 @@ export async function uploadFile(slug: string, locale: string, formData: FormDat
       overrideAccess: true,
     })
   } catch {
-    return { error: 'Datei konnte nicht hochgeladen werden.' }
+    return actionError('fileUploadFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }
 }
 
 export async function setFileVisibility(slug: string, locale: string, fileId: string, visibility: string, visibilityTeams?: string[]): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const file = await ctx.payload.findByID({ collection: 'file-uploads', id: fileId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!file || relId((file as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Datei nicht gefunden.' }
+    if (!file || relId((file as { project?: unknown }).project) !== String(ctx.project.id)) return actionError('fileNotFound')
     await ctx.payload.update({ collection: 'file-uploads', id: fileId, data: { visibility: vis(visibility), visibilityTeams: teamTags(visibility, visibilityTeams, ctx.project.teams) }, overrideAccess: true })
   } catch {
-    return { error: 'Aktion fehlgeschlagen.' }
+    return actionError('actionFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }
 }
 
 export async function deleteFile(slug: string, locale: string, fileId: string): Promise<FilesActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await teamCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const file = await ctx.payload.findByID({ collection: 'file-uploads', id: fileId, depth: 0, overrideAccess: true }).catch(() => null)
-    if (!file || relId((file as { project?: unknown }).project) !== String(ctx.project.id)) return { error: 'Datei nicht gefunden.' }
+    if (!file || relId((file as { project?: unknown }).project) !== String(ctx.project.id)) return actionError('fileNotFound')
     await ctx.payload.delete({ collection: 'file-uploads', id: fileId, overrideAccess: true })
   } catch {
-    return { error: 'Datei konnte nicht gelöscht werden.' }
+    return actionError('fileDeleteFailed')
   }
   revalidateFiles(locale, slug)
   return { ok: true }

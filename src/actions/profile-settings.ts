@@ -8,7 +8,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 const SETTING_KEYS = ['hideActivityFeed', 'hideAllProjects', 'hidePeopleSearch', 'profileVisible'] as const
 export type ProfileSettingKey = (typeof SETTING_KEYS)[number]
@@ -22,10 +23,10 @@ export async function updateProfileSetting(
   key: ProfileSettingKey,
   value: boolean,
 ): Promise<{ ok?: boolean; error?: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
-  if (!SETTING_KEYS.includes(key)) return { error: 'Ungültige Einstellung.' }
+  if (!user) return actionError('notLoggedIn')
+  if (!SETTING_KEYS.includes(key)) return actionError('invalidSetting')
 
   try {
     const payload = await getPayload({ config })
@@ -45,7 +46,7 @@ export async function updateProfileSetting(
       overrideAccess: true,
     })
   } catch {
-    return { error: 'Einstellung konnte nicht gespeichert werden.' }
+    return actionError('settingSaveFailed')
   }
 
   revalidatePath('/[locale]/dashboard', 'page')
@@ -58,9 +59,9 @@ export async function updateProfileSetting(
  * default (membership creation order).
  */
 export async function resetProjectOrder(): Promise<{ ok?: boolean; error?: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   try {
     const payload = await getPayload({ config })
@@ -83,7 +84,7 @@ export async function resetProjectOrder(): Promise<{ ok?: boolean; error?: strin
       })
     }
   } catch {
-    return { error: 'Reihenfolge konnte nicht zurückgesetzt werden.' }
+    return actionError('orderResetFailed')
   }
 
   revalidatePath('/[locale]/dashboard', 'page')

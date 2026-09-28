@@ -14,6 +14,7 @@ import {
   type CrossProjectSearchResult,
   type WorkspaceSearchResult,
 } from '@/lib/workspace-search'
+import { actionError } from '@/lib/action-errors'
 
 /**
  * Workspace search for the ⌘K palette. Open to everyone who can see the
@@ -25,7 +26,7 @@ export async function searchWorkspaceAction(params: {
   query: string
 }): Promise<{ results: WorkspaceSearchResult[] } | { error: string }> {
   const ctx = await getWorkspaceContext(params.slug)
-  if (!ctx) return { error: 'Projekt nicht gefunden.' }
+  if (!ctx) return actionError('projectNotFound')
 
   const query = (params.query ?? '').trim().slice(0, 100)
   if (query.length < 2) return { results: [] }
@@ -45,7 +46,7 @@ export async function searchWorkspaceAction(params: {
     })
     return { results }
   } catch {
-    return { error: 'Suche fehlgeschlagen.' }
+    return actionError('searchFailed')
   }
 }
 
@@ -58,7 +59,7 @@ export async function searchAllProjectsAction(params: {
   query: string
 }): Promise<{ results: CrossProjectSearchResult[] } | { error: string }> {
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
 
   const query = (params.query ?? '').trim().slice(0, 100)
   if (query.length < 2) return { results: [] }
@@ -68,6 +69,6 @@ export async function searchAllProjectsAction(params: {
     const results = await searchAllWorkspaces(payload, String(user.id), query)
     return { results }
   } catch {
-    return { error: 'Suche fehlgeschlagen.' }
+    return actionError('searchFailed')
   }
 }

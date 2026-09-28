@@ -10,7 +10,8 @@ import { revalidatePath } from 'next/cache'
 import { getUser } from '@/lib/auth/getUser'
 import { getProjectManagerContext } from '@/lib/auth/requireProjectManager'
 import { emitNotification } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type InviteActionState = { error?: string; ok?: boolean }
 
@@ -21,12 +22,12 @@ export type InviteActionState = { error?: string; ok?: boolean }
  * role → Citizen) and reassigns it to the redeeming user.
  */
 export async function redeemInvite(code: string, locale: string): Promise<InviteActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an, um einen Einladungscode einzulösen.' }
+  if (!user) return actionError('loginToRedeem')
 
   const normalized = code.trim().toUpperCase()
-  if (!normalized) return { error: 'Bitte einen Einladungscode eingeben.' }
+  if (!normalized) return actionError('inviteCodeRequired')
 
   try {
     const payload = await getPayload({ config })
@@ -41,11 +42,11 @@ export async function redeemInvite(code: string, locale: string): Promise<Invite
     const membership = res.docs[0] as
       | { id: string; status?: string; project: { id: string; slug?: string; joinRequestsEnabled?: boolean | null } }
       | undefined
-    if (!membership || membership.status !== 'invited') return { error: 'Ungültiger oder bereits verwendeter Einladungscode.' }
+    if (!membership || membership.status !== 'invited') return actionError('inviteInvalid')
 
     const project = membership.project
     if (!project || project.joinRequestsEnabled === false) {
-      return { error: 'Dieses Projekt nimmt derzeit keine Einladungen an.' }
+      return actionError('invitesClosed')
     }
 
     await payload.update({
@@ -78,15 +79,15 @@ export async function redeemInvite(code: string, locale: string): Promise<Invite
     revalidatePath(`/${locale}/dashboard/projekte/${project.slug ?? ''}`)
     return { ok: true }
   } catch {
-    return { error: 'Einladung konnte nicht eingelöst werden.' }
+    return actionError('inviteRedeemFailed')
   }
 }
 
 /** Withdraw a pending invitation (PM only). */
 export async function revokeInvite(slug: string, locale: string, inviteCode: string): Promise<InviteActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getProjectManagerContext(slug)
-  if (!ctx) return { error: 'Keine Berechtigung.' }
+  if (!ctx) return actionError('noPermission')
 
   const payload = await getPayload({ config })
   const membership = await payload.find({
@@ -103,7 +104,7 @@ export async function revokeInvite(slug: string, locale: string, inviteCode: str
     overrideAccess: true,
   }).catch(() => ({ docs: [] }))
   const target = membership.docs[0] as { id: string } | undefined
-  if (!target) return { error: 'Einladung nicht gefunden.' }
+  if (!target) return actionError('inviteNotFound')
 
   await payload.delete({ collection: 'project-memberships', id: target.id, overrideAccess: true })
   revalidatePath(`/${locale}/dashboard/projekte/${slug}/manage/mitglieder`)

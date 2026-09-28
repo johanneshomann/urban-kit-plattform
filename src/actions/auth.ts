@@ -12,7 +12,8 @@ import { getLocale } from 'next-intl/server'
 import { emailVerificationEnabled } from '@/lib/email'
 import { getDemoAccounts } from '@/lib/prototype-notice'
 import { SESSION_COOKIE, appDomain, sessionCookieDomain } from '@/lib/auth/session-cookie'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type AuthState = { error?: string; appUrl?: string; verifySent?: boolean } | null
 
@@ -56,9 +57,9 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
     // Correct credentials on a not-yet-activated account — say so instead of
     // pretending the password is wrong.
     if (err instanceof UnverifiedEmail) {
-      return { error: 'Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse — wir haben Ihnen bei der Registrierung einen Aktivierungslink geschickt. Keine Mail erhalten? Registrieren Sie sich einfach erneut.' }
+      return actionError('emailUnverified')
     }
-    return { error: 'Ungültige Anmeldedaten' }
+    return actionError('invalidCredentials')
   }
 
   return finishLogin(token, isAdmin)
@@ -97,7 +98,7 @@ export async function demoLoginAction(_prev: AuthState, formData: FormData): Pro
   const email = String(formData.get('email') ?? '').toLowerCase()
   const locale = await getLocale()
   const account = (await getDemoAccounts(locale)).find((a) => a.email.toLowerCase() === email)
-  if (!account) return { error: 'Dieser Testzugang ist derzeit nicht verfügbar.' }
+  if (!account) return actionError('demoUnavailable')
 
   const payload = await getPayload({ config })
   let token: string | undefined
@@ -105,7 +106,7 @@ export async function demoLoginAction(_prev: AuthState, formData: FormData): Pro
     const result = await payload.login({ collection: 'users', data: { email: account.email, password: account.password } })
     token = result.token
   } catch {
-    return { error: 'Der Testzugang konnte nicht angemeldet werden — bitte die Zugangsdaten im Admin prüfen.' }
+    return actionError('demoLoginFailed')
   }
   return finishLogin(token, false)
 }
@@ -116,8 +117,8 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   const passwordConfirm = formData.get('passwordConfirm') as string
   const firstName = String(formData.get('firstName') ?? '').trim()
   const lastName = String(formData.get('lastName') ?? '').trim()
-  if (!firstName || !lastName) return { error: 'Bitte Vor- und Nachnamen angeben.' }
-  if (password !== passwordConfirm) return { error: 'Die Passwörter stimmen nicht überein.' }
+  if (!firstName || !lastName) return actionError('nameFieldsRequired')
+  if (password !== passwordConfirm) return actionError('passwordMismatch')
 
   const payload = await getPayload({ config })
   const data = { email, password, firstName, lastName }
@@ -144,17 +145,17 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
       // Roll back the half-created account so a retry starts clean.
       const half = await findUnverified()
       if (half) await payload.delete({ collection: 'users', id: half, overrideAccess: true }).catch(() => {})
-      return { error: 'Die Bestätigungs-E-Mail konnte nicht versendet werden. Bitte versuchen Sie es später erneut.' }
+      return actionError('verificationMailFailed')
     }
     // A never-activated leftover doesn't block the address (its mail may
     // simply never have arrived) — replace it and send a fresh activation.
     const stale = await findUnverified()
-    if (!stale) return { error: 'Diese E-Mail-Adresse ist bereits registriert oder ungültig.' }
+    if (!stale) return actionError('emailTakenOrInvalid')
     try {
       await payload.delete({ collection: 'users', id: stale, overrideAccess: true })
       await payload.create({ collection: 'users', data, overrideAccess: true })
     } catch {
-      return { error: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es später erneut.' }
+      return actionError('registrationFailed')
     }
   }
 
@@ -185,7 +186,7 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
 }
 
 export async function updateProfileAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const firstName = formData.get('firstName') as string
   const lastName = formData.get('lastName') as string
   const newPassword = formData.get('newPassword') as string
@@ -225,12 +226,12 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
 
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
-  if (!token) return { error: 'Nicht eingeloggt' }
+  if (!token) return actionError('notLoggedIn')
 
   const payload = await getPayload({ config })
 
   const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
-  if (!me.user) return { error: 'Nicht eingeloggt' }
+  if (!me.user) return actionError('notLoggedIn')
 
   const bio = ((formData.get('bio') as string) || '').trim().slice(0, 1000) || null
 
@@ -242,10 +243,10 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   const previousGalleryIds = (Array.isArray(me.user.gallery) ? me.user.gallery : [])
     .map((g) => (typeof g.image === 'object' && g.image ? String(g.image.id) : g.image ? String(g.image) : null))
     .filter((id): id is string => id !== null)
-  if (galleryKeep.length + galleryFiles.length > 12) return { error: 'Maximal 12 Bilder in der Galerie.' }
+  if (galleryKeep.length + galleryFiles.length > 12) return actionError('galleryMax')
   for (const f of galleryFiles) {
-    if (!f.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
-    if (f.size > 5 * 1024 * 1024) return { error: 'Bild ist zu groß (max. 5 MB).' }
+    if (!f.type.startsWith('image/')) return actionError('imagesOnly')
+    if (f.size > 5 * 1024 * 1024) return actionError('imageTooLarge5')
   }
 
   // Profile picture: replace (upload new media doc) or remove. The previous
@@ -259,8 +260,8 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   if (removeAvatar) {
     avatarUpdate = { avatar: null }
   } else if (avatarFile instanceof File && avatarFile.size > 0) {
-    if (!avatarFile.type.startsWith('image/')) return { error: 'Nur Bilddateien sind erlaubt.' }
-    if (avatarFile.size > 5 * 1024 * 1024) return { error: 'Bild ist zu groß (max. 5 MB).' }
+    if (!avatarFile.type.startsWith('image/')) return actionError('imagesOnly')
+    if (avatarFile.size > 5 * 1024 * 1024) return actionError('imageTooLarge5')
     try {
       const media = await payload.create({
         collection: 'media',
@@ -279,7 +280,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
       })
       avatarUpdate = { avatar: String(media.id) }
     } catch {
-      return { error: 'Bild konnte nicht hochgeladen werden.' }
+      return actionError('imageUploadFailed')
     }
   }
 
@@ -299,7 +300,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
       })
       newGalleryIds.push(String(media.id))
     } catch {
-      return { error: 'Bild konnte nicht hochgeladen werden.' }
+      return actionError('imageUploadFailed')
     }
   }
   const keptIds = galleryKeep.filter((id) => previousGalleryIds.includes(id))
@@ -313,7 +314,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
       overrideAccess: true,
     })
   } catch {
-    return { error: 'Speichern fehlgeschlagen.' }
+    return actionError('saveFailed')
   }
 
   // Clean up replaced/removed media files (best effort).
@@ -325,12 +326,12 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   }
 
   if (newPassword) {
-    if (!currentPassword) return { error: 'Bitte aktuelles Passwort eingeben.' }
+    if (!currentPassword) return actionError('currentPasswordRequired')
     try {
       await payload.login({ collection: 'users', data: { email: me.user.email, password: currentPassword } })
       await payload.update({ collection: 'users', id: me.user.id, data: { password: newPassword }, overrideAccess: true })
     } catch {
-      return { error: 'Aktuelles Passwort falsch.' }
+      return actionError('currentPasswordWrong')
     }
   }
 
@@ -344,14 +345,14 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
  * and redirects to the login page on success.
  */
 export async function deleteAccountAction(): Promise<{ error?: string }> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
-  if (!token) return { error: 'Nicht eingeloggt' }
+  if (!token) return actionError('notLoggedIn')
 
   const payload = await getPayload({ config })
   const me = await payload.auth({ headers: new Headers({ authorization: `JWT ${token}` }) })
-  if (!me.user) return { error: 'Nicht eingeloggt' }
+  if (!me.user) return actionError('notLoggedIn')
 
   const pmMemberships = await payload.find({
     collection: 'project-memberships',
@@ -363,7 +364,7 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
     overrideAccess: true,
   })
   if (pmMemberships.totalDocs > 0) {
-    return { error: 'Als Projektmanager:in können Sie Ihr Konto nicht löschen. Übergeben Sie zuerst die Projektleitung.' }
+    return actionError('pmCannotDeleteAccount')
   }
 
   // Collect the user's own media (avatar + gallery) for cleanup after deletion.
@@ -381,7 +382,7 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
     })
     await payload.delete({ collection: 'users', id: me.user.id, overrideAccess: true })
   } catch {
-    return { error: 'Konto konnte nicht gelöscht werden.' }
+    return actionError('accountDeleteFailed')
   }
 
   // Media cleanup is best effort — the account itself is already gone.

@@ -17,7 +17,8 @@ import { markdownToLexical } from '@/lib/richtext'
 import { emitNotifications } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
 import { emitActivity } from '@/lib/events'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type ForumActionState = { error?: string; ok?: boolean }
 
@@ -36,22 +37,22 @@ async function projectBySlug(payload: Payload, slug: string) {
 /** Resolve a member context (active member of the project), or an error. */
 async function memberCtx(slug: string) {
   const user = await getUser()
-  if (!user) return { error: 'Bitte melde dich an.' as const }
+  if (!user) return actionError('pleaseLogin')
   const payload = await getPayload({ config })
   const project = await projectBySlug(payload, slug)
-  if (!project) return { error: 'Projekt nicht gefunden.' as const }
+  if (!project) return actionError('projectNotFound')
   const tier = await getViewerTier(payload, String(user.id), project.id)
-  if (tier === 'public') return { error: 'Nur Projektmitglieder haben Zugriff.' as const }
+  if (tier === 'public') return actionError('membersOnly')
   return { payload, user, project, tier }
 }
 
 /** Threads are PM-authored (from the manage moderation surface). */
 export async function createThread(slug: string, locale: string, input: { title: string; body?: string; visibilityTeams?: string[] }): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const pm = await getContentAuthorContext(slug)
-  if (!pm) return { error: 'Nur Projektleitung und Teamleitungen können Themen erstellen.' }
+  if (!pm) return actionError('threadCreateForbidden')
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   try {
     const payload = await getPayload({ config })
@@ -67,7 +68,7 @@ export async function createThread(slug: string, locale: string, input: { title:
     })
     await emitActivity({ type: 'forum.thread.created', userId: String(pm.user.id), projectId: pm.project.id, reference: { collectionSlug: 'forum-threads', id: String(thread.id) } })
   } catch {
-    return { error: 'Thema konnte nicht erstellt werden.' }
+    return actionError('threadCreateFailed')
   }
   revalidateForum(locale, slug)
   return { ok: true }
@@ -81,21 +82,21 @@ async function getThread(payload: Payload, projectId: string, threadId: string) 
 }
 
 export async function deleteThread(slug: string, locale: string, threadId: string): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const thread = await getThread(ctx.payload, ctx.project.id, threadId)
-    if (!thread) return { error: 'Thema nicht gefunden.' }
+    if (!thread) return actionError('threadNotFound')
     const isAuthor = relId((thread as { author?: unknown }).author) === String(ctx.user.id)
     const isPM = await isProjectManager(ctx.payload, String(ctx.user.id), ctx.project.id)
-    if (!isAuthor && !isPM) return { error: 'Keine Berechtigung.' }
+    if (!isAuthor && !isPM) return actionError('noPermission')
 
     await ctx.payload.delete({ collection: 'forum-comments', where: { thread: { equals: threadId } }, overrideAccess: true })
     await ctx.payload.delete({ collection: 'forum-thread-votes', where: { thread: { equals: threadId } }, overrideAccess: true })
     await ctx.payload.delete({ collection: 'forum-threads', id: threadId, overrideAccess: true })
   } catch {
-    return { error: 'Thema konnte nicht gelöscht werden.' }
+    return actionError('threadDeleteFailed')
   }
   revalidateForum(locale, slug)
   return { ok: true }
@@ -103,17 +104,17 @@ export async function deleteThread(slug: string, locale: string, threadId: strin
 
 async function setThreadFlag(slug: string, locale: string, threadId: string, field: 'pinned' | 'locked', value: boolean): Promise<ForumActionState> {
   const user = await getUser()
-  if (!user) return { error: 'Nicht angemeldet.' }
+  if (!user) return actionError('notLoggedIn')
   const payload = await getPayload({ config })
   const project = await projectBySlug(payload, slug)
-  if (!project) return { error: 'Projekt nicht gefunden.' }
-  if (!(await isProjectManager(payload, String(user.id), project.id))) return { error: 'Nur Projektmanager:innen.' }
+  if (!project) return actionError('projectNotFound')
+  if (!(await isProjectManager(payload, String(user.id), project.id))) return actionError('pmOnly')
   try {
     const thread = await getThread(payload, project.id, threadId)
-    if (!thread) return { error: 'Thema nicht gefunden.' }
+    if (!thread) return actionError('threadNotFound')
     await payload.update({ collection: 'forum-threads', id: threadId, data: { [field]: value }, overrideAccess: true })
   } catch {
-    return { error: 'Aktion fehlgeschlagen.' }
+    return actionError('actionFailed')
   }
   revalidateForum(locale, slug, (await getThreadSlug(payload, threadId)))
   return { ok: true }
@@ -124,24 +125,24 @@ async function getThreadSlug(payload: Payload, threadId: string): Promise<string
 }
 
 export async function toggleThreadPin(slug: string, locale: string, threadId: string, pinned: boolean): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   return setThreadFlag(slug, locale, threadId, 'pinned', pinned)
 }
 export async function toggleThreadLock(slug: string, locale: string, threadId: string, locked: boolean): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   return setThreadFlag(slug, locale, threadId, 'locked', locked)
 }
 
 export async function postForumComment(slug: string, locale: string, threadId: string, body: string): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   const text = body.trim()
-  if (!text) return { error: 'Kommentar darf nicht leer sein.' }
+  if (!text) return actionError('commentRequired')
   try {
     const thread = await getThread(ctx.payload, ctx.project.id, threadId)
-    if (!thread) return { error: 'Thema nicht gefunden.' }
-    if ((thread as { locked?: boolean }).locked) return { error: 'Dieses Thema ist geschlossen.' }
+    if (!thread) return actionError('threadNotFound')
+    if ((thread as { locked?: boolean }).locked) return actionError('threadLocked')
     const content = (await markdownToLexical(text)) as ForumComment['content']
     await ctx.payload.create({ collection: 'forum-comments', data: { thread: threadId, content, author: ctx.user.id }, overrideAccess: true })
 
@@ -170,39 +171,39 @@ export async function postForumComment(slug: string, locale: string, threadId: s
 
     revalidateForum(locale, slug, (thread as { slug?: string }).slug)
   } catch {
-    return { error: 'Kommentar konnte nicht gespeichert werden.' }
+    return actionError('commentSaveFailed')
   }
   return { ok: true }
 }
 
 export async function deleteForumComment(slug: string, locale: string, commentId: string): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const comment = await ctx.payload.findByID({ collection: 'forum-comments', id: commentId, depth: 1, overrideAccess: true }).catch(() => null)
-    if (!comment) return { error: 'Kommentar nicht gefunden.' }
+    if (!comment) return actionError('commentNotFound')
     const thread = (comment as { thread?: unknown }).thread
     const threadProject = thread && typeof thread === 'object' ? relId((thread as { project?: unknown }).project) : null
-    if (threadProject !== String(ctx.project.id)) return { error: 'Kommentar nicht gefunden.' }
+    if (threadProject !== String(ctx.project.id)) return actionError('commentNotFound')
     const isAuthor = relId((comment as { author?: unknown }).author) === String(ctx.user.id)
     const isPM = await isProjectManager(ctx.payload, String(ctx.user.id), ctx.project.id)
-    if (!isAuthor && !isPM) return { error: 'Keine Berechtigung.' }
+    if (!isAuthor && !isPM) return actionError('noPermission')
     await ctx.payload.delete({ collection: 'forum-comments', id: commentId, overrideAccess: true })
   } catch {
-    return { error: 'Kommentar konnte nicht gelöscht werden.' }
+    return actionError('commentDeleteFailed')
   }
   revalidateForum(locale, slug)
   return { ok: true }
 }
 
 export async function toggleThreadVote(slug: string, locale: string, threadId: string): Promise<ForumActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await memberCtx(slug)
   if ('error' in ctx) return { error: ctx.error }
   try {
     const thread = await getThread(ctx.payload, ctx.project.id, threadId)
-    if (!thread) return { error: 'Thema nicht gefunden.' }
+    if (!thread) return actionError('threadNotFound')
     const existing = await ctx.payload.find({ collection: 'forum-thread-votes', where: { and: [{ thread: { equals: threadId } }, { user: { equals: ctx.user.id } }] }, limit: 1, depth: 0, overrideAccess: true })
     if (existing.totalDocs > 0) {
       await ctx.payload.delete({ collection: 'forum-thread-votes', id: existing.docs[0].id, overrideAccess: true })
@@ -210,7 +211,7 @@ export async function toggleThreadVote(slug: string, locale: string, threadId: s
       await ctx.payload.create({ collection: 'forum-thread-votes', data: { thread: threadId, user: ctx.user.id, project: ctx.project.id }, overrideAccess: true })
     }
   } catch {
-    return { error: 'Aktion fehlgeschlagen.' }
+    return actionError('actionFailed')
   }
   revalidateForum(locale, slug)
   return { ok: true }

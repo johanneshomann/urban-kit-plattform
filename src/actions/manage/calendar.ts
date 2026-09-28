@@ -14,7 +14,8 @@ import { clampAuthorVisibility } from '@/lib/team-scope'
 import { markdownToLexical } from '@/lib/richtext'
 import { emitActivity } from '@/lib/events'
 import { uniqueSlug } from '@/lib/slugify'
-import { isDemoSession, DEMO_WRITE_ERROR } from '@/lib/auth/demo'
+import { isDemoSession } from '@/lib/auth/demo'
+import { actionError } from '@/lib/action-errors'
 
 export type CalendarActionState = { error?: string; ok?: boolean }
 
@@ -66,16 +67,16 @@ interface EventData {
 /** Validate + normalize the shared event fields. Returns data or an error string. */
 async function buildData(input: EventInput): Promise<{ data: EventData } | { error: string }> {
   const title = input.title.trim()
-  if (!title) return { error: 'Titel darf nicht leer sein.' }
+  if (!title) return actionError('titleRequired')
 
   const start = new Date(input.startDate)
-  if (Number.isNaN(start.getTime())) return { error: 'Bitte ein gültiges Startdatum angeben.' }
+  if (Number.isNaN(start.getTime())) return actionError('startDateRequired')
 
   let end: Date | null = null
   if (input.endDate) {
     end = new Date(input.endDate)
-    if (Number.isNaN(end.getTime())) return { error: 'Ungültiges Enddatum.' }
-    if (end < start) return { error: 'Das Enddatum liegt vor dem Startdatum.' }
+    if (Number.isNaN(end.getTime())) return actionError('invalidEndDate')
+    if (end < start) return actionError('endBeforeStart')
   }
 
   const content = typeof input.body === 'string'
@@ -98,10 +99,10 @@ async function buildData(input: EventInput): Promise<{ data: EventData } | { err
 }
 
 export async function createProjectEvent(slug: string, locale: string, input: EventInput): Promise<CalendarActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   // PMs and team leads may create; leads are clamped to their teams below.
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
@@ -121,7 +122,7 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
     })
     await emitActivity({ type: 'calendar.created', userId: String(ctx.user.id), projectId: ctx.project.id, reference: { collectionSlug: 'calendar-events', id: String(event.id) } })
   } catch {
-    return { error: 'Termin konnte nicht erstellt werden.' }
+    return actionError('eventCreateFailed')
   }
 
   revalidateCalendar(locale, slug)
@@ -129,9 +130,9 @@ export async function createProjectEvent(slug: string, locale: string, input: Ev
 }
 
 export async function updateProjectEvent(slug: string, locale: string, eventId: string, input: EventInput): Promise<CalendarActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   const built = await buildData(input)
   if ('error' in built) return { error: built.error }
@@ -140,9 +141,9 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
   try {
     const payload = await getPayload({ config })
     const existing = await getProjectEvent(payload, ctx.project.id, eventId)
-    if (!existing) return { error: 'Termin nicht gefunden.' }
+    if (!existing) return actionError('eventNotFound')
     // Leads only edit their own events.
-    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return { error: 'Nur eigene Termine können bearbeitet werden.' }
+    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return actionError('eventEditOwnOnly')
     await payload.update({
       collection: 'calendar-events',
       id: eventId,
@@ -150,7 +151,7 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
       overrideAccess: true,
     })
   } catch {
-    return { error: 'Termin konnte nicht gespeichert werden.' }
+    return actionError('eventSaveFailed')
   }
 
   revalidateCalendar(locale, slug)
@@ -158,18 +159,18 @@ export async function updateProjectEvent(slug: string, locale: string, eventId: 
 }
 
 export async function deleteProjectEvent(slug: string, locale: string, eventId: string): Promise<CalendarActionState> {
-  if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }
+  if (await isDemoSession()) return actionError('demoReadOnly')
   const ctx = await getContentAuthorContext(slug)
-  if (!ctx) return { error: 'Nicht berechtigt.' }
+  if (!ctx) return actionError('forbidden')
 
   try {
     const payload = await getPayload({ config })
     const existing = await getProjectEvent(payload, ctx.project.id, eventId)
-    if (!existing) return { error: 'Termin nicht gefunden.' }
-    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return { error: 'Nur eigene Termine können gelöscht werden.' }
+    if (!existing) return actionError('eventNotFound')
+    if (!ctx.isPM && authorIdOf(existing) !== String(ctx.user.id)) return actionError('eventDeleteOwnOnly')
     await payload.delete({ collection: 'calendar-events', id: eventId, overrideAccess: true })
   } catch {
-    return { error: 'Termin konnte nicht gelöscht werden.' }
+    return actionError('eventDeleteFailed')
   }
 
   revalidateCalendar(locale, slug)
