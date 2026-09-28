@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { Kanban } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { ExcalidrawBoard } from './ExcalidrawBoard'
 
 export interface BoardRef {
@@ -22,12 +23,13 @@ export function BoardView({ boards, projectSlug, wsUrl, token, userId, userName 
   userName: string
 }) {
   const [selected, setSelected] = useState<string | null>(boards[0]?.id ?? null)
+  const t = useTranslations('projectWorkspace')
 
   if (boards.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2" style={{ color: 'var(--project-ink)' }}>
         <Kanban className="w-8 h-8" />
-        <p className="text-small">Für dieses Projekt wurde noch kein Board angelegt.</p>
+        <p className="text-small">{t('boardEmpty')}</p>
       </div>
     )
   }

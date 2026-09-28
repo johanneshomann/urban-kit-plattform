@@ -7,6 +7,7 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 /**
  * Centered form dialog in the app's standard idiom (dark blurred backdrop,
@@ -21,6 +22,7 @@ export function FormModal({ title, size = 'lg', onClose, children }: {
   onClose: () => void
   children: React.ReactNode
 }) {
+  const tc = useTranslations('common')
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -53,7 +55,7 @@ export function FormModal({ title, size = 'lg', onClose, children }: {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Schließen"
+            aria-label={tc('close')}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[color-mix(in_srgb,var(--project-ink,var(--app-ink))_8%,var(--project-white,var(--app-white)))] cursor-pointer"
           >
             <X className="h-4 w-4" aria-hidden />

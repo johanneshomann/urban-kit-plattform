@@ -7,6 +7,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { useLocale } from 'next-intl'
 import * as Y from 'yjs'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import '@excalidraw/excalidraw/index.css'
@@ -46,6 +47,7 @@ type ExcalidrawModule = {
 export function ExcalidrawBoard({ roomName, wsUrl, token, userId, userName }: {
   roomName: string; wsUrl: string; token: string; userId: string; userName: string
 }) {
+  const locale = useLocale()
   const [api, setApi] = useState<any>(null)
   const [exc, setExc] = useState<ExcalidrawModule | null>(null)
   const providerRef = useRef<HocuspocusProvider | null>(null)
@@ -150,7 +152,8 @@ export function ExcalidrawBoard({ roomName, wsUrl, token, userId, userName }: {
 
   return (
     <div className="h-full w-full">
-      <Excalidraw excalidrawAPI={setApi} onChange={onChange} onPointerUpdate={onPointerUpdate} />
+      {/* Excalidraw's own UI follows the app locale (it would default to English otherwise) */}
+      <Excalidraw excalidrawAPI={setApi} onChange={onChange} onPointerUpdate={onPointerUpdate} langCode={locale === 'de' ? 'de-DE' : 'en'} />
     </div>
   )
 }

@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Bot, Check, Flag, Globe, Link2, MessagesSquare, Share2 } from 'lucide-react'
 import { ManageMenu, type ManageMenuItem } from '@/components/platform/ManageMenu'
 import { FormModal } from '@/components/platform/FormModal'
@@ -35,6 +36,7 @@ function ShareToChatModal({ slug, item, onClose }: { slug: string; item: Content
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const t = useTranslations('contentMenu')
 
   useEffect(() => {
     let alive = true
@@ -61,21 +63,21 @@ function ShareToChatModal({ slug, item, onClose }: { slug: string; item: Content
       setSent(true)
       setTimeout(onClose, 900)
     } catch {
-      setError('Teilen fehlgeschlagen.')
+      setError(t('shareFailed'))
     } finally {
       setSending(false)
     }
   }
 
   return (
-    <FormModal title="Im Chat teilen" size="md" onClose={onClose}>
+    <FormModal title={t('shareToChat')} size="md" onClose={onClose}>
       {error && <p className="text-small mb-3 px-3 py-2 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
       {sent ? (
-        <p className="flex items-center gap-2 text-text" style={{ color: 'var(--project-accent)' }}><Check className="w-4 h-4" aria-hidden /> Geteilt!</p>
+        <p className="flex items-center gap-2 text-text" style={{ color: 'var(--project-accent)' }}><Check className="w-4 h-4" aria-hidden /> {t('shared')}</p>
       ) : rooms === null ? (
-        <p className="text-small" style={{ color: 'var(--project-ink)' }}>Räume werden geladen …</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('roomsLoading')}</p>
       ) : rooms.length === 0 ? (
-        <p className="text-small" style={{ color: 'var(--project-ink)' }}>Keine Chat-Räume in diesem Projekt gefunden.</p>
+        <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('noRooms')}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {rooms.map((r) => (
@@ -88,7 +90,7 @@ function ShareToChatModal({ slug, item, onClose }: { slug: string; item: Content
                 style={{ color: 'var(--project-accent)' }}
               >
                 <MessagesSquare aria-hidden className="w-4 h-4 shrink-0" style={{ color: 'var(--project-ink)' }} />
-                <span className="truncate">{r.name || 'Projekt-Chat'}</span>
+                <span className="truncate">{r.name || t('projectChatFallback')}</span>
               </button>
             </li>
           ))}
@@ -114,20 +116,21 @@ export function ContentItemMenu({ slug, locale, agentEnabled, item, extraItems =
   disabled?: boolean
 }) {
   const router = useRouter()
+  const t = useTranslations('contentMenu')
   const [shareOpen, setShareOpen] = useState(false)
   const base = `/${locale}/dashboard/projekte/${slug}`
 
   const items: ManageMenuItem[] = [
     {
       key: 'copy',
-      label: 'Link kopieren',
+      label: t('copyLink'),
       icon: Link2,
       onSelect: () => { void navigator.clipboard?.writeText(window.location.origin + base + item.href) },
     },
     ...(item.publicHref
       ? [{
           key: 'copy-public',
-          label: 'Öffentlichen Link kopieren',
+          label: t('copyPublicLink'),
           icon: Globe,
           onSelect: () => { void navigator.clipboard?.writeText(window.location.origin + item.publicHref) },
         }]
@@ -135,16 +138,16 @@ export function ContentItemMenu({ slug, locale, agentEnabled, item, extraItems =
     ...(agentEnabled
       ? [{
           key: 'agent',
-          label: 'Den Urban Agent fragen',
+          label: t('askAgent'),
           icon: Bot,
           onSelect: () => {
-            try { sessionStorage.setItem(urbanAgentAskKey(slug), `Worum geht es in „${item.title}“?`) } catch { /* storage blocked */ }
+            try { sessionStorage.setItem(urbanAgentAskKey(slug), t('askAgentPrompt', { title: item.title })) } catch { /* storage blocked */ }
             router.push(`${base}/m/urban-agent`)
           },
         }]
       : []),
-    { key: 'share', label: 'Im Chat teilen', icon: Share2, onSelect: () => setShareOpen(true) },
-    { key: 'report', label: 'Melden', icon: Flag, variant: 'danger', confirmLabel: 'Wirklich melden?', onSelect: () => { void reportContent(slug, { module: item.module, itemId: item.itemId }) } },
+    { key: 'share', label: t('shareToChat'), icon: Share2, onSelect: () => setShareOpen(true) },
+    { key: 'report', label: t('report'), icon: Flag, variant: 'danger', confirmLabel: t('reportConfirm'), onSelect: () => { void reportContent(slug, { module: item.module, itemId: item.itemId }) } },
     ...extraItems,
   ]
 

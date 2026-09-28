@@ -6,6 +6,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 
 /**
  * Pill row filtering a module list by audience via the `?team=` search param
@@ -18,6 +19,8 @@ export function TeamFilterBar({ teams, active }: { teams: string[]; active: stri
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
+  const t = useTranslations('projectWorkspace')
+  const tc = useTranslations('common')
 
   const setFilter = (value: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -28,12 +31,12 @@ export function TeamFilterBar({ teams, active }: { teams: string[]; active: stri
   }
 
   const pills: { value: string | null; label: string }[] = [
-    { value: null, label: 'Alle' },
+    { value: null, label: tc('all') },
     ...teams.map((t) => ({ value: t, label: t })),
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 mb-4" role="group" aria-label="Nach Team filtern">
+    <div className="flex flex-wrap items-center gap-1.5 mb-4" role="group" aria-label={t('teamFilterLabel')}>
       {pills.map((p) => {
         const on = active === p.value || (!active && p.value === null)
         return (

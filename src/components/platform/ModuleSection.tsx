@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { useTranslations } from 'next-intl'
 import { NewsDashboardCard, type NewsCardPost } from '@/modules/news/components/news-dashboard-card'
 import { CalendarDashboardCard, type CalendarCardEvent } from '@/modules/calendar/components/calendar-dashboard-card'
 import { PollsDashboardCard, type PollCardData } from '@/modules/polls/components/polls-dashboard-card'
@@ -43,6 +44,7 @@ export function ModuleSection({
   forumCount, forumNewCount, tasksPreview, tasksOpenCount,
   boardCount, filesPreview, filesNewCount, teamCounts,
 }: Props) {
+  const t = useTranslations('projectWorkspace')
   function renderCard(moduleId: string) {
     switch (moduleId) {
       case 'news': return <NewsDashboardCard posts={newsPosts} newCount={newsNewCount} projectSlug={projectSlug} locale={locale} />
@@ -92,7 +94,7 @@ export function ModuleSection({
               <div className="flex-1">{card}</div>
               {teamCount > 0 && (
                 <p className="text-small px-4 py-2 border-t" style={{ color: 'var(--project-ink)', borderColor: 'var(--project-light)' }}>
-                  davon {teamCount} für Ihre Teams
+                  {t('teamCountNote', { count: teamCount })}
                 </p>
               )}
             </div>

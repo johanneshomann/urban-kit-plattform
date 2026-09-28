@@ -5,6 +5,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound, redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { SavedItemsList, type SavedListItem } from '@/components/platform/SavedItemsList'
 import { getWorkspaceContext } from '@/lib/workspace-context'
@@ -23,6 +24,7 @@ export default async function MerklistePage({ params }: { params: Promise<{ loca
   if (!ctx) notFound()
   const user = await getUser()
   if (!user) redirect(`/${locale}/login`)
+  const t = await getTranslations({ locale, namespace: 'projectWorkspace' })
 
   const payload = await getPayload({ config })
   const saved = await payload.find({
@@ -51,7 +53,7 @@ export default async function MerklistePage({ params }: { params: Promise<{ loca
       module: row.module!,
       itemId: row.item,
       // Prefer the live title over the snapshot
-      title: String(doc.title ?? doc.label ?? doc.filename ?? doc.name ?? row.title ?? '') || 'Eintrag',
+      title: String(doc.title ?? doc.label ?? doc.filename ?? doc.name ?? row.title ?? '') || t('savedItemFallback'),
       href: row.href ?? `/m/${row.module}`,
       savedAt: row.createdAt ?? new Date().toISOString(),
     })
@@ -59,8 +61,8 @@ export default async function MerklistePage({ params }: { params: Promise<{ loca
 
   return (
     <div className="flex-1 flex flex-col" style={{ background: 'var(--project-light)' }}>
-      <ProjectBreadcrumb items={[{ label: ctx.project.title, href: `/${locale}/dashboard/projekte/${slug}` }, { label: 'Merkliste' }]} />
-      <h1 className="sr-only">Merkliste</h1>
+      <ProjectBreadcrumb items={[{ label: ctx.project.title, href: `/${locale}/dashboard/projekte/${slug}` }, { label: t('savedNav') }]} />
+      <h1 className="sr-only">{t('savedNav')}</h1>
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         <SavedItemsList slug={slug} base={`/${locale}/dashboard/projekte/${slug}`} items={items} />
       </main>

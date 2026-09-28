@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 /**
  * One entry of a {@link ManageMenu}. Callers build the item list from the
@@ -33,11 +34,13 @@ export interface ManageMenuItem {
  * delete …). Renders nothing when the item list is empty, closes on outside
  * click and Escape, and resets any pending confirmation on close.
  */
-export function ManageMenu({ label = 'Mehr', items, disabled }: {
+export function ManageMenu({ label: labelProp, items, disabled }: {
   label?: string
   items: ManageMenuItem[]
   disabled?: boolean
 }) {
+  const tc = useTranslations('common')
+  const label = labelProp ?? tc('more')
   const [open, setOpen] = useState(false)
   const [confirming, setConfirming] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)

@@ -5,6 +5,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
@@ -60,6 +61,8 @@ function ToolbarButton({ icon: Icon, label, onClick }: { icon: LucideIcon; label
  */
 function ReferencePanel({ search, onClose }: { search: (q: string) => Promise<EditorReference[]>; onClose: () => void }) {
   const [editor] = useLexicalComposerContext()
+  const t = useTranslations('editor')
+  const tc = useTranslations('common')
   const [q, setQ] = useState('')
   const [results, setResults] = useState<EditorReference[]>([])
   const [busy, setBusy] = useState(false)
@@ -103,12 +106,12 @@ function ReferencePanel({ search, onClose }: { search: (q: string) => Promise<Ed
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); editor.focus() } }}
-          placeholder="Projektinhalt suchen und verlinken …"
-          aria-label="Projektinhalt suchen und verlinken"
+          placeholder={t('searchPlaceholder')}
+          aria-label={t('searchLabel')}
           className="flex-1 min-w-0 px-2 py-1 rounded-md border text-small outline-none"
           style={{ borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }}
         />
-        <button type="button" onClick={() => { onClose(); editor.focus() }} aria-label="Schließen" className="p-1 rounded-md cursor-pointer" style={{ color: 'var(--project-accent)' }}>
+        <button type="button" onClick={() => { onClose(); editor.focus() }} aria-label={tc('close')} className="p-1 rounded-md cursor-pointer" style={{ color: 'var(--project-accent)' }}>
           <X aria-hidden className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -130,7 +133,7 @@ function ReferencePanel({ search, onClose }: { search: (q: string) => Promise<Ed
         </ul>
       )}
       {q.trim().length >= 2 && !busy && results.length === 0 && (
-        <p className="mt-1.5 px-1 text-small" style={{ color: 'var(--project-ink)' }}>Keine Treffer.</p>
+        <p className="mt-1.5 px-1 text-small" style={{ color: 'var(--project-ink)' }}>{t('noResults')}</p>
       )}
     </div>
   )
@@ -138,6 +141,7 @@ function ReferencePanel({ search, onClose }: { search: (q: string) => Promise<Ed
 
 function Toolbar({ onToggleReferences, referencesOpen }: { onToggleReferences?: () => void; referencesOpen?: boolean }) {
   const [editor] = useLexicalComposerContext()
+  const t = useTranslations('editor')
 
   const toggleHeading = () => {
     editor.update(() => {
@@ -151,26 +155,26 @@ function Toolbar({ onToggleReferences, referencesOpen }: { onToggleReferences?: 
   return (
     <div
       role="toolbar"
-      aria-label="Textformatierung"
+      aria-label={t('toolbarLabel')}
       className="flex flex-wrap items-center gap-0.5 px-1.5 py-1 border-b"
       style={{
         background: 'var(--project-light)',
         borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)',
       }}
     >
-      <ToolbarButton icon={Bold} label="Fett" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')} />
-      <ToolbarButton icon={Italic} label="Kursiv" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')} />
+      <ToolbarButton icon={Bold} label={t('bold')} onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')} />
+      <ToolbarButton icon={Italic} label={t('italic')} onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')} />
       <span aria-hidden className="w-px h-4 mx-1" style={{ background: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }} />
-      <ToolbarButton icon={Heading2} label="Überschrift" onClick={toggleHeading} />
-      <ToolbarButton icon={List} label="Aufzählung" onClick={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)} />
-      <ToolbarButton icon={ListOrdered} label="Nummerierte Liste" onClick={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)} />
+      <ToolbarButton icon={Heading2} label={t('heading')} onClick={toggleHeading} />
+      <ToolbarButton icon={List} label={t('bulletList')} onClick={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)} />
+      <ToolbarButton icon={ListOrdered} label={t('numberedList')} onClick={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)} />
       {onToggleReferences && (
         <>
           <span aria-hidden className="w-px h-4 mx-1" style={{ background: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }} />
           <button
             type="button"
-            title="Projektinhalt verlinken"
-            aria-label="Projektinhalt verlinken"
+            title={t('linkContent')}
+            aria-label={t('linkContent')}
             aria-expanded={referencesOpen}
             onMouseDown={(e) => { e.preventDefault(); onToggleReferences() }}
             className="p-1.5 rounded-md transition-colors cursor-pointer hover:bg-[color-mix(in_srgb,var(--project-general)_25%,transparent)]"

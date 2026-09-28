@@ -6,6 +6,7 @@
 
 import { useState, useTransition } from 'react'
 import { Bookmark } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { toggleSavedItem } from '@/actions/saved'
 
 /**
@@ -18,6 +19,7 @@ export function SaveButton({ slug, module, itemId }: {
   module: string
   itemId: string
 }) {
+  const t = useTranslations('projectWorkspace')
   const [saved, setSaved] = useState<boolean | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -34,8 +36,8 @@ export function SaveButton({ slug, module, itemId }: {
       type="button"
       onClick={toggle}
       disabled={pending}
-      title={saved ? 'Aus der Merkliste entfernen' : 'Merken'}
-      aria-label={saved ? 'Aus der Merkliste entfernen' : 'Merken'}
+      title={saved ? t('savedRemove') : t('saveItem')}
+      aria-label={saved ? t('savedRemove') : t('saveItem')}
       aria-pressed={saved === true}
       className="p-2 rounded-lg shrink-0 transition-colors cursor-pointer hover:bg-[color-mix(in_srgb,var(--project-general)_14%,transparent)] disabled:opacity-40"
       style={{ color: 'var(--project-accent)' }}
