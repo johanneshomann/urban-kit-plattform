@@ -6,6 +6,8 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core'
 import { Plus, Pencil, Trash2, Calendar, GripVertical, UserMinus, UserPlus } from 'lucide-react'
 import { createTask, updateTask, deleteTask, moveTask, toggleSelfAssignTask } from '@/actions/tasks'
@@ -31,12 +33,12 @@ export interface TaskCardData {
 }
 
 const COLUMNS = [
-  { id: 'todo', label: 'Offen' },
-  { id: 'in_progress', label: 'In Arbeit' },
-  { id: 'done', label: 'Erledigt' },
+  { id: 'todo', key: 'colTodo' },
+  { id: 'in_progress', key: 'colInProgress' },
+  { id: 'done', key: 'colDone' },
 ] as const
 
-const PRIORITY = { low: { label: 'Niedrig', bg: 'var(--project-light)', fg: 'var(--project-ink)' }, medium: { label: 'Mittel', bg: 'var(--project-general)', fg: 'var(--project-black)' }, high: { label: 'Hoch', bg: 'var(--project-danger-surface)', fg: 'var(--project-danger)' } } as Record<string, { label: string; bg: string; fg: string }>
+const PRIORITY = { low: { key: 'prioLow', bg: 'var(--project-light)', fg: 'var(--project-ink)' }, medium: { key: 'prioMedium', bg: 'var(--project-general)', fg: 'var(--project-black)' }, high: { key: 'prioHigh', bg: 'var(--project-danger-surface)', fg: 'var(--project-danger)' } } as Record<string, { key: 'prioLow' | 'prioMedium' | 'prioHigh'; bg: string; fg: string }>
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
 const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)', color: 'var(--project-accent)', background: 'var(--project-white)' }
 
@@ -44,6 +46,8 @@ const emptyForm = (): TaskCardData => ({ id: '', title: '', description: '', sta
 
 function Card({ slug, locale, agentEnabled, task, onOpen, onSelfAssign, onEdit, onDelete, pending }: { slug: string; locale: string; agentEnabled: boolean; task: TaskCardData; onOpen: () => void; onSelfAssign: () => void; onEdit: () => void; onDelete: () => void; pending: boolean }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id, disabled: !task.canMove })
+  const t = useTranslations('tasks')
+  const tc = useTranslations('common')
   const prio = PRIORITY[task.priority] ?? PRIORITY.medium
   return (
     <div ref={setNodeRef} style={{ ...cardStyle, transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined, opacity: isDragging ? 0.5 : 1 }}
@@ -54,14 +58,14 @@ function Card({ slug, locale, agentEnabled, task, onOpen, onSelfAssign, onEdit, 
           {/* Title opens the task popup */}
           <button type="button" onClick={onOpen} className="text-text font-medium leading-snug text-left cursor-pointer hover:underline" style={{ color: 'var(--project-accent)' }}>{task.title}</button>
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-            <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
+            <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{t(prio.key)}</span>
             <AudienceChip visibility={task.visibility} visibilityTeams={task.visibilityTeams} />
             {task.labels.map((l) => <span key={l} className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
           </div>
           {(task.assignees.length > 0 || task.deadline) && (
             <p className="text-small flex flex-wrap items-center gap-x-2 mt-1.5" style={{ color: 'var(--project-ink)' }}>
               {task.assignees.length > 0 && <span>{task.assignees.map((a) => a.name).join(', ')}</span>}
-              {task.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(task.deadline).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span>}
+              {task.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(task.deadline).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'short' })}</span>}
             </p>
           )}
         </div>
@@ -76,12 +80,12 @@ function Card({ slug, locale, agentEnabled, task, onOpen, onSelfAssign, onEdit, 
             disabled={pending}
             extraItems={[
               task.mine
-                ? { key: 'unassign', label: 'Nicht mehr zuständig', icon: UserMinus, onSelect: onSelfAssign }
-                : { key: 'assign', label: 'Mir zuweisen', icon: UserPlus, onSelect: onSelfAssign },
+                ? { key: 'unassign', label: t('unassignSelf'), icon: UserMinus, onSelect: onSelfAssign }
+                : { key: 'assign', label: t('assignSelf'), icon: UserPlus, onSelect: onSelfAssign },
               ...(task.canManage
                 ? [
-                    { key: 'edit', label: 'Bearbeiten', icon: Pencil, onSelect: onEdit },
-                    { key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: onDelete },
+                    { key: 'edit', label: tc('edit'), icon: Pencil, onSelect: onEdit },
+                    { key: 'delete', label: tc('delete'), icon: Trash2, variant: 'danger' as const, confirmLabel: tc('confirmDelete'), onSelect: onDelete },
                   ]
                 : []),
             ]}
@@ -104,6 +108,8 @@ function Column({ id, label, count, children }: { id: string; label: string; cou
 
 export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamOptions = [], agentEnabled = false }: { slug: string; locale: string; tasks: TaskCardData[]; members: TaskMember[]; isPM: boolean; canCreate: boolean; teamOptions?: string[]; agentEnabled?: boolean }) {
   const router = useRouter()
+  const t = useTranslations('tasks')
+  const tc = useTranslations('common')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [local, setLocal] = useState<TaskCardData[]>(tasks)
@@ -153,49 +159,47 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
     <div>
       <div className="flex items-center justify-end gap-2 mb-1">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-        <h1 className="sr-only">Aufgaben</h1>
+        <h1 className="sr-only">{t('title')}</h1>
         <button type="button" onClick={() => setMineOnly((v) => !v)} aria-pressed={mineOnly}
           className="text-small px-3 py-1.5 rounded-full border transition-colors"
           style={{ background: mineOnly ? 'var(--project-dark)' : 'transparent', color: mineOnly ? 'var(--project-black)' : 'var(--project-accent)', borderColor: mineOnly ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
-          Meine Aufgaben
+          {t('mine')}
         </button>
         {canCreate && !editing && (
           <button type="button" onClick={() => setEditing(emptyForm())} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-            <Plus className="w-4 h-4" /> Neue Aufgabe
+            <Plus className="w-4 h-4" /> {t('new')}
           </button>
         )}
       </div>
       <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
-        {canCreate
-          ? 'Aufgaben des Projekts. Aufgaben mit der Markierung „Team" sieht nur das Projektteam, alle anderen sehen alle Mitglieder. Zugewiesene verschieben ihre Aufgaben zwischen den Spalten.'
-          : 'Aufgaben des Projekts. Ihnen zugewiesene Aufgaben können Sie zwischen den Spalten verschieben.'}
+        {canCreate ? t('introAuthor') : t('introMember')}
       </p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {editing && (
-        <FormModal title={editing.id ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'} size="xl" onClose={() => setEditing(null)}>
+        <FormModal title={editing.id ? t('edit') : t('new')} size="xl" onClose={() => setEditing(null)}>
           <div className="flex flex-col gap-3">
           {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
-          <input type="text" autoFocus value={editing.title} onChange={(e) => setF('title', e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
-          <textarea value={editing.description} onChange={(e) => setF('description', e.target.value)} rows={3} placeholder="Beschreibung (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
+          <input type="text" autoFocus value={editing.title} onChange={(e) => setF('title', e.target.value)} placeholder={tc('titlePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+          <textarea value={editing.description} onChange={(e) => setF('description', e.target.value)} rows={3} placeholder={t('descriptionPlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
           <div className="grid sm:grid-cols-3 gap-2">
             <select value={editing.status} onChange={(e) => setF('status', e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
-              {COLUMNS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              {COLUMNS.map((c) => <option key={c.id} value={c.id}>{t(c.key)}</option>)}
             </select>
             <select value={editing.priority} onChange={(e) => setF('priority', e.target.value)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}>
-              <option value="low">Niedrig</option><option value="medium">Mittel</option><option value="high">Hoch</option>
+              <option value="low">{t('prioLow')}</option><option value="medium">{t('prioMedium')}</option><option value="high">{t('prioHigh')}</option>
             </select>
             <input type="date" value={editing.deadline ?? ''} onChange={(e) => setF('deadline', e.target.value || null)} className="px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           </div>
-          <input type="text" value={editing.labels.join(', ')} onChange={(e) => setF('labels', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder="Labels (kommagetrennt)" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+          <input type="text" value={editing.labels.join(', ')} onChange={(e) => setF('labels', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder={t('labelsPlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
           <div>
-            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für</p>
+            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>{t('visibleTo')}</p>
             {isPM ? (
               <div className="flex flex-wrap gap-2">
                 {([
-                  { value: 'TEAM', label: 'Nur Projektteam' },
-                  { value: 'PROJECT', label: 'Alle Mitglieder' },
+                  { value: 'TEAM', label: t('visTeam') },
+                  { value: 'PROJECT', label: t('visProject') },
                 ] as const).map((opt) => {
                   const on = editing.visibility === opt.value
                   return (
@@ -206,11 +210,11 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
                 })}
               </div>
             ) : (
-              <p className="text-small" style={{ color: 'var(--project-ink)' }}>Nur Projektteam — allgemeine Aufgaben für alle Mitglieder legen Projektmanager:innen an.</p>
+              <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('visTeamHint')}</p>
             )}
             {editing.visibility === 'TEAM' && teamOptions.length > 0 && (
               <div className="mt-2">
-                <p className="text-small mb-1.5" style={{ color: 'var(--project-ink)' }}>Bestimmte Teams (keine Auswahl = ganzes Projektteam)</p>
+                <p className="text-small mb-1.5" style={{ color: 'var(--project-ink)' }}>{t('specificTeams')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {teamOptions.map((tag) => {
                     const on = editing.visibilityTeams.includes(tag)
@@ -225,18 +229,18 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
             )}
           </div>
           <div>
-            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Zuständig</p>
+            <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>{t('assignees')}</p>
             <div className="flex flex-wrap gap-2">
               {members.map((m) => {
                 const on = editing.assignees.some((a) => a.id === m.id)
                 return <button key={m.id} type="button" onClick={() => toggleAssignee(m)} className="text-small px-3 py-1.5 rounded-full border" style={{ background: on ? 'var(--project-dark)' : 'transparent', color: on ? 'var(--project-black)' : 'var(--project-accent)', borderColor: on ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>{m.name}</button>
               })}
-              {members.length === 0 && <span className="text-small" style={{ color: 'var(--project-ink)' }}>Keine Mitglieder.</span>}
+              {members.length === 0 && <span className="text-small" style={{ color: 'var(--project-ink)' }}>{t('noMembers')}</span>}
             </div>
           </div>
           <div>
             <button type="button" onClick={save} disabled={pending || !editing.title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-              {editing.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editing.id ? 'Speichern' : 'Erstellen'}
+              {editing.id ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />} {editing.id ? tc('save') : tc('create')}
             </button>
           </div>
           </div>
@@ -245,30 +249,30 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
 
       {/* Task detail popup — derived from the board so refreshes flow in */}
       {(() => {
-        const t = detailId ? local.find((x) => x.id === detailId) : undefined
-        if (!t) return null
-        const prio = PRIORITY[t.priority] ?? PRIORITY.medium
-        const col = COLUMNS.find((c) => c.id === t.status)
+        const task = detailId ? local.find((x) => x.id === detailId) : undefined
+        if (!task) return null
+        const prio = PRIORITY[task.priority] ?? PRIORITY.medium
+        const col = COLUMNS.find((c) => c.id === task.status)
         return (
-          <FormModal title={t.title} onClose={() => setDetailId(null)}>
+          <FormModal title={task.title} onClose={() => setDetailId(null)}>
             <div className="flex flex-wrap items-center gap-1.5 -mt-2 mb-3">
-              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>{col?.label ?? t.status}</span>
-              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{prio.label}</span>
-              <AudienceChip visibility={t.visibility} visibilityTeams={t.visibilityTeams} />
-              {t.labels.map((l) => <span key={l} className="text-small px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
-              <span className="ml-auto"><SaveButton slug={slug} module="tasks" itemId={t.id} /></span>
+              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>{col ? t(col.key) : task.status}</span>
+              <span className="text-small font-semibold px-2.5 py-0.5 rounded-full" style={{ background: prio.bg, color: prio.fg }}>{t(prio.key)}</span>
+              <AudienceChip visibility={task.visibility} visibilityTeams={task.visibilityTeams} />
+              {task.labels.map((l) => <span key={l} className="text-small px-2.5 py-0.5 rounded-full" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>{l}</span>)}
+              <span className="ml-auto"><SaveButton slug={slug} module="tasks" itemId={task.id} /></span>
             </div>
             <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5" style={{ color: 'var(--project-ink)' }}>
-              {t.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />Fällig am {new Date(t.deadline).toLocaleDateString('de-DE', { dateStyle: 'medium' })}</span>}
-              {t.assignees.length > 0 && <span>Zuständig: {t.assignees.map((a) => a.name).join(', ')}</span>}
+              {task.deadline && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{t('dueOn', { date: new Date(task.deadline).toLocaleDateString(intlLocale(locale), { dateStyle: 'medium' }) })}</span>}
+              {task.assignees.length > 0 && <span>{t('assigneesLabel', { names: task.assignees.map((a) => a.name).join(', ') })}</span>}
             </p>
-            {t.description && (
-              <p className="text-text whitespace-pre-wrap mt-4 pt-4 border-t" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>{t.description}</p>
+            {task.description && (
+              <p className="text-text whitespace-pre-wrap mt-4 pt-4 border-t" style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 15%, transparent)' }}>{task.description}</p>
             )}
-            {t.canManage && (
+            {task.canManage && (
               <div className="mt-5">
-                <button type="button" onClick={() => { setDetailId(null); setEditing(t) }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold cursor-pointer" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-                  <Pencil className="w-3.5 h-3.5" /> Bearbeiten
+                <button type="button" onClick={() => { setDetailId(null); setEditing(task) }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold cursor-pointer" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
+                  <Pencil className="w-3.5 h-3.5" /> {tc('edit')}
                 </button>
               </div>
             )}
@@ -279,7 +283,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
       {shown.length === 0 && !editing ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <p className="text-text" style={{ color: 'var(--project-ink)' }}>
-            {canCreate ? 'Noch keine Aufgaben. Erstellen Sie die erste über „Neue Aufgabe".' : 'Noch keine Aufgaben.'}
+            {canCreate ? t('emptyAuthor') : t('empty')}
           </p>
         </div>
       ) : (
@@ -288,7 +292,7 @@ export function TaskBoard({ slug, locale, tasks, members, isPM, canCreate, teamO
             {COLUMNS.map((col) => {
               const colTasks = shown.filter((t) => t.status === col.id)
               return (
-                <Column key={col.id} id={col.id} label={col.label} count={colTasks.length}>
+                <Column key={col.id} id={col.id} label={t(col.key)} count={colTasks.length}>
                   {colTasks.length === 0 ? <p className="text-small px-2 py-4 text-center" style={{ color: 'var(--project-ink)' }}>—</p>
                     : colTasks.map((t) => <Card key={t.id} slug={slug} locale={locale} agentEnabled={agentEnabled} task={t} pending={pending} onOpen={() => setDetailId(t.id)} onSelfAssign={() => run(() => toggleSelfAssignTask(slug, locale, t.id))} onEdit={() => setEditing(t)} onDelete={() => run(() => deleteTask(slug, locale, t.id))} />)}
                 </Column>

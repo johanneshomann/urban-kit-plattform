@@ -9,13 +9,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { ArrowRight, Bot, Send } from 'lucide-react'
-import { SUGGESTED_PROMPTS, urbanAgentAskKey } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
+import { SUGGESTED_PROMPT_KEYS, urbanAgentAskKey } from '@/components/platform/modules/urban-agent/UrbanAgentChat'
 
 /**
  * Urban-Agent pointer card on the workspace overview: question input plus the
  * chat's suggested prompts. Submitting stores the question in the chat's
  * handoff slot and navigates to the agent page, which auto-sends it.
- * Prompt strings stay German like the whole agent module.
  */
 export function UrbanAgentOverviewCard({ slug, base }: {
   slug: string
@@ -23,6 +22,8 @@ export function UrbanAgentOverviewCard({ slug, base }: {
   base: string
 }) {
   const tw = useTranslations('projectWorkspace')
+  const ta = useTranslations('urbanAgent')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [q, setQ] = useState('')
 
@@ -78,7 +79,7 @@ export function UrbanAgentOverviewCard({ slug, base }: {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); ask(q) } }}
-          placeholder="Ihre Frage zum Projekt …"
+          placeholder={ta('inputPlaceholder')}
           aria-label={tw('agentCardTitle')}
           className="flex-1 min-w-0 bg-transparent text-small outline-none placeholder:opacity-60"
           style={{ color: 'var(--project-accent)' }}
@@ -87,7 +88,7 @@ export function UrbanAgentOverviewCard({ slug, base }: {
           type="button"
           onClick={() => ask(q)}
           disabled={!q.trim()}
-          aria-label="Senden"
+          aria-label={tc('send')}
           className="flex items-center justify-center w-8 h-8 rounded-md transition-opacity disabled:opacity-40 cursor-pointer"
           style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
@@ -97,11 +98,11 @@ export function UrbanAgentOverviewCard({ slug, base }: {
 
       {/* Same suggestions as the chat's empty state — clicking asks directly */}
       <div className="flex flex-wrap gap-2">
-        {SUGGESTED_PROMPTS.map((p) => (
+        {SUGGESTED_PROMPT_KEYS.map((k) => (
           <button
-            key={p}
+            key={k}
             type="button"
-            onClick={() => ask(p)}
+            onClick={() => ask(ta(k))}
             className="text-small px-3 py-1.5 rounded-full border transition-colors cursor-pointer hover:bg-[var(--project-light)]"
             style={{
               background: 'var(--project-white)',
@@ -109,7 +110,7 @@ export function UrbanAgentOverviewCard({ slug, base }: {
               borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)',
             }}
           >
-            {p}
+            {ta(k)}
           </button>
         ))}
       </div>

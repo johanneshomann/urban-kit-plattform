@@ -6,19 +6,24 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
+import { intlLocale } from '@/i18n/format'
 import { ChevronLeft, Lock } from 'lucide-react'
 import { lexicalToHtml } from '@/lib/richtext'
 import { ForumThreadView, type ForumCommentItem } from './ForumThreadView'
 
 const relId = (v: unknown): string | null => (v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
-function personName(u: unknown): string {
-  if (!u || typeof u !== 'object') return 'Unbekannt'
+function personName(u: unknown, unknown: string): string {
+  if (!u || typeof u !== 'object') return unknown
   const o = u as { firstName?: string; lastName?: string; email?: string }
-  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
+  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || unknown
 }
 
 /** Forum thread detail: thread body + comments (members only; gating done by caller). */
 export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, userId }: { slug: string; locale: string; projectId: string; itemSlug: string; userId: string | null }) {
+  const t = await getTranslations({ locale, namespace: 'forum' })
+  const tc = await getTranslations({ locale, namespace: 'common' })
+  const unknown = tc('unknownPerson')
   const payload = await getPayload({ config })
   const res = await payload.find({ collection: 'forum-threads', where: { and: [{ project: { equals: projectId } }, { slug: { equals: itemSlug } }] }, limit: 1, depth: 1, overrideAccess: true })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,7 +37,7 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
     return {
       id: String(c.id),
       html: lexicalToHtml(c.content),
-      authorName: personName(c.author),
+      authorName: personName(c.author, unknown),
       createdAt: c.createdAt,
       canDelete: !!userId && relId(c.author) === userId,
     }
@@ -43,7 +48,7 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
   return (
     <div>
       <Link href={`/${locale}/dashboard/projekte/${slug}/m/forum`} className="inline-flex items-center gap-1 text-small mb-5 transition-opacity opacity-60 hover:opacity-100" style={{ color: 'var(--project-accent)' }}>
-        <ChevronLeft className="w-[1em] h-[1em]" /> Alle Themen
+        <ChevronLeft className="w-[1em] h-[1em]" /> {t('allThreads')}
       </Link>
 
       <h1 className="flex items-center gap-2 text-title font-bold leading-tight mb-2" style={{ color: 'var(--project-accent)' }}>
@@ -51,7 +56,7 @@ export async function ForumThreadDetail({ slug, locale, projectId, itemSlug, use
         {thread.title}
       </h1>
       <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>
-        {personName(thread.author)} · {new Date(thread.createdAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
+        {personName(thread.author, unknown)} · {new Date(thread.createdAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'long', year: 'numeric' })}
       </p>
       {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
 

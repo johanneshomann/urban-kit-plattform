@@ -11,6 +11,7 @@ import { ArrowDown, ChevronDown, ChevronRight, ImagePlus, Newspaper, Pencil, Plu
 import { AudienceChip } from '@/components/platform/AudienceChip'
 import { ModulePageHeader } from '@/components/platform/ModulePageHeader'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { ContentItemMenu } from '@/components/platform/ContentItemMenu'
 import { FormModal } from '@/components/platform/FormModal'
 import { RichTextEditor, type EditorReference } from '@/components/platform/RichTextEditor'
@@ -66,6 +67,9 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
 }) {
   const router = useRouter()
   const tModules = useTranslations('modules')
+  const t = useTranslations('manage')
+  const tc = useTranslations('common')
+  const tw = useTranslations('projectWorkspace')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -209,14 +213,14 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
   return (
     <div>
       <ModulePageHeader
-        title="News"
+        title={tModules('news')}
         end={canCreate && (
           <Link
             href={`/${locale}/dashboard/projekte/${slug}/manage/inhalte/news`}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold"
             style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
-            <Plus className="w-4 h-4" aria-hidden /> Neue News
+            <Plus className="w-4 h-4" aria-hidden /> {t('news.newNews')}
           </Link>
         )}
       >
@@ -230,13 +234,13 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Suchen …"
-            aria-label="News durchsuchen"
+            placeholder={t('news.searchPlaceholder')}
+            aria-label={t('news.searchLabel')}
             className="w-32 sm:w-44 bg-transparent text-small outline-none placeholder:opacity-60"
             style={{ color: 'var(--project-accent)' }}
           />
           {query && (
-            <button type="button" onClick={() => setQuery('')} aria-label="Suche zurücksetzen" className="cursor-pointer opacity-50 hover:opacity-100">
+            <button type="button" onClick={() => setQuery('')} aria-label={tc('clearSearch')} className="cursor-pointer opacity-50 hover:opacity-100">
               <X className="w-3.5 h-3.5" aria-hidden style={{ color: 'var(--project-ink)' }} />
             </button>
           )}
@@ -244,12 +248,12 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
         <button
           type="button"
           onClick={() => setDateAsc((v) => !v)}
-          title={dateAsc ? 'Älteste zuerst' : 'Neueste zuerst'}
+          title={dateAsc ? t('news.sortOldest') : t('news.sortNewest')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small font-medium border transition-colors cursor-pointer"
           style={toggleStyle(false)}
         >
           <ArrowDown className={`w-3.5 h-3.5 transition-transform ${dateAsc ? 'rotate-180' : ''}`} aria-hidden />
-          Datum
+          {t('news.sortDate')}
         </button>
         {viewerTeams.length > 0 && (
           <div ref={teamRef} className="relative">
@@ -262,27 +266,27 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
               style={toggleStyle(teamSel !== null)}
             >
               <Users className="w-3.5 h-3.5" aria-hidden />
-              {teamSel ? `Für Team: ${teamSel}` : viewerTeams.length > 1 ? 'Meine Teams' : 'Mein Team'}
+              {teamSel ? t('news.forTeam', { team: teamSel }) : viewerTeams.length > 1 ? t('news.myTeams') : t('news.myTeam')}
               <ChevronDown className={`w-3 h-3 transition-transform ${teamOpen ? 'rotate-180' : ''}`} aria-hidden />
             </button>
             {teamOpen && (
               <div
                 role="listbox"
-                aria-label="Nach Team filtern"
+                aria-label={tw('teamFilterLabel')}
                 className="popover-in absolute right-0 top-full mt-1 z-50 min-w-40 rounded-lg border py-1 shadow-lg"
                 style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}
               >
-                {[null, ...viewerTeams].map((t) => (
+                {[null, ...viewerTeams].map((team) => (
                   <button
-                    key={t ?? '__all'}
+                    key={team ?? '__all'}
                     type="button"
                     role="option"
-                    aria-selected={teamSel === t}
-                    onClick={() => { setTeamSel(t); setTeamOpen(false) }}
+                    aria-selected={teamSel === team}
+                    onClick={() => { setTeamSel(team); setTeamOpen(false) }}
                     className="w-full px-3 py-2 text-left text-small font-medium transition-colors cursor-pointer hover:bg-[color-mix(in_srgb,var(--project-general)_12%,transparent)]"
-                    style={{ color: 'var(--project-accent)', ...(teamSel === t ? { background: 'color-mix(in srgb, var(--project-general) 16%, transparent)' } : {}) }}
+                    style={{ color: 'var(--project-accent)', ...(teamSel === team ? { background: 'color-mix(in srgb, var(--project-general) 16%, transparent)' } : {}) }}
                   >
-                    {t ?? 'Alle Teams'}
+                    {team ?? t('news.allTeams')}
                   </button>
                 ))}
               </div>
@@ -294,7 +298,7 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
       {sorted.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <Newspaper className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
-          <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Beiträge.</p>
+          <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('news.emptyState')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -319,7 +323,7 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                   <p className="text-small mb-1 truncate" style={{ color: 'var(--project-ink)' }}>
                     {[
                       p.publishedAt
-                        ? new Date(p.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+                        ? new Date(p.publishedAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'long', year: 'numeric' })
                         : null,
                       p.authorName,
                     ].filter(Boolean).join(' · ')}
@@ -351,9 +355,9 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                   disabled={pending}
                   extraItems={p.canManage
                     ? [
-                        { key: 'edit', label: 'Bearbeiten', icon: Pencil, onSelect: () => openEdit(p.id) },
-                        { key: 'unpublish', label: 'Zurückziehen', icon: Undo2, onSelect: () => run(() => setNewsPublish(slug, locale, p.id, 'draft')) },
-                        { key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger', confirmLabel: 'Wirklich löschen?', onSelect: () => run(() => deleteProjectNewsPost(slug, locale, p.id)) },
+                        { key: 'edit', label: tc('edit'), icon: Pencil, onSelect: () => openEdit(p.id) },
+                        { key: 'unpublish', label: t('news.unpublish'), icon: Undo2, onSelect: () => run(() => setNewsPublish(slug, locale, p.id, 'draft')) },
+                        { key: 'delete', label: tc('delete'), icon: Trash2, variant: 'danger', confirmLabel: tc('confirmDelete'), onSelect: () => run(() => deleteProjectNewsPost(slug, locale, p.id)) },
                       ]
                     : []}
                 />
@@ -374,24 +378,24 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
         const labelCls = 'block text-small font-medium mb-1.5'
         const labelStyle = { color: 'var(--project-accent)' }
         return (
-        <FormModal title="News bearbeiten" size="2xl" onClose={() => setEditing(null)}>
+        <FormModal title={t('news.editNews')} size="2xl" onClose={() => setEditing(null)}>
           {error && <p role="alert" className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
           <div className="grid gap-4 sm:grid-cols-2">
             {/* ── Status ── */}
             <div>
-              <label htmlFor="news-edit-status" className={labelCls} style={labelStyle}>Status</label>
+              <label htmlFor="news-edit-status" className={labelCls} style={labelStyle}>{t('news.statusLabel')}</label>
               <select
                 id="news-edit-status" value={statusSel}
                 onChange={(e) => setStatusSel(e.target.value as 'draft' | 'published' | 'scheduled')}
                 className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}
               >
-                <option value="draft">Entwurf</option>
-                <option value="published">Veröffentlicht</option>
-                <option value="scheduled">Geplant</option>
+                <option value="draft">{t('news.statusDraft')}</option>
+                <option value="published">{t('news.statusPublished')}</option>
+                <option value="scheduled">{t('news.statusScheduled')}</option>
               </select>
               {statusSel === 'scheduled' && (
                 <div className="mt-2">
-                  <label htmlFor="news-edit-schedule" className="sr-only">Zeitpunkt der Veröffentlichung</label>
+                  <label htmlFor="news-edit-schedule" className="sr-only">{t('news.scheduleLabel')}</label>
                   <input
                     id="news-edit-schedule" type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}
@@ -404,27 +408,27 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
             <div>
               {isPM ? (
                 <>
-                  <label htmlFor="news-edit-visibility" className={labelCls} style={labelStyle}>Sichtbarkeit</label>
+                  <label htmlFor="news-edit-visibility" className={labelCls} style={labelStyle}>{t('news.visibilityField')}</label>
                   <select
                     id="news-edit-visibility" value={editing.visibility} onChange={(e) => setF('visibility', e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}
                   >
-                    <option value="PUBLIC">Öffentlich</option>
-                    <option value="PROJECT">Alle im Projekt</option>
-                    <option value="TEAM">Team</option>
+                    <option value="PUBLIC">{t('news.visibilityPublic')}</option>
+                    <option value="PROJECT">{t('news.visibilityProjectAll')}</option>
+                    <option value="TEAM">{t('news.visibilityTeam')}</option>
                   </select>
                 </>
               ) : (
                 <>
-                  <span className={labelCls} style={labelStyle}>Sichtbarkeit</span>
+                  <span className={labelCls} style={labelStyle}>{t('news.visibilityField')}</span>
                   {/* Team leads always publish for their team(s) — no free choice */}
                   <p className="text-small px-3 py-2 rounded-lg" style={{ background: 'var(--project-light)', color: 'var(--project-ink)' }}>
-                    Nur Team — Ihre News sind auf Ihre Teams beschränkt.
+                    {t('news.teamOnlyHint')}
                   </p>
                 </>
               )}
               {(editing.visibility === 'TEAM' || !isPM) && teamCatalog.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Teams auswählen">
+                <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t('news.pickTeams')}>
                   {teamCatalog.map((tag) => {
                     const on = editing.visibilityTeams.includes(tag)
                     return (
@@ -442,14 +446,14 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
               )}
               {teamMissing && (
                 <p className="text-small mt-2" style={{ color: 'var(--project-danger)' }}>
-                  Bitte mindestens ein Team auswählen.
+                  {t('news.teamRequired')}
                 </p>
               )}
             </div>
 
             {/* ── Titel ── */}
             <div>
-              <label htmlFor="news-edit-title" className={labelCls} style={labelStyle}>Titel</label>
+              <label htmlFor="news-edit-title" className={labelCls} style={labelStyle}>{t('news.titleLabel')}</label>
               <input
                 id="news-edit-title" type="text" autoFocus value={editing.title} onChange={(e) => setF('title', e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle}
@@ -458,11 +462,11 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
 
             {/* ── Titelbild ── */}
             <div>
-              <span className={labelCls} style={labelStyle}>Titelbild</span>
+              <span className={labelCls} style={labelStyle}>{t('news.featuredImage')}</span>
               <div className="flex items-center gap-2.5">
                 <div className="w-20 h-11 rounded-lg overflow-hidden flex items-center justify-center shrink-0" style={{ background: 'var(--project-light)' }}>
                   {editing.featuredImageUrl
-                    ? <img src={editing.featuredImageUrl} alt="Aktuelles Titelbild" className="w-full h-full object-cover" />
+                    ? <img src={editing.featuredImageUrl} alt={t('news.currentImageAlt')} className="w-full h-full object-cover" />
                     : <ImagePlus aria-hidden className="w-5 h-5" style={{ color: 'var(--project-ink)' }} />}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -471,7 +475,7 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small font-medium border disabled:opacity-40 cursor-pointer"
                     style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)' }}
                   >
-                    <Upload className="w-3.5 h-3.5" aria-hidden /> {editing.featuredImageUrl ? 'Ändern' : 'Hochladen'}
+                    <Upload className="w-3.5 h-3.5" aria-hidden /> {editing.featuredImageUrl ? t('news.changeImage') : t('news.uploadImage')}
                   </button>
                   {editing.featuredImageUrl && (
                     <button
@@ -479,23 +483,23 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-small disabled:opacity-40 cursor-pointer"
                       style={{ color: 'var(--project-danger)' }}
                     >
-                      <Trash2 className="w-3.5 h-3.5" aria-hidden /> Entfernen
+                      <Trash2 className="w-3.5 h-3.5" aria-hidden /> {t('news.removeImage')}
                     </button>
                   )}
                 </div>
               </div>
-              <input ref={fileInput} type="file" accept="image/*" hidden onChange={onFile} aria-label="Titelbild auswählen" />
+              <input ref={fileInput} type="file" accept="image/*" hidden onChange={onFile} aria-label={t('news.pickImage')} />
             </div>
 
             {/* ── Inhalt ── */}
             <div className="sm:col-span-2">
-              <span className={labelCls} style={labelStyle}>Inhalt</span>
+              <span className={labelCls} style={labelStyle}>{t('news.contentLabel')}</span>
               {/* key: re-init the editor per post; native Lexical state, no markdown */}
               <RichTextEditor
                 key={editing.id}
                 value={editing.content}
                 onChange={(state) => setF('content', state)}
-                ariaLabel="Inhalt"
+                ariaLabel={t('news.contentLabel')}
                 minRows={10}
                 referenceSearch={referenceSearch}
               />
@@ -509,7 +513,7 @@ export function NewsList({ locale, slug, posts, viewerTeams, canCreate, isPM, is
                 className="w-full flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40 cursor-pointer"
                 style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
               >
-                <Pencil className="w-4 h-4" aria-hidden /> Speichern
+                <Pencil className="w-4 h-4" aria-hidden /> {tc('save')}
               </button>
             </div>
           </div>

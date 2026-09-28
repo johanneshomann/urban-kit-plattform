@@ -5,22 +5,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Send, ShieldCheck, ExternalLink, RotateCcw } from 'lucide-react'
 
 /** Card reference resolved server-side (ids validated against tool results). */
 type AgentItem = { module: string; id: string; title: string; slug?: string }
 type ChatMessage = { role: 'user' | 'assistant'; content: string; items?: AgentItem[] }
-
-const MODULE_LABELS: Record<string, string> = {
-  news: 'Neuigkeiten',
-  calendar: 'Termine',
-  polls: 'Umfragen',
-  forum: 'Forum',
-  tasks: 'Aufgaben',
-  files: 'Dateien',
-}
 
 /**
  * Minimal inline rendering for assistant text: only **bold** is interpreted
@@ -58,15 +49,14 @@ const MAX_STORED = 30
  */
 export const urbanAgentAskKey = (projectSlug: string) => `uk-urban-agent-ask:${projectSlug}`
 
-/** Empty-state suggestions — clicking sends the question directly. */
-export const SUGGESTED_PROMPTS = [
-  'Welche Termine stehen demnächst an?',
-  'Was gibt es Neues im Projekt?',
-  'Was wird gerade diskutiert?',
-]
+/** Empty-state suggestions (keys in the `urbanAgent` namespace) — clicking sends the question directly. */
+export const SUGGESTED_PROMPT_KEYS = ['prompt1', 'prompt2', 'prompt3'] as const
 
 export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; projectSlug: string }) {
   const locale = useLocale()
+  const t = useTranslations('urbanAgent')
+  const tc = useTranslations('common')
+  const tModules = useTranslations('modules')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
@@ -138,14 +128,16 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         body: JSON.stringify({ projectId, messages: next.map(({ role, content }) => ({ role, content })) }),
       })
       if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => ({}))
+        // Error texts are chosen client-side by status/code so they follow the UI language.
+        const data = (await res.json().catch(() => ({}))) as { error?: string }
         setError(
-          data?.message ||
-            (res.status === 429
-              ? 'Zu viele Anfragen. Bitte warten Sie einen Moment.'
+          res.status === 429
+            ? t('errRateLimited')
+            : data.error === 'daily_limit'
+              ? t('errDailyLimit')
               : res.status === 503
-                ? 'Der Assistent ist derzeit nicht konfiguriert.'
-                : 'Der Assistent ist momentan nicht erreichbar.'),
+                ? t('errNotConfigured')
+                : t('errUnavailable'),
         )
         return
       }
@@ -176,7 +168,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
           })
           scrollDown()
         } else if (ev.t === 'error') {
-          setError(ev.message || 'Der Assistent ist momentan nicht erreichbar.')
+          setError(t('errUnavailable'))
         }
       }
 
@@ -200,7 +192,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         }
       }
     } catch {
-      setError('Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      setError(t('errConnection'))
     } finally {
       setPending(false)
     }
@@ -212,25 +204,25 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
     // the input row is pinned to the bottom of the screen.
     <section className="h-full min-h-0 flex flex-col">
       {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-      <h2 className="sr-only">Urban-Agent</h2>
+      <h2 className="sr-only">{t('title')}</h2>
 
       <div ref={listRef} className="flex-1 min-h-0 flex flex-col gap-3 mb-4 overflow-y-auto">
         {messages.length === 0 ? (
           <div>
             <p className="text-text mb-3" style={{ color: 'var(--project-ink)' }}>
-              Noch keine Nachrichten. Fragen Sie zum Beispiel:
+              {t('emptyIntro')}
             </p>
             <div className="flex flex-wrap gap-2">
-              {SUGGESTED_PROMPTS.map((q) => (
+              {SUGGESTED_PROMPT_KEYS.map((k) => (
                 <button
-                  key={q}
+                  key={k}
                   type="button"
-                  onClick={() => send(q)}
+                  onClick={() => send(t(k))}
                   disabled={pending}
                   className="text-small px-3 py-1.5 rounded-full border transition-colors cursor-pointer hover:bg-[var(--project-light)] disabled:opacity-40"
                   style={{ color: 'var(--project-accent)', borderColor: 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}
                 >
-                  {q}
+                  {t(k)}
                 </button>
               ))}
             </div>
@@ -263,7 +255,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
                       <span className="min-w-0">
                         <span className="block text-small font-bold truncate">{item.title}</span>
                         <span className="block text-small" style={{ color: 'var(--project-ink)' }}>
-                          {MODULE_LABELS[item.module] ?? item.module}
+                          {tModules.has(item.module) ? tModules(item.module) : item.module}
                         </span>
                       </span>
                       <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
@@ -277,7 +269,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
         {/* Thinking placeholder only until the first streamed token arrives. */}
         {pending && messages[messages.length - 1]?.role === 'user' && (
           <div className="rounded-xl border px-4 py-3 self-start" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)', color: 'var(--project-ink)', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
-            <p className="text-text">Der Assistent denkt nach …</p>
+            <p className="text-text">{t('thinking')}</p>
           </div>
         )}
       </div>
@@ -296,7 +288,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
             rows={2}
-            placeholder="Ihre Frage zum Projekt …"
+            placeholder={t('inputPlaceholder')}
             className="flex-1 min-w-0 px-2 py-1.5 text-text outline-none resize-none bg-transparent"
             style={{ color: 'var(--project-accent)' }}
           />
@@ -308,14 +300,14 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
               className="flex items-center gap-1 shrink-0 self-center text-small transition-opacity cursor-pointer hover:opacity-70 disabled:opacity-40"
               style={{ color: 'var(--project-ink)' }}
             >
-              <RotateCcw className="w-3.5 h-3.5" aria-hidden /> Verlauf löschen
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden /> {t('clear')}
             </button>
           )}
         </div>
         <button type="button" onClick={() => send()} disabled={pending || !input.trim()}
           className="flex items-center gap-1.5 px-5 rounded-xl text-cta font-semibold transition-opacity disabled:opacity-40 cursor-pointer"
           style={{ background: 'var(--project-accent)', color: 'var(--project-white)', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
-          <Send className="w-4 h-4" /> Senden
+          <Send className="w-4 h-4" /> {tc('send')}
         </button>
       </div>
 
@@ -323,7 +315,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
       <p className="flex items-start gap-1.5 mt-2 text-small" style={{ color: 'var(--project-ink)' }}>
         <ShieldCheck className="w-3.5 h-3.5 mt-0.5 shrink-0" aria-hidden />
         <span>
-          Datenschutz: Ihre Fragen sowie öffentliche Projektinhalte werden zur Beantwortung an einen KI-Dienst übermittelt. Es werden keine personenbezogenen Daten anderer Teilnehmender weitergegeben. Geben Sie keine sensiblen persönlichen Daten ein.{' '}
+          {t('privacy')}{' '}
           {/* New tab: the transcript lives in sessionStorage (this tab's browser session). */}
           <a
             href={`/${locale}/datenschutz`}
@@ -331,7 +323,7 @@ export function UrbanAgentChat({ projectId, projectSlug }: { projectId: string; 
             rel="noopener noreferrer"
             className="underline hover:opacity-70 transition-opacity"
           >
-            Mehr in der Datenschutzerklärung
+            {t('privacyMore')}
           </a>
         </span>
       </p>

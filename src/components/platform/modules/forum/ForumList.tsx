@@ -7,6 +7,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { ChevronUp, MessageSquare, Pin, Lock, MessagesSquare, Plus, Trash2 } from 'lucide-react'
 import { toggleThreadVote, createThread, deleteThread, toggleThreadPin, toggleThreadLock } from '@/actions/forum'
 import { SaveButton } from '@/components/platform/SaveButton'
@@ -35,6 +37,8 @@ const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%
 
 export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = false }: { slug: string; locale: string; threads: ForumListItem[]; isPM: boolean; leadOf: string[]; agentEnabled?: boolean }) {
   const router = useRouter()
+  const t = useTranslations('forum')
+  const tc = useTranslations('common')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -66,28 +70,28 @@ export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = 
     <div>
       <div className="flex items-center justify-end mb-1">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-        <h1 className="sr-only">Forum</h1>
+        <h1 className="sr-only">{t('title')}</h1>
         {canCreate && !creating && (
           <button type="button" onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-            <Plus className="w-4 h-4" /> Neues Thema
+            <Plus className="w-4 h-4" /> {t('newThread')}
           </button>
         )}
       </div>
-      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>Diskutiere mit, stimme für Themen ab und antworte.</p>
+      <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>{t('intro')}</p>
 
       {error && <p className="text-small mb-4 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
 
       {creating && (
-        <FormModal title="Neues Thema" onClose={() => setCreating(false)}>
+        <FormModal title={t('newThread')} onClose={() => setCreating(false)}>
           <div className="flex flex-col gap-3">
             {error && <p className="text-small px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>{error}</p>}
-            <input type="text" autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel …" className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="Worum geht es? (Markdown, optional)" className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
+            <input type="text" autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tc('titlePlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none" style={inputStyle} />
+            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder={t('bodyPlaceholder')} className="w-full px-3 py-2 rounded-lg border text-text outline-none font-mono" style={inputStyle} />
             {isPM ? (
-              <p className="text-small" style={{ color: 'var(--project-ink)' }}>Sichtbar für alle Projektmitglieder.</p>
+              <p className="text-small" style={{ color: 'var(--project-ink)' }}>{t('visibleAll')}</p>
             ) : (
               <div>
-                <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>Sichtbar für Team</p>
+                <p className="text-small font-medium mb-1.5" style={{ color: 'var(--project-accent)' }}>{t('visibleTeam')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {leadOf.map((tag) => {
                     const on = teams.includes(tag)
@@ -102,7 +106,7 @@ export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = 
             )}
             <div>
               <button type="button" onClick={submit} disabled={pending || !title.trim()} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-cta font-semibold transition-opacity disabled:opacity-40" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-                <Plus className="w-4 h-4" /> Erstellen
+                <Plus className="w-4 h-4" /> {tc('create')}
               </button>
             </div>
           </div>
@@ -112,7 +116,7 @@ export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = 
       {threads.length === 0 && !creating ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={cardStyle}>
           <MessagesSquare className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
-          <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Themen.</p>
+          <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('empty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -132,7 +136,7 @@ export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = 
                   <AudienceChip visibility={th.visibility} visibilityTeams={th.visibilityTeams} />
                 </p>
                 <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
-                  {th.authorName} · {new Date(th.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}
+                  {th.authorName} · {new Date(th.createdAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'short' })}
                   <span className="inline-flex items-center gap-1 ml-2"><MessageSquare className="w-3.5 h-3.5" />{th.commentCount}</span>
                 </p>
               </Link>
@@ -150,12 +154,12 @@ export function ForumList({ slug, locale, threads, isPM, leadOf, agentEnabled = 
                   extraItems={[
                     ...(isPM
                       ? [
-                          { key: 'pin', label: th.pinned ? 'Nicht mehr anpinnen' : 'Anpinnen', icon: Pin, onSelect: () => run(() => toggleThreadPin(slug, locale, th.id, !th.pinned)) },
-                          { key: 'lock', label: th.locked ? 'Entsperren' : 'Sperren', icon: Lock, onSelect: () => run(() => toggleThreadLock(slug, locale, th.id, !th.locked)) },
+                          { key: 'pin', label: th.pinned ? t('unpin') : t('pin'), icon: Pin, onSelect: () => run(() => toggleThreadPin(slug, locale, th.id, !th.pinned)) },
+                          { key: 'lock', label: th.locked ? t('unlock') : t('lock'), icon: Lock, onSelect: () => run(() => toggleThreadLock(slug, locale, th.id, !th.locked)) },
                         ]
                       : []),
                     ...(th.canDelete
-                      ? [{ key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: () => run(() => deleteThread(slug, locale, th.id)) }]
+                      ? [{ key: 'delete', label: tc('delete'), icon: Trash2, variant: 'danger' as const, confirmLabel: tc('confirmDelete'), onSelect: () => run(() => deleteThread(slug, locale, th.id)) }]
                       : []),
                   ]}
                 />

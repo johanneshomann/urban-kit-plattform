@@ -6,6 +6,8 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { CalendarDays, List, MapPin, Tag, Check, Plus, Download, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import { toggleEventAttendance } from '@/actions/event-attend'
 import { deleteProjectEvent } from '@/actions/manage/calendar'
@@ -42,12 +44,16 @@ export interface ConsumptionEvent {
 }
 
 const cardStyle = { background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }
-const fmt = (iso: string, allDay?: boolean | null) => new Date(iso).toLocaleString('de-DE', allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
-const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
-const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+// 2024-01-01 was a Monday — the grid runs Mon…Sun; names come from Intl per locale.
+const weekdayNames = (intl: string) => Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(intl, { weekday: 'short' }))
 
 export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedIn = false, agentEnabled = false, author = null }: { slug: string; locale: string; events: ConsumptionEvent[]; canAttend: boolean; isLoggedIn?: boolean; agentEnabled?: boolean; author?: CalendarAuthor | null }) {
   const router = useRouter()
+  const t = useTranslations('calendar')
+  const tc = useTranslations('common')
+  const intl = intlLocale(locale)
+  const fmt = (iso: string, allDay?: boolean | null) => new Date(iso).toLocaleString(intl, allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
+  const weekdays = useMemo(() => weekdayNames(intl), [intl])
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -88,7 +94,7 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
             <AudienceChip visibility={e.visibility} visibilityTeams={e.visibilityTeams} />
           </p>
           <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1" style={{ color: 'var(--project-ink)' }}>
-            <span>{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ' · ganztägig' : ''}</span>
+            <span>{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ` · ${t('allDay')}` : ''}</span>
             {e.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{e.location}</span>}
             {e.category && <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" />{e.category}</span>}
           </p>
@@ -104,17 +110,17 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
               disabled={pending}
               extraItems={[
                 // ICS lives in the menu now (declutters the row)
-                { key: 'ics', label: 'Zum Kalender hinzufügen', icon: Download, onSelect: () => { window.location.href = `/api/ics/event/${e.id}` } },
+                { key: 'ics', label: t('addToCalendar'), icon: Download, onSelect: () => { window.location.href = `/api/ics/event/${e.id}` } },
                 ...(e.canManage && author
                   ? [
-                      { key: 'edit', label: 'Termin bearbeiten', icon: Pencil, onSelect: () => setEditing(e) },
-                      { key: 'delete', label: 'Löschen', icon: Trash2, variant: 'danger' as const, confirmLabel: 'Wirklich löschen?', onSelect: () => remove(e.id) },
+                      { key: 'edit', label: t('edit'), icon: Pencil, onSelect: () => setEditing(e) },
+                      { key: 'delete', label: tc('delete'), icon: Trash2, variant: 'danger' as const, confirmLabel: tc('confirmDelete'), onSelect: () => remove(e.id) },
                     ]
                   : []),
               ]}
             />
           ) : (
-            <a href={`/api/ics/event/${e.id}`} title="Zum Kalender hinzufügen" className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>
+            <a href={`/api/ics/event/${e.id}`} title={t('addToCalendar')} className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><Download className="w-4 h-4" /></a>
           )}
         </div>
       </div>
@@ -125,13 +131,13 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-medium border transition-colors disabled:opacity-40"
             style={{ background: e.attending ? 'var(--project-dark)' : 'transparent', color: e.attending ? 'var(--project-black)' : 'var(--project-accent)', borderColor: e.attending ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
             {e.attending ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-            {e.attending ? 'Ich nehme teil' : 'Teilnehmen'}
+            {e.attending ? t('attending') : t('attend')}
           </button>
         )}
-        <span className="text-small" style={{ color: 'var(--project-ink)' }}>{e.attendeeCount} {e.attendeeCount === 1 ? 'Teilnehmer:in' : 'Teilnehmer:innen'}</span>
+        <span className="text-small" style={{ color: 'var(--project-ink)' }}>{t('participants', { count: e.attendeeCount })}</span>
         {/* Single content opens in a popup, not inline/subpage */}
         <button type="button" onClick={() => setDetailId(e.id)} className="flex items-center gap-1 text-small font-medium ml-auto cursor-pointer" style={{ color: 'var(--project-accent)' }}>
-          Details <ChevronRight className="w-3.5 h-3.5" />
+          {tc('details')} <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
@@ -155,17 +161,17 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
     <div>
       <div className="flex items-center justify-end gap-2 mb-6">
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-        <h1 className="sr-only">Kalender</h1>
+        <h1 className="sr-only">{t('title')}</h1>
         {author && (
           <button type="button" onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-cta font-semibold" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-            <Plus className="w-4 h-4" /> Neuer Termin
+            <Plus className="w-4 h-4" /> {t('new')}
           </button>
         )}
         <div className="flex items-center gap-1 rounded-lg border p-0.5" style={{ borderColor: 'color-mix(in srgb, var(--project-general) 25%, transparent)' }}>
           {(['list', 'grid'] as const).map((v) => (
             <button key={v} type="button" onClick={() => setView(v)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-small font-medium"
               style={{ background: view === v ? 'var(--project-dark)' : 'transparent', color: view === v ? 'var(--project-black)' : 'var(--project-accent)' }}>
-              {v === 'list' ? <List className="w-4 h-4" /> : <CalendarDays className="w-4 h-4" />}{v === 'list' ? 'Liste' : 'Monat'}
+              {v === 'list' ? <List className="w-4 h-4" /> : <CalendarDays className="w-4 h-4" />}{v === 'list' ? t('viewList') : t('viewMonth')}
             </button>
           ))}
         </div>
@@ -193,17 +199,17 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
 
       {view === 'list' ? (
         events.length === 0 ? (
-          <p className="text-text py-10 text-center" style={{ color: 'var(--project-ink)' }}>Keine Termine.</p>
+          <p className="text-text py-10 text-center" style={{ color: 'var(--project-ink)' }}>{t('empty')}</p>
         ) : (
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>Anstehend ({upcoming.length})</h2>
-              {upcoming.length === 0 ? <p className="text-text" style={{ color: 'var(--project-ink)' }}>Keine anstehenden Termine.</p>
+              <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>{t('upcoming', { count: upcoming.length })}</h2>
+              {upcoming.length === 0 ? <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('noUpcoming')}</p>
                 : <div className="flex flex-col gap-2">{upcoming.map((e) => <Item key={e.id} e={e} />)}</div>}
             </div>
             {past.length > 0 && (
               <div>
-                <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>Vergangen ({past.length})</h2>
+                <h2 className="text-small font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--project-ink)' }}>{t('past', { count: past.length })}</h2>
                 <div className="flex flex-col gap-2">{past.map((e) => <Item key={e.id} e={e} muted />)}</div>
               </div>
             )}
@@ -212,12 +218,12 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
       ) : (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <button type="button" onClick={() => setMonth((s) => ({ y: s.m === 0 ? s.y - 1 : s.y, m: (s.m + 11) % 12 }))} className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><ChevronLeft className="w-4 h-4" /></button>
-            <p className="text-display font-semibold" style={{ color: 'var(--project-accent)' }}>{MONTHS[month.m]} {month.y}</p>
-            <button type="button" onClick={() => setMonth((s) => ({ y: s.m === 11 ? s.y + 1 : s.y, m: (s.m + 1) % 12 }))} className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><ChevronRight className="w-4 h-4" /></button>
+            <button type="button" onClick={() => setMonth((s) => ({ y: s.m === 0 ? s.y - 1 : s.y, m: (s.m + 11) % 12 }))} aria-label={t('prevMonth')} className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><ChevronLeft className="w-4 h-4" /></button>
+            <p className="text-display font-semibold" style={{ color: 'var(--project-accent)' }}>{new Date(month.y, month.m, 1).toLocaleDateString(intl, { month: 'long', year: 'numeric' })}</p>
+            <button type="button" onClick={() => setMonth((s) => ({ y: s.m === 11 ? s.y + 1 : s.y, m: (s.m + 1) % 12 }))} aria-label={t('nextMonth')} className="p-2 rounded-lg" style={{ color: 'var(--project-accent)' }}><ChevronRight className="w-4 h-4" /></button>
           </div>
           <div className="grid grid-cols-7 gap-1">
-            {WEEKDAYS.map((w) => <div key={w} className="text-small font-semibold text-center py-1" style={{ color: 'var(--project-ink)' }}>{w}</div>)}
+            {weekdays.map((w) => <div key={w} className="text-small font-semibold text-center py-1" style={{ color: 'var(--project-ink)' }}>{w}</div>)}
             {grid.map((c, i) => (
               <div key={i} className="min-h-16 rounded-lg border p-1" style={{ ...cardStyle, opacity: c.day ? 1 : 0.3 }}>
                 {c.day && <p className="text-small font-medium" style={{ color: 'var(--project-ink)' }}>{c.day}</p>}
@@ -226,7 +232,7 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
                     // Team events get the dark chip color so the audience is
                     // readable in the grid too (matches the AudienceChip).
                     // Clicking a chip opens the event popup.
-                    <button key={e.id} type="button" onClick={() => setDetailId(e.id)} title={e.visibility === 'TEAM' ? `${e.title} · Team: ${(e.visibilityTeams ?? []).join(', ')}` : e.title} className="text-[0.7rem] truncate px-1 py-0.5 rounded text-left cursor-pointer w-full" style={e.visibility === 'TEAM' ? { background: 'var(--project-dark)', color: 'var(--project-black)' } : { background: 'var(--project-light)', color: 'var(--project-accent)' }}>{e.title}</button>
+                    <button key={e.id} type="button" onClick={() => setDetailId(e.id)} title={e.visibility === 'TEAM' ? t('teamTitle', { title: e.title, teams: (e.visibilityTeams ?? []).join(', ') }) : e.title} className="text-[0.7rem] truncate px-1 py-0.5 rounded text-left cursor-pointer w-full" style={e.visibility === 'TEAM' ? { background: 'var(--project-dark)', color: 'var(--project-black)' } : { background: 'var(--project-light)', color: 'var(--project-accent)' }}>{e.title}</button>
                   ))}
                 </div>
               </div>
@@ -245,7 +251,7 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
               <AudienceChip visibility={e.visibility} visibilityTeams={e.visibilityTeams} />
             </div>
             <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5" style={{ color: 'var(--project-ink)' }}>
-              <span className="flex items-center gap-1"><CalendarDays className="w-3.5 h-3.5" />{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ' · ganztägig' : ''}</span>
+              <span className="flex items-center gap-1"><CalendarDays className="w-3.5 h-3.5" />{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ` · ${t('allDay')}` : ''}</span>
               {e.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{e.location}</span>}
               {e.category && <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" />{e.category}</span>}
             </p>
@@ -255,14 +261,14 @@ export function CalendarConsumption({ slug, locale, events, canAttend, isLoggedI
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-medium border transition-colors disabled:opacity-40 cursor-pointer"
                   style={{ background: e.attending ? 'var(--project-dark)' : 'transparent', color: e.attending ? 'var(--project-black)' : 'var(--project-accent)', borderColor: e.attending ? 'var(--project-dark)' : 'color-mix(in srgb, var(--project-general) 35%, transparent)' }}>
                   {e.attending ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                  {e.attending ? 'Ich nehme teil' : 'Teilnehmen'}
+                  {e.attending ? t('attending') : t('attend')}
                 </button>
               )}
-              <span className="text-small" style={{ color: 'var(--project-ink)' }}>{e.attendeeCount} {e.attendeeCount === 1 ? 'Teilnehmer:in' : 'Teilnehmer:innen'}</span>
+              <span className="text-small" style={{ color: 'var(--project-ink)' }}>{t('participants', { count: e.attendeeCount })}</span>
               <span className="ml-auto flex items-center gap-1">
                 {isLoggedIn && <SaveButton slug={slug} module="calendar" itemId={e.id} />}
                 <a href={`/api/ics/event/${e.id}`} className="flex items-center gap-1 text-small font-medium" style={{ color: 'var(--project-accent)' }}>
-                  <Download className="w-3.5 h-3.5" /> Zum Kalender hinzufügen
+                  <Download className="w-3.5 h-3.5" /> {t('addToCalendar')}
                 </a>
               </span>
             </div>
