@@ -7,6 +7,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import Link from 'next/link'
 import { Pin, Lock, Trash2, ChevronDown, ChevronUp, MessageSquare, ExternalLink, MessagesSquare, Plus, X } from 'lucide-react'
 import { createThread, toggleThreadPin, toggleThreadLock, deleteThread, deleteForumComment } from '@/actions/forum'
@@ -79,7 +80,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
                     {th.title}
                   </p>
                   <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
-                    {th.authorName} · {new Date(th.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })} · ▲ {th.voteCount}
+                    {th.authorName} · {new Date(th.createdAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'short' })} · ▲ {th.voteCount}
                     <span className="inline-flex items-center gap-1 ml-2"><MessageSquare className="w-3.5 h-3.5" />{th.comments.length}</span>
                   </p>
                 </div>
@@ -118,7 +119,7 @@ export function ForumModeration({ slug, locale, threads }: { slug: string; local
                   {th.comments.map((c) => (
                     <div key={c.id} className="flex items-start justify-between gap-3 rounded-lg px-3 py-2" style={{ background: 'var(--project-light)' }}>
                       <div className="min-w-0">
-                        <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{c.authorName} <span className="font-normal" style={{ color: 'var(--project-ink)' }}>· {new Date(c.createdAt).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span></p>
+                        <p className="text-small font-semibold" style={{ color: 'var(--project-accent)' }}>{c.authorName} <span className="font-normal" style={{ color: 'var(--project-ink)' }}>· {new Date(c.createdAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'short' })}</span></p>
                         {c.html ? <div className="prose-news text-small" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: c.html }} /> : null}
                       </div>
                       <button type="button" onClick={() => run(() => deleteForumComment(slug, locale, c.id))} disabled={pending} title={t('forum.deleteReply')} className="p-1.5 rounded shrink-0 disabled:opacity-40" style={{ color: 'var(--project-danger)' }}><Trash2 className="w-3.5 h-3.5" /></button>

@@ -5,6 +5,7 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 
 /** Compact relative time for launcher lists, reusing the platform date keys. */
 export function useRelativeTime() {
@@ -12,7 +13,7 @@ export function useRelativeTime() {
   const locale = useLocale()
   return (dateStr: string): string => {
     const diff = Date.now() - new Date(dateStr).getTime()
-    if (diff < 0) return new Date(dateStr).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'short' })
+    if (diff < 0) return new Date(dateStr).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'short' })
     const minutes = Math.floor(diff / 60_000)
     if (minutes < 1) return tp('dateJustNow')
     if (minutes < 60) return tp('dateMinutesAgo', { minutes })

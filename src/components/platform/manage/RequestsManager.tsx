@@ -7,6 +7,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { Check, X, UserCircle, Inbox } from 'lucide-react'
 import { respondToJoinRequest } from '@/actions/manage/members'
 
@@ -61,7 +62,7 @@ export function RequestsManager({ slug, locale, requests }: { slug: string; loca
                 <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{r.name}</p>
                 <p className="text-small truncate" style={{ color: 'var(--project-ink)' }}>
                   {r.email}
-                  {r.requestedAt && ` · ${new Date(r.requestedAt).toLocaleDateString('de-DE')}`}
+                  {r.requestedAt && ` · ${new Date(r.requestedAt).toLocaleDateString(intlLocale(locale))}`}
                 </p>
               </div>
               <button

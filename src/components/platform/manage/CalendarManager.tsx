@@ -7,6 +7,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { Plus, Trash2, Pencil, MapPin, Tag, Globe, Lock, Users as UsersIcon } from 'lucide-react'
 import { createProjectEvent, updateProjectEvent, deleteProjectEvent } from '@/actions/manage/calendar'
 import { FormModal } from '@/components/platform/FormModal'
@@ -41,8 +42,8 @@ const inputStyle = { borderColor: 'color-mix(in srgb, var(--project-general) 30%
 
 const blank = (leadMode: boolean): EventItem => ({ id: '', title: '', startDate: '', endDate: '', allDay: false, location: '', category: '', visibility: leadMode ? 'TEAM' : 'PROJECT', visibilityTeams: [], body: '' })
 
-function fmt(iso: string, allDay?: boolean | null): string {
-  return new Date(iso).toLocaleString('de-DE', allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
+function fmt(locale: string, iso: string, allDay?: boolean | null): string {
+  return new Date(iso).toLocaleString(intlLocale(locale), allDay ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' })
 }
 // ISO → value for <input type=date|datetime-local>
 function toInput(iso: string | null | undefined, allDay: boolean): string {
@@ -200,7 +201,7 @@ export function CalendarManager({ slug, locale, events, teamCatalog, leadMode = 
         <div className="min-w-0">
           <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{e.title}</p>
           <p className="text-small flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5" style={{ color: 'var(--project-ink)' }}>
-            <span>{fmt(e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(e.endDate, e.allDay)}` : ''}{e.allDay ? ` · ${t('calendar.allDayIndicator')}` : ''}</span>
+            <span>{fmt(locale, e.startDate, e.allDay)}{e.endDate ? ` – ${fmt(locale, e.endDate, e.allDay)}` : ''}{e.allDay ? ` · ${t('calendar.allDayIndicator')}` : ''}</span>
             {e.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{e.location}</span>}
             {e.category && <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" />{e.category}</span>}
             <span className="flex items-center gap-1"><VI className="w-3.5 h-3.5" />{vm ? t(vm.labelKey) : e.visibility}</span>

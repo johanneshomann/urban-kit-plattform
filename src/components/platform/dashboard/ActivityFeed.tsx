@@ -6,6 +6,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import Link from 'next/link'
 import { BarChart3, Calendar, Newspaper, MessageSquare, CheckSquare, FolderOpen, Kanban, FileText, UserPlus, ArrowUpRight, ChevronDown, LayoutGrid, List, RotateCcw, Search, X } from 'lucide-react'
 import { useDashboardExit, isPlainLeftClick } from '@/components/platform/DashboardTransition'
@@ -83,7 +84,7 @@ export function ActivityFeed({
     const diff = Date.now() - new Date(dateStr).getTime()
     if (diff < 0) {
       return new Date(dateStr).toLocaleDateString(
-        locale === 'en' ? 'en-GB' : 'de-DE',
+        intlLocale(locale),
         { day: 'numeric', month: 'short' },
       )
     }

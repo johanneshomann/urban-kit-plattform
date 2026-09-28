@@ -7,6 +7,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { Plus, Trash2, Play, Square, ChevronDown, ChevronUp, Pencil, BarChart2, Download } from 'lucide-react'
 import {
   setPollStatus, deleteProjectPoll,
@@ -132,7 +133,7 @@ export function PollsManager({ slug, locale, polls, teamCatalog, leadMode = fals
                   <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{p.title}</p>
                   <p className="text-small mt-0.5" style={{ color: 'var(--project-ink)' }}>
                     {t('polls.questionCount', { count: p.questionCount })} · {t('polls.voteCount', { count: p.voteCount })}
-                    {p.closesAt && ` · ${t('polls.closesOn', { date: new Date(p.closesAt).toLocaleDateString('de-DE') })}`}
+                    {p.closesAt && ` · ${t('polls.closesOn', { date: new Date(p.closesAt).toLocaleDateString(intlLocale(locale)) })}`}
                   </p>
                 </div>
                 <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{t(meta.labelKey)}</span>

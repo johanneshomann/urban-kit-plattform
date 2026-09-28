@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { Send, Paperclip, Smile, X, ChevronUp, Newspaper, CalendarDays, MessageSquare, CheckSquare, BarChart2, FolderOpen, Kanban, Hash } from 'lucide-react'
 import type { MentionableItem, MessageDTO } from './types'
 
@@ -257,7 +258,7 @@ export function ChatRoom({
                 {m.author.name ?? t('unknownUser')}
               </span>
               <span className="text-small opacity-40" style={{ color: ink }}>
-                {new Date(m.createdAt).toLocaleTimeString(locale === 'en' ? 'en-GB' : 'de-DE', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(m.createdAt).toLocaleTimeString(intlLocale(locale), { hour: '2-digit', minute: '2-digit' })}
               </span>
               <button
                 type="button"

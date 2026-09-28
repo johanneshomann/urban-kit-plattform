@@ -7,6 +7,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { intlLocale } from '@/i18n/format'
 import { Plus, Trash2, Pencil, Upload, Globe, Lock, Users as UsersIcon, Send, CalendarClock, Undo2, ImagePlus } from 'lucide-react'
 import { FormModal } from '@/components/platform/FormModal'
 import {
@@ -206,7 +207,7 @@ export function NewsManager({ slug, locale, posts, teamCatalog }: { slug: string
                   <p className="text-text font-medium truncate" style={{ color: 'var(--project-accent)' }}>{p.title}</p>
                   <p className="text-small flex items-center gap-1.5 mt-0.5" style={{ color: 'var(--project-ink)' }}>
                     <VisIcon className="w-3.5 h-3.5" />{visMeta ? t(visMeta.labelKey) : p.visibility}
-                    {status === 'scheduled' && p.publishedAt && <> · {new Date(p.publishedAt).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}</>}
+                    {status === 'scheduled' && p.publishedAt && <> · {new Date(p.publishedAt).toLocaleString(intlLocale(locale), { dateStyle: 'medium', timeStyle: 'short' })}</>}
                   </p>
                 </div>
                 <span className="text-small font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: meta.bg, color: meta.fg }}>{t(meta.labelKey)}</span>

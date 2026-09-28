@@ -5,6 +5,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getTranslations } from 'next-intl/server'
+import { intlLocale } from '@/i18n/format'
 import { notFound } from 'next/navigation'
 import { lexicalToHtml } from '@/lib/richtext'
 import { getUser } from '@/lib/auth/getUser'
@@ -98,7 +99,7 @@ export default async function ModuleItemPage({
             {post.title}
             <AudienceChip visibility={post.visibility} visibilityTeams={post.visibilityTeams} />
           </h1>
-          {post.publishedAt && <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>{new Date(post.publishedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+          {post.publishedAt && <p className="text-small mb-5" style={{ color: 'var(--project-ink)' }}>{new Date(post.publishedAt).toLocaleDateString(intlLocale(locale), { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
           {img && <img src={img} alt="" className="w-full rounded-xl mb-6 object-cover" style={{ maxHeight: '24rem' }} />}
           {bodyHtml && <div className="prose-news text-text leading-relaxed" style={{ color: 'var(--project-accent)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
         </article>
