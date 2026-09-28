@@ -191,9 +191,9 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
 
       {/* Invite — generate and copy a redeemable code */}
       <div className="rounded-xl border px-4 py-3 mb-6" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-        <p className="text-small font-semibold mb-1" style={{ color: 'var(--project-accent)' }}>Einladen</p>
+        <p className="text-small font-semibold mb-1" style={{ color: 'var(--project-accent)' }}>{t('members.inviteTitle')}</p>
         <p className="text-small mb-3" style={{ color: 'var(--project-ink)' }}>
-          Erzeuge einen Einladungscode. Der Code kann auf der Startseite eingelöst werden und schaltet die Person frei.
+          {t('members.inviteHint')}
         </p>
         <div className="flex items-center gap-2">
           <button
@@ -211,7 +211,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-small font-semibold disabled:opacity-40"
             style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
           >
-            <UserPlus className="w-4 h-4" /> Code erzeugen
+            <UserPlus className="w-4 h-4" /> {t('members.generateCode')}
           </button>
           {inviteCode && (
             <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-small font-mono" style={{ background: 'var(--project-light)', color: 'var(--project-accent)' }}>
@@ -219,7 +219,7 @@ export function MembersManager({ slug, locale, members, teamCatalog }: { slug: s
               <button
                 type="button"
                 onClick={() => { navigator.clipboard?.writeText(inviteCode); setCopied(true) }}
-                title="Kopieren"
+                title={t('members.copy')}
                 className="p-0.5 rounded hover:opacity-70"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

@@ -5,14 +5,15 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { Crown, Shield, Users } from 'lucide-react'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 
-const personName = (u: unknown): string => {
-  if (!u || typeof u !== 'object') return 'Unbekannt'
+const personName = (u: unknown, unknown: string): string => {
+  if (!u || typeof u !== 'object') return unknown
   const o = u as { firstName?: string; lastName?: string; email?: string }
-  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
+  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || unknown
 }
 
 /**
@@ -30,6 +31,9 @@ export default async function ProjectMembersPage({
   const ctx = await getWorkspaceContext(slug)
   if (!ctx || !ctx.isActiveMember) notFound()
   const { project } = ctx
+  const t = await getTranslations({ locale, namespace: 'projectWorkspace' })
+  const tc = await getTranslations({ locale, namespace: 'common' })
+  const unknown = tc('unknownPerson')
 
   const payload = await getPayload({ config })
   const membersRes = await payload.find({
@@ -46,31 +50,31 @@ export default async function ProjectMembersPage({
       const mm = m as any
       return {
         id: String(mm.id),
-        name: personName(mm.user),
+        name: personName(mm.user, unknown),
         isPM: mm.role === 'PM',
         teams: (Array.isArray(mm.teams) ? mm.teams : []) as string[],
         leadOf: (Array.isArray(mm.leadOf) ? mm.leadOf : []) as string[],
       }
     })
-    .sort((a, b) => Number(b.isPM) - Number(a.isPM) || a.name.localeCompare(b.name, 'de'))
+    .sort((a, b) => Number(b.isPM) - Number(a.isPM) || a.name.localeCompare(b.name, locale))
 
   return (
     <div className="flex-1 min-w-0 flex flex-col" style={{ background: 'var(--project-light)' }}>
       <ProjectBreadcrumb
         items={[
           { label: project.title, href: `/${locale}/dashboard/projekte/${slug}` },
-          { label: 'Mitglieder' },
+          { label: t('membersNav') },
         ]}
       />
       {/* White content card under the light breadcrumb band — same pattern as manage */}
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-        <h1 className="sr-only">Mitglieder</h1>
+        <h1 className="sr-only">{t('membersNav')}</h1>
 
         {members.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border py-12" style={{ background: 'var(--project-white)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
             <Users className="w-8 h-8" style={{ color: 'var(--project-ink)' }} />
-            <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Mitglieder.</p>
+            <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('membersEmpty')}</p>
           </div>
         ) : (
           <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -93,20 +97,20 @@ export default async function ProjectMembersPage({
                     <p className="flex flex-wrap items-center gap-1.5 mt-1">
                       {m.isPM && (
                         <span className="inline-flex items-center gap-1 text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}>
-                          <Shield className="w-3 h-3" aria-hidden /> Projektleitung
+                          <Shield className="w-3 h-3" aria-hidden /> {t('projectLeadBadge')}
                         </span>
                       )}
-                      {m.teams.map((t) => {
-                        const lead = m.leadOf.includes(t)
+                      {m.teams.map((tag) => {
+                        const lead = m.leadOf.includes(tag)
                         return (
                           <span
-                            key={t}
+                            key={tag}
                             className="inline-flex items-center gap-1 text-[0.7rem] font-semibold px-2 py-0.5 rounded-full"
                             style={{ background: lead ? 'var(--project-dark)' : 'var(--project-light)', color: lead ? 'var(--project-black)' : 'var(--project-ink)' }}
-                            title={lead ? `Teamleitung ${t}` : t}
+                            title={lead ? t('teamLeadOf', { team: tag }) : tag}
                           >
                             {lead && <Crown className="w-3 h-3" aria-hidden />}
-                            {t}
+                            {tag}
                           </span>
                         )
                       })}

@@ -6,6 +6,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Crown, UserPlus, X } from 'lucide-react'
 import { addMemberToTeam, removeMemberFromTeam } from '@/actions/team-lead'
 import { TeamQuickActions } from './TeamQuickActions'
@@ -32,6 +33,8 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
   quickActions?: { leadOf: string[]; modules: string[]; folders: { id: string; name: string }[] }
 }) {
   const router = useRouter()
+  const t = useTranslations('teamPage')
+  const tc = useTranslations('common')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [adding, setAdding] = useState<string | null>(null)
@@ -64,7 +67,7 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
                 style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
               >
                 {adding === team ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                {adding === team ? 'Abbrechen' : 'Mitglied aufnehmen'}
+                {adding === team ? tc('cancel') : t('addMember')}
               </button>
             )}
           </div>
@@ -77,7 +80,7 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
 
           {adding === team && (
             <div className="mb-4 rounded-lg p-3" style={{ background: 'var(--project-light)' }}>
-              <p className="text-small font-medium mb-2" style={{ color: 'var(--project-accent)' }}>Projektmitglied auswählen:</p>
+              <p className="text-small font-medium mb-2" style={{ color: 'var(--project-accent)' }}>{t('pickMember')}</p>
               <div className="flex flex-wrap gap-2">
                 {candidates.map((c) => (
                   <button
@@ -96,7 +99,7 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
           )}
 
           {roster.length === 0 ? (
-            <p className="text-text" style={{ color: 'var(--project-ink)' }}>Noch keine Mitglieder in diesem Team.</p>
+            <p className="text-text" style={{ color: 'var(--project-ink)' }}>{t('rosterEmpty')}</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {roster.map((m) => (
@@ -105,7 +108,7 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
                     {m.name}
                     {m.isLead && (
                       <span className="inline-flex items-center gap-1 text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--project-dark)', color: 'var(--project-black)' }}>
-                        <Crown className="w-3 h-3" aria-hidden /> Teamleitung
+                        <Crown className="w-3 h-3" aria-hidden /> {t('leadBadge')}
                       </span>
                     )}
                   </span>
@@ -114,12 +117,12 @@ export function TeamRosterManager({ slug, locale, teams, viewerIsPM, quickAction
                       type="button"
                       disabled={pending}
                       onClick={() => run(() => removeMemberFromTeam(slug, locale, team, m.membershipId))}
-                      title="Aus dem Team entfernen"
+                      title={t('removeFromTeam')}
                       className="p-1.5 rounded-lg cursor-pointer transition-colors hover:bg-[var(--project-light)] disabled:opacity-40"
                       style={{ color: 'var(--project-danger)' }}
                     >
                       <X className="w-4 h-4" aria-hidden />
-                      <span className="sr-only">{m.name} aus {team} entfernen</span>
+                      <span className="sr-only">{t('removeNamed', { name: m.name, team })}</span>
                     </button>
                   )}
                 </li>

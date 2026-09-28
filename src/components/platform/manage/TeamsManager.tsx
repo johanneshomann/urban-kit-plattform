@@ -6,6 +6,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { X, Plus, Check, Users, Pencil } from 'lucide-react'
 import { updateProjectTeams } from '@/actions/manage/settings'
 
@@ -14,6 +15,8 @@ interface TeamDraft { original: string | null; name: string }
 
 export function TeamsManager({ slug, locale, teams: initial }: { slug: string; locale: string; teams: string[] }) {
   const router = useRouter()
+  const t = useTranslations('manage')
+  const tc = useTranslations('common')
   const [pending, startTransition] = useTransition()
   const [items, setItems] = useState<TeamDraft[]>(initial.map((name) => ({ original: name, name })))
   const [newName, setNewName] = useState('')
@@ -30,7 +33,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
   const add = () => {
     const name = newName.trim()
     if (!name) return
-    if (names.includes(name)) { setError('Team-Name existiert bereits.'); return }
+    if (names.includes(name)) { setError(t('teams.duplicate')); return }
     setItems((s) => [...s, { original: null, name }])
     setNewName('')
     setError(null)
@@ -48,7 +51,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
     if (editing === null) return
     const name = editName.trim()
     if (!name) { setEditing(null); return }
-    if (names.some((n, i) => i !== editing && n === name)) { setError('Team-Name existiert bereits.'); return }
+    if (names.some((n, i) => i !== editing && n === name)) { setError(t('teams.duplicate')); return }
     setItems((s) => s.map((it, i) => (i === editing ? { ...it, name } : it)))
     setEditing(null)
     setSaved(false)
@@ -72,7 +75,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
 
   return (
     <div>
-      <h1 className="sr-only">Teams</h1>
+      <h1 className="sr-only">{t('teams.title')}</h1>
 
       {/* Add new team */}
       <div className="flex items-center gap-2 mb-6">
@@ -81,7 +84,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') add() }}
-          placeholder="Team-Name …"
+          placeholder={t('teams.namePlaceholder')}
           className="w-64 px-3 py-2 rounded-lg border text-text outline-none"
           style={{
             borderColor: 'color-mix(in srgb, var(--project-general) 30%, transparent)',
@@ -97,14 +100,14 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           style={{ background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           <Plus className="w-4 h-4" />
-          Hinzufügen
+          {tc('add')}
         </button>
       </div>
 
       {/* Team list */}
       {items.length === 0 ? (
         <p className="text-text py-8 text-center rounded-xl border" style={{ color: 'var(--project-ink)', borderColor: 'color-mix(in srgb, var(--project-general) 20%, transparent)' }}>
-          Noch keine Teams definiert.
+          {t('teams.empty')}
         </p>
       ) : (
         <div className="flex flex-wrap gap-2 mb-4">
@@ -129,14 +132,14 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
               ) : (
                 <>
                   {team.name}
-                  {team.original && team.original !== team.name && <span className="opacity-70">(vorher: {team.original})</span>}
+                  {team.original && team.original !== team.name && <span className="opacity-70">{t('teams.previously', { name: team.original })}</span>}
                 </>
               )}
               <button
                 type="button"
                 onClick={() => startRename(idx)}
                 className="p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
-                title="Umbenennen"
+                title={tc('rename')}
               >
                 <Pencil className="w-3.5 h-3.5" />
               </button>
@@ -144,7 +147,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
                 type="button"
                 onClick={() => remove(idx)}
                 className="p-0.5 rounded-full hover:bg-[var(--project-white)] hover:text-[var(--project-accent)] transition-colors"
-                title="Entfernen"
+                title={tc('remove')}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -155,13 +158,12 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
 
       {renames.length > 0 && (
         <p className="text-small mb-2" style={{ color: 'var(--project-ink)' }}>
-          Umbenennungen werden überall übernommen: bei Mitgliedern, Teamleitungen und team-sichtbaren Inhalten.
+          {t('teams.renameHint')}
         </p>
       )}
       {confirming && removedOriginals.length > 0 && (
         <p className="text-small mb-2 px-4 py-2.5 rounded-lg" style={{ color: 'var(--project-danger)', background: 'var(--project-danger-surface)' }}>
-          {removedOriginals.length === 1 ? `Team „${removedOriginals[0]}" wird gelöscht` : `Teams ${removedOriginals.map((t) => `„${t}"`).join(', ')} werden gelöscht`} —
-          Mitglieder verlieren die Zuordnung (und ggf. die Teamleitung), team-sichtbare Inhalte verlieren den Tag. Zum Bestätigen erneut speichern.
+          {t('teams.deleteWarning', { count: removedOriginals.length, names: removedOriginals.map((n) => tc('quoted', { text: n })).join(', ') })}
         </p>
       )}
 
@@ -175,7 +177,7 @@ export function TeamsManager({ slug, locale, teams: initial }: { slug: string; l
           style={confirming ? { background: 'var(--project-danger)', color: 'var(--project-danger-on)' } : { background: 'var(--project-accent)', color: 'var(--project-white)' }}
         >
           {saved ? <Check className="w-4 h-4" /> : null}
-          {pending ? 'Speichern …' : confirming ? 'Löschen bestätigen' : saved ? 'Gespeichert' : 'Speichern'}
+          {pending ? tc('saving') : confirming ? t('teams.confirmDelete') : saved ? tc('saved') : tc('save')}
         </button>
         {error && <p className="text-small" style={{ color: 'var(--project-danger)' }}>{error}</p>}
       </div>

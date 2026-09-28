@@ -5,6 +5,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { CalendarPlus, BarChart2, Upload } from 'lucide-react'
 import { EventFormModal } from '@/components/platform/manage/CalendarManager'
 import { PollFormModal } from '@/components/platform/manage/PollFormModal'
@@ -26,12 +27,13 @@ export function TeamQuickActions({ slug, locale, team, leadOf, modules, folders 
   modules: string[]
   folders: { id: string; name: string }[]
 }) {
+  const t = useTranslations('teamPage')
   const [modal, setModal] = useState<'termin' | 'umfrage' | 'datei' | null>(null)
 
   const actions = [
-    { key: 'termin' as const, label: 'Neuer Team-Termin', icon: CalendarPlus, enabled: modules.includes('calendar') },
-    { key: 'umfrage' as const, label: 'Neue Team-Umfrage', icon: BarChart2, enabled: modules.includes('polls') },
-    { key: 'datei' as const, label: 'Neue Team-Datei', icon: Upload, enabled: modules.includes('files') },
+    { key: 'termin' as const, label: t('quickEvent'), icon: CalendarPlus, enabled: modules.includes('calendar') },
+    { key: 'umfrage' as const, label: t('quickPoll'), icon: BarChart2, enabled: modules.includes('polls') },
+    { key: 'datei' as const, label: t('quickFile'), icon: Upload, enabled: modules.includes('files') },
   ].filter((a) => a.enabled)
 
   if (actions.length === 0) return null

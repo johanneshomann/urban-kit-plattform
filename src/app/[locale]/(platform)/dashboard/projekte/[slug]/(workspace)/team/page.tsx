@@ -5,14 +5,15 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { ProjectBreadcrumb } from '@/components/platform/ProjectBreadcrumb'
 import { getWorkspaceContext } from '@/lib/workspace-context'
 import { TeamRosterManager, type TeamRoster } from '@/components/platform/team/TeamRosterManager'
 
-const personName = (u: unknown): string => {
-  if (!u || typeof u !== 'object') return 'Unbekannt'
+const personName = (u: unknown, unknown: string): string => {
+  if (!u || typeof u !== 'object') return unknown
   const o = u as { firstName?: string; lastName?: string; email?: string }
-  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || 'Unbekannt'
+  return [o.firstName, o.lastName].filter(Boolean).join(' ').trim() || o.email || unknown
 }
 
 /**
@@ -31,6 +32,10 @@ export default async function TeamLeadPage({
   if (!ctx || ctx.viewer.leadOf.length === 0) notFound()
   const { project, modules } = ctx
   const leadOf = ctx.viewer.leadOf
+  const t = await getTranslations({ locale, namespace: 'teamPage' })
+  const tw = await getTranslations({ locale, namespace: 'projectWorkspace' })
+  const tc = await getTranslations({ locale, namespace: 'common' })
+  const unknown = tc('unknownPerson')
 
   const payload = await getPayload({ config })
   const membersRes = await payload.find({
@@ -46,7 +51,7 @@ export default async function TeamLeadPage({
     const mm = m as any
     return {
       membershipId: String(mm.id),
-      name: personName(mm.user),
+      name: personName(mm.user, unknown),
       teams: (Array.isArray(mm.teams) ? mm.teams : []) as string[],
       leadOf: (Array.isArray(mm.leadOf) ? mm.leadOf : []) as string[],
     }
@@ -57,11 +62,11 @@ export default async function TeamLeadPage({
     roster: members
       .filter((m) => m.teams.includes(team) || m.leadOf.includes(team))
       .map((m) => ({ membershipId: m.membershipId, name: m.name, isLead: m.leadOf.includes(team) }))
-      .sort((a, b) => Number(b.isLead) - Number(a.isLead) || a.name.localeCompare(b.name, 'de')),
+      .sort((a, b) => Number(b.isLead) - Number(a.isLead) || a.name.localeCompare(b.name, locale)),
     candidates: members
       .filter((m) => !m.teams.includes(team) && !m.leadOf.includes(team))
       .map((m) => ({ membershipId: m.membershipId, name: m.name }))
-      .sort((a, b) => a.name.localeCompare(b.name, 'de')),
+      .sort((a, b) => a.name.localeCompare(b.name, locale)),
   }))
 
   // Folder list for the quick "Neue Team-Datei" popup (only if files is on).
@@ -77,15 +82,15 @@ export default async function TeamLeadPage({
       <ProjectBreadcrumb
         items={[
           { label: project.title, href: `/${locale}/dashboard/projekte/${slug}` },
-          { label: 'Team' },
+          { label: tw('teamNav') },
         ]}
       />
       {/* White content card under the light breadcrumb band — same pattern as manage */}
       <main className="card-in flex-1 mt-5 p-6 md:p-10 w-full min-w-0" style={{ background: 'var(--project-white)' }}>
         {/* Visually redundant with the breadcrumb — kept for screen readers (BITV). */}
-        <h1 className="sr-only">Team</h1>
+        <h1 className="sr-only">{tw('teamNav')}</h1>
         <p className="text-text mb-6" style={{ color: 'var(--project-ink)' }}>
-          Sie leiten {leadOf.length === 1 ? 'das Team' : 'die Teams'} {leadOf.join(', ')}. Hier verwalten Sie die Mitglieder und erstellen teambezogene Inhalte — bearbeiten können Sie Ihre Inhalte direkt in den jeweiligen Modulen.
+          {t('intro', { count: leadOf.length, teams: leadOf.join(', ') })}
         </p>
         <TeamRosterManager
           slug={slug}
