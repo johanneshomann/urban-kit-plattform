@@ -115,7 +115,12 @@ and their collections: [docs/modules.md](docs/modules.md).
    security.
 3. **Both message catalogs** — `messages/de.json` and `messages/en.json` stay
    key-identical. Copy tone: formal Sie, minimal direct address. Project
-   content itself stays German-only (see docs/i18n.md).
+   content itself stays German-only (see docs/i18n.md). No German string
+   literals in the workspace UI: labels/aria/placeholders go through
+   `useTranslations`/`getTranslations`, dates through `intlLocale(locale)`
+   (`src/i18n/format.ts`, never a hardcoded `'de-DE'`), and server actions
+   return `actionError('<key>')` (`src/lib/action-errors.ts`, namespace
+   `actionErrors`) instead of `{ error: '…' }`.
 4. **Module gating** — anything module-related must 404/deny when the module
    isn't in `project.modules`, for PMs too.
 5. **Design tokens, not hex** — colors come from CSS custom properties
@@ -146,7 +151,7 @@ and their collections: [docs/modules.md](docs/modules.md).
 8. **Demo accounts are read-only** — users flagged `isDemo` are public
    prototype test logins with shared, publicly displayed credentials. Every
    mutating server action starts with
-   `if (await isDemoSession()) return { error: DEMO_WRITE_ERROR }` and every
+   `if (await isDemoSession()) return actionError('demoReadOnly')` and every
    mutating API route checks `isDemoUser(user)` / `a.readOnly`
    (`src/lib/auth/demo.ts`); the board gets a read-only Yjs connection. New
    actions/routes must follow suit — Payload hooks can't cover this because
