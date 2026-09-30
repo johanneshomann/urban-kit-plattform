@@ -10,7 +10,7 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { emailVerificationEnabled } from '@/lib/email'
-import { getDemoAccounts } from '@/lib/prototype-notice'
+import { getDemoAccounts, isRegistrationEnabled } from '@/lib/prototype-notice'
 import { SESSION_COOKIE, appDomain, sessionCookieDomain } from '@/lib/auth/session-cookie'
 import { isDemoSession } from '@/lib/auth/demo'
 import { actionError } from '@/lib/action-errors'
@@ -112,6 +112,7 @@ export async function demoLoginAction(_prev: AuthState, formData: FormData): Pro
 }
 
 export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  if (!(await isRegistrationEnabled())) return actionError('registrationDisabled')
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const passwordConfirm = formData.get('passwordConfirm') as string

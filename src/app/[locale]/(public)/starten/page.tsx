@@ -15,6 +15,7 @@ import { getCitySettings } from '@/lib/instance'
 import { Flag, Folders, Info } from 'lucide-react'
 import { ScrollHint } from '@/components/public/ScrollHint'
 import { SectionDotsNav } from '@/components/public/SectionDotsNav'
+import { isRegistrationEnabled } from '@/lib/prototype-notice'
 
 export async function generateMetadata({
   params,
@@ -67,6 +68,9 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
 
   // Section rail — matches the DOM order below. The hero is deliberately not an
   // item: the rail only appears once the hero is scrolled out of frame.
+  // Registration switch (Platform Settings): closed → every register CTA leads to the login page instead.
+  const registrationOpen = await isRegistrationEnabled()
+  const registerHref = registrationOpen ? 'register' : 'login'
   const navSections = [
     ...STEPS.map((step) => ({ id: `schritt-${step.number}`, label: `${t('stepLabel', { number: step.number })}: ${t(step.titleKey)}`, icon: step.dotIcon })),
     { id: 'einladung', label: t('invEyebrow'), icon: 'Ticket' },
@@ -128,7 +132,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
               </h2>
               <p className="text-text leading-relaxed mb-10">{t(step.descKey)}</p>
               {step.cta && (
-                <CtaButton href={`/${locale}/${step.cta.href}`} label={t(step.cta.ctaKey)} icon={<step.cta.icon />} />
+                <CtaButton href={`/${locale}/${step.cta.href === 'register' ? registerHref : step.cta.href}`} label={step.cta.href === 'register' && !registrationOpen ? t('ctaLogin') : t(step.cta.ctaKey)} icon={<step.cta.icon />} />
               )}
             </div>
 
@@ -175,7 +179,7 @@ export default async function StartenPage({ params }: { params: Promise<{ locale
           {t('ctaBody')}
         </p>
         <div className="flex flex-wrap gap-3">
-          <CtaButton href={`/${locale}/register`} label={t('ctaRegister')} icon={<Flag />} />
+          <CtaButton href={`/${locale}/${registerHref}`} label={registrationOpen ? t('ctaRegister') : t('ctaLogin')} icon={<Flag />} />
           <CtaButton href={`/${locale}/ueber-urbankit`} label={t('ctaMore')} icon={<Info />} />
         </div>
       </section>

@@ -19,11 +19,14 @@ export function JoinRequestButton({
   slug,
   locale,
   isLoggedIn,
+  registrationEnabled = true,
   membershipStatus,
 }: {
   slug: string
   locale: string
   isLoggedIn: boolean
+  /** Registration switch off → anonymous visitors are sent to the login page instead. */
+  registrationEnabled?: boolean
   membershipStatus: 'requested' | 'active' | 'invited' | 'rejected' | null
 }) {
   const router = useRouter()
@@ -77,10 +80,10 @@ export function JoinRequestButton({
     <>
       <button
         type="button"
-        onClick={() => (isLoggedIn ? setOpen(true) : router.push(`/${locale}/register`))}
+        onClick={() => (isLoggedIn ? setOpen(true) : router.push(`/${locale}/${registrationEnabled ? 'register' : 'login'}`))}
         className="inline-flex items-center gap-2 px-6 py-3 text-cta font-normal rounded-lg transition-colors cursor-pointer text-[var(--plattform-white)] bg-[var(--plattform)] hover:bg-[var(--plattform-accent)]"
       >
-        {isLoggedIn ? t('ctaJoinRequest') : t('ctaRegisterJoin')}
+        {isLoggedIn ? t('ctaJoinRequest') : registrationEnabled ? t('ctaRegisterJoin') : t('ctaLoginJoin')}
         <UserPlus className="w-[1em] h-[1em] shrink-0" />
       </button>
 

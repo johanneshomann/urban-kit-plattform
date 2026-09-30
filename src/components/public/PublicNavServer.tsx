@@ -6,10 +6,11 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getUser } from '@/lib/auth/getUser'
 import { getCitySettings } from '@/lib/instance'
+import { isRegistrationEnabled } from '@/lib/prototype-notice'
 import { PublicNav } from './PublicNav'
 
 export async function PublicNavServer({ locale }: { locale: string }) {
-  const [user, { cityName, cityLogoUrl }] = await Promise.all([getUser(), getCitySettings()])
+  const [user, { cityName, cityLogoUrl }, registrationEnabled] = await Promise.all([getUser(), getCitySettings(), isRegistrationEnabled()])
 
   // Avatar may arrive populated (object) or as a bare media id — resolve to a
   // URL either way for the header's user chip.
@@ -30,6 +31,7 @@ export async function PublicNavServer({ locale }: { locale: string }) {
       cityName={cityName}
       cityLogoUrl={cityLogoUrl}
       isLoggedIn={Boolean(user)}
+      registrationEnabled={registrationEnabled}
       userName={user ? [
         (user as unknown as { firstName?: string }).firstName,
         (user as unknown as { lastName?: string }).lastName,

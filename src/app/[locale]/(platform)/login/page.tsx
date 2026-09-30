@@ -4,7 +4,7 @@
 
 import { LoginForm } from './LoginForm'
 import { DemoLoginPanel } from './DemoLoginPanel'
-import { getDemoAccounts } from '@/lib/prototype-notice'
+import { getDemoAccounts, isRegistrationEnabled } from '@/lib/prototype-notice'
 import { getCitySettings } from '@/lib/instance'
 import { getAppVars } from '@/lib/app-theme'
 import { getTranslations } from 'next-intl/server'
@@ -20,11 +20,12 @@ import { Mail } from 'lucide-react'
  */
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const [{ cityName, cityLogoUrl }, t, appVars, demoAccounts] = await Promise.all([
+  const [{ cityName, cityLogoUrl }, t, appVars, demoAccounts, registrationOpen] = await Promise.all([
     getCitySettings(),
     getTranslations({ locale, namespace: 'auth' }),
     getAppVars(),
     getDemoAccounts(locale),
+    isRegistrationEnabled(),
   ])
 
   return (
@@ -63,7 +64,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
             <img src={cityLogoUrl} alt={cityName} className="h-12 w-auto self-start object-contain" />
           )}
           {demoAccounts.length > 0 && <DemoLoginPanel accounts={demoAccounts} />}
-          <LoginForm registerHref={`/${locale}/register`} />
+          <LoginForm registerHref={registrationOpen ? `/${locale}/register` : null} />
         </div>
       </div>
 

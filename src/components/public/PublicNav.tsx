@@ -18,6 +18,8 @@ interface PublicNavProps {
   cityName: string
   cityLogoUrl?: string | null
   isLoggedIn?: boolean
+  /** Platform Settings → registration switch; false hides the register button. */
+  registrationEnabled?: boolean
   userName?: string | null
   avatarUrl?: string | null
   profileBadge?: string | null
@@ -79,7 +81,7 @@ function useAnimatedOpen(duration: number) {
   return { active, closing, isOpen: active && !closing, open, close }
 }
 
-export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avatarUrl, profileBadge }: PublicNavProps) {
+export function PublicNav({ locale, cityName, isLoggedIn = false, registrationEnabled = true, userName, avatarUrl, profileBadge }: PublicNavProps) {
   const l = `/${locale}`
   const t = useTranslations('publicNav')
 
@@ -612,7 +614,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
                   >
                     {t('login')} <LogIn className="text-text w-[1em] h-[1em] shrink-0" />
                   </Link>
-                  <Link
+                  {registrationEnabled && <Link
                     href={`${l}/register`}
                     onClick={mobile.close}
                     className="flex-1 flex items-center justify-between px-5 py-3 rounded-lg text-cta font-normal transition-colors text-[var(--plattform-ink-accent)]"
@@ -621,7 +623,7 @@ export function PublicNav({ locale, cityName, isLoggedIn = false, userName, avat
                     onMouseLeave={e => (e.currentTarget.style.background = 'var(--plattform-light)')}
                   >
                     {t('register')} <UserPlus className="text-text w-[1em] h-[1em] shrink-0" />
-                  </Link>
+                  </Link>}
                 </>
               )}
             </div>

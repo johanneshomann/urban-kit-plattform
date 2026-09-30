@@ -159,6 +159,22 @@ export const PlatformSettings: GlobalConfig = {
           },
           fields: [
             {
+              // Registration switch lives here because it is a prototype-phase
+              // control: with the switch off, /register points at the demo
+              // logins instead of a form (src/lib/prototype-notice.ts,
+              // registerAction refuses server-side).
+              name: 'registrationEnabled',
+              type: 'checkbox',
+              defaultValue: true,
+              label: { en: 'Allow registration', de: 'Registrierung erlauben' },
+              admin: {
+                description: {
+                  en: 'When off, nobody can create an account: the registration page and all “Register” links point to the login page and its demo accounts instead. Existing accounts keep working.',
+                  de: 'Wenn aus, kann niemand ein Konto anlegen: Registrierungsseite und alle „Registrieren“-Links verweisen stattdessen auf die Login-Seite mit den Testzugängen. Bestehende Konten funktionieren weiter.',
+                },
+              },
+            },
+            {
               name: 'prototypeNoticeEnabled',
               type: 'checkbox',
               defaultValue: false,

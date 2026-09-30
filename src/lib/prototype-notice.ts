@@ -16,6 +16,7 @@ export type PrototypeNotice = {
 export type DemoAccount = { label: string; email: string; password: string; description: string | null }
 
 type PrototypeSettings = {
+  registrationEnabled?: boolean | null
   prototypeNoticeEnabled?: boolean | null
   prototypeNoticeText?: string | null
   prototypeDemoAccounts?: Array<{ label?: string | null; email?: string | null; password?: string | null; description?: string | null }> | null
@@ -30,6 +31,20 @@ async function readSettings(locale: string): Promise<PrototypeSettings> {
     fallbackLocale: 'de',
     overrideAccess: true,
   })) as PrototypeSettings
+}
+
+/**
+ * Registration master switch (Platform Settings → Prototyp-Hinweis). Default
+ * ON; only an explicit toggle-off blocks. Used by registerAction (server-side
+ * guard) and by every register link/page so the UI never dead-ends.
+ */
+export async function isRegistrationEnabled(): Promise<boolean> {
+  try {
+    const settings = await readSettings('de')
+    return settings.registrationEnabled !== false
+  } catch {
+    return true
+  }
 }
 
 /**

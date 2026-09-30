@@ -45,6 +45,7 @@ import {
   BarChart3,
   Check,
 } from 'lucide-react'
+import { isRegistrationEnabled } from '@/lib/prototype-notice'
 
 const accent = (chunks: ReactNode) => <span style={{ color: 'var(--plattform)' }}>{chunks}</span>
 
@@ -146,6 +147,7 @@ export default async function PublicProjectPage({
 
   // Visitor's login + membership state for the join CTA
   const viewer = await getUser()
+  const registrationEnabled = await isRegistrationEnabled()
   let isStarred = false
   let membershipStatus: 'requested' | 'active' | 'invited' | 'rejected' | null = null
   if (viewer) {
@@ -370,7 +372,7 @@ export default async function PublicProjectPage({
                 <StarButton projectId={project.id} initialStarred={isStarred} />
               )}
               {joinEnabled && (
-                <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+                <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} registrationEnabled={registrationEnabled} membershipStatus={membershipStatus} />
               )}
             </div>
           )}
@@ -713,7 +715,7 @@ export default async function PublicProjectPage({
           )}
 
           {joinEnabled && (
-            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} membershipStatus={membershipStatus} />
+            <JoinRequestButton slug={project.slug} locale={locale} isLoggedIn={!!viewer} registrationEnabled={registrationEnabled} membershipStatus={membershipStatus} />
           )}
         </div>
       </section>

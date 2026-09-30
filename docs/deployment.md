@@ -134,3 +134,8 @@ The script flags the users `isDemo`, puts them into the project and fills
 `platform-settings.prototypeDemoAccounts` (only if empty). Writes from these
 accounts are refused platform-wide; the board is read-only (the `hocuspocus`
 image must be rebuilt after updating — it sets `connection.readOnly`).
+
+To close self-registration for the prototype phase, switch off **Platform
+Settings → Prototyp-Hinweis → Registrierung erlauben**: `/register` then shows
+the demo logins plus a link to the login page instead of the form, register
+links in the portal disappear, and the server action refuses regardless.

@@ -15,7 +15,7 @@ import { LogIn, ExternalLink } from 'lucide-react'
 const inputBase =
   'w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]'
 
-export function LoginForm({ registerHref }: { registerHref: string }) {
+export function LoginForm({ registerHref }: { registerHref: string | null }) {
   const [state, action, pending] = useActionState(loginAction, null)
   const t = useTranslations('auth')
   const openedRef = useRef(false)
@@ -92,16 +92,18 @@ export function LoginForm({ registerHref }: { registerHref: string }) {
         </button>
       </form>
 
-      <p className="text-small text-center mt-6" style={{ color: 'var(--app-ink)' }}>
-        {t('noAccount')}{' '}
-        <Link
-          href={registerHref}
-          className="transition-colors hover:underline"
-          style={{ color: 'var(--app-accent)' }}
-        >
-          {t('register')}
-        </Link>
-      </p>
+      {registerHref && (
+        <p className="text-small text-center mt-6" style={{ color: 'var(--app-ink)' }}>
+          {t('noAccount')}{' '}
+          <Link
+            href={registerHref}
+            className="transition-colors hover:underline"
+            style={{ color: 'var(--app-accent)' }}
+          >
+            {t('register')}
+          </Link>
+        </p>
+      )}
     </div>
   )
 }

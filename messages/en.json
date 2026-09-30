@@ -80,7 +80,11 @@
     "demoIntro": "Try the platform without registering. Changes made in a test account are not saved.",
     "demoLoginAs": "Log in as {label}",
     "demoPending": "Logging in …",
-    "demoCredentials": "E-mail: {email} · Password: {password}"
+    "demoCredentials": "E-mail: {email} · Password: {password}",
+    "registrationClosedTitle": "Registration is currently closed",
+    "registrationClosedBody": "No new accounts can be created during the prototype phase. Existing accounts keep working via the login page.",
+    "registrationClosedBodyDemo": "No new accounts can be created during the prototype phase. Use the test accounts to explore — one click is enough.",
+    "registrationClosedCta": "Go to login"
   },
   "accessibility": {
     "open": "Open accessibility settings",
@@ -230,7 +234,8 @@
     "ctaTitle": "Ready<accent>?</accent>",
     "ctaBody": "Sign up now and get started right away – in less than a minute.",
     "ctaRegister": "Register now",
-    "ctaMore": "More about UrbanKIT"
+    "ctaMore": "More about UrbanKIT",
+    "ctaLogin": "Sign in"
   },
   "about": {
     "metaTitle": "UrbanKIT explained – making urban development transparent",
@@ -795,7 +800,8 @@
     "starActive": "Starred",
     "starAdd": "Add to favorites",
     "starRemove": "Remove from favorites",
-    "navStart": "Start"
+    "navStart": "Start",
+    "ctaLoginJoin": "Sign in and take part"
   },
   "newsDetail": {
     "metaFallbackTitle": "News – UrbanKIT",
@@ -1839,6 +1845,7 @@
     "voteFailed": "Voting failed.",
     "questionNeedsOptions": "Question “{question}” needs at least two answer options.",
     "demoReadOnly": "Prototype mode: changes are not saved in the test account.",
-    "pollManageOwnOnly": "You can only manage your own polls."
+    "pollManageOwnOnly": "You can only manage your own polls.",
+    "registrationDisabled": "Registration is currently disabled."
   }
 }
