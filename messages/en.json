@@ -81,10 +81,9 @@
     "demoLoginAs": "Log in as {label}",
     "demoPending": "Logging in …",
     "demoCredentials": "E-mail: {email} · Password: {password}",
-    "registrationClosedTitle": "Registration is currently closed",
-    "registrationClosedBody": "No new accounts can be created during the prototype phase. Existing accounts keep working via the login page.",
-    "registrationClosedBodyDemo": "No new accounts can be created during the prototype phase. Use the test accounts to explore — one click is enough.",
-    "registrationClosedCta": "Go to login"
+    "registrationClosedBody": "Existing accounts keep working via the login page.",
+    "registrationClosedBodyDemo": "To explore, please use the test accounts above – one click is enough.",
+    "registrationClosedNotice": "This is a prototype – registration is currently not possible."
   },
   "accessibility": {
     "open": "Open accessibility settings",

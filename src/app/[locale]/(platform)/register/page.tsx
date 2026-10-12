@@ -5,7 +5,6 @@
 import { RegisterForm } from './RegisterForm'
 import { DemoLoginPanel } from '../login/DemoLoginPanel'
 import { getDemoAccounts, isRegistrationEnabled } from '@/lib/prototype-notice'
-import { LogIn } from 'lucide-react'
 import { getCitySettings } from '@/lib/instance'
 import { getAppVars } from '@/lib/app-theme'
 import { getTranslations } from 'next-intl/server'
@@ -26,8 +25,8 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
     getAppVars(),
     isRegistrationEnabled(),
   ])
-  // Registration off (prototype phase): no form — point at the login page and
-  // offer the one-click demo logins right here. registerAction refuses too.
+  // Registration off (prototype phase): the form is shown disabled with a
+  // notice, the one-click demo logins sit above it. registerAction refuses too.
   const demoAccounts = registrationOpen ? [] : await getDemoAccounts(locale)
 
   return (
@@ -65,26 +64,10 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cityLogoUrl} alt={cityName} className="h-12 w-auto self-start object-contain" />
           )}
-          {registrationOpen ? (
-            <RegisterForm loginHref={`/${locale}/login`} />
-          ) : (
-            <>
-              <div>
-                <h1 className="text-title font-bold mb-2" style={{ color: 'var(--app-ink-accent)' }}>{t('registrationClosedTitle')}</h1>
-                <p className="text-text" style={{ color: 'var(--app-ink)' }}>
-                  {demoAccounts.length > 0 ? t('registrationClosedBodyDemo') : t('registrationClosedBody')}
-                </p>
-              </div>
-              {demoAccounts.length > 0 && <DemoLoginPanel accounts={demoAccounts} />}
-              <Link
-                href={`/${locale}/login`}
-                className="w-full flex items-center justify-between px-4 h-11 rounded-lg text-small font-semibold transition-colors bg-[var(--app-accent)] text-[var(--app-white)] hover:bg-[var(--app-ink-accent)]"
-              >
-                {t('registrationClosedCta')}
-                <LogIn className="w-[1em] h-[1em] shrink-0" aria-hidden />
-              </Link>
-            </>
-          )}
+          {/* Registration off: demo logins first, then the form — visible for
+              orientation, but disabled with a prototype notice on top. */}
+          {!registrationOpen && demoAccounts.length > 0 && <DemoLoginPanel accounts={demoAccounts} />}
+          <RegisterForm loginHref={`/${locale}/login`} closed={!registrationOpen} hasDemoAccounts={demoAccounts.length > 0} />
         </div>
       </div>
 

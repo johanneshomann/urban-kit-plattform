@@ -8,14 +8,20 @@ import { useActionState } from 'react'
 import { useTranslations } from 'next-intl'
 import { registerAction } from '@/actions/auth'
 import Link from 'next/link'
-import { UserPlus, MailCheck } from 'lucide-react'
+import { UserPlus, MailCheck, Lock } from 'lucide-react'
 
 // Dashboard control rules: borderless grey inputs inside the white panel,
 // definition via shadow + accent focus ring (same as the login form).
 const inputBase =
   'w-full px-4 h-10 rounded-lg text-small outline-none shadow-sm transition-all duration-200 focus:shadow-md focus:ring-2 bg-[var(--app-light)]'
 
-export function RegisterForm({ loginHref }: { loginHref: string }) {
+export function RegisterForm({ loginHref, closed = false, hasDemoAccounts = false }: {
+  loginHref: string
+  /** Registration switch off: the form stays visible for orientation but is disabled, with a prototype notice on top. */
+  closed?: boolean
+  /** Demo logins are rendered above the form by the page — the notice then points at them. */
+  hasDemoAccounts?: boolean
+}) {
   const [state, action, pending] = useActionState(registerAction, null)
   const t = useTranslations('auth')
 
@@ -49,7 +55,22 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
         </p>
       </div>
 
-      <form action={action} className="flex flex-col gap-4">
+      {closed && (
+        <div
+          role="status"
+          className="mb-5 flex items-start gap-3 rounded-lg px-4 py-3 text-small"
+          style={{ background: 'var(--app-light)', color: 'var(--app-ink-accent)', border: '1.5px solid var(--app-accent)' }}
+        >
+          <Lock className="w-4 h-4 mt-0.5 shrink-0" aria-hidden style={{ color: 'var(--app-accent)' }} />
+          <span>
+            <strong className="block">{t('registrationClosedNotice')}</strong>
+            {hasDemoAccounts ? t('registrationClosedBodyDemo') : t('registrationClosedBody')}
+          </span>
+        </div>
+      )}
+
+      <form action={action} className="flex flex-col gap-4" aria-disabled={closed || undefined}>
+        <fieldset disabled={closed} className="contents">
         {state?.error && (
           <p className="text-small px-4 py-3 rounded-lg text-red-700 bg-red-50">
             {state.error}
@@ -94,12 +115,13 @@ export function RegisterForm({ loginHref }: { loginHref: string }) {
 
         <button
           type="submit"
-          disabled={pending}
-          className="mt-2 w-full flex items-center justify-between px-4 h-11 rounded-lg text-small font-semibold transition-colors disabled:opacity-50 cursor-pointer bg-[var(--app-accent)] text-[var(--app-white)] hover:bg-[var(--app-ink-accent)]"
+          disabled={pending || closed}
+          className="mt-2 w-full flex items-center justify-between px-4 h-11 rounded-lg text-small font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-[var(--app-accent)] text-[var(--app-white)] hover:bg-[var(--app-ink-accent)]"
         >
           {pending ? t('registerPending') : t('registerButton')}
           <UserPlus className="w-[1em] h-[1em] shrink-0" aria-hidden />
         </button>
+        </fieldset>
       </form>
 
       <p className="text-small text-center mt-6" style={{ color: 'var(--app-ink)' }}>

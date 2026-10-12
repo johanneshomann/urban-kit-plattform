@@ -81,10 +81,9 @@
     "demoLoginAs": "Als {label} anmelden",
     "demoPending": "Anmeldung …",
     "demoCredentials": "E-Mail: {email} · Passwort: {password}",
-    "registrationClosedTitle": "Registrierung derzeit geschlossen",
-    "registrationClosedBody": "Während der Prototyp-Phase können keine neuen Konten angelegt werden. Bestehende Zugänge funktionieren weiterhin über die Anmeldung.",
-    "registrationClosedBodyDemo": "Während der Prototyp-Phase können keine neuen Konten angelegt werden. Zum Ausprobieren stehen die Testzugänge bereit — ein Klick genügt.",
-    "registrationClosedCta": "Zur Anmeldung"
+    "registrationClosedBody": "Bestehende Zugänge funktionieren weiterhin über die Anmeldung.",
+    "registrationClosedBodyDemo": "Zum Ausprobieren nutzen Sie bitte die Testzugänge oben – ein Klick genügt.",
+    "registrationClosedNotice": "Dies ist ein Prototyp – eine Registrierung ist derzeit nicht möglich."
   },
   "accessibility": {
     "open": "Barrierefreiheit-Einstellungen öffnen",
