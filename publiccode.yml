@@ -9,8 +9,8 @@ publiccodeYmlVersion: "0.4"
 name: UrbanKIT Plattform
 url: "https://gitlab.opencode.de/stadt-detmold/urban-kit-plattform"
 landingURL: "https://urbankit.de"
-releaseDate: "2026-08-20"
-softwareVersion: "1.0.0"
+releaseDate: "2026-10-27"
+softwareVersion: "1.1.0"
 
 platforms:
   - web
@@ -38,6 +38,7 @@ logo: docs/assets/cover.png
 description:
   de:
     genericName: Bürgerbeteiligungsplattform
+    documentation: "https://gitlab.opencode.de/stadt-detmold/urban-kit-plattform/-/blob/main/docs/usage.md"
     shortDescription: >-
       Digitale Bürgerbeteiligungsplattform einer Stadt: öffentliches Portal
       plus geschlossener Projekt-Arbeitsbereich mit modularen Werkzeugen.
@@ -69,7 +70,7 @@ description:
       - Projekt-Arbeitsbereiche mit zuschaltbaren Modulen (News, Kalender, Umfragen, Forum, Aufgaben, Chat, Whiteboard, Dateien, KI-Assistent)
       - Kollaboratives Echtzeit-Whiteboard (Excalidraw + Hocuspocus/Yjs)
       - Dreistufige Sichtbarkeit je Inhalt (öffentlich / Teilnehmende / Team)
-      - Anbieterunabhängiger KI-Assistent (Anthropic, OpenAI oder Ollama)
+      - Optionaler, anbieterunabhängiger KI-Assistent (Mistral, Anthropic, OpenAI oder Ollama)
       - Anpassbares Erscheinungsbild über Designtokens im Admin-Backend
       - Zweisprachige Oberfläche (Deutsch/Englisch)
     screenshots:
@@ -80,6 +81,7 @@ description:
       - docs/assets/screenshot-area-projects.png
   en:
     genericName: Civic participation platform
+    documentation: "https://gitlab.opencode.de/stadt-detmold/urban-kit-plattform/-/blob/main/docs/usage.md"
     shortDescription: >-
       Digital civic-participation platform for a city: public portal plus a
       per-project collaboration workspace with modular tools.
@@ -109,7 +111,7 @@ description:
       - Project workspaces with toggleable modules (news, calendar, polls, forum, tasks, chat, whiteboard, files, AI assistant)
       - Collaborative realtime whiteboard (Excalidraw + Hocuspocus/Yjs)
       - Three-level visibility per content item (public / participants / team)
-      - Provider-agnostic AI assistant (Anthropic, OpenAI or Ollama)
+      - Optional provider-agnostic AI assistant (Mistral, Anthropic, OpenAI or Ollama)
       - Customizable branding via design tokens in the admin backend
       - Bilingual interface (German/English)
     screenshots:

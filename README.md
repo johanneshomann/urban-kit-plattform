@@ -26,8 +26,8 @@ Payload CMS 3 embedded.
   forum, tasks, chat, board, files, urban-agent).
 - 🖊️ **Collaborative realtime whiteboard** — Excalidraw synced via a
   Hocuspocus/Yjs WebSocket sidecar.
-- 🤖 **Urban Agent** — provider-agnostic AI assistant (Anthropic > OpenAI >
-  Ollama fallback).
+- 🤖 **Urban Agent** — optional, provider-agnostic AI assistant (Mistral,
+  Anthropic, OpenAI or self-hosted Ollama).
 - 🔐 **Tiered access control** per project (public/participant/team roles).
 - 🎨 **Editable platform identity** — colors, logos and project color schemes
   ("chameleon" design tokens) from the admin.
@@ -55,8 +55,8 @@ npm install
 npm run dev:all               # Next on http://localhost:3000 + Hocuspocus WS on :1234
 ```
 
-Requires a local **MongoDB 7**; MinIO (S3 media/files) and Redis are optional
-in dev — see [`.env.example`](.env.example). Then open the **admin panel** at
+Requires a local **MongoDB 7** (`docker compose up -d mongo` is enough); media
+and uploads are stored on disk — see [`.env.example`](.env.example). Then open the **admin panel** at
 <http://localhost:3000/admin> and create the first user. To populate platform
 defaults:
 
@@ -79,11 +79,17 @@ npm run seed                  # idempotent — safe to re-run
 
 ## Documentation
 
-- [`AGENTS.md`](AGENTS.md) — conventions, gotchas and a per-task map (for
-  humans and AI agents).
-- [`docs/architecture.md`](docs/architecture.md) — big picture: domains, route
-  groups, data model, realtime, theming.
-- [`docs/README.md`](docs/README.md) — doc index with a "read when…" table.
+By audience:
+
+| Audience | Start here |
+|---|---|
+| Users, editors, project managers | [`docs/usage.md`](docs/usage.md) — purpose, roles, modules, typical workflows |
+| Operators | [`docs/operations.md`](docs/operations.md) — requirements, Docker Compose install, proxy/TLS, updates, backups; [`docs/env-reference.md`](docs/env-reference.md) |
+| Developers | [`docs/development.md`](docs/development.md) — architecture summary, interfaces, build and checks; then [`docs/architecture.md`](docs/architecture.md), [`docs/access-control.md`](docs/access-control.md), [`docs/modules.md`](docs/modules.md), [`docs/i18n.md`](docs/i18n.md) |
+| Everyone | [`docs/project-status.md`](docs/project-status.md) — stage, known limitations, open points; [`CHANGELOG.md`](CHANGELOG.md); [`SECURITY.md`](SECURITY.md) |
+
+[`docs/README.md`](docs/README.md) is the full index; [`AGENTS.md`](AGENTS.md)
+holds the conventions and gotchas for humans and AI agents.
 
 ## Contributing
 
@@ -95,5 +101,13 @@ and our [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) first.
 Licensed under the **European Union Public Licence v. 1.2 (EUPL-1.2)** — see
 [`LICENSES/EUPL-1.2.txt`](LICENSES/EUPL-1.2.txt). The project is
 [REUSE](https://reuse.software)-compliant: every file declares its copyright
-and license. The bundled Atkinson Hyperlegible font is licensed separately
-under [OFL-1.1](LICENSES/OFL-1.1.txt).
+and license (`reuse lint` runs in CI). Exceptions to EUPL-1.2:
+
+- the bundled Atkinson Hyperlegible font — [OFL-1.1](LICENSES/OFL-1.1.txt);
+- the seed photos of the showcase projects — property of Stadt Detmold, used
+  with permission ([`LICENSES/LicenseRef-StadtDetmold-Permission.txt`](LICENSES/LicenseRef-StadtDetmold-Permission.txt),
+  details in `seed/assets/ATTRIBUTION.md`); replace them for your own instance;
+- [CC-BY-4.0](LICENSES/CC-BY-4.0.txt) for the files that `REUSE.toml` marks as such.
+
+Versions are tagged (`v1.0.0`, `v1.1.0`, …) and described in [`CHANGELOG.md`](CHANGELOG.md).
+Security reports: [`SECURITY.md`](SECURITY.md).
