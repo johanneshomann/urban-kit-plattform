@@ -100,7 +100,7 @@ and their collections: [docs/modules.md](docs/modules.md).
 - Roles, memberships, visibility, auth → [docs/access-control.md](docs/access-control.md)
 - Project modules / their collections → [docs/modules.md](docs/modules.md)
 - UI copy / message catalogs → [docs/i18n.md](docs/i18n.md)
-- Env vars / Docker / domains → [docs/env-reference.md](docs/env-reference.md), [docs/deployment.md](docs/deployment.md)
+- Env vars / Docker / domains → [docs/env-reference.md](docs/env-reference.md), [docs/operations.md](docs/operations.md)
 
 ---
 
@@ -243,7 +243,7 @@ Which doc to touch when:
 - New/removed module, collection, or field with access implications →
   [docs/modules.md](docs/modules.md), [docs/access-control.md](docs/access-control.md)
 - Roles, visibility tiers, guards, auth/cookie flow → [docs/access-control.md](docs/access-control.md)
-- Env vars, Docker services, domains → [docs/env-reference.md](docs/env-reference.md), [docs/deployment.md](docs/deployment.md)
+- Env vars, Docker services, domains → [docs/env-reference.md](docs/env-reference.md), [docs/operations.md](docs/operations.md)
 - Stack, routing, realtime, theming decisions → [docs/architecture.md](docs/architecture.md)
 - New locale/namespace conventions → [docs/i18n.md](docs/i18n.md)
 - New commands, conventions, recurring gotchas → this file (and keep
@@ -278,6 +278,6 @@ Guiding principles:
 - **Public portal** → `src/app/[locale]/(public)/` + `src/components/public/`.
 - **I18n/UI copy** → `messages/de.json` + `messages/en.json` (keep key-identical).
 - **Deploy / env / Docker** → `docker-compose.yml`, `Dockerfile`, `start.sh`,
-  `hocuspocus/` — see [docs/deployment.md](docs/deployment.md).
+  `hocuspocus/` — see [docs/operations.md](docs/operations.md).
 - **Realtime board / chat** → `hocuspocus/server.js`, `src/app/api/internal/`,
   `src/app/api/chat/`, `src/components/platform/board/`.

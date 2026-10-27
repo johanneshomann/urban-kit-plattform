@@ -231,4 +231,4 @@ npm run generate:types   # after any collection/field change
 ```
 
 Deployment is Docker Compose (`web` + `hocuspocus` + `mongo`) — see
-[deployment.md](./deployment.md).
+[operations.md](./operations.md).
