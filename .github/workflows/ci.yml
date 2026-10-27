@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 Johannes Homann
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Same checks as .gitlab-ci.yml for the GitHub source repository:
+# type check + REUSE licence lint. No automated tests yet (docs/development.md).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports: ['27017:27017']
+    env:
+      DATABASE_URI: mongodb://127.0.0.1:27017/urban_kit_ci
+      PAYLOAD_SECRET: ci-only-secret-not-used-in-production
+      HOCUSPOCUS_SECRET: ci-only-secret
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      NEXT_PUBLIC_HOCUSPOCUS_URL: ws://localhost:1234
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run generate:types
+      - run: npx tsc --noEmit
+
+  reuse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v5

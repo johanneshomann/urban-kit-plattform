@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 Johannes Homann
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Minimal pipeline for the Open CoDE mirror: type check + REUSE licence lint.
+# There are no automated tests yet (see docs/development.md).
+
+stages: [check]
+
+typecheck:
+  stage: check
+  image: node:22
+  services:
+    - name: mongo:7
+      alias: mongo
+  variables:
+    DATABASE_URI: mongodb://mongo:27017/urban_kit_ci
+    PAYLOAD_SECRET: ci-only-secret-not-used-in-production
+    HOCUSPOCUS_SECRET: ci-only-secret
+    NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+    NEXT_PUBLIC_HOCUSPOCUS_URL: ws://localhost:1234
+  cache:
+    key: npm-$CI_COMMIT_REF_SLUG
+    paths: [.npm/]
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run generate:types
+    - npx tsc --noEmit
+
+reuse:
+  stage: check
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  script:
+    - reuse lint

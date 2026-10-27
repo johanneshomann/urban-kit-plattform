@@ -77,6 +77,7 @@ path = [
   "seed/assets/avatare/**",
   "seed/assets/dateien/**",
   ".github/workflows/**",
+  ".gitlab-ci.yml",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Johannes Homann"
