@@ -33,6 +33,14 @@ Payload CMS 3 embedded.
   ("chameleon" design tokens) from the admin.
 - 🌍 **Bilingual UI** via `next-intl` (`de` default, `en` fallback).
 
+## Usage
+
+How the platform is used day to day — roles, the public portal, project
+workspaces and their modules, the manage area and typical workflows (setting up
+a project, inviting people, running a poll) — is described in
+**[`docs/usage.md`](docs/usage.md)**. To run your own instance, see
+[`docs/operations.md`](docs/operations.md).
+
 ## Tech stack
 
 | Layer | Tech |
