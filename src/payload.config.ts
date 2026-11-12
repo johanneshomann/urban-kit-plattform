@@ -22,6 +22,7 @@ import { LegalSettings } from './globals/LegalSettings'
 import { UrbanAgentSettings } from './globals/UrbanAgentSettings'
 import { Grundlagen } from './globals/Grundlagen'
 import { moduleRegistry } from './modules/registry'
+import { adminNavGroups } from './lib/admin-nav-groups'
 import './modules/index' // registers all module plugins
 
 const filename = fileURLToPath(import.meta.url)
@@ -32,6 +33,22 @@ export default buildConfig({
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
+    },
+    meta: { titleSuffix: ' – UrbanKIT Admin' },
+    // Branding, the documentation view and the sidebar extras. Styling lives
+    // in src/app/custom-admin.css (Payload theme variables only).
+    components: {
+      graphics: {
+        Logo: '@/components/payload/admin/Brand#BrandLogo',
+        Icon: '@/components/payload/admin/Brand#BrandIcon',
+      },
+      afterNavLinks: ['@/components/payload/admin/NavExtras#NavExtras'],
+      views: {
+        documentation: {
+          Component: '@/components/payload/admin/views/Documentation#Documentation',
+          path: '/dokumentation',
+        },
+      },
     },
   },
   // Admin UI language: German-first, English available. Pins the admin panel
@@ -70,7 +87,8 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI ?? '',
   }),
-  plugins: moduleRegistry.plugins(),
+  // adminNavGroups runs LAST so it sees the module collections the plugins add.
+  plugins: [...moduleRegistry.plugins(), adminNavGroups],
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
   // The app answers on TWO domains (public site + app.<domain>), but Payload's
   // CSRF allowlist defaults to serverURL only — cookie-authenticated API

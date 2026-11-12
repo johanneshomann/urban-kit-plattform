@@ -37,3 +37,173 @@
     transition: none;
   }
 }
+/* ── Typography: the platform's accessible typeface in the admin too ────── */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/atkinson-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/atkinson-700.woff2') format('woff2');
+}
+:root,
+body {
+  --font-body: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+body {
+  font-family: var(--font-body);
+}
+
+/* ── Brand lockup (login screen) and nav mark ───────────────────────────── */
+.uk-admin-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.uk-admin-brand__logo {
+  max-height: 64px;
+  max-width: 220px;
+  object-fit: contain;
+}
+.uk-admin-brand__wordmark {
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--theme-elevation-1000);
+}
+.uk-admin-brand__wordmark strong {
+  font-weight: 700;
+  color: var(--theme-elevation-600);
+}
+.uk-admin-brand__city {
+  color: var(--theme-elevation-500);
+}
+.uk-admin-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--theme-elevation-900);
+  color: var(--theme-elevation-0);
+}
+
+/* ── Sidebar: calmer groups, clear sections ─────────────────────────────── */
+.nav-group__toggle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-500);
+}
+.nav-group + .nav-group {
+  border-top: 1px solid var(--theme-elevation-100);
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+}
+.nav__link {
+  border-radius: var(--style-radius-s, 4px);
+}
+.uk-bottom-nav {
+  border-top: 1px solid var(--theme-elevation-100);
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+}
+
+/* ── Dashboard cards and form surfaces: softer corners ──────────────────── */
+.dashboard__card-list .card,
+.card {
+  border-radius: var(--style-radius-m, 6px);
+}
+
+/* ── Documentation view (/admin/dokumentation) ──────────────────────────── */
+.uk-doc {
+  padding-block: calc(var(--base) * 1.5);
+}
+.uk-doc h1 {
+  margin: 0 0 0.4rem;
+}
+.uk-doc__lead {
+  color: var(--theme-elevation-600);
+  margin: 0 0 var(--base);
+  max-width: 70ch;
+}
+.uk-doc__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--theme-elevation-150);
+  margin-bottom: var(--base);
+}
+.uk-doc__tab {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  color: var(--theme-elevation-500);
+}
+.uk-doc__tab:hover {
+  color: var(--theme-elevation-800);
+}
+.uk-doc__tab--active {
+  font-weight: 700;
+  color: var(--theme-elevation-1000);
+  border-bottom-color: var(--theme-elevation-1000);
+}
+.uk-doc__tab:focus-visible {
+  outline: 2px solid var(--theme-elevation-500);
+  outline-offset: 2px;
+}
+.uk-doc__panel {
+  max-width: 72ch;
+  display: grid;
+  gap: var(--base);
+}
+.uk-doc__intro {
+  color: var(--theme-elevation-650);
+  margin: 0;
+}
+.uk-doc__card {
+  background: var(--theme-elevation-50);
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: var(--style-radius-m, 6px);
+  padding: calc(var(--base) * 1.1);
+}
+.uk-doc__card h3 {
+  margin: 0 0 calc(var(--base) / 2);
+  color: var(--theme-elevation-800);
+}
+.uk-doc__card p,
+.uk-doc__card li {
+  color: var(--theme-elevation-700);
+  line-height: 1.6;
+  margin: 0;
+}
+.uk-doc__card ol {
+  margin: 0;
+  padding-left: 1.3rem;
+  display: grid;
+  gap: 0.4rem;
+}
+.uk-doc__note {
+  margin-top: calc(var(--base) / 2) !important;
+  padding: 0.7rem 0.85rem;
+  background: var(--theme-elevation-0);
+  border-left: 3px solid var(--theme-elevation-400);
+  border-radius: var(--style-radius-s, 4px);
+}

@@ -26,6 +26,10 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { SchemeRowLabel as SchemeRowLabel_4c94c2e0347629a82a50c4c9a52f81c2 } from '@/components/payload/SchemeRowLabel'
 import { ColorPicker as ColorPicker_78e2240968210678f3f3ce1fd6e57ff1 } from '@/components/payload/ColorPicker'
 import { ColorResetButton as ColorResetButton_0aac71a2583e5f9f8d3f4dc41956792c } from '@/components/payload/ColorResetButton'
+import { BrandIcon as BrandIcon_03911039d7a1d642dfffef62c76f94a5 } from '@/components/payload/admin/Brand'
+import { BrandLogo as BrandLogo_03911039d7a1d642dfffef62c76f94a5 } from '@/components/payload/admin/Brand'
+import { NavExtras as NavExtras_e110fb4fa00da32052d65c8bb72ce63a } from '@/components/payload/admin/NavExtras'
+import { Documentation as Documentation_bf79bfa5bb086f6e3dff6043d17d6a65 } from '@/components/payload/admin/views/Documentation'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -58,5 +62,9 @@ export const importMap = {
   "@/components/payload/SchemeRowLabel#SchemeRowLabel": SchemeRowLabel_4c94c2e0347629a82a50c4c9a52f81c2,
   "@/components/payload/ColorPicker#ColorPicker": ColorPicker_78e2240968210678f3f3ce1fd6e57ff1,
   "@/components/payload/ColorResetButton#ColorResetButton": ColorResetButton_0aac71a2583e5f9f8d3f4dc41956792c,
+  "@/components/payload/admin/Brand#BrandIcon": BrandIcon_03911039d7a1d642dfffef62c76f94a5,
+  "@/components/payload/admin/Brand#BrandLogo": BrandLogo_03911039d7a1d642dfffef62c76f94a5,
+  "@/components/payload/admin/NavExtras#NavExtras": NavExtras_e110fb4fa00da32052d65c8bb72ce63a,
+  "@/components/payload/admin/views/Documentation#Documentation": Documentation_bf79bfa5bb086f6e3dff6043d17d6a65,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
