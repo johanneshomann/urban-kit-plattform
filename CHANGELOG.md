@@ -10,6 +10,18 @@ All notable changes to UrbanKIT Plattform. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/). Each version is a Git tag.
 
+## [Unreleased]
+
+### Added
+- In-app help at `/dashboard/hilfe` (bilingual, role-aware: extra sections for
+  team leads and project leads), linked from the top bar and by a “?” in the
+  project breadcrumb bar that deep-links to the matching module or section.
+- Admin: operator documentation at `/admin/dokumentation` (German/English,
+  follows the admin language), grouped sidebar (projects, accounts, module
+  content, module details, chat, system, settings) with support groups
+  collapsed on first visit, brand lockup on the login screen, platform
+  typeface.
+
 ## [1.1.0] – 2026-10-27
 
 ### Added

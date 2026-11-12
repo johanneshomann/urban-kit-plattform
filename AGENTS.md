@@ -113,6 +113,13 @@ and their collections: [docs/modules.md](docs/modules.md).
    every server action and API route must do its own guard
    (`getProjectManagerContext`, `getViewerTier`, …). UI checks are not
    security.
+3a. **In-app help rides along** — a change to how a module, role or admin
+   setting works must update the workspace help (`help` namespace in both
+   catalogs, rendered by `dashboard/hilfe/page.tsx`) and, for operator-facing
+   settings, the admin guide
+   (`src/components/payload/admin/views/DocumentationContent.tsx`). Admin nav
+   grouping lives in one place: `src/lib/admin-nav-groups.ts` — add new
+   collections there, not via `admin.group`.
 3. **Both message catalogs** — `messages/de.json` and `messages/en.json` stay
    key-identical. Copy tone: formal Sie, minimal direct address. Project
    content itself stays German-only (see docs/i18n.md). No German string

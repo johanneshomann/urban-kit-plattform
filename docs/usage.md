@@ -177,7 +177,16 @@ The Payload admin is for operators and editors, not for citizens.
    Platform Settings.
 3. Visitors use the one-click logins; nothing they do is persisted.
 
-## 10. Prerequisites and tips
+## 10. Help inside the application
+
+- **Workspace**: the question mark in the top bar opens a short, role-aware
+  guide (`/dashboard/hilfe`); the “?” in a project's breadcrumb bar jumps to
+  the section for the current module or area.
+- **Admin**: “Dokumentation” at the bottom of the admin sidebar
+  (`/admin/dokumentation`) explains platform settings, legal texts, accounts,
+  projects and the Urban Agent for operators.
+
+## 11. Prerequisites and tips
 
 - A current browser; no installation. Mobile layouts exist for the portal and
   the workspace, the whiteboard works best on a desktop.
