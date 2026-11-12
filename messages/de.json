@@ -1846,5 +1846,101 @@
     "demoReadOnly": "Prototyp-Modus: Im Testzugang werden Änderungen nicht gespeichert.",
     "pollManageOwnOnly": "Nur eigene Umfragen können verwaltet werden.",
     "registrationDisabled": "Die Registrierung ist derzeit deaktiviert."
+  },
+  "help": {
+    "navHelp": "Hilfe",
+    "helpForPage": "Hilfe zu diesem Bereich",
+    "title": "Hilfe",
+    "intro": "So funktioniert UrbanKIT – kurz erklärt. Wählen Sie ein Thema oder lesen Sie von oben nach unten.",
+    "lead": {
+      "title": "Für Teamleitungen",
+      "body": "Als Teamleitung betreuen Sie ein Team innerhalb eines Projekts. Den Bereich „Team“ finden Sie in der Projekt-Seitenleiste.",
+      "steps": [
+        "Mitglieder des Projekts in Ihr Team aufnehmen oder daraus entfernen.",
+        "Termine, Umfragen und Dateien nur für Ihr Team anlegen (Schnellaktionen auf der Teamseite).",
+        "News und Forenthemen für Ihr Team veröffentlichen; bearbeiten können Sie Ihre Inhalte direkt im jeweiligen Modul."
+      ]
+    },
+    "toc": "Themen",
+    "back": "Zum Dashboard",
+    "roleNote": "Dieser Abschnitt ist für Ihre Rolle sichtbar.",
+    "start": {
+      "title": "Was ist UrbanKIT?",
+      "body": "UrbanKIT ist die Beteiligungsplattform Ihrer Stadt. Sie besteht aus zwei Teilen: Das öffentliche Portal zeigt allen, welche Projekte es gibt und was dort passiert. Der Arbeitsbereich, in dem Sie gerade sind, ist für angemeldete Personen: Hier arbeiten Sie in Projekten mit.",
+      "steps": [
+        "Auf dem Dashboard sehen Sie Ihre Projekte, Projekte zum Mitmachen und was zuletzt passiert ist.",
+        "Ein Klick auf ein Projekt öffnet dessen Arbeitsbereich mit den Modulen in der Seitenleiste.",
+        "Über die Leiste oben erreichen Sie Suche, Portal, Sprache, Barrierefreiheit, diese Hilfe, Ihr Profil und die Abmeldung."
+      ]
+    },
+    "join": {
+      "title": "Einem Projekt beitreten",
+      "body": "In einem Projekt mitarbeiten können Sie, sobald Sie Mitglied sind. Dafür gibt es zwei Wege.",
+      "steps": [
+        "Offene Projekte: Auf der Projektseite „Mitmachen“ wählen und die Anfrage senden. Die Projektleitung bestätigt sie.",
+        "Mit Einladung: Den Einladungscode der Projektleitung auf der Startseite des Portals einlösen.",
+        "Nach der Aufnahme erscheint das Projekt unter „Meine Projekte“ auf dem Dashboard."
+      ]
+    },
+    "work": {
+      "title": "In einem Projekt arbeiten",
+      "body": "Jedes Projekt hat eigene Module. Die Projektleitung entscheidet, welche aktiv sind. Das bietet jedes Modul:",
+      "modules": {
+        "news": "Neuigkeiten aus dem Projekt lesen und kommentieren.",
+        "calendar": "Termine ansehen, die Teilnahme zusagen und in den eigenen Kalender übernehmen.",
+        "polls": "An Umfragen teilnehmen und Ergebnisse ansehen.",
+        "forum": "Themen diskutieren, für Themen stimmen und antworten.",
+        "tasks": "Aufgaben des Projektteams auf einem Board: offen, in Arbeit, erledigt.",
+        "board": "Gemeinsames Whiteboard zum Skizzieren und Sammeln von Ideen in Echtzeit.",
+        "files": "Dokumente und Bilder des Projekts ansehen und herunterladen.",
+        "urban-agent": "KI-Assistent, der Fragen zu den Projektinhalten beantwortet – sofern von der Stadt aktiviert."
+      }
+    },
+    "visibility": {
+      "title": "Wer sieht was?",
+      "body": "Jeder Inhalt hat eine von drei Sichtbarkeiten. Ein kleines Etikett am Inhalt zeigt sie an.",
+      "steps": [
+        "Öffentlich: für alle sichtbar, auch ohne Anmeldung im Portal.",
+        "Alle im Projekt: nur für Mitglieder des Projekts.",
+        "Team: nur für die genannten Teams innerhalb des Projekts."
+      ]
+    },
+    "tools": {
+      "title": "Merkliste, Chat und Suche",
+      "body": "Drei Werkzeuge begleiten Sie überall im Arbeitsbereich.",
+      "steps": [
+        "Merkliste: Über das Lesezeichen an einem Inhalt merken Sie ihn sich; die Liste finden Sie in der Projekt-Seitenleiste.",
+        "Chat: Über das Chat-Symbol unten rechts schreiben Sie einzelnen Personen, in Projekträumen oder eigenen Gruppen.",
+        "Suche: Die Lupe durchsucht das aktuelle Projekt oder alle Ihre Projekte.",
+        "Das Menü mit den drei Punkten an jedem Inhalt bietet: Link kopieren, im Chat teilen und melden."
+      ]
+    },
+    "profile": {
+      "title": "Profil und eigene Daten",
+      "body": "Im Profil pflegen Sie freiwillige Angaben und entscheiden, ob andere Mitglieder Ihr Profil sehen und Sie in der Personensuche finden.",
+      "steps": [
+        "Profil öffnen: Personen-Symbol in der Leiste oben.",
+        "Daten exportieren: Im Profil laden Sie Ihre Daten als Datei herunter.",
+        "Konto löschen: Ebenfalls im Profil. Projektleitungen übergeben vorher die Leitung."
+      ]
+    },
+    "manage": {
+      "title": "Für Projektleitungen",
+      "body": "Als Projektleitung steuern Sie das Projekt über „Verwalten“ in der Projekt-Seitenleiste.",
+      "steps": [
+        "Allgemein: Titel, Beschreibung, Phase, Kontakt und Bilder pflegen.",
+        "Module: festlegen, welche Module das Projekt nutzt. Abgeschaltete Module verschwinden für alle.",
+        "Teams: Teams anlegen und umbenennen; unter Mitglieder Teams zuweisen und Teamleitungen bestimmen.",
+        "Mitglieder und Anfragen: Beitrittsanfragen annehmen, Einladungscodes erzeugen, Rollen vergeben.",
+        "Inhalte: News, Termine, Umfragen, Forum und Dateien je Modul pflegen – mit Sichtbarkeit je Inhalt.",
+        "Einstellungen: Projekt öffentlich zeigen, Beitrittsanfragen erlauben oder das Projekt löschen."
+      ]
+    },
+    "more": {
+      "title": "Noch Fragen?",
+      "body": "Die Schritt-für-Schritt-Einführung im Portal und die Kontaktseite helfen weiter.",
+      "linkStart": "Einführung „Starten“ im Portal",
+      "linkContact": "Kontakt"
+    }
   }
 }

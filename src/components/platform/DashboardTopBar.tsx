@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import { User, Globe, HandHeart, LayoutDashboard, LogOut, Search } from 'lucide-react'
+import { User, Globe, HandHeart, LayoutDashboard, LogOut, Search, CircleHelp } from 'lucide-react'
 import { openWorkspaceSearch } from '@/components/platform/WorkspaceSearchPalette'
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu'
 import { IconTooltip } from '@/components/platform/IconTooltip'
@@ -29,6 +29,7 @@ const BLACK = 'var(--app-black)'
 export function DashboardTopBar({ userName }: { userName?: string | null }) {
   const t = useTranslations('platform')
   const tc = useTranslations('common')
+  const th = useTranslations('help')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -119,6 +120,14 @@ export function DashboardTopBar({ userName }: { userName?: string | null }) {
           <Link href={`/${locale}/dashboard`} className={barLink}>
             <LayoutDashboard aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
             <span className="sr-only">{t('navDashboard')}</span>
+          </Link>
+        </IconTooltip>
+
+        {/* Help — general usage of the platform, role-aware */}
+        <IconTooltip label={th('navHelp')}>
+          <Link href={`/${locale}/dashboard/hilfe`} className={barLink}>
+            <CircleHelp aria-hidden="true" className="w-[1em] h-[1em] shrink-0" />
+            <span className="sr-only">{th('navHelp')}</span>
           </Link>
         </IconTooltip>
 

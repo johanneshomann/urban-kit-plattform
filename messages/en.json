@@ -1846,5 +1846,101 @@
     "demoReadOnly": "Prototype mode: changes are not saved in the test account.",
     "pollManageOwnOnly": "You can only manage your own polls.",
     "registrationDisabled": "Registration is currently disabled."
+  },
+  "help": {
+    "navHelp": "Help",
+    "helpForPage": "Help for this area",
+    "title": "Help",
+    "intro": "How UrbanKIT works, in brief. Pick a topic or read from top to bottom.",
+    "lead": {
+      "title": "For team leads",
+      "body": "As a team lead you look after one team within a project. You find the “Team” area in the project sidebar.",
+      "steps": [
+        "Add project members to your team or remove them.",
+        "Create events, polls and files for your team only (quick actions on the team page).",
+        "Publish news and forum topics for your team; you edit your content directly in the respective module."
+      ]
+    },
+    "toc": "Topics",
+    "back": "To the dashboard",
+    "roleNote": "This section is shown because of your role.",
+    "start": {
+      "title": "What is UrbanKIT?",
+      "body": "UrbanKIT is your city’s participation platform. It has two parts: the public portal shows everyone which projects exist and what happens in them. The workspace you are in now is for signed-in people: this is where you take part in projects.",
+      "steps": [
+        "The dashboard shows your projects, projects you can join and recent activity.",
+        "Clicking a project opens its workspace with the modules in the sidebar.",
+        "The bar at the top gives you search, the portal, language, accessibility, this help, your profile and sign-out."
+      ]
+    },
+    "join": {
+      "title": "Joining a project",
+      "body": "You can take part in a project once you are a member. There are two ways.",
+      "steps": [
+        "Open projects: choose “Mitmachen” on the project page and send the request. The project lead confirms it.",
+        "By invitation: redeem the invitation code from the project lead on the portal’s start page.",
+        "Once accepted, the project appears under “My projects” on the dashboard."
+      ]
+    },
+    "work": {
+      "title": "Working in a project",
+      "body": "Every project has its own modules. The project lead decides which are active. This is what each module offers:",
+      "modules": {
+        "news": "Read and comment on news from the project.",
+        "calendar": "See events, confirm attendance and add them to your own calendar.",
+        "polls": "Take part in polls and view results.",
+        "forum": "Discuss topics, vote for topics and reply.",
+        "tasks": "The project team’s tasks on a board: open, in progress, done.",
+        "board": "Shared whiteboard for sketching and collecting ideas in real time.",
+        "files": "View and download the project’s documents and images.",
+        "urban-agent": "AI assistant that answers questions about the project content – if enabled by the city."
+      }
+    },
+    "visibility": {
+      "title": "Who sees what?",
+      "body": "Every item has one of three visibility levels. A small label on the item shows it.",
+      "steps": [
+        "Public: visible to everyone, also without signing in on the portal.",
+        "Everyone in the project: members of the project only.",
+        "Team: only the named teams within the project."
+      ]
+    },
+    "tools": {
+      "title": "Saved items, chat and search",
+      "body": "Three tools are with you everywhere in the workspace.",
+      "steps": [
+        "Saved items: the bookmark on an item saves it; the list is in the project sidebar.",
+        "Chat: the chat icon at the bottom right lets you write to individuals, in project rooms or your own groups.",
+        "Search: the magnifier searches the current project or all your projects.",
+        "The three-dot menu on every item offers: copy link, share in chat and report."
+      ]
+    },
+    "profile": {
+      "title": "Profile and your data",
+      "body": "In your profile you maintain optional details and decide whether other members see your profile and find you in people search.",
+      "steps": [
+        "Open the profile: person icon in the top bar.",
+        "Export data: download your data as a file from the profile.",
+        "Delete account: also in the profile. Project leads hand over the lead first."
+      ]
+    },
+    "manage": {
+      "title": "For project leads",
+      "body": "As a project lead you steer the project via “Manage” in the project sidebar.",
+      "steps": [
+        "General: maintain title, description, phase, contact and images.",
+        "Modules: decide which modules the project uses. Disabled modules disappear for everyone.",
+        "Teams: create and rename teams; under Members assign teams and appoint team leads.",
+        "Members and requests: accept join requests, generate invitation codes, assign roles.",
+        "Content: maintain news, events, polls, forum and files per module – with visibility per item.",
+        "Settings: show the project publicly, allow join requests or delete the project."
+      ]
+    },
+    "more": {
+      "title": "More questions?",
+      "body": "The step-by-step introduction on the portal and the contact page take you further.",
+      "linkStart": "Introduction “Starten” on the portal",
+      "linkContact": "Contact"
+    }
   }
 }

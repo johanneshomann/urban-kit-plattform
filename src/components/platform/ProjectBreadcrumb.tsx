@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { BreadcrumbLangSwitch } from '@/components/platform/BreadcrumbLangSwitch'
 import { WorkspaceSearchTrigger } from '@/components/platform/WorkspaceSearchPalette'
+import { BreadcrumbHelpLink } from '@/components/platform/BreadcrumbHelpLink'
 
 export interface Crumb {
   label: string
@@ -39,6 +40,7 @@ export function ProjectBreadcrumb({ items }: { items: Crumb[] }) {
     </nav>
     <div className="flex items-center gap-4 shrink-0">
       <WorkspaceSearchTrigger />
+      <BreadcrumbHelpLink />
       <BreadcrumbLangSwitch />
     </div>
     </div>
